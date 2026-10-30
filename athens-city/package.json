@@ -1,0 +1,9 @@
+{
+  "name": "athens-city",
+  "version": "2.0.0",
+  "private": true,
+  "description": "雅典 · 卫城 — 卫城像素主线：山门入园、卫城探索、抉择入夜、点火圣火。独立存档。",
+  "scripts": {
+    "start": "node serve.js"
+  }
+}
