@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>地图模板 · 城东小院 — 紫禁城 · 铁火</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .bench-tag{
+    position:absolute;right:1.7em;bottom:1.35em;
+    font-family:"Consolas",monospace;font-size:.62em;letter-spacing:.2em;
+    color:rgba(216,178,106,.45);pointer-events:none;white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="game" width="640" height="360" aria-label="地图模板"></canvas>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <!-- ============ HUD ============ -->
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="hud-place">
+          <span class="place-seal" id="loc-seal">家</span>
+          <div class="place-text">
+            <span id="loc-main">城东小院</span>
+            <small id="loc-sub">示例地图</small>
+          </div>
+        </div>
+        <div class="hud-objective">
+          <span class="obj-label">当前目标</span>
+          <div class="obj-copy">
+            <span class="obj-diamond">◆</span>
+            <span id="objective">在院子里走走</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-clock">
+          <span id="clock">16:20</span>
+          <small id="daylabel">示例 · 晴</small>
+        </div>
+      </div>
+
+      <div id="prompt" class="hidden">
+        <kbd>E</kbd><span id="prompt-text">互动</span>
+      </div>
+
+      <div id="controls">WASD 移动 · Shift 快走 · E 互动 · M 导览图 · N 昼夜</div>
+      <div id="toasts"></div>
+    </div>
+
+    <!-- ============ 对话框 ============ -->
+    <div id="dialog" class="hidden" role="dialog" aria-live="polite">
+      <div class="dlg-name"><span id="dlg-name">旅行手账</span></div>
+      <div class="dlg-body"><p id="dlg-text"></p></div>
+      <div class="dlg-next" id="dlg-next"><kbd>E</kbd> 继续</div>
+    </div>
+
+    <!-- ============ 过场字卡 ============ -->
+    <div id="cinema" class="hidden">
+      <div class="cine-rule"></div>
+      <div class="cine-line" id="cine-line"></div>
+      <div class="cine-sub" id="cine-sub"></div>
+      <div class="cine-rule"></div>
+    </div>
+
+    <div class="bench-tag">MAP TEMPLATE · js/map-template.js</div>
+  </div>
+</div>
+<div id="fade"></div>
+
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script src="js/world.js"></script>
+<script src="js/map-template.js"></script>
+<script>
+/* ============================================================
+   地图模板预览台（独立于 main.js 的最小启动器）
+   直接双击打不开就：node serve.js 后访问 /map-bench.html
+   URL 参数（截图用）：?player=640,470 &night=1 &map=1 &nodlg=1
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const q = new URLSearchParams(location.search);
+
+  G.ready(function () {
+    const ctx = document.getElementById('game').getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    G.input.init();
+    G.ui.init();
+    G.dialog.init();
+    G.cinema.init();
+    G.fade.init();
+    G.initTouch();
+    G.save.load();
+    G.titleActive = false;
+
+    if (q.has('nodlg')) G.save.data.flags.tplIntro = true;
+
+    const scene = new G.TemplateScene();
+    G.setScene(scene);
+
+    if (q.get('player')) {
+      const p = q.get('player').split(',').map(Number);
+      if (p.length === 2 && !isNaN(p[0]) && !isNaN(p[1])) scene.setPlayer(p[0], p[1]);
+    }
+    if (q.has('night')) scene.night = true;
+    if (q.has('map')) scene.toggleMap(true);
+
+    let last = performance.now();
+    function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      if (G.scene) {
+        if (G.scene.update) G.scene.update(dt);
+        if (G.scene.draw) G.scene.draw(ctx);
+      }
+      G.input.endFrame();
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+})();
+</script>
+</body>
+</html>

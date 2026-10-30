@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: JS 语法检查
+        run: |
+          set -e
+          for f in $(find . -name '*.js' -not -path './node_modules/*'); do
+            echo "check: $f"
+            node --check "$f"
+          done
+
+      - name: 静态服务器冒烟测试
+        run: |
+          node serve.js &
+          SERVER_PID=$!
+          sleep 1
+          curl -fsS http://127.0.0.1:8123/ >/dev/null
+          curl -fsS http://127.0.0.1:8123/js/art.js >/dev/null
+          curl -fsS http://127.0.0.1:8123/map-bench.html >/dev/null
+          curl -fsS http://127.0.0.1:8123/style-sheet.html >/dev/null
+          kill $SERVER_PID

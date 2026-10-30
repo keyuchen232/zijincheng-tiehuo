@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>紫禁城 · 铁火 — 美术风格样张</title>
+<style>
+  html,body{margin:0;padding:0;background:#0a0807;overflow:hidden}
+  #sheet{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+</style>
+</head>
+<body>
+<canvas id="sheet"></canvas>
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script>
+/* ============================================================
+   紫禁城 · 铁火 — 美术风格样张 (poster)
+   用游戏自己的 art.js 绘制，保证样张与实机完全同源。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const A = G.art;
+  const P = A.pal;
+
+  const CW = 1240, CH = 2240, M = 60, R = CW - 60;
+  const KAI = '"KaiTi","STKaiti","FangSong",serif';
+  const SANS = '"Microsoft YaHei","PingFang SC",sans-serif';
+  const MONO = 'Consolas,"SFMono-Regular",monospace';
+
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const cv = document.getElementById('sheet');
+  cv.width = CW * dpr;
+  cv.height = CH * dpr;
+  cv.style.width = CW + 'px';
+  cv.style.height = CH + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.imageSmoothingEnabled = false;
+
+  /* ---------- helpers ---------- */
+  function txt(s, x, y, o) {
+    o = o || {};
+    G.text(ctx, s, x, y, {
+      size: o.size || 10, color: o.color || '#cdbb9d', font: o.font || SANS,
+      align: o.align || 'left', weight: o.weight || '', alpha: o.alpha,
+      baseline: o.baseline || 'alphabetic',
+    });
+  }
+  function measure(s, size, font, weight) {
+    ctx.save();
+    ctx.font = (weight || '') + ' ' + size + 'px ' + (font || SANS);
+    const w = ctx.measureText(s).width;
+    ctx.restore();
+    return w;
+  }
+  function hr(x1, y, x2, color, w) {
+    ctx.save();
+    ctx.strokeStyle = color || 'rgba(216,178,106,.2)';
+    ctx.lineWidth = w || 1;
+    ctx.beginPath();
+    ctx.moveTo(x1, y + 0.5);
+    ctx.lineTo(x2, y + 0.5);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function section(y, cn, en, note) {
+    hr(M, y - 17, R, 'rgba(216,178,106,.22)');
+    txt(cn, M, y, { size: 15, color: '#e8d0a0', weight: 'bold', font: KAI });
+    const w = measure(cn, 15, KAI, 'bold');
+    txt(en, M + w + 14, y, { size: 8, color: '#7d6a4d', font: MONO });
+    if (note) txt(note, R, y, { size: 8, color: '#8d7c63', align: 'right' });
+  }
+  function groundLine(y) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(216,178,106,.10)';
+    ctx.fillRect(M, y, R - M, 1);
+    ctx.restore();
+  }
+  // draw at an arbitrary zoom around a baseline anchor
+  function zoom(x, baseY, s, fn) {
+    ctx.save();
+    ctx.translate(x, baseY);
+    ctx.scale(s, s);
+    ctx.translate(-x, -baseY);
+    fn();
+    ctx.restore();
+  }
+
+  /* ---------- paper ---------- */
+  ctx.fillStyle = '#100c0a';
+  ctx.fillRect(0, 0, CW, CH);
+  let vg = ctx.createRadialGradient(CW * 0.5, 240, 40, CW * 0.5, CH * 0.55, CH * 0.85);
+  vg.addColorStop(0, 'rgba(72,48,26,.28)');
+  vg.addColorStop(0.45, 'rgba(30,20,13,.16)');
+  vg.addColorStop(1, 'rgba(4,3,2,.55)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, CW, CH);
+  for (let y = 0; y < CH; y += 3) {
+    for (let x = 0; x < CW; x += 3) {
+      if (G.hash(x, y, 9) > 0.86) {
+        ctx.fillStyle = G.hash(x, y, 11) > 0.5 ? 'rgba(255,236,200,.028)' : 'rgba(0,0,0,.12)';
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  ctx.strokeStyle = 'rgba(216,178,106,.16)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(24.5, 24.5, CW - 49, CH - 49);
+
+  /* ============================================================
+     header
+     ============================================================ */
+  const eyebrow = '北京 · 中轴线 · 一条像素旅行';
+  hr(M, 96, M + 46, 'rgba(216,178,106,.55)');
+  txt(eyebrow, M + 58, 100, { size: 9, color: '#b6a385', font: KAI });
+  hr(M + 58 + measure(eyebrow, 9, KAI) + 12, 96, M + 58 + 330, 'rgba(216,178,106,.55)');
+
+  G.text(ctx, '紫禁城', M, 168, { size: 52, color: '#f2dca8', font: KAI, weight: 'bold' });
+  G.text(ctx, '·', M + 168, 168, { size: 52, color: '#9b3828', font: KAI });
+  G.text(ctx, '铁火', M + 200, 168, { size: 52, color: '#f2dca8', font: KAI, weight: 'bold' });
+  txt('美术风格样张', R - 84, 132, { size: 11, color: '#d8b26a', align: 'right', font: KAI });
+  txt('ART DIRECTION SHEET / v1.0 / 640×360', R - 84, 150, { size: 7.5, color: '#7d6a4d', align: 'right', font: MONO });
+
+  ctx.save();
+  ctx.translate(R - 62, 78);
+  ctx.fillStyle = 'rgba(155,56,40,.9)';
+  ctx.fillRect(0, 0, 62, 62);
+  ctx.strokeStyle = 'rgba(240,200,140,.55)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(3.5, 3.5, 55, 55);
+  G.text(ctx, '宫', 31, 44, { size: 34, color: '#ffe9c0', align: 'center', font: KAI, weight: 'bold' });
+  ctx.restore();
+
+  txt('红墙金瓦 · 金色时刻 · 明制衣冠 · 羊皮纸手账', M, 198, { size: 11, color: '#a5927a' });
+
+  const chips = [
+    ['画布', '640 × 360 · 16:9'],
+    ['角色', '9 × 19 px'],
+    ['描边', '1 px #17110e'],
+    ['光源', '右上暖光 · 影落左下'],
+    ['字色', '米白 #f1e5cf'],
+  ];
+  let cxp = M;
+  chips.forEach(function (c) {
+    const w = 114;
+    ctx.fillStyle = 'rgba(30,22,16,.72)';
+    ctx.fillRect(cxp, 212, w, 26);
+    ctx.strokeStyle = 'rgba(216,178,106,.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cxp + 0.5, 212.5, w - 1, 25);
+    txt(c[0], cxp + 8, 229, { size: 7, color: '#8d7a5c' });
+    txt(c[1], cxp + 8 + measure(c[0], 7, SANS) + 7, 229, { size: 7.5, color: '#e2c88f' });
+    cxp += w + 9;
+  });
+
+  /* ============================================================
+     1. palette
+     ============================================================ */
+  section(276, '调色板', 'PALETTE', '一种材质三色：底色 / 暗部 / 亮部；暗部统一压向墨褐，亮部统一提向米金');
+
+  const GROUPS = [
+    { name: '宫墙 · 朱红', note: '墙体、廊柱、宫门、灯笼', cols: [
+      ['wall', '#9a3a2b'], ['wallDark', '#6b241b'], ['wallLight', '#b94b36'], ['red', '#a33c2b'], ['redHi', '#c8573c'], ['redDark', '#70261c']] },
+    { name: '琉璃 · 金瓦', note: '屋顶三色 + 檐口 + 正脊', cols: [
+      ['roofA', '#cf8f38'], ['roofB', '#b5742a'], ['roofC', '#e3ac4e'], ['roofEdge', '#6e3d1d'], ['roofRidge', '#5b3218'], ['roofGold', '#f0cd84']] },
+    { name: '鎏金 · 装饰', note: '斗拱、门钉、匾额、栏杆', cols: [
+      ['gold', '#d8b26a'], ['goldHi', '#f4dda0'], ['goldDark', '#8f682f']] },
+    { name: '汉白玉 · 石', note: '台基、栏板、桥、御道', cols: [
+      ['marble', '#ddd6c1'], ['marbleDark', '#b2a991'], ['stone', '#cfc5aa'], ['stoneMid', '#b3a88d'], ['stoneDark', '#8d8168']] },
+    { name: '木 · 土', note: '梁柱、陈设、木地板', cols: [
+      ['wood', '#5a3822'], ['woodDark', '#392315'], ['woodLight', '#8a5a34']] },
+    { name: '青绿 · 水', note: '彩画、湖水、河水、柳色', cols: [
+      ['teal', '#3f9188'], ['tealDark', '#245f5a'], ['tealHi', '#6fc4b6'], ['water', '#2f6b6d'], ['waterDark', '#1e4a50'], ['waterLight', '#5b9b96']] },
+    { name: '草木 · 秋', note: '树冠、草地、银杏点彩', cols: [
+      ['grass', '#5f7447'], ['grassDark', '#455733'], ['grassLight', '#7d9258'], ['autumnA', '#a8642c'], ['autumnB', '#c47a31'], ['autumnC', '#8c4d22']] },
+    { name: '墨 · 夜 · 灰', note: '描边、夜色、现代建筑', cols: [
+      ['ink', '#17110e'], ['night', '#0b1026'], ['black', '#1a1614'], ['gray', '#7a7368'], ['grayLight', '#a39a8b'], ['white', '#efe9d8']] },
+  ];
+
+  GROUPS.forEach(function (g, gi) {
+    const col = gi % 2, row = (gi / 2) | 0;
+    const cx = M + col * 580;
+    const cy = 318 + row * 116;
+    txt(g.name, cx, cy, { size: 11, color: '#e6cd97', weight: 'bold' });
+    txt(g.note, cx, cy + 14, { size: 7, color: '#86745a' });
+    g.cols.forEach(function (c, i) {
+      const x = cx + i * 78, y = cy + 26;
+      ctx.fillStyle = c[1];
+      ctx.fillRect(x, y, 72, 26);
+      ctx.strokeStyle = 'rgba(240,225,195,.18)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y + 0.5, 71, 25);
+      txt(c[1].toUpperCase(), x, y + 38, { size: 6.5, color: '#8d7c63', font: MONO });
+    });
+  });
+
+  /* ============================================================
+     2. architecture
+     ============================================================ */
+  section(878, '建筑语法', 'ARCHITECTURE', '屋身宽 = w；屋顶高 ≈ 0.11–0.15w；屋身高 ≈ 0.13–0.17w；台基厚 9px');
+  txt('屋顶 = 逐行收窄的横条（h 行，每行半宽按 1-0.62·t^0.78 收），檐口 #6e3d1d 压 2px，正脊 2px 墨褐 + 1px 金线。', M, 900, { size: 7.5, color: '#937f61' });
+  txt('斗拱 = 每 8px 一组 4×2px，青绿 #245f5a 与暗金 #8f682f 交替；屋身立柱 3px 宽，右侧留 1px 亮边 #c76045。', M, 915, { size: 7.5, color: '#937f61' });
+  txt('重檐 = 下层檐 + 上层屋身（w × 0.86）+ 上层檐；单檐只画一层，多用于配殿、门房、值房。', M, 930, { size: 7.5, color: '#937f61' });
+
+  groundLine(1060);
+  A.drawHall(ctx, 170, 1060, 110, { wallH: 24, roofH: 22 });
+  A.drawHall(ctx, 470, 1060, 196, { wallH: 32, roofH: 28, double: true, platformPad: 38, stairW: 40 });
+  A.drawHall(ctx, 900, 1060, 300, { wallH: 40, roofH: 34, double: true, bays: 7, platformPad: 56, stairW: 52 });
+
+  [['小殿 / 门房', 'w 110 · wallH 24 · roofH 22 · 单檐', 170],
+   ['配殿', 'w 196 · wallH 32 · roofH 28 · 重檐', 470],
+   ['正殿', 'w 300 · wallH 40 · roofH 34 · 7 开间', 900]].forEach(function (r) {
+    txt(r[0], r[2], 1082, { size: 9.5, color: '#e0c894', align: 'center', weight: 'bold' });
+    txt(r[1], r[2], 1098, { size: 7, color: '#86745a', align: 'center', font: MONO });
+  });
+
+  // row B
+  groundLine(1250);
+  A.drawGate(ctx, 220, 1250, 210, { wallH: 44, roofH: 25, double: true, arches: 5, name: '天安门', portrait: true });
+  A.wallH(ctx, 400, 900, 1250, 26);
+  A.lion(ctx, 350, 1262, true);
+  A.lantern(ctx, 470, 1250, { h: 30 });
+  A.lantern(ctx, 830, 1250, { h: 30 });
+
+  txt('城门', 220, 1272, { size: 9.5, color: '#e0c894', align: 'center', weight: 'bold' });
+  txt('w 210 · wallH 44 · roofH 25 · 5 券门 · 双檐城楼', 220, 1288, { size: 7, color: '#86745a', align: 'center', font: MONO });
+  txt('院墙 / 宫墙', 650, 1272, { size: 9.5, color: '#e0c894', align: 'center', weight: 'bold' });
+  txt('h 26 · 垛口 6×5px 间距 10 · 顶部 1px 金线 · 底部 2px 暗压', 650, 1288, { size: 7, color: '#86745a', align: 'center', font: MONO });
+  txt('A.wallH(x1, x2, baseY, h)', 1020, 1272, { size: 7.5, color: '#86745a', align: 'center', font: MONO });
+  txt('A.wallV(x, y1, y2, w)', 1020, 1288, { size: 7.5, color: '#86745a', align: 'center', font: MONO });
+
+  /* ============================================================
+     3. ground materials
+     ============================================================ */
+  section(1348, '地面材质', 'GROUND', '地面整块预渲染到离屏 canvas，逐帧只贴一张图');
+
+  const grounds = [
+    ['御道石板', function (c) { A.paving(c, 0, 0, 150, 74, '#cdbf9f', '#bfb090', 7, 18); }],
+    ['宫殿大石板', function (c) { A.paving(c, 0, 0, 150, 74, '#bdaf91', '#af9f80', 4, 22); }],
+    ['胡同砖地', function (c) { A.paving(c, 0, 0, 150, 74, '#77695a', '#66584a', 8, 16); }],
+    ['草地 / 花园', function (c) { A.paving(c, 0, 0, 150, 74, '#71805a', '#63724f', 5, 22); }],
+    ['水面', function (c) { A.water(c, 0, 0, 150, 74, 0, 3); }],
+    ['木地板', function (c) {
+      for (let y = 0; y < 74; y += 15) {
+        c.fillStyle = ((y / 15) | 0) % 2 ? '#5c3d28' : '#553824';
+        c.fillRect(0, y, 150, 15);
+        c.fillStyle = 'rgba(30,18,11,.22)';
+        c.fillRect(0, y, 150, 1);
+        c.fillStyle = 'rgba(238,199,141,.05)';
+        c.fillRect(0, y + 1, 150, 1);
+      }
+    }],
+  ];
+  grounds.forEach(function (g, i) {
+    const x = M + i * 180, y = 1370;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, 150, 74);
+    ctx.clip();
+    ctx.translate(x, y);
+    g[1](ctx);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(0,0,0,.55)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 0.5, y + 0.5, 149, 73);
+    txt(g[0], x, y + 90, { size: 9, color: '#d8c6a8', align: 'center' });
+  });
+
+  /* ============================================================
+     4. actors & props
+     ============================================================ */
+  section(1500, '角色与道具', 'ACTORS & PROPS', '立地物件一律以 baseY 对齐、排序与碰撞');
+
+  A.paving(ctx, M, 1518, 940, 62, '#b7aa8e', '#a89b7e', 21, 12);
+
+  const cast = [
+    ['旅人', 'player'], ['游客', 'tourist'], ['执勤', 'guard'], ['匠人 老赵', 'zhao'], ['摊主', 'vendor'],
+  ];
+  cast.forEach(function (c, i) {
+    const x = 130 + i * 124;
+    zoom(x, 1572, 2.9, function () {
+      A.drawActor(ctx, x, 1572, { dir: 'down', palette: A.actorPalettes[c[1]], scale: 1, time: 0 });
+    });
+    txt(c[0], x, 1596, { size: 8.5, color: '#e0c894', align: 'center' });
+  });
+  zoom(780, 1572, 2.9, function () {
+    A.drawActor(ctx, 780, 1572, { dir: 'right', palette: A.actorPalettes.player, scale: 1, time: 0.2, moving: true, frame: 1 });
+  });
+  zoom(890, 1572, 2.9, function () {
+    A.drawActor(ctx, 890, 1572, { dir: 'up', palette: A.actorPalettes.tourist, scale: 1, time: 0.5 });
+  });
+  txt('侧走', 780, 1596, { size: 8.5, color: '#e0c894', align: 'center' });
+  txt('背影', 890, 1596, { size: 8.5, color: '#e0c894', align: 'center' });
+
+  txt('9 × 19 px · 上图 2.9× 放大', 1030, 1540, { size: 8, color: '#c9b28a', font: MONO });
+  txt('palette: robe / robeDark / robeLight', 1030, 1558, { size: 7, color: '#86745a', font: MONO });
+  txt('trim / hat / scarf / bag', 1030, 1572, { size: 7, color: '#86745a', font: MONO });
+  txt('游戏内缩放 1.15 – 1.28', 1030, 1586, { size: 7, color: '#86745a', font: MONO });
+
+  hr(M, 1626, R, 'rgba(216,178,106,.1)');
+  const propsY = 1722;
+  const props = [
+    ['树 · 秋', 100, function (x, y) { A.tree(ctx, x, y, 1.15, { autumn: true }); }],
+    ['松', 215, function (x, y) { A.pine(ctx, x, y, 1.1); }],
+    ['宫灯', 310, function (x, y) { A.lantern(ctx, x, y, { h: 34 }); }],
+    ['石狮', 400, function (x, y) { A.lion(ctx, x, y, false); }],
+    ['水缸', 485, function (x, y) { A.vat(ctx, x, y, { water: true }); }],
+    ['石凳', 565, function (x, y) { A.bench(ctx, x, y); }],
+    ['导览牌', 660, function (x, y) { A.sign(ctx, x, y, '导览', { w: 46 }); }],
+    ['假山', 780, function (x, y) { A.rock(ctx, x, y, 1.1); }],
+    ['宫猫', 875, function (x, y) { A.cat(ctx, x, y, 0.4, { color: '#c58448' }); }],
+    ['地铁牌', 985, function (x, y) { A.subwaySign(ctx, x, y); }],
+    ['华表', 1090, function (x, y) {
+      A.shadow(ctx, x, y, 12, 2, 0.25);
+      A.r(ctx, x - 6, y - 6, 12, 6, P.stoneDark);
+      A.r(ctx, x - 2, y - 44, 4, 38, P.marble);
+      A.r(ctx, x - 5, y - 32, 10, 3, P.marble);
+      A.r(ctx, x - 6, y - 36, 12, 2, P.marbleDark);
+      A.r(ctx, x - 4, y - 49, 8, 5, P.marble);
+      A.r(ctx, x - 3, y - 52, 6, 3, P.marbleDark);
+      A.r(ctx, x - 7, y - 2, 14, 2, P.stone);
+    }],
+  ];
+  props.forEach(function (p) {
+    zoom(p[1], propsY, 1.9, function () { p[2](p[1], propsY); });
+    txt(p[0], p[1], propsY + 20, { size: 8, color: '#b9a789', align: 'center' });
+  });
+  txt('1.9× 放大 · 尺寸以 baseY 为锚', R, 1658, { size: 7.5, color: '#86745a', align: 'right', font: MONO });
+
+  /* ============================================================
+     5. lighting
+     ============================================================ */
+  section(1798, '光照与时间', 'LIGHTING', 'A.dayGrade(ctx, t, strength) 走 soft-light；入夜用 A.nightOverlay + 暖点光');
+
+  function miniScene(mode) {
+    const night = mode === 'night';
+    ctx.fillStyle = '#a99c80';
+    ctx.fillRect(0, 0, 640, 360);
+    A.paving(ctx, 0, 0, 640, 360, '#b3a78c', '#a3977b', 7, 12);
+    A.paving(ctx, 264, 0, 112, 360, '#cdbf9f', '#bfb090', 9, 18);
+    // 远处的一排树，收住画面上沿
+    A.tree(ctx, 70, 168, 1.0, { autumn: true });
+    A.tree(ctx, 196, 158, 0.9);
+    A.tree(ctx, 448, 158, 0.9);
+    A.tree(ctx, 578, 170, 1.0, { autumn: true });
+    A.drawHall(ctx, 320, 300, 248, { wallH: 34, roofH: 28, double: true, name: '太和殿', bays: 5, platformPad: 46, stairW: 46 });
+    A.lantern(ctx, 148, 300, { h: 36, night: night });
+    A.lantern(ctx, 492, 300, { h: 36, night: night });
+    A.drawActor(ctx, 222, 342, { dir: 'right', palette: A.actorPalettes.player, scale: 1.3, time: 0.1, moving: true, frame: 1 });
+    A.drawActor(ctx, 408, 348, { dir: 'left', palette: A.actorPalettes.tourist, scale: 1.2, time: 0.4 });
+    A.cat(ctx, 526, 348, 0.2, { color: '#b87845' });
+    if (mode === 'dusk') {
+      A.dayGrade(ctx, 0, 1);
+    } else if (mode === 'golden') {
+      A.dayGrade(ctx, 0, 1.8);
+      A.glow(ctx, 540, 30, 320, 'rgba(255,196,110,.15)', 0.9);
+    } else {
+      A.nightOverlay(ctx, { x: 0, y: 0 }, [
+        { x: 148, y: 262, r: 88, color: 'rgba(255,150,60,.55)', a: 0.5 },
+        { x: 492, y: 262, r: 88, color: 'rgba(255,150,60,.55)', a: 0.5 },
+        { x: 320, y: 288, r: 220, color: 'rgba(255,140,50,.38)', a: 0.38 },
+      ], 0.62);
+    }
+  }
+
+  [['午后 15:40', 'dusk', '暖色斜阳 · 空气尘埃 · 长投影', 1830],
+   ['金色时刻 17:40', 'golden', '整个画面被烧成琥珀色', 1830],
+   ['入夜 19:20', 'night', '冷蓝夜色 + 灯笼暖点', 1830]].forEach(function (l, i) {
+    const px = M + i * 380, py = l[3];
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(px, py, 352, 198);
+    ctx.clip();
+    ctx.translate(px, py);
+    ctx.scale(0.68, 0.68);
+    ctx.translate(-40, -104);
+    miniScene(l[1]);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(216,178,106,.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px + 0.5, py + 0.5, 351, 197);
+    txt(l[0], px, py - 9, { size: 9, color: '#e0c894', weight: 'bold' });
+    txt(l[2], px, py + 212, { size: 7.5, color: '#86745a' });
+  });
+
+  /* ============================================================
+     6. the five laws
+     ============================================================ */
+  section(2092, '五条铁律', 'FIVE LAWS', '违反其中任何一条，画面就不再是「紫禁城 · 铁火」');
+
+  const laws = [
+    ['01', '整数像素', '画布固定 640×360；fillRect 与文字坐标一律 Math.round；显示端最近邻放大 2–4 倍，绝不插值。'],
+    ['02', '一材质三色', '每种材质只给底色 / 暗部 / 亮部三档；暗部压向 #17110e，亮部提向 #f4dda0。'],
+    ['03', '体量靠阴影', '角色与道具用 1px #17110e 勾边；建筑不描满边，靠檐下投影与台基阴影分层。'],
+    ['04', '单一光源', '光从右上而来，影子落向左下；夜间只保留灯笼暖点与冷蓝夜色的对比。'],
+    ['05', '底边对齐', '一切立地物件以 baseY 排序、遮挡、碰撞，绝不以图片中心定位。'],
+  ];
+  laws.forEach(function (l, i) {
+    const y = 2124 + i * 14;
+    txt(l[0], M, y, { size: 7.5, color: '#8f682f', font: MONO });
+    txt(l[1], M + 26, y, { size: 8.5, color: '#e8d0a0', weight: 'bold' });
+    txt(l[2], M + 96, y, { size: 8, color: '#a5927a' });
+  });
+
+  txt('紫禁城 · 铁火  v1.0.0   ·   所有画面由 Canvas 程序化绘制，无外部图片素材', M, 2196, { size: 7, color: '#5d4f3b', font: MONO });
+  txt('style-sheet.html · 用 js/art.js 实时绘制', R, 2196, { size: 7, color: '#5d4f3b', align: 'right', font: MONO });
+})();
+</script>
+</body>
+</html>
