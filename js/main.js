@@ -602,6 +602,29 @@
     if (!Array.isArray(G.save.data.creations)) G.save.data.creations = [];
     return G.save.data.creations;
   };
+  G.creationLast = function () {
+    const list = G.creationCreations();
+    return list.length ? list[list.length - 1] : null;
+  };
+  G.creationExport = function () {
+    const last = G.creationLast();
+    if (!last) { G.ui.toast('还没有定格的作品', 'warn', 2000); return; }
+    const data = JSON.stringify(last, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '创造模式作品-' + (last.worldId || 'world') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  };
+  G.creationSyncStatus = function () {
+    const st = $('#creation-status');
+    const ex = $('#creation-export');
+    const last = G.creationLast();
+    if (st) st.textContent = last ? ('已成画 · ' + last.worldId) : '尚未成画';
+    if (ex) ex.disabled = !last;
+  };
   G.openCreation = function () {
     if (G.creationOpen) return;
     G.creationOpen = true;
@@ -617,10 +640,27 @@
           frame.contentWindow.addEventListener('wanxiang:creation-completed', function (ev) {
             const d = (ev && ev.detail) || {};
             if (typeof d.worldId !== 'string' || d.independent !== true) return;
+            let artifact = null;
+            try {
+              const api = frame.contentWindow.FusionExplore;
+              if (api && typeof api.artifact === 'function') artifact = api.artifact();
+            } catch (e) { /* 抓不到就只存 worldId */ }
             const list = G.creationCreations();
-            list.push({ worldId: d.worldId, at: Date.now() });
+            list.push({ worldId: d.worldId, at: Date.now(), artifact: artifact });
+            while (list.length > 3) list.shift();   // 只留最近三件，避免存档过大
             G.save.persist();
-            G.ui.toast('创造模式 · 作品已定格：' + d.worldId, 'good', 2800);
+            G.creationSyncStatus();
+            G.ui.toast('创造模式 · 作品已定格：' + d.worldId + '（可导出）', 'good', 3000);
+          });
+          // AI 服务状态（同源 /api/status，未启动时走本地生成）
+          fetch('/api/status', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s2) {
+            const ai = $('#creation-ai');
+            if (!ai) return;
+            ai.textContent = (s2 && s2.available) ? 'AI 已连接' : 'AI 未连接 · 本地生成';
+            ai.classList.toggle('on', !!(s2 && s2.available));
+          }).catch(function () {
+            const ai = $('#creation-ai');
+            if (ai) ai.textContent = 'AI 未连接 · 本地生成';
           });
         } catch (e) { /* 跨域时静默：仍是独立页面 */ }
       };
@@ -628,6 +668,7 @@
     } else if (loading) {
       loading.classList.add('hidden');
     }
+    G.creationSyncStatus();
     G.show($('#creation'));
     G.input.clearPressed();
     try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
@@ -833,6 +874,10 @@
       if (crBtn) crBtn.addEventListener('click', () => G.openCreation());
       const creationClose = $('#creation-close');
       if (creationClose) creationClose.addEventListener('click', () => G.closeCreation());
+      const creationExport = $('#creation-export');
+      if (creationExport) creationExport.addEventListener('click', () => G.creationExport());
+      const creationSandbox = $('#creation-sandbox');
+      if (creationSandbox) creationSandbox.addEventListener('click', () => { G.closeCreation(); G.enterCreateMode(); });
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
@@ -861,7 +906,8 @@
       const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
       const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
       const done = d.codex ? d.codex.length : 0;
-      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
+      const made = Array.isArray(d.creations) ? d.creations.length : 0;
+      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页' + (made ? ' · 造境 ' + made + ' 件' : '');
     },
   };
 

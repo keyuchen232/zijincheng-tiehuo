@@ -749,3 +749,11 @@ body.title-mode #stage{visibility:hidden}
 @media(max-width:700px){
   .title-inner .title-foot{display:flex;font-size:.62em}
 }
+
+/* 创造模式工具栏状态 */
+#creation-status{margin-left:.8em;font-size:.74em;color:#b9c9b8}
+#creation-ai{margin-left:.6em;font-size:.72em;color:#9a8a72;border:1px solid #4b3a24;border-radius:2px;padding:.15em .5em}
+#creation-ai.on{color:#8fd0a0;border-color:#3f6b4a}
+#creation-export{border:1px solid #6d5326;background:#2a2013;color:#ffd98a;font-size:.74em;padding:.4em .8em;border-radius:2px;cursor:pointer}
+#creation-export:disabled{opacity:.45;cursor:not-allowed}
+#creation-sandbox{border:1px solid #5a4529;background:#241b14;color:#c9b48a;font-size:.74em;padding:.4em .8em;border-radius:2px;cursor:pointer}
