@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const port=9340;
-const chrome=spawn(process.env.CHROME||'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',['--headless=new','--disable-gpu','--mute-audio','--no-first-run','--no-sandbox','--remote-debugging-port='+port,'--user-data-dir='+mkdtempSync(join(tmpdir(),'wxl-input-')),'about:blank'],{stdio:'ignore'});
+const chrome=spawn(process.env.CHROME||'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',['--headless=new','--disable-background-timer-throttling','--disable-renderer-backgrounding','--disable-backgrounding-occluded-windows','--disable-gpu','--mute-audio','--no-first-run','--no-sandbox','--remote-debugging-port='+port,'--user-data-dir='+mkdtempSync(join(tmpdir(),'wxl-input-')),'about:blank'],{stdio:'ignore'});
 let ws,seq=0;const pending=new Map(),errors=[];
 function send(method,params={}){return new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params}));});}
 async function ev(expression){const r=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description||r.exceptionDetails.text);return r.result.value;}
@@ -50,8 +50,14 @@ try{
  await until('window.G?.scene?.id === "wumen" && !G.cut.active && !G.dialog.active');
  await ev('G.mod.go("taihe")');
  await until('G.scene.id === "taihe" && !G.fade.busy && !G.dialog.active');
+ await sleep(700);
+ await until('!G.fade.busy && !G.dialog.active && !G.isWorldPaused()');
  const taiheWalk=await ev('Math.max(100,(G.scene.player.y-G.scene.map.spots.find(s=>s.id==="taihe.labels").y-12)/68*1000)');
- await key('KeyW',taiheWalk);await key('KeyE');
+ console.log('TAIHE WALK BEFORE',await ev(state),'duration',taiheWalk);
+ for(let i=0;i<35 && await ev('G.scene.player.y>524');i++)await key('KeyW',180);
+ console.log('TAIHE WALK AFTER',await ev(state));
+ check(await ev('Math.hypot(G.scene.player.x-320,G.scene.player.y-506)<32'),'walking reaches Taihe label interaction');
+ await key('KeyE');
  check(await ev('G.dialog.active'),'real E starts Taihe labels');
  mkdirSync('artifacts',{recursive:true});
  for(let i=0;i<10 && !await ev(`document.querySelector('#dialog').classList.contains('has-portrait')`);i++){await ev('G.dialog.finishType()');await key('Space');}
@@ -64,6 +70,7 @@ try{
    const action=await ev(`(()=>{if(!G.dialog.active)return G.scene._continue ? 'continue' : G.scene.followUp?.(G.scene.map.spots.find(s=>s.id==='taihe.labels')) ? 'follow' : 'wait';G.dialog.finishType();const l=G.dialog.queue[G.dialog.idx];if(!l?._opts)return 'advance';const opts=l._opts;let value=opts.some(o=>o.value==='move')?(G.scene.vars.labelsDone===2?'stay':'move'):'keep';const idx=opts.findIndex(o=>o.value===value);if(idx<0)throw Error('Unknown choices '+JSON.stringify(opts));document.querySelectorAll('#dlg-options button')[idx].click();return 'picked';})()`);
    if(action==='advance')await key('Space');else if(action==='continue'||action==='follow'){await sleep(1600);check(await ev('G.scene.id==="taihe" && !G.dialog.active'),'choice result remains visible for 1.6 seconds before E');await key('KeyE');}else await sleep(110);
  }
+ console.log('TAIHE FINAL',JSON.stringify(await ev(`({scene:G.scene.id,vars:G.scene.vars,dialog:G.dialog.active,idx:G.dialog.idx,line:G.dialog.queue[G.dialog.idx],player:G.scene.player,labels:G.mod.isDone('taihe.labels'),keep:G.mod.isDone('taihe.keep')})`)));
  check(await ev('G.scene.id === "qianqing"'),'real E continues labels to keep choice then Qianqing');
  check(await ev('G.mod.isDone("taihe.labels") && G.mod.isDone("taihe.keep")'),'both required Taihe steps completed');
  check(await ev(`G.save.flag('keep.steps')===true && G.save.flag('keep.steps.note')===false && G.save.flag('keep.steps.drop')===false`),'keep choice writes distinct boolean flags');

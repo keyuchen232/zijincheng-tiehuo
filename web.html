@@ -761,64 +761,90 @@ body.title-mode #stage{visibility:hidden}
   .title-inner .title-foot{display:flex;font-size:.62em}
 }
 
+/* 创造模式工具栏状态 */
+#creation-status{margin-left:.8em;font-size:.74em;color:#b9c9b8}
+#creation-ai{margin-left:.6em;font-size:.72em;color:#9a8a72;border:1px solid #4b3a24;border-radius:2px;padding:.15em .5em}
+#creation-ai.on{color:#8fd0a0;border-color:#3f6b4a}
+#creation-export{border:1px solid #6d5326;background:#2a2013;color:#ffd98a;font-size:.74em;padding:.4em .8em;border-radius:2px;cursor:pointer}
+#creation-export:disabled{opacity:.45;cursor:not-allowed}
+#creation-sandbox{border:1px solid #5a4529;background:#241b14;color:#c9b48a;font-size:.74em;padding:.4em .8em;border-radius:2px;cursor:pointer}
+
+/* ---------------- 万象灵境 · 六关选择 ---------------- */
+#levels{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:4vh 3vw;
+  background:radial-gradient(ellipse at 50% 40%,rgba(28,20,16,.92) 0%,rgba(6,5,4,.96) 70%)}
+#levels .levels-card{width:min(980px,94vw);max-height:88vh;display:flex;flex-direction:column;
+  border:1px solid rgba(196,160,96,.28);background:linear-gradient(180deg,rgba(24,18,14,.96),rgba(12,9,7,.98));
+  box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.02);padding:26px 30px 18px}
+#levels .levels-head{margin-bottom:18px;border-bottom:1px solid rgba(196,160,96,.16);padding-bottom:14px}
+#levels .levels-eyebrow{display:inline-block;font-size:11px;letter-spacing:.32em;color:var(--gold,#c9a35c);opacity:.9}
+#levels h2{margin:8px 0 8px;font-family:var(--kai,"KaiTi",serif);font-size:26px;letter-spacing:.14em;color:var(--cream,#f2e9d8)}
+#levels p{font-size:13px;line-height:1.9;color:rgba(242,233,216,.62);max-width:74ch}
+#levels .levels-grid{overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:4px 2px 10px}
+#levels .lv-card{position:relative;text-align:left;padding:16px 16px 14px;cursor:pointer;
+  border:1px solid rgba(196,160,96,.22);background:linear-gradient(180deg,rgba(38,29,22,.72),rgba(18,13,10,.9));
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+#levels .lv-card:hover,#levels .lv-card:focus-visible{transform:translateY(-3px);border-color:rgba(226,180,96,.6);
+  box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 0 0 1px rgba(226,180,96,.25);outline:none}
+#levels .lv-no{font-size:11px;letter-spacing:.26em;color:var(--gold,#c9a35c)}
+#levels .lv-name{margin:6px 0 2px;font-family:var(--kai,"KaiTi",serif);font-size:21px;letter-spacing:.1em;color:var(--cream,#f2e9d8)}
+#levels .lv-sub{font-size:11px;letter-spacing:.22em;color:rgba(242,233,216,.45)}
+#levels .lv-obj{margin-top:10px;font-size:12px;line-height:1.8;color:rgba(242,233,216,.66);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#levels .lv-state{margin-top:12px;display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.18em;color:rgba(242,233,216,.4)}
+#levels .lv-state b{color:var(--gold,#c9a35c);font-weight:600}
+#levels .lv-card.done{border-color:rgba(120,180,130,.4)}
+#levels .lv-card.done .lv-state{color:rgba(150,210,160,.85)}
+#levels .lv-card.done .lv-state b{color:rgba(150,210,160,.95)}
+#levels .levels-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;
+  border-top:1px solid rgba(196,160,96,.16);font-size:12px;letter-spacing:.16em;color:rgba(242,233,216,.5)}
+#levels .levels-foot .btn{padding:8px 16px}
+@media (max-width:760px){
+  #levels .levels-card{padding:18px 16px 12px}
+  #levels .levels-grid{grid-template-columns:1fr 1fr}
+  #levels h2{font-size:20px}
+}
+
 </style>
 <style data-href="css/title-poster.css">
-/* Redrawn realm: full-bleed original vector landscape and atmospheric motion. */
-#title{--atlas-paper:#f4f0e5;--atlas-ink:#253c50;--atlas-gold:#aa7a36;--atlas-jade:#347b7b;background:var(--atlas-paper);isolation:isolate}
+/* Pixel realm title: procedural 480x270 scene, cobalt/coral palette measured from the poster. */
+#title{--atlas-paper:#f2f6fc;--atlas-ink:#1f2b45;--atlas-gold:#c2914f;--atlas-blue:#2331d6;--atlas-coral:#c9533a;background:var(--atlas-paper);isolation:isolate}
 #title-bg{visibility:hidden}
-#title.poster-unavailable #title-bg{visibility:visible}
-#title.poster-unavailable .title-poster-world{display:none}
 body.title-mode #rotate-hint{display:none!important}
 .title-poster-world{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:var(--atlas-paper)}
-.title-poster-wash{position:absolute;inset:-12%;background-position:center;background-size:cover;filter:blur(64px) saturate(.65);opacity:.2;animation:atlas-wash 26s ease-in-out infinite alternate}
-.title-poster-world::before{content:"";position:absolute;left:56%;top:12%;width:40%;height:55%;z-index:1;pointer-events:none;background:linear-gradient(120deg,transparent 40%,rgba(143,235,227,.18) 49%,transparent 58%);clip-path:polygon(12% 10%,88% 0,100% 100%,0 88%);animation:atlas-projection 12s ease-in-out infinite}
-.title-poster-world::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f4f0e5 0%,rgba(244,240,229,.97) 30%,rgba(244,240,229,.65) 47%,transparent 66%);pointer-events:none}
-.title-poster-frame{position:absolute;inset:-1.5%;display:flex;justify-content:center;align-items:center;animation:atlas-breathe 20s ease-in-out infinite alternate;transform-origin:70% 55%}
-.title-poster-image{display:block;height:100%;width:100%;object-fit:cover;object-position:70% center}
-.title-atlas-orbit{position:absolute;left:-19vw;top:calc(50% - 31vw);width:62vw;height:62vw;border:1px solid rgba(170,122,54,.15);border-radius:50%;box-shadow:0 0 0 24px rgba(170,122,54,.025),0 0 0 25px rgba(170,122,54,.07);animation:atlas-orbit 110s linear infinite}
-.title-atlas-orbit::before,.title-atlas-orbit::after{content:"";position:absolute;inset:9%;border:1px dashed rgba(52,123,123,.17);border-radius:50%}
-.title-atlas-orbit::after{inset:22%;border-style:solid}
-#title .title-inner{left:7vw;top:50%;transform:translateY(-50%);width:34vw;max-height:94vh;overflow-y:auto;align-items:flex-start;text-align:left;gap:0}
-#title .title-eyebrow{color:var(--atlas-gold);font-size:clamp(10px,.8vw,13px);letter-spacing:.18em;line-height:1.8}
+.title-pixel-canvas{position:absolute;display:block;image-rendering:pixelated;image-rendering:-moz-crisp-edges;background:#dcebf8}
+.title-poster-wash{position:absolute;inset:0;background:radial-gradient(ellipse at 74% 40%,rgba(96,184,242,.22),transparent 62%);opacity:.5}
+.title-poster-world::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f2f6fc 0%,rgba(242,246,252,.97) 26%,rgba(242,246,252,.72) 44%,rgba(242,246,252,.12) 60%,transparent 68%);pointer-events:none}
+#title .title-inner{left:7vw;top:50%;transform:translateY(-50%);width:34vw;max-height:94vh;overflow-y:auto;align-items:flex-start;text-align:left;gap:0;z-index:3}
+#title .title-eyebrow{color:var(--atlas-coral);font-size:clamp(10px,.8vw,13px);letter-spacing:.18em;line-height:1.8}
 #title .title-eyebrow span{width:1.5em}
 #title .title-eyebrow span:last-child{display:none}
 #title .title-eyebrow em{font-style:normal}
 #title .title-logo{font-size:clamp(44px,5.2vw,90px);letter-spacing:.07em;margin:.28em 0 .2em;justify-content:flex-start}
 #title .t-main,#title .t-fire{color:var(--atlas-ink);background:none;filter:none;text-shadow:none}
-#title .t-fire{color:var(--atlas-jade)}
-#title .title-sub{font-size:clamp(12px,1vw,16px);line-height:1.9;letter-spacing:.12em;color:#5c6e70;max-width:27em;text-shadow:none}
+#title .t-fire{color:var(--atlas-blue)}
+#title .title-sub{font-size:clamp(12px,1vw,16px);line-height:1.9;letter-spacing:.12em;color:#4d5b72;max-width:27em;text-shadow:none}
 #title .title-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:28px}
-#title .title-actions .btn{min-width:0;min-height:52px;padding:12px 10px;border:1px solid rgba(74,95,93,.26);border-radius:2px;box-shadow:none;background:rgba(255,255,255,.54);color:var(--atlas-ink);transition:transform .18s,background .18s,border-color .18s}
-#title .title-actions .btn small{color:#73817c;font-size:9px;letter-spacing:.16em}
-#title .title-actions .btn-primary{grid-column:1/-1;background:#285b60;color:#fff5dc;border-color:#285b60;min-height:62px}
-#title .title-actions .btn-primary small{color:#d4dfcf}
-#title .title-actions .btn:hover{transform:translateY(-2px);background:#fffaf0;border-color:var(--atlas-gold)}
-#title .title-actions .btn-primary:hover{background:#347579;color:#fff5dc}
+#title .title-actions .btn{min-width:0;min-height:52px;padding:12px 10px;border:1px solid rgba(35,49,214,.22);border-radius:2px;box-shadow:none;background:rgba(255,255,255,.66);color:var(--atlas-ink);transition:transform .18s,background .18s,border-color .18s}
+#title .title-actions .btn small{color:#6c7a92;font-size:9px;letter-spacing:.16em}
+#title .title-actions .btn-primary{grid-column:1/-1;background:var(--atlas-blue);color:#f3f7ff;border-color:var(--atlas-blue);min-height:62px}
+#title .title-actions .btn-primary small{color:#c3cbff}
+#title .title-actions .btn:hover{transform:translateY(-2px);background:#fff;border-color:var(--atlas-coral)}
+#title .title-actions .btn-primary:hover{background:#1a2394;color:#fff;border-color:#1a2394}
 #title .title-actions .btn:active{transform:scale(.98)}
-#title button:focus-visible{outline:2px solid var(--atlas-jade);outline-offset:4px}
-#title .title-inner .title-foot{align-items:flex-start;text-align:left;color:#657472;font-size:clamp(9px,.68vw,12px);line-height:1.8;letter-spacing:.08em;text-shadow:none;margin-top:20px}
-#title .title-keys{color:#7d8680;line-height:1.8}
-#title .title-save{color:#657472;font-size:11px;justify-content:flex-start;flex-wrap:wrap}
-#title .title-save .save-del{color:#657472;border-color:#b8b9a6}
+#title button:focus-visible{outline:2px solid var(--atlas-blue);outline-offset:4px}
+#title .title-inner .title-foot{align-items:flex-start;text-align:left;color:#5c6a80;font-size:clamp(9px,.68vw,12px);line-height:1.8;letter-spacing:.08em;text-shadow:none;margin-top:20px}
+#title .title-keys{color:#78849a;line-height:1.8}
+#title .title-save{color:#5c6a80;font-size:11px;justify-content:flex-start;flex-wrap:wrap}
+#title .title-save .save-del{color:#5c6a80;border-color:#c3cbdd}
 #title .title-seal{display:none}
-#title .title-grain{opacity:.025}
-#title .title-corner{border-color:rgba(170,122,54,.4);z-index:4}
-.title-motes{position:absolute;inset:0;z-index:1;pointer-events:none}
-.title-motes i{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:#ba8e48;box-shadow:0 0 9px rgba(209,166,84,.4);opacity:0;animation:atlas-mote var(--duration) ease-in-out var(--delay) infinite}
-.title-mist{position:absolute;inset:55% -20% -25% 33%;z-index:1;background:radial-gradient(ellipse,rgba(245,248,234,.3),transparent 65%);animation:atlas-mist 17s ease-in-out infinite alternate;pointer-events:none}
-.title-motion-toggle{position:absolute;right:28px;bottom:24px;z-index:5;background:rgba(244,240,229,.9);color:#526b69;border:1px solid rgba(74,95,93,.25);border-radius:2px;padding:10px 14px;min-height:44px;font-size:11px;letter-spacing:.1em;cursor:pointer}
-#title.motion-paused .title-poster-world::before,#title.motion-paused .title-poster-world *,#title.motion-paused .title-motes *,#title.motion-paused .title-mist{animation-play-state:paused!important}
+#title .title-grain{opacity:.02}
+#title .title-corner{border-color:rgba(35,49,214,.32);z-index:4}
+.title-motion-toggle{position:absolute;right:28px;bottom:24px;z-index:5;background:rgba(242,246,252,.92);color:#31405c;border:1px solid rgba(35,49,214,.24);border-radius:2px;padding:10px 14px;min-height:44px;font-size:11px;letter-spacing:.1em;cursor:pointer}
+.title-motion-toggle:hover{border-color:var(--atlas-coral);color:#a8442f}
 #title.hidden *{animation-play-state:paused!important}
-@keyframes atlas-breathe{from{transform:translateY(0) scale(1)}to{transform:translateY(-4px) scale(1.015)}}
-@keyframes atlas-wash{to{transform:translate3d(2%,1%,0) scale(1.04)}}
-@keyframes atlas-orbit{to{transform:rotate(360deg)}}
-@keyframes atlas-mist{to{transform:translate3d(-5%,-4%,0);opacity:.45}}
-@keyframes atlas-mote{0%,100%{opacity:0;transform:translate3d(0,16px,0)}30%,70%{opacity:.55}90%{opacity:0;transform:translate3d(16px,-65px,0)}}
 @media(max-width:700px){
  #title .title-inner{left:6vw;top:auto;bottom:5vh;transform:none;width:88vw;max-height:60vh;z-index:3;overflow:visible}
- .title-poster-frame{inset:0 0 28vh 0;align-items:flex-start}
- .title-poster-image{object-position:78% center}
- .title-poster-world::after{background:linear-gradient(0deg,#f4f0e5 0%,rgba(244,240,229,.98) 24%,rgba(244,240,229,.8) 40%,transparent 65%)}
+ .title-poster-world::after{background:linear-gradient(0deg,#f2f6fc 0%,rgba(242,246,252,.98) 22%,rgba(242,246,252,.82) 38%,transparent 62%)}
  #title .title-logo{font-size:44px;margin:.1em 0}
  #title .title-eyebrow{font-size:9px}
  #title .title-sub{font-size:11px;letter-spacing:.04em}
@@ -833,7 +859,6 @@ body.title-mode #rotate-hint{display:none!important}
 }
 @media(max-height:600px) and (min-width:701px){#title .title-inner{width:40vw;left:5vw}#title .title-logo{font-size:44px}#title .title-actions{margin-top:12px;gap:8px}#title .title-actions .btn{min-height:44px;padding:7px}#title .title-inner .title-foot{margin-top:10px}}
 @media(max-height:360px){#title .title-inner{top:12px;bottom:auto;transform:none;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}}
-@media(prefers-reduced-motion:reduce){#title .title-poster-world *,#title .title-motes *,#title .title-mist{animation:none!important}.title-motes{display:none}}
 
 </style>
 </head>
@@ -980,6 +1005,23 @@ body.title-mode #rotate-hint{display:none!important}
   <div class="title-corner bl"></div><div class="title-corner br"></div>
 </div>
 
+
+<!-- ================= 万象灵境 · 六关（关卡选择） ================= -->
+<div id="levels" class="screen overlay hidden" role="dialog" aria-modal="true" aria-label="选择关卡">
+  <div class="levels-card">
+    <div class="levels-head">
+      <span class="levels-eyebrow">万象灵境 · 六关</span>
+      <h2 id="levels-title">从哪一关入境？</h2>
+      <p id="levels-desc">六关连成一条中轴线：午门 → 太和殿 → 乾清宫 → 修复台 → 御花园 → 神武门。点任意一关直接进去，进度自动存档。</p>
+    </div>
+    <div class="levels-grid" id="levels-grid"></div>
+    <div class="levels-foot">
+      <span id="levels-progress">进度 · 0 / 6</span>
+      <button class="btn btn-quiet" id="levels-close" type="button"><span>关闭</span><small>ESC</small></button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= 退出画面 ================= -->
 <div id="exit-screen" class="screen hidden">
   <div class="exit-card">
@@ -1067,6 +1109,7 @@ body.title-mode #rotate-hint{display:none!important}
     <p>红墙外风声正紧，铁花还要再等一会儿。</p>
     <div class="menu-actions">
       <button class="btn btn-primary" id="menu-resume"><span>继续旅程</span></button>
+      <button class="btn" id="menu-levels"><span>关卡 · 六关</span></button>
       <button class="btn" id="menu-ask"><span>问守境人 · 考据</span></button>
       <button class="btn" id="menu-sound"><span>声音：开</span></button>
       <button class="btn" id="menu-reset"><span>重新开始</span></button>
@@ -1152,8 +1195,13 @@ body.title-mode #rotate-hint{display:none!important}
 <div id="creation" class="screen overlay hidden" role="dialog" aria-modal="true" aria-label="创造模式">
   <div class="artdemo-shell">
     <div class="artdemo-bar">
-      <span class="artdemo-title"><b>创造模式</b> 万象灵境 · 创作与探索<em>独立存档</em></span>
+      <span class="artdemo-title"><b>创造模式</b> 万象灵境 · 创作与探索<em>独立存档</em>
+        <span id="creation-status">尚未成画</span>
+        <span id="creation-ai">AI 检测中…</span>
+      </span>
       <span class="artdemo-actions">
+        <button id="creation-export" type="button" disabled>导出作品</button>
+        <button id="creation-sandbox" type="button">造境台（旧）</button>
         <a id="creation-newtab" href="creation/index.html" target="_blank" rel="noopener">在新标签打开</a>
         <button class="artdemo-close" id="creation-close" type="button">返回游戏</button>
       </span>
@@ -1711,7 +1759,7 @@ body.title-mode #rotate-hint{display:none!important}
     G.save.persist();
   };
   G.isWorldPaused = function () {
-    return G.overlayDepth > 0 || G.dialog.active || G.cinema.active || G.fade.busy ||
+    return G.overlayDepth > 0 || G.levelsOpen || G.dialog.active || G.cinema.active || G.fade.busy ||
       (G.minigame && G.minigame.active) || (G.titleActive !== false);
   };
 
@@ -16390,6 +16438,93 @@ window.WXL_AI = {
   };
 
   /* ============================================================
+     万象灵境 · 六关（关卡选择）
+     玩家点「进入万象灵境」先看到六关列表：每关写明这一关要干什么，
+     点哪关进哪关；菜单里也能随时回到这里。
+     ============================================================ */
+  G.LEVEL_ORDER = ['wumen', 'taihe', 'qianqing', 'repair_bench', 'creator', 'shenwumen'];
+  G.levelDone = function (id) { return !!(G.save && G.save.flag && G.save.flag('spot.' + id)); };
+  G.levelMeta = function (id) {
+    let map = null;
+    try { map = (G.mod && G.mod.get) ? G.mod.get('map', id) : null; } catch (e) { map = null; }
+    const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : ((map && map.title) || id);
+    const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : ((map && map.sub) || '');
+    let obj = '';
+    try { obj = G.str.get((map && map.objectiveKey) || ('nodes.' + id + '.objective')); } catch (e) { obj = ''; }
+    if (!obj && map && map.objective) obj = map.objective;
+    return { id: id, name: name, sub: sub, obj: obj };
+  };
+  G.levelsOpen = false;
+  G.renderLevels = function () {
+    const grid = $('#levels-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    let doneN = 0;
+    G.LEVEL_ORDER.forEach(function (id, i) {
+      const m = G.levelMeta(id);
+      const done = G.levelDone(id);
+      if (done) doneN++;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'lv-card' + (done ? ' done' : '');
+      card.dataset.map = id;
+      card.innerHTML = '<div class="lv-no">第 ' + (i + 1) + ' 关</div>' +
+        '<div class="lv-name">' + m.name + '</div>' +
+        '<div class="lv-sub">' + (m.sub || '') + '</div>' +
+        '<div class="lv-obj">' + (m.obj || '进入这一关查看目标') + '</div>' +
+        '<div class="lv-state"><b>' + (done ? '已完成' : '未完成') + '</b><span>· 点击进入</span></div>';
+      card.addEventListener('click', function () { G.enterLevel(id); });
+      grid.appendChild(card);
+    });
+    const prog = $('#levels-progress');
+    if (prog) prog.textContent = '进度 · ' + doneN + ' / ' + G.LEVEL_ORDER.length + '　（进度自动存档）';
+  };
+  G.openLevels = function () {
+    if (!G.titleActive && G.scene) return;   /* 关里不弹：从菜单进 */
+    G.levelsOpen = true;
+    G.renderLevels();
+    G.show($('#levels'));
+    G.input.clearPressed();
+  };
+  G.closeLevels = function () {
+    if (!G.levelsOpen) return;
+    G.levelsOpen = false;
+    G.hide($('#levels'));
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+  /* 进入某一关：第一次入境先播开场（倒计时），之后直接进 */
+  G.enterLevel = function (id) {
+    G.closeLevels();
+    const go = function () { G.mod.go(id); };
+    try {
+      if (G.mod.has && G.mod.has('cutscene', 'opening') && G.cut && G.cut.seen && !G.cut.seen('opening')) {
+        G.cut.play('opening', go);
+        return;
+      }
+    } catch (e) { /* 落到直接进关 */ }
+    go();
+  };
+  G.bindLevels = function () {
+    const closeBtn = $('#levels-close');
+    if (closeBtn) closeBtn.addEventListener('click', function () { G.closeLevels(); });
+    const box = $('#levels');
+    if (box) box.addEventListener('click', function (e) { if (e.target.id === 'levels') G.closeLevels(); });
+    const menuLevels = $('#menu-levels');
+    if (menuLevels) menuLevels.addEventListener('click', function () {
+      menu.close();
+      G.levelsOpen = true;
+      G.renderLevels();
+      G.show($('#levels'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!G.levelsOpen) return;
+      if (e.key === 'Escape') { G.closeLevels(); return; }
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= G.LEVEL_ORDER.length) G.enterLevel(G.LEVEL_ORDER[n - 1]);
+    });
+  };
+
+  /* ============================================================
      创造模式（独立页面 · iframe 隔离 · 独立存档）
      ============================================================ */
   G.creationOpen = false;
@@ -16398,7 +16533,87 @@ window.WXL_AI = {
     if (!Array.isArray(G.save.data.creations)) G.save.data.creations = [];
     return G.save.data.creations;
   };
+  G.creationLast = function () {
+    const list = G.creationCreations();
+    return list.length ? list[list.length - 1] : null;
+  };
+  G.creationExport = function () {
+    const last = G.creationLast();
+    if (!last) { G.ui.toast('还没有定格的作品', 'warn', 2000); return; }
+    const data = JSON.stringify(last, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '创造模式作品-' + (last.worldId || 'world') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  };
+  G.creationSyncStatus = function () {
+    const st = $('#creation-status');
+    const ex = $('#creation-export');
+    const last = G.creationLast();
+    if (st) st.textContent = last ? ('已成画 · ' + last.worldId) : '尚未成画';
+    if (ex) ex.disabled = !last;
+  };
+  G.creationWindow = null;
+  /* 作品完成后的落盘：窗口事件 / postMessage / localStorage 三条路都汇到这里 */
+  G.creationHandleDone = function (d, w) {
+    d = d || {};
+    if (typeof d.worldId !== 'string' || d.independent !== true) return;
+    const list = G.creationCreations();
+    const existing = list.find(function (c) { return c.worldId === d.worldId; });
+    let artifact = d.artifact || null;
+    try {
+      if (!artifact && w && w.FusionExplore && typeof w.FusionExplore.artifact === 'function') artifact = w.FusionExplore.artifact();
+    } catch (e) { /* 拿不到就只存 worldId */ }
+    if (artifact && (!artifact.world || artifact.world.seed !== d.worldId)) artifact = null;
+    if (existing) {
+      if (!existing.artifact && artifact) { existing.artifact = artifact; G.save.persist(); }
+      return;
+    }
+    list.push({ worldId: d.worldId, at: Date.now(), artifact: artifact });
+    while (list.length > 3) list.shift();
+    G.save.persist();
+    G.ui.toast('创造模式 · 作品已定格：' + d.worldId + '（可导出）', 'good', 3000);
+  };
+  G.bindCreationWindow = function (w) {
+    if (!w) return;
+    G.creationWindow = w;
+    const onDone = function (ev) { G.creationHandleDone((ev && ev.detail) || {}, w); };
+    try { w.addEventListener('wanxiang:creation-completed', onDone); } catch (e) { /* 跨域就只剩独立页面 */ }
+  };
+  /* 新标签页没给出窗口引用时，靠 postMessage（带 opener 时）和 storage 事件兜底 */
+  if (typeof window !== 'undefined' && !G._creationBridgeBound) {
+    G._creationBridgeBound = true;
+    window.addEventListener('message', function (ev) {
+      if (ev.origin !== location.origin) return;
+      const m = ev.data || {};
+      if (m.type === 'wanxiang:creation-completed') G.creationHandleDone(m.detail, ev.source);
+    });
+    window.addEventListener('storage', function (ev) {
+      if (ev.key !== 'wxl.creation.done' || !ev.newValue) return;
+      let rec = null;
+      try { rec = JSON.parse(ev.newValue); } catch (e) { return; }
+      G.creationHandleDone(rec, null);
+    });
+  }
+
+  /* 创造模式：默认新开一个整窗页面；被浏览器拦截时回退到 iframe 层 */
   G.openCreation = function () {
+    let w = null;
+    /* _blank 才会开成“标签页”；带窗口名会被浏览器当成弹窗新窗口 */
+    try { w = window.open('creation/index.html', '_blank'); } catch (e) { w = null; }
+    if (w) {
+      try { w.focus(); } catch (e) { /* ignore */ }
+      G.bindCreationWindow(w);
+      G.ui.toast('创造模式已在新标签页打开', 'good', 2200);
+      return;
+    }
+    /* 窗口被拦截时直接使用可确认打开的内嵌层。 */
+    G.openCreationInline();
+  };
+  G.openCreationInline = function () {
     if (G.creationOpen) return;
     G.creationOpen = true;
     const frame = $('#creation-frame');
@@ -16410,13 +16625,17 @@ window.WXL_AI = {
         if (loading) loading.classList.add('hidden');
         try {
           // 同源 iframe：完成事件只在子窗口触发，必须监听 contentWindow
-          frame.contentWindow.addEventListener('wanxiang:creation-completed', function (ev) {
-            const d = (ev && ev.detail) || {};
-            if (typeof d.worldId !== 'string' || d.independent !== true) return;
-            const list = G.creationCreations();
-            list.push({ worldId: d.worldId, at: Date.now() });
-            G.save.persist();
-            G.ui.toast('创造模式 · 作品已定格：' + d.worldId, 'good', 2800);
+          G.bindCreationWindow(frame.contentWindow);
+          frame.contentWindow.addEventListener('wanxiang:creation-completed', function () { G.creationSyncStatus(); });
+          // AI 服务状态（同源 /api/status，未启动时走本地生成）
+          fetch('/api/status', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s2) {
+            const ai = $('#creation-ai');
+            if (!ai) return;
+            ai.textContent = (s2 && s2.available) ? 'AI 已连接' : 'AI 未连接 · 本地生成';
+            ai.classList.toggle('on', !!(s2 && s2.available));
+          }).catch(function () {
+            const ai = $('#creation-ai');
+            if (ai) ai.textContent = 'AI 未连接 · 本地生成';
           });
         } catch (e) { /* 跨域时静默：仍是独立页面 */ }
       };
@@ -16424,6 +16643,7 @@ window.WXL_AI = {
     } else if (loading) {
       loading.classList.add('hidden');
     }
+    G.creationSyncStatus();
     G.show($('#creation'));
     G.input.clearPressed();
     try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
@@ -16480,12 +16700,8 @@ window.WXL_AI = {
     const f = G.save.data.flags;
     G.fade.to(() => {
       const pos = G.save.data.pos;
-      if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
-        G.mod.go('create', { spawn: { x: pos.x, y: pos.y } });
-        G.ui.showHud(true);
-      }
-      else if (pos && pos.scene === 'wumen' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'wumen')) {
-        G.mod.go('wumen', { spawn: { x: pos.x, y: pos.y } });
+      if (pos && G.mod && G.mod.go && G.mod.has && G.mod.has('map', pos.scene)) {
+        G.mod.go(pos.scene, { spawn: { x: pos.x, y: pos.y } });
         G.ui.showHud(true);
       }
       else if (pos && pos.scene === 'fusion' && G.enterFusion) { G.enterFusion({ skipIntro: true, spawn: { x: pos.x, y: pos.y } }); }
@@ -16629,6 +16845,10 @@ window.WXL_AI = {
       if (crBtn) crBtn.addEventListener('click', () => G.openCreation());
       const creationClose = $('#creation-close');
       if (creationClose) creationClose.addEventListener('click', () => G.closeCreation());
+      const creationExport = $('#creation-export');
+      if (creationExport) creationExport.addEventListener('click', () => G.creationExport());
+      const creationSandbox = $('#creation-sandbox');
+      if (creationSandbox) creationSandbox.addEventListener('click', () => { G.closeCreation(); G.enterCreateMode(); });
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
@@ -16657,7 +16877,8 @@ window.WXL_AI = {
       const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
       const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
       const done = d.codex ? d.codex.length : 0;
-      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
+      const made = Array.isArray(d.creations) ? d.creations.length : 0;
+      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页' + (made ? ' · 造境 ' + made + ' 件' : '');
     },
   };
 
@@ -16688,11 +16909,10 @@ window.WXL_AI = {
       if (code === 'Escape') G.closeArtDemo();
       return;
     }
-    // title
+    if (G.levelsOpen) return;
+    // Title keyboard uses the same six-level selector as the main button.
     if (G.titleActive) {
-      if (code === 'Enter' || code === 'Space') {
-        if (G.save.exists()) continueGame(); else startNewGame();
-      }
+      if (code === 'Enter' || code === 'Space') G.openLevels();
       return;
     }
     // modal layers
@@ -16749,6 +16969,7 @@ window.WXL_AI = {
       G.minigame.key(code);
       return;
     }
+    if (code === 'KeyM' && G.scene && G.mod && G.mod.has('map', G.scene.id)) { G.openLevels(); return; }
     if (code === 'KeyH') { G.toggleHome(); return; }
     if (code === 'Escape') { menu.show(); return; }
     if (code === 'KeyJ') { codex.show(); return; }
@@ -16786,6 +17007,7 @@ window.WXL_AI = {
     codex.init();
     menu.init();
     if (G.ai) G.ai.init();
+    if (typeof G.bindLevels === 'function') G.bindLevels();
 
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
@@ -17058,67 +17280,418 @@ window.WXL_AI = {
 
 </script>
 <script data-src="js/title-poster.js">
-/* Original vector painting with local atmospheric animation. No image API. */
+/* Pixel-art realm title: an original 480x270 scene painted procedurally, integer aligned.
+   No raster assets, no image API. Motion: slow camera sway, projection-ring pulse, drifting
+   data motes, tablet glow, character blinks. Colours are sampled from the game poster. */
 (function () {
   'use strict';
   const title = document.getElementById('title');
   if (!title) return;
+
+  const BW = 480;
+  const BH = 270;
+
   const world = document.createElement('div');
   world.className = 'title-poster-world';
   world.setAttribute('aria-hidden', 'true');
   const wash = document.createElement('div');
   wash.className = 'title-poster-wash';
-  wash.style.backgroundImage = 'radial-gradient(ellipse at 76% 35%, #99d6d0, transparent 55%)';
-  const orbit = document.createElement('div');
-  orbit.className = 'title-atlas-orbit';
-  const frame = document.createElement('div');
-  frame.className = 'title-poster-frame';
-  const image = document.createElement('img');
-  image.className = 'title-poster-image';
-  image.src = 'assets/title/realm-redrawn.svg';
-  image.alt = '';
-  image.decoding = 'async';
-  frame.append(image);
-  world.append(wash, orbit, frame);
+  const canvas = document.createElement('canvas');
+  canvas.className = 'title-pixel-canvas';
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', '像素画：故宫金瓦与雅典卫城的投影重叠，小砚与狄奥提玛站在投影光环中');
+  canvas.width = BW;
+  canvas.height = BH;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.imageSmoothingEnabled = false;
+  world.append(wash, canvas);
   title.prepend(world);
-  image.addEventListener('load', () => { title.dataset.posterReady = 'true'; });
-  image.addEventListener('error', () => {
-    title.classList.add('poster-unavailable');
-    console.warn('Redrawn title illustration could not load; using procedural title background.');
-  });
-  const mist = document.createElement('div');
-  mist.className = 'title-mist';
-  mist.setAttribute('aria-hidden', 'true');
-  const motes = document.createElement('div');
-  motes.className = 'title-motes';
-  motes.setAttribute('aria-hidden', 'true');
-  for (let i = 0; i < 28; i++) {
-    const mote = document.createElement('i');
-    mote.style.cssText = '--x:' + (36 + (i * 37 % 63)) + '%;--y:' + (12 + (i * 23 % 82)) + '%;--size:' + (2 + i % 3) + 'px;--duration:' + (7 + i % 8) + 's;--delay:-' + (i * .73) + 's';
-    motes.append(mote);
+  title.dataset.pixelArt = 'true';
+
+  const C = {
+    paper: '#f7fafd', skyHi: '#eaf3fb', skyMid: '#dcebf8', skyLo: '#c8dcee',
+    cloud: '#ffffff', mount: '#c6d8ea', mountD: '#b3c9de',
+    blue: '#2331d6', blueDark: '#1a2394', cyan: '#60b8f2', cyanPale: '#a8e0fb',
+    coral: '#d25e43', coralD: '#a8442f', coralL: '#e88a6d',
+    gold: '#e8c384', goldD: '#c2914f', roofD: '#8a5a34',
+    marble: '#f4f0e4', marbleD: '#dcd4c1', marbleS: '#b9ae96',
+    ink: '#252b45', ink2: '#39415f',
+    skin: '#f6ddcc', skinD: '#e0b79b', skinS: '#c79579',
+    hairD: '#2b2530', hairH: '#453c4a',
+    white: '#fbfcfe', whiteD: '#dde5ef',
+    navy: '#2b3a67', navyD: '#1d2848', navyL: '#3f5390',
+    chestnut: '#8a5230', chestnutD: '#6b3d22', silver: '#d5d7de',
+    trouser: '#33384a', trouserD: '#242938', shoe: '#3a2a24',
+    strap: '#8a5a3a', folder: '#cbb283', folderD: '#a8905f',
+    mist: '#eef4fa'
+  };
+
+  function rect(x, y, w, h, c) {
+    ctx.fillStyle = c;
+    ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
   }
+  function hline(x, y, w, c) { rect(x, y, w, 1, c); }
+  function vline(x, y, h, c) { rect(x, y, 1, h, c); }
+  function dither(x, y, w, h, c) {
+    ctx.fillStyle = c;
+    for (let j = 0; j < h; j++) {
+      for (let i = (j & 1); i < w; i += 2) ctx.fillRect(x + i, y + j, 1, 1);
+    }
+  }
+  function alpha(a, fn) { ctx.globalAlpha = a; fn(); ctx.globalAlpha = 1; }
+
+  function sky() {
+    rect(-4, 0, BW + 8, 92, C.skyHi);
+    rect(-4, 92, BW + 8, 82, C.skyMid);
+    rect(-4, 174, BW + 8, BH - 170, C.skyLo);
+    dither(-4, 88, BW + 8, 6, C.skyMid);
+    dither(-4, 170, BW + 8, 6, C.skyLo);
+    const puffs = [[36, 44, 78], [148, 30, 58], [268, 52, 96], [356, 24, 52], [206, 72, 68]];
+    for (const [x, y, w] of puffs) {
+      rect(x, y, w, 3, C.cloud);
+      rect(x + 8, y - 3, w - 20, 3, C.cloud);
+      rect(x + 18, y + 3, w - 34, 2, C.cloud);
+    }
+    alpha(0.5, () => { for (const [x, y, w] of puffs) hline(x + 4, y + 5, w - 10, C.skyHi); });
+  }
+
+  function ridge(cx, base, w, h, c) {
+    for (let i = 0; i < h; i++) {
+      const half = Math.max(1, Math.round(w * (1 - i / h)));
+      hline(cx - half, base - i, half * 2, c);
+    }
+  }
+
+  function mountains() {
+    ridge(96, 182, 74, 30, C.mount);
+    ridge(178, 186, 58, 22, C.mountD);
+    ridge(300, 184, 88, 34, C.mount);
+    ridge(412, 188, 66, 24, C.mountD);
+    alpha(0.45, () => {
+      dither(24, 176, 150, 8, C.skyLo);
+      dither(250, 178, 200, 8, C.skyLo);
+    });
+  }
+
+  function acropolis(t) {
+    const g = C.cyanPale;
+    const glow = 0.42 + 0.1 * Math.sin(t * 0.7);
+    alpha(glow, () => {
+      rect(238, 190, 194, 4, g);
+      rect(234, 194, 202, 4, g);
+      for (let i = 0; i < 6; i++) {
+        const x = 250 + i * 29;
+        rect(x, 122, 10, 68, g);
+        rect(x - 3, 117, 16, 5, g);
+        rect(x - 3, 188, 16, 4, g);
+        vline(x + 6, 126, 60, C.cyan);
+      }
+      rect(242, 110, 184, 8, g);
+      rect(238, 104, 192, 6, g);
+      for (let i = 0; i < 24; i++) {
+        const half = Math.round(96 * (1 - i / 24));
+        hline(334 - half, 104 - i, half * 2, g);
+      }
+      rect(270, 130, 122, 56, C.cyan);
+      rect(276, 136, 110, 46, g);
+    });
+    const cx = 336;
+    const cy = 196;
+    const rx = 152;
+    const ry = 86;
+    alpha(0.5 + 0.22 * Math.sin(t * 0.9), () => {
+      for (let a = 0; a < Math.PI * 2; a += 0.0125) {
+        if (Math.sin(a * 7 + t * 0.6) < -0.35) continue;
+        const px = Math.round(cx + Math.cos(a) * rx);
+        const py = Math.round(cy + Math.sin(a) * ry * 0.62);
+        ctx.fillStyle = (Math.sin(a * 3 + t) > 0.6) ? C.blue : C.cyan;
+        ctx.fillRect(px, py, 1, 1);
+      }
+    });
+    const sy = 118 + Math.round((t * 16) % 74);
+    alpha(0.45, () => {
+      hline(240, sy, 190, C.cyan);
+      dither(240, sy + 1, 190, 2, C.cyanPale);
+    });
+  }
+
+  function roofTier(cx, y, halfW, h) {
+    for (let i = 0; i < h; i++) {
+      const hw = Math.round(halfW * (0.52 + 0.48 * (i / (h - 1))));
+      hline(cx - hw, y + i, hw * 2, i < 2 ? C.gold : (i % 4 === 3 ? C.goldD : C.gold));
+      if (i > 1 && i % 5 === 0) {
+        for (let k = -hw + 4; k < hw - 4; k += 10) rect(cx + k, y + i, 3, 1, C.goldD);
+      }
+    }
+    rect(cx - halfW - 5, y + h - 2, 7, 2, C.roofD);
+    rect(cx + halfW - 2, y + h - 2, 7, 2, C.roofD);
+    rect(cx - halfW - 5, y + h - 4, 2, 3, C.roofD);
+    rect(cx + halfW + 3, y + h - 4, 2, 3, C.roofD);
+    hline(cx - Math.round(halfW * 0.5), y - 1, Math.round(halfW), C.roofD);
+    rect(cx - 3, y - 3, 6, 3, C.roofD);
+  }
+
+  function sideHall(cx, y, halfW) {
+    roofTier(cx, y, halfW, 12);
+    rect(cx - halfW + 6, y + 12, (halfW - 6) * 2, 22, C.coral);
+    rect(cx - halfW + 6, y + 12, (halfW - 6) * 2, 2, C.coralD);
+    rect(cx - 8, y + 18, 6, 14, C.roofD);
+    rect(cx + 2, y + 18, 6, 14, C.roofD);
+  }
+
+  function palace(t) {
+    sideHall(152, 168, 34);
+    sideHall(430, 172, 30);
+    roofTier(300, 112, 74, 22);
+    roofTier(300, 142, 96, 20);
+    rect(246, 162, 108, 40, C.coral);
+    rect(246, 162, 108, 2, C.coralD);
+    for (let i = 0; i < 6; i++) vline(250 + i * 20, 164, 36, C.coralD);
+    for (const dx of [268, 303, 338]) {
+      rect(dx, 178, 14, 24, C.roofD);
+      rect(dx, 178, 14, 2, C.goldD);
+    }
+    rect(292, 166, 16, 8, C.gold);
+    rect(293, 167, 14, 6, C.roofD);
+    rect(196, 202, 208, 6, C.marble);
+    rect(196, 208, 208, 4, C.marbleD);
+    for (let i = 0; i < 26; i++) {
+      const x = 200 + i * 8;
+      rect(x, 198, 2, 6, C.marble);
+      rect(x, 196, 2, 2, C.marbleS);
+    }
+    for (let i = 0; i < 8; i++) {
+      const w = 40 - i * 2;
+      rect(300 - w / 2, 212 + i * 4, w, 4, i % 2 ? C.marble : C.marbleD);
+    }
+    alpha(0.7 + 0.25 * Math.sin(t * 1.6), () => {
+      rect(280, 186, 2, 3, C.coralL);
+      rect(318, 186, 2, 3, C.coralL);
+    });
+  }
+
+  function ground() {
+    rect(-4, 218, BW + 8, 56, C.marble);
+    rect(-4, 218, BW + 8, 3, C.marbleD);
+    rect(-4, 236, BW + 8, 6, C.marbleD);
+    rect(-4, 242, BW + 8, 32, C.mist);
+    for (let i = 0; i < 7; i++) hline(-4, 246 + i * 4, BW + 8, C.marble);
+    alpha(0.75, () => dither(-4, 232, BW + 8, 8, C.marble));
+  }
+
+  function shadow(cx, feet, w) {
+    const x = Math.round(cx);
+    alpha(0.16, () => {
+      rect(x - w, feet - 1, w * 2, 2, C.ink);
+      rect(x - w + 4, feet + 1, w * 2 - 8, 1, C.ink);
+    });
+  }
+
+  function tablet(x, y, t) {
+    const pulse = 0.2 + 0.12 * Math.sin(t * 3);
+    alpha(pulse, () => rect(x - 5, y - 5, 18, 26, C.cyan));
+    rect(x, y, 9, 15, C.cyanPale);
+    rect(x + 1, y + 1, 7, 13, C.cyan);
+    rect(x + 2, y + 2, 5, 5, C.white);
+    rect(x + 2, y + 9, 5, 1, C.cyanPale);
+    rect(x, y, 9, 1, C.white);
+  }
+
+  function hero(cx, feet, blink) {
+    const x = Math.round(cx);
+    const y = Math.round(feet);
+    shadow(x, y, 15);
+    rect(x - 10, y - 40, 8, 32, C.trouser);
+    rect(x + 2, y - 40, 8, 32, C.trouserD);
+    rect(x - 11, y - 8, 10, 5, C.shoe);
+    rect(x + 2, y - 8, 10, 5, C.shoe);
+    rect(x - 11, y - 8, 10, 1, C.ink2);
+    rect(x + 2, y - 8, 10, 1, C.ink2);
+    rect(x - 14, y - 82, 28, 44, C.white);
+    rect(x - 14, y - 82, 4, 44, C.whiteD);
+    rect(x + 9, y - 82, 3, 44, C.whiteD);
+    rect(x - 14, y - 40, 28, 2, C.whiteD);
+    rect(x - 5, y - 80, 11, 22, C.coral);
+    rect(x - 5, y - 80, 11, 3, C.coralD);
+    rect(x - 5, y - 58, 11, 2, C.coralD);
+    rect(x - 9, y - 87, 18, 7, C.white);
+    rect(x - 9, y - 87, 18, 1, C.whiteD);
+    rect(x - 20, y - 78, 7, 26, C.white);
+    rect(x - 20, y - 78, 7, 2, C.whiteD);
+    rect(x + 13, y - 78, 7, 25, C.white);
+    rect(x + 13, y - 78, 7, 2, C.whiteD);
+    rect(x + 13, y - 55, 7, 3, C.skin);
+    for (let i = 0; i < 20; i++) rect(x - 11 + i, y - 79 + i * 2, 3, 2, C.strap);
+    rect(x - 14, y - 46, 10, 8, C.strap);
+    rect(x - 13, y - 45, 8, 6, C.coralL);
+    rect(x - 4, y - 91, 8, 9, C.skinD);
+    rect(x - 9, y - 107, 18, 17, C.skin);
+    rect(x + 6, y - 104, 2, 12, C.skinD);
+    rect(x - 10, y - 111, 20, 7, C.hairD);
+    rect(x - 11, y - 106, 3, 9, C.hairD);
+    rect(x + 8, y - 106, 3, 7, C.hairD);
+    rect(x - 7, y - 114, 4, 4, C.hairD);
+    rect(x + 1, y - 113, 5, 3, C.hairD);
+    rect(x - 5, y - 105, 11, 2, C.hairH);
+    if (blink) {
+      rect(x - 6, y - 98, 3, 1, C.ink);
+      rect(x + 3, y - 98, 3, 1, C.ink);
+    } else {
+      rect(x - 6, y - 99, 3, 2, C.ink);
+      rect(x + 3, y - 99, 3, 2, C.ink);
+    }
+    rect(x - 7, y - 102, 4, 1, C.hairD);
+    rect(x + 3, y - 102, 4, 1, C.hairD);
+    rect(x - 1, y - 96, 2, 1, C.skinS);
+    rect(x - 2, y - 92, 4, 1, C.skinS);
+  }
+
+  function mentor(cx, feet, blink) {
+    const x = Math.round(cx);
+    const y = Math.round(feet);
+    shadow(x, y, 16);
+    rect(x - 11, y - 46, 8, 38, C.trouser);
+    rect(x + 3, y - 46, 8, 38, C.trouserD);
+    rect(x - 13, y - 9, 11, 5, C.shoe);
+    rect(x + 3, y - 9, 11, 5, C.shoe);
+    rect(x - 16, y - 88, 32, 44, C.navy);
+    rect(x - 16, y - 88, 4, 44, C.navyD);
+    rect(x + 12, y - 88, 4, 44, C.navyD);
+    rect(x - 5, y - 86, 11, 36, C.paper);
+    rect(x - 1, y - 86, 2, 34, C.whiteD);
+    rect(x - 9, y - 86, 4, 24, C.navyL);
+    rect(x + 6, y - 86, 4, 24, C.navyL);
+    rect(x - 22, y - 84, 7, 30, C.navy);
+    rect(x - 22, y - 84, 7, 2, C.navyL);
+    rect(x + 15, y - 84, 7, 26, C.navy);
+    rect(x + 15, y - 84, 7, 2, C.navyL);
+    rect(x + 15, y - 58, 7, 3, C.skin);
+    rect(x - 31, y - 64, 12, 19, C.folder);
+    rect(x - 31, y - 64, 12, 2, C.folderD);
+    rect(x - 31, y - 46, 12, 1, C.folderD);
+    rect(x - 27, y - 68, 5, 4, C.folderD);
+    rect(x - 4, y - 97, 8, 9, C.skinD);
+    rect(x - 9, y - 113, 18, 17, C.skin);
+    rect(x + 6, y - 110, 2, 12, C.skinD);
+    rect(x - 10, y - 117, 20, 8, C.chestnut);
+    rect(x - 12, y - 113, 4, 26, C.chestnut);
+    rect(x + 8, y - 113, 4, 26, C.chestnut);
+    rect(x - 12, y - 91, 4, 5, C.chestnutD);
+    rect(x + 8, y - 91, 4, 5, C.chestnutD);
+    rect(x - 6, y - 112, 5, 3, C.chestnutD);
+    rect(x - 7, y - 108, 12, 2, C.chestnut);
+    rect(x + 2, y - 116, 2, 8, C.silver);
+    rect(x - 9, y - 114, 2, 6, C.silver);
+    if (blink) {
+      rect(x - 7, y - 103, 3, 1, C.ink);
+      rect(x + 4, y - 103, 3, 1, C.ink);
+    } else {
+      rect(x - 7, y - 104, 3, 2, C.ink);
+      rect(x + 4, y - 104, 3, 2, C.ink);
+    }
+    rect(x - 9, y - 105, 18, 1, C.ink2);
+    rect(x - 9, y - 105, 1, 5, C.ink2);
+    rect(x + 8, y - 105, 1, 5, C.ink2);
+    rect(x - 8, y - 107, 4, 1, C.chestnutD);
+    rect(x + 3, y - 107, 4, 1, C.chestnutD);
+    rect(x - 1, y - 100, 2, 1, C.skinS);
+    rect(x - 2, y - 96, 4, 1, C.skinS);
+  }
+
+  function motes(t) {
+    for (let i = 0; i < 30; i++) {
+      const seed = i * 37.7;
+      const bx = Math.round(196 + ((seed * 11) % 300));
+      const by = Math.round(252 - ((t * (7 + (i % 5) * 2) + seed * 5) % 208));
+      const a = 0.18 + 0.45 * Math.abs(Math.sin(t * 0.9 + i * 0.7));
+      const size = (i % 4 === 0) ? 2 : 1;
+      alpha(a, () => rect(bx, by, size, size, (i % 6 === 0) ? C.coralL : C.cyanPale));
+    }
+  }
+
+  let t = 0;
+  let last = 0;
+  let raf = 0;
+  let paused = false;
+  const preference = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, BW, BH);
+    const sway = Math.round(Math.sin(t * 0.22) * 2);
+    ctx.setTransform(1, 0, 0, 1, sway, 0);
+    sky();
+    mountains();
+    acropolis(t);
+    palace(t);
+    ground();
+    mentor(432, 258, (t + 1.3) % 5.1 < 0.14);
+    hero(376, 266, (t % 4.4) < 0.14);
+    tablet(392, 206, t);
+    motes(t);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  function frame(now) {
+    raf = requestAnimationFrame(frame);
+    if (!last) last = now;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    if (paused || preference.matches) return;
+    t += dt;
+    draw();
+  }
+
+  function fit() {
+    const cw = world.clientWidth || window.innerWidth;
+    const ch = world.clientHeight || window.innerHeight;
+    const scale = Math.max(cw / BW, ch / BH);
+    const w = Math.round(BW * scale);
+    const h = Math.round(BH * scale);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    const fx = cw / w;
+    const fy = ch / h;
+    // cover-fit: bias toward the projection ring and the two figures on narrow/short screens
+    const bx = fx >= 0.999 ? 0.5 : Math.min(1, Math.max(0, (0.80 - fx) / (1 - fx)));
+    const by = fy >= 0.999 ? 0.5 : Math.min(1, Math.max(0, (0.99 - fy) / (1 - fy)));
+    canvas.style.left = Math.round((cw - w) * bx) + 'px';
+    canvas.style.top = Math.round((ch - h) * by) + 'px';
+  }
+
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'title-motion-toggle';
   toggle.id = 'title-motion-toggle';
-  const preference = matchMedia('(prefers-reduced-motion: reduce)');
-  function sync(paused) {
+
+  function sync(next) {
+    paused = next;
     title.classList.toggle('motion-paused', paused);
     toggle.setAttribute('aria-pressed', String(paused));
     toggle.textContent = preference.matches ? '静态画面 · 跟随系统' : (paused ? '播放动态 ◇' : '暂停动态 ◇');
     toggle.disabled = preference.matches;
+    if (paused || preference.matches) draw();
   }
-  // Title shortcuts listen on window; keep focused motion controls local.
+
+  // Title shortcuts listen on window; keep the motion control local.
   window.addEventListener('keydown', (event) => {
     if (document.activeElement !== toggle || !['Enter', ' ', 'Spacebar'].includes(event.key)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     if (!event.repeat && !toggle.disabled) toggle.click();
   }, true);
-  toggle.addEventListener('click', () => sync(!title.classList.contains('motion-paused')));
-  preference.addEventListener('change', () => sync(preference.matches));
-  sync(preference.matches);
-  title.append(mist, motes, toggle);
+  toggle.addEventListener('click', () => sync(!paused));
+  preference.addEventListener('change', () => sync(paused));
+
+  window.addEventListener('resize', fit);
+  fit();
+  draw();
+  sync(false);
+  raf = requestAnimationFrame(frame);
+  window.addEventListener('pagehide', () => cancelAnimationFrame(raf), { once: true });
+  title.append(toggle);
+  title.dataset.pixelReady = 'true';
 })();
 
 </script>
@@ -21016,13 +21589,10 @@ window.WXL_SCRIPT = {
           else self.go(start);
           return r;
         }
-        /* 开场动画：没看过就播一次，播完停在标题页。
-           不自动进关——玩家自己点「进入万象灵境」再开始。 */
-        if (reg.cutscene.opening && G.cut && G.cut.play && !G.cut.seen('opening')) {
-          G.cut.play('opening', function () {
-            if (G.ui && G.ui.toast) G.ui.toast('点「进入万象灵境」开始', 'good', 2600);
-          });
-        }
+        /* 开场动画改到「玩家真的选关入境」时再播（js/main.js 的 G.enterLevel）。
+           以前在标题页自动播，整屏被 #cut 盖住，点「进入万象灵境」只会跳
+           过场、什么都不会发生，看起来就像按钮坏了。 */
+        if (G.ui && G.ui.toast) G.ui.toast('选一关入境：点「进入万象灵境」或按 M', 'good', 2600);
         return r;
       });
       return this.ready;
@@ -21211,9 +21781,14 @@ window.WXL_SCRIPT = {
 
     /* ---------------- 生命周期 ---------------- */
     onEnter() {
+      const self = this;
       const id = this.map.id;
       const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : (this.map.title || id);
-      const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
+      let sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
+      /* HUD 里带「第 N 关 / 共 6 关」，玩家一眼知道自己在整条线的哪一段 */
+      if (G.LEVEL_ORDER && G.LEVEL_ORDER.indexOf(id) >= 0) {
+        sub = '第 ' + (G.LEVEL_ORDER.indexOf(id) + 1) + ' 关 · ' + (sub || '');
+      }
       G.ui.location(name, sub);
 
       const objKey = this.map.objectiveKey || ('nodes.' + id + '.objective');
@@ -21229,10 +21804,18 @@ window.WXL_SCRIPT = {
       if (!G.save.flag('seen.' + id)) {
         G.save.flag('seen.' + id, true);
         if (cutId && G.mod.has('cutscene', cutId)) {
-          G.mod.cut(cutId, null);
+          G.mod.cut(cutId, function () {
+            // 过场结束再提示“走到哪里、按什么键”，否则开场期间会被黑边盖住
+            if (self.map.enterTip) G.ui.toast(self.map.enterTip, 'good', 3600);
+          });
         } else if (G.str.has(enterKey)) {
           G.dialog.show(G.str.dialog(enterKey));
         }
+      } else if (this.map.enterTip) {
+        /* 二次进入也给一句指引：玩家可能隔了很久回来，早忘了这关要干嘛 */
+        setTimeout(function () {
+          if (G.scene === self) G.ui.toast(self.map.enterTip, 'good', 3200);
+        }, 400);
       }
     }
 
@@ -23178,6 +23761,7 @@ G.mod.register({
   "title": "午门",
   "sub": "原点之争",
   "enterCut": "wumen.intro",
+  "enterTip": "向北走到午门门洞前，按 E 查看叠印的网格",
   "size": {
     "w": 640,
     "h": 620
@@ -26339,29 +26923,29 @@ G.mod.register({
   id: 'wumen.intro',
 
   steps: [
-    { t: 'fade', to: 1, ms: 420, color: '#08070a' },
-    { t: 'bars', on: true, ms: 300 },
+    { t: 'fade', to: 1, ms: 320, color: '#08070a' },
+    { t: 'bars', on: true, ms: 240 },
 
     /* 她先开口，然后才看得见她 */
-    { t: 'card', key: 'cuts.wumen_intro.0', ms: 1500 },
-    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 340 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 2400 },
+    { t: 'card', key: 'cuts.wumen_intro.0', ms: 900 },
+    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 240 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 1400 },
 
     /* 地上那层灰绿的线，肉眼可见地对不上 */
-    { t: 'shake', ms: 260, amp: 4 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2600 },
+    { t: 'shake', ms: 220, amp: 4 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2200 },
 
     /* 玩家自己的一句：短、轻、别抢戏 */
-    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1800 },
+    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1100 },
 
     /* 她收尾：先把「这不是错」说清楚，否则玩家会把「分开」当成正确答案。
        这两句是主题的支点（见 docs/冲刺4小时.md §1），别删。 */
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 2300 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 2400 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 1300 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 1400 },
 
     { t: 'clear' },
     { t: 'bars', on: false, ms: 320 },
-    { t: 'fade', to: 0, ms: 520 }
+    { t: 'fade', to: 0, ms: 420 }
   ]
 });
 
@@ -26466,14 +27050,16 @@ G.mod.register({
     }
   }
 
+  /* 主按钮先开「六关」列表，玩家自己挑一关（之前直接丢进午门，玩家不知道还有别的关） */
   function enter() {
     const G = window.G;
     if (!G) return;
+    if (G.audio && G.audio.sfx) G.audio.sfx('blip');
+    if (typeof G.openLevels === 'function') { G.openLevels(); return; }
     if (!G.mod || typeof G.mod.go !== 'function') {
       if (G.ui && G.ui.toast) G.ui.toast('模块化系统没有加载：请检查 index.html 末尾的脚本', 'bad', 2400);
       return;
     }
-    if (G.audio && G.audio.sfx) G.audio.sfx('blip');
     G.mod.go('wumen');
   }
 

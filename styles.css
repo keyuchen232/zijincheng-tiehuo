@@ -750,3 +750,46 @@ body.title-mode #stage{visibility:hidden}
 @media(max-width:700px){
   .title-inner .title-foot{display:flex;font-size:.62em}
 }
+
+/* 创造模式工具栏状态 */
+#creation-status{margin-left:.8em;font-size:.74em;color:#b9c9b8}
+#creation-ai{margin-left:.6em;font-size:.72em;color:#9a8a72;border:1px solid #4b3a24;border-radius:2px;padding:.15em .5em}
+#creation-ai.on{color:#8fd0a0;border-color:#3f6b4a}
+#creation-export{border:1px solid #6d5326;background:#2a2013;color:#ffd98a;font-size:.74em;padding:.4em .8em;border-radius:2px;cursor:pointer}
+#creation-export:disabled{opacity:.45;cursor:not-allowed}
+#creation-sandbox{border:1px solid #5a4529;background:#241b14;color:#c9b48a;font-size:.74em;padding:.4em .8em;border-radius:2px;cursor:pointer}
+
+/* ---------------- 万象灵境 · 六关选择 ---------------- */
+#levels{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:4vh 3vw;
+  background:radial-gradient(ellipse at 50% 40%,rgba(28,20,16,.92) 0%,rgba(6,5,4,.96) 70%)}
+#levels .levels-card{width:min(980px,94vw);max-height:88vh;display:flex;flex-direction:column;
+  border:1px solid rgba(196,160,96,.28);background:linear-gradient(180deg,rgba(24,18,14,.96),rgba(12,9,7,.98));
+  box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.02);padding:26px 30px 18px}
+#levels .levels-head{margin-bottom:18px;border-bottom:1px solid rgba(196,160,96,.16);padding-bottom:14px}
+#levels .levels-eyebrow{display:inline-block;font-size:11px;letter-spacing:.32em;color:var(--gold,#c9a35c);opacity:.9}
+#levels h2{margin:8px 0 8px;font-family:var(--kai,"KaiTi",serif);font-size:26px;letter-spacing:.14em;color:var(--cream,#f2e9d8)}
+#levels p{font-size:13px;line-height:1.9;color:rgba(242,233,216,.62);max-width:74ch}
+#levels .levels-grid{overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:4px 2px 10px}
+#levels .lv-card{position:relative;text-align:left;padding:16px 16px 14px;cursor:pointer;
+  border:1px solid rgba(196,160,96,.22);background:linear-gradient(180deg,rgba(38,29,22,.72),rgba(18,13,10,.9));
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+#levels .lv-card:hover,#levels .lv-card:focus-visible{transform:translateY(-3px);border-color:rgba(226,180,96,.6);
+  box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 0 0 1px rgba(226,180,96,.25);outline:none}
+#levels .lv-no{font-size:11px;letter-spacing:.26em;color:var(--gold,#c9a35c)}
+#levels .lv-name{margin:6px 0 2px;font-family:var(--kai,"KaiTi",serif);font-size:21px;letter-spacing:.1em;color:var(--cream,#f2e9d8)}
+#levels .lv-sub{font-size:11px;letter-spacing:.22em;color:rgba(242,233,216,.45)}
+#levels .lv-obj{margin-top:10px;font-size:12px;line-height:1.8;color:rgba(242,233,216,.66);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#levels .lv-state{margin-top:12px;display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.18em;color:rgba(242,233,216,.4)}
+#levels .lv-state b{color:var(--gold,#c9a35c);font-weight:600}
+#levels .lv-card.done{border-color:rgba(120,180,130,.4)}
+#levels .lv-card.done .lv-state{color:rgba(150,210,160,.85)}
+#levels .lv-card.done .lv-state b{color:rgba(150,210,160,.95)}
+#levels .levels-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;
+  border-top:1px solid rgba(196,160,96,.16);font-size:12px;letter-spacing:.16em;color:rgba(242,233,216,.5)}
+#levels .levels-foot .btn{padding:8px 16px}
+@media (max-width:760px){
+  #levels .levels-card{padding:18px 16px 12px}
+  #levels .levels-grid{grid-template-columns:1fr 1fr}
+  #levels h2{font-size:20px}
+}

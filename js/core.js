@@ -542,7 +542,7 @@
     G.save.persist();
   };
   G.isWorldPaused = function () {
-    return G.overlayDepth > 0 || G.dialog.active || G.cinema.active || G.fade.busy ||
+    return G.overlayDepth > 0 || G.levelsOpen || G.dialog.active || G.cinema.active || G.fade.busy ||
       (G.minigame && G.minigame.active) || (G.titleActive !== false);
   };
 

@@ -5,6 +5,7 @@ G.mod.register({
   "title": "午门",
   "sub": "原点之争",
   "enterCut": "wumen.intro",
+  "enterTip": "向北走到午门门洞前，按 E 查看叠印的网格",
   "size": {
     "w": 640,
     "h": 620

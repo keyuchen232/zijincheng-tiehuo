@@ -484,7 +484,9 @@ const planG = plans.filter((p) => p.keepWhat === 'gugong_axis')[0];
 {
   const w = makeWorld();
   const maps = w.g.mod.list('map');
-  check('六张地图都在', maps.length === 6, maps.join(','));
+  /* create 是造境台（创造模式沙盒），不算主线六关 */
+  const mainline = ['wumen', 'taihe', 'qianqing', 'repair_bench', 'creator', 'shenwumen'];
+  check('六张主关卡都在', mainline.every(function (id) { return maps.indexOf(id) >= 0; }), maps.join(','));
   const puzzles = w.g.mod.list('puzzle');
   const need = [
     'wumen.registration', 'taihe.labels', 'taihe.keep', 'taihe.layer.stones',

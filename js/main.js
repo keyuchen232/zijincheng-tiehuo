@@ -594,6 +594,93 @@
   };
 
   /* ============================================================
+     万象灵境 · 六关（关卡选择）
+     玩家点「进入万象灵境」先看到六关列表：每关写明这一关要干什么，
+     点哪关进哪关；菜单里也能随时回到这里。
+     ============================================================ */
+  G.LEVEL_ORDER = ['wumen', 'taihe', 'qianqing', 'repair_bench', 'creator', 'shenwumen'];
+  G.levelDone = function (id) { return !!(G.save && G.save.flag && G.save.flag('spot.' + id)); };
+  G.levelMeta = function (id) {
+    let map = null;
+    try { map = (G.mod && G.mod.get) ? G.mod.get('map', id) : null; } catch (e) { map = null; }
+    const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : ((map && map.title) || id);
+    const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : ((map && map.sub) || '');
+    let obj = '';
+    try { obj = G.str.get((map && map.objectiveKey) || ('nodes.' + id + '.objective')); } catch (e) { obj = ''; }
+    if (!obj && map && map.objective) obj = map.objective;
+    return { id: id, name: name, sub: sub, obj: obj };
+  };
+  G.levelsOpen = false;
+  G.renderLevels = function () {
+    const grid = $('#levels-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    let doneN = 0;
+    G.LEVEL_ORDER.forEach(function (id, i) {
+      const m = G.levelMeta(id);
+      const done = G.levelDone(id);
+      if (done) doneN++;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'lv-card' + (done ? ' done' : '');
+      card.dataset.map = id;
+      card.innerHTML = '<div class="lv-no">第 ' + (i + 1) + ' 关</div>' +
+        '<div class="lv-name">' + m.name + '</div>' +
+        '<div class="lv-sub">' + (m.sub || '') + '</div>' +
+        '<div class="lv-obj">' + (m.obj || '进入这一关查看目标') + '</div>' +
+        '<div class="lv-state"><b>' + (done ? '已完成' : '未完成') + '</b><span>· 点击进入</span></div>';
+      card.addEventListener('click', function () { G.enterLevel(id); });
+      grid.appendChild(card);
+    });
+    const prog = $('#levels-progress');
+    if (prog) prog.textContent = '进度 · ' + doneN + ' / ' + G.LEVEL_ORDER.length + '　（进度自动存档）';
+  };
+  G.openLevels = function () {
+    if (!G.titleActive && G.scene) return;   /* 关里不弹：从菜单进 */
+    G.levelsOpen = true;
+    G.renderLevels();
+    G.show($('#levels'));
+    G.input.clearPressed();
+  };
+  G.closeLevels = function () {
+    if (!G.levelsOpen) return;
+    G.levelsOpen = false;
+    G.hide($('#levels'));
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+  /* 进入某一关：第一次入境先播开场（倒计时），之后直接进 */
+  G.enterLevel = function (id) {
+    G.closeLevels();
+    const go = function () { G.mod.go(id); };
+    try {
+      if (G.mod.has && G.mod.has('cutscene', 'opening') && G.cut && G.cut.seen && !G.cut.seen('opening')) {
+        G.cut.play('opening', go);
+        return;
+      }
+    } catch (e) { /* 落到直接进关 */ }
+    go();
+  };
+  G.bindLevels = function () {
+    const closeBtn = $('#levels-close');
+    if (closeBtn) closeBtn.addEventListener('click', function () { G.closeLevels(); });
+    const box = $('#levels');
+    if (box) box.addEventListener('click', function (e) { if (e.target.id === 'levels') G.closeLevels(); });
+    const menuLevels = $('#menu-levels');
+    if (menuLevels) menuLevels.addEventListener('click', function () {
+      menu.close();
+      G.levelsOpen = true;
+      G.renderLevels();
+      G.show($('#levels'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!G.levelsOpen) return;
+      if (e.key === 'Escape') { G.closeLevels(); return; }
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= G.LEVEL_ORDER.length) G.enterLevel(G.LEVEL_ORDER[n - 1]);
+    });
+  };
+
+  /* ============================================================
      创造模式（独立页面 · iframe 隔离 · 独立存档）
      ============================================================ */
   G.creationOpen = false;
@@ -602,7 +689,87 @@
     if (!Array.isArray(G.save.data.creations)) G.save.data.creations = [];
     return G.save.data.creations;
   };
+  G.creationLast = function () {
+    const list = G.creationCreations();
+    return list.length ? list[list.length - 1] : null;
+  };
+  G.creationExport = function () {
+    const last = G.creationLast();
+    if (!last) { G.ui.toast('还没有定格的作品', 'warn', 2000); return; }
+    const data = JSON.stringify(last, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '创造模式作品-' + (last.worldId || 'world') + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  };
+  G.creationSyncStatus = function () {
+    const st = $('#creation-status');
+    const ex = $('#creation-export');
+    const last = G.creationLast();
+    if (st) st.textContent = last ? ('已成画 · ' + last.worldId) : '尚未成画';
+    if (ex) ex.disabled = !last;
+  };
+  G.creationWindow = null;
+  /* 作品完成后的落盘：窗口事件 / postMessage / localStorage 三条路都汇到这里 */
+  G.creationHandleDone = function (d, w) {
+    d = d || {};
+    if (typeof d.worldId !== 'string' || d.independent !== true) return;
+    const list = G.creationCreations();
+    const existing = list.find(function (c) { return c.worldId === d.worldId; });
+    let artifact = d.artifact || null;
+    try {
+      if (!artifact && w && w.FusionExplore && typeof w.FusionExplore.artifact === 'function') artifact = w.FusionExplore.artifact();
+    } catch (e) { /* 拿不到就只存 worldId */ }
+    if (artifact && (!artifact.world || artifact.world.seed !== d.worldId)) artifact = null;
+    if (existing) {
+      if (!existing.artifact && artifact) { existing.artifact = artifact; G.save.persist(); }
+      return;
+    }
+    list.push({ worldId: d.worldId, at: Date.now(), artifact: artifact });
+    while (list.length > 3) list.shift();
+    G.save.persist();
+    G.ui.toast('创造模式 · 作品已定格：' + d.worldId + '（可导出）', 'good', 3000);
+  };
+  G.bindCreationWindow = function (w) {
+    if (!w) return;
+    G.creationWindow = w;
+    const onDone = function (ev) { G.creationHandleDone((ev && ev.detail) || {}, w); };
+    try { w.addEventListener('wanxiang:creation-completed', onDone); } catch (e) { /* 跨域就只剩独立页面 */ }
+  };
+  /* 新标签页没给出窗口引用时，靠 postMessage（带 opener 时）和 storage 事件兜底 */
+  if (typeof window !== 'undefined' && !G._creationBridgeBound) {
+    G._creationBridgeBound = true;
+    window.addEventListener('message', function (ev) {
+      if (ev.origin !== location.origin) return;
+      const m = ev.data || {};
+      if (m.type === 'wanxiang:creation-completed') G.creationHandleDone(m.detail, ev.source);
+    });
+    window.addEventListener('storage', function (ev) {
+      if (ev.key !== 'wxl.creation.done' || !ev.newValue) return;
+      let rec = null;
+      try { rec = JSON.parse(ev.newValue); } catch (e) { return; }
+      G.creationHandleDone(rec, null);
+    });
+  }
+
+  /* 创造模式：默认新开一个整窗页面；被浏览器拦截时回退到 iframe 层 */
   G.openCreation = function () {
+    let w = null;
+    /* _blank 才会开成“标签页”；带窗口名会被浏览器当成弹窗新窗口 */
+    try { w = window.open('creation/index.html', '_blank'); } catch (e) { w = null; }
+    if (w) {
+      try { w.focus(); } catch (e) { /* ignore */ }
+      G.bindCreationWindow(w);
+      G.ui.toast('创造模式已在新标签页打开', 'good', 2200);
+      return;
+    }
+    /* 窗口被拦截时直接使用可确认打开的内嵌层。 */
+    G.openCreationInline();
+  };
+  G.openCreationInline = function () {
     if (G.creationOpen) return;
     G.creationOpen = true;
     const frame = $('#creation-frame');
@@ -614,13 +781,17 @@
         if (loading) loading.classList.add('hidden');
         try {
           // 同源 iframe：完成事件只在子窗口触发，必须监听 contentWindow
-          frame.contentWindow.addEventListener('wanxiang:creation-completed', function (ev) {
-            const d = (ev && ev.detail) || {};
-            if (typeof d.worldId !== 'string' || d.independent !== true) return;
-            const list = G.creationCreations();
-            list.push({ worldId: d.worldId, at: Date.now() });
-            G.save.persist();
-            G.ui.toast('创造模式 · 作品已定格：' + d.worldId, 'good', 2800);
+          G.bindCreationWindow(frame.contentWindow);
+          frame.contentWindow.addEventListener('wanxiang:creation-completed', function () { G.creationSyncStatus(); });
+          // AI 服务状态（同源 /api/status，未启动时走本地生成）
+          fetch('/api/status', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s2) {
+            const ai = $('#creation-ai');
+            if (!ai) return;
+            ai.textContent = (s2 && s2.available) ? 'AI 已连接' : 'AI 未连接 · 本地生成';
+            ai.classList.toggle('on', !!(s2 && s2.available));
+          }).catch(function () {
+            const ai = $('#creation-ai');
+            if (ai) ai.textContent = 'AI 未连接 · 本地生成';
           });
         } catch (e) { /* 跨域时静默：仍是独立页面 */ }
       };
@@ -628,6 +799,7 @@
     } else if (loading) {
       loading.classList.add('hidden');
     }
+    G.creationSyncStatus();
     G.show($('#creation'));
     G.input.clearPressed();
     try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
@@ -684,12 +856,8 @@
     const f = G.save.data.flags;
     G.fade.to(() => {
       const pos = G.save.data.pos;
-      if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
-        G.mod.go('create', { spawn: { x: pos.x, y: pos.y } });
-        G.ui.showHud(true);
-      }
-      else if (pos && pos.scene === 'wumen' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'wumen')) {
-        G.mod.go('wumen', { spawn: { x: pos.x, y: pos.y } });
+      if (pos && G.mod && G.mod.go && G.mod.has && G.mod.has('map', pos.scene)) {
+        G.mod.go(pos.scene, { spawn: { x: pos.x, y: pos.y } });
         G.ui.showHud(true);
       }
       else if (pos && pos.scene === 'fusion' && G.enterFusion) { G.enterFusion({ skipIntro: true, spawn: { x: pos.x, y: pos.y } }); }
@@ -833,6 +1001,10 @@
       if (crBtn) crBtn.addEventListener('click', () => G.openCreation());
       const creationClose = $('#creation-close');
       if (creationClose) creationClose.addEventListener('click', () => G.closeCreation());
+      const creationExport = $('#creation-export');
+      if (creationExport) creationExport.addEventListener('click', () => G.creationExport());
+      const creationSandbox = $('#creation-sandbox');
+      if (creationSandbox) creationSandbox.addEventListener('click', () => { G.closeCreation(); G.enterCreateMode(); });
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
@@ -861,7 +1033,8 @@
       const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
       const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
       const done = d.codex ? d.codex.length : 0;
-      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
+      const made = Array.isArray(d.creations) ? d.creations.length : 0;
+      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页' + (made ? ' · 造境 ' + made + ' 件' : '');
     },
   };
 
@@ -892,11 +1065,10 @@
       if (code === 'Escape') G.closeArtDemo();
       return;
     }
-    // title
+    if (G.levelsOpen) return;
+    // Title keyboard uses the same six-level selector as the main button.
     if (G.titleActive) {
-      if (code === 'Enter' || code === 'Space') {
-        if (G.save.exists()) continueGame(); else startNewGame();
-      }
+      if (code === 'Enter' || code === 'Space') G.openLevels();
       return;
     }
     // modal layers
@@ -953,6 +1125,7 @@
       G.minigame.key(code);
       return;
     }
+    if (code === 'KeyM' && G.scene && G.mod && G.mod.has('map', G.scene.id)) { G.openLevels(); return; }
     if (code === 'KeyH') { G.toggleHome(); return; }
     if (code === 'Escape') { menu.show(); return; }
     if (code === 'KeyJ') { codex.show(); return; }
@@ -990,6 +1163,7 @@
     codex.init();
     menu.init();
     if (G.ai) G.ai.init();
+    if (typeof G.bindLevels === 'function') G.bindLevels();
 
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));

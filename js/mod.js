@@ -308,13 +308,10 @@
           else self.go(start);
           return r;
         }
-        /* 开场动画：没看过就播一次，播完停在标题页。
-           不自动进关——玩家自己点「进入万象灵境」再开始。 */
-        if (reg.cutscene.opening && G.cut && G.cut.play && !G.cut.seen('opening')) {
-          G.cut.play('opening', function () {
-            if (G.ui && G.ui.toast) G.ui.toast('点「进入万象灵境」开始', 'good', 2600);
-          });
-        }
+        /* 开场动画改到「玩家真的选关入境」时再播（js/main.js 的 G.enterLevel）。
+           以前在标题页自动播，整屏被 #cut 盖住，点「进入万象灵境」只会跳
+           过场、什么都不会发生，看起来就像按钮坏了。 */
+        if (G.ui && G.ui.toast) G.ui.toast('选一关入境：点「进入万象灵境」或按 M', 'good', 2600);
         return r;
       });
       return this.ready;

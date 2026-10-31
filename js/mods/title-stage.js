@@ -52,14 +52,16 @@
     }
   }
 
+  /* 主按钮先开「六关」列表，玩家自己挑一关（之前直接丢进午门，玩家不知道还有别的关） */
   function enter() {
     const G = window.G;
     if (!G) return;
+    if (G.audio && G.audio.sfx) G.audio.sfx('blip');
+    if (typeof G.openLevels === 'function') { G.openLevels(); return; }
     if (!G.mod || typeof G.mod.go !== 'function') {
       if (G.ui && G.ui.toast) G.ui.toast('模块化系统没有加载：请检查 index.html 末尾的脚本', 'bad', 2400);
       return;
     }
-    if (G.audio && G.audio.sfx) G.audio.sfx('blip');
     G.mod.go('wumen');
   }
 
