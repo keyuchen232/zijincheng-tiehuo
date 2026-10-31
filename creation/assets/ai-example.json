@@ -1,0 +1,518 @@
+{
+  "schema": "wanxiang.playable-package",
+  "version": 2,
+  "world": {
+    "schema": "wanxiang.world",
+    "version": 5,
+    "revision": "0.10",
+    "prompt": "以故宫的门院为主骨架，让雅典卫城的白石台地与柱廊进入侧院和远景；保留两翼呼应、侧庭回游与开敞前院，在西侧借景窗中看见白石神庙。月夜里用脚步留下回声。",
+    "packages": [
+      "acropolis",
+      "palace"
+    ],
+    "plan": {
+      "description": "以故宫门院组织为参照，沿门—外院—内院—主殿递进，主院聚合、前院开敞，两翼呼应，侧廊连通回游。白石台地与柱廊置入西侧庭及上部观景台，斜向登阶后可绕神庙行走；合璧殿以柱列承接红檐。月夜自由探索，转动西侧取景方向，将远处白石神庙对准窗心；依次踩响三块声石，让脚步回声伴随柱廊流光，再选择月亮意象、定格成画。建筑为简化参照，借景另取园林来源，合璧建筑与两项小游戏均为现代虚构。",
+      "gardenSide": "west",
+      "motif": "moon",
+      "palette": "mineral",
+      "primary": "palace",
+      "skills": [
+        "acropolis-terrain",
+        "borrowed-view",
+        "column-rhythm",
+        "palace-order"
+      ],
+      "spatialIntent": "gathered",
+      "timeOfDay": "night",
+      "title": "月照宫门，白石回声",
+      "weather": "clear",
+      "interactionPolicy": "full"
+    },
+    "layout": {
+      "interactions": {
+        "policy": "full",
+        "anchors": [
+          {
+            "id": "craft",
+            "x": 565,
+            "y": 1005
+          },
+          {
+            "id": "keeper",
+            "x": 560,
+            "y": 665
+          },
+          {
+            "id": "stone",
+            "name": "石作学徒 · 伊里斯",
+            "culture": "acropolis",
+            "x": 1130,
+            "y": 630
+          },
+          {
+            "id": "observer",
+            "name": "台地记录者 · 莱昂",
+            "culture": "acropolis",
+            "x": 600,
+            "y": 350
+          }
+        ],
+        "buildings": [
+          {
+            "id": "building-0",
+            "name": "入境宫门",
+            "card": "gate",
+            "x": 750,
+            "y": 1135
+          },
+          {
+            "id": "building-1",
+            "name": "合璧共创殿",
+            "card": "hall",
+            "x": 750,
+            "y": 620
+          },
+          {
+            "id": "building-2",
+            "name": "东廊",
+            "card": "gallery",
+            "x": 950,
+            "y": 1000
+          },
+          {
+            "id": "athens-building-0",
+            "name": "白石神庙意象",
+            "card": "temple",
+            "culture": "acropolis",
+            "x": 800,
+            "y": 410
+          },
+          {
+            "id": "athens-building-1",
+            "name": "侧院长廊",
+            "card": "stoa",
+            "culture": "acropolis",
+            "x": 1190,
+            "y": 605
+          }
+        ]
+      },
+      "width": 1500,
+      "height": 1350,
+      "topology": "gate-courts-and-loops",
+      "regions": [
+        {
+          "id": "arrival",
+          "name": "门外前庭",
+          "x": 530,
+          "y": 1100,
+          "w": 440,
+          "h": 170,
+          "elevation": 0
+        },
+        {
+          "id": "outer",
+          "name": "开阔外院",
+          "x": 410,
+          "y": 840,
+          "w": 680,
+          "h": 270,
+          "elevation": 0
+        },
+        {
+          "id": "inner",
+          "name": "殿前主院",
+          "x": 440,
+          "y": 570,
+          "w": 620,
+          "h": 290,
+          "elevation": 1
+        },
+        {
+          "id": "garden",
+          "name": "侧庭回游",
+          "x": 170,
+          "y": 470,
+          "w": 280,
+          "h": 530,
+          "elevation": 1
+        },
+        {
+          "id": "colonnade",
+          "name": "白石柱廊院",
+          "x": 1050,
+          "y": 470,
+          "w": 280,
+          "h": 530,
+          "elevation": 1
+        },
+        {
+          "id": "upper",
+          "name": "眺望台地",
+          "x": 440,
+          "y": 220,
+          "w": 620,
+          "h": 380,
+          "elevation": 2
+        }
+      ],
+      "connections": [
+        {
+          "id": "entry",
+          "x": 718,
+          "y": 1070,
+          "w": 64,
+          "h": 60
+        },
+        {
+          "id": "threshold",
+          "x": 700,
+          "y": 810,
+          "w": 100,
+          "h": 75
+        },
+        {
+          "id": "upper-step",
+          "x": 710,
+          "y": 540,
+          "w": 110,
+          "h": 95
+        },
+        {
+          "id": "west-upper",
+          "x": 370,
+          "y": 530,
+          "w": 170,
+          "h": 70
+        },
+        {
+          "id": "west-lower",
+          "x": 350,
+          "y": 920,
+          "w": 160,
+          "h": 70
+        },
+        {
+          "id": "east-upper",
+          "x": 990,
+          "y": 530,
+          "w": 180,
+          "h": 70
+        },
+        {
+          "id": "east-lower",
+          "x": 990,
+          "y": 920,
+          "w": 170,
+          "h": 70
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 235,
+          "y": 650,
+          "w": 118,
+          "h": 120,
+          "kind": "water"
+        },
+        {
+          "x": 615,
+          "y": 1080,
+          "w": 105,
+          "h": 25
+        },
+        {
+          "x": 780,
+          "y": 1080,
+          "w": 105,
+          "h": 25
+        },
+        {
+          "x": 647.5,
+          "y": 825,
+          "w": 72.5,
+          "h": 25
+        },
+        {
+          "x": 780,
+          "y": 825,
+          "w": 72.5,
+          "h": 25
+        },
+        {
+          "x": 602,
+          "y": 525,
+          "w": 296,
+          "h": 58
+        },
+        {
+          "x": 461,
+          "y": 895,
+          "w": 58,
+          "h": 152
+        },
+        {
+          "x": 981,
+          "y": 895,
+          "w": 58,
+          "h": 152
+        },
+        {
+          "x": 674.5,
+          "y": 315,
+          "w": 251,
+          "h": 58
+        },
+        {
+          "x": 1098,
+          "y": 510,
+          "w": 184,
+          "h": 58
+        },
+        {
+          "x": 410,
+          "y": 1090,
+          "w": 300,
+          "h": 10,
+          "kind": "wall"
+        },
+        {
+          "x": 790,
+          "y": 1090,
+          "w": 300,
+          "h": 10,
+          "kind": "wall"
+        },
+        {
+          "x": 410,
+          "y": 835,
+          "w": 300,
+          "h": 10,
+          "kind": "wall"
+        },
+        {
+          "x": 790,
+          "y": 835,
+          "w": 300,
+          "h": 10,
+          "kind": "wall"
+        }
+      ],
+      "pond": {
+        "x": 235,
+        "y": 650,
+        "w": 118,
+        "h": 120
+      },
+      "placements": [
+        {
+          "kind": "gate",
+          "name": "入境宫门",
+          "package": "palace",
+          "x": 750,
+          "y": 1100,
+          "w": 270
+        },
+        {
+          "kind": "gate",
+          "name": "承序门",
+          "package": "palace",
+          "x": 750,
+          "y": 845,
+          "w": 205
+        },
+        {
+          "kind": "fusion",
+          "name": "合璧共创殿",
+          "package": "palace",
+          "x": 750,
+          "y": 585,
+          "w": 320
+        },
+        {
+          "kind": "long-wing",
+          "name": "西廊",
+          "package": "palace",
+          "x": 490,
+          "y": 1047,
+          "w": 66,
+          "length": 152,
+          "facing": "east"
+        },
+        {
+          "kind": "long-wing",
+          "name": "东廊",
+          "package": "palace",
+          "x": 1010,
+          "y": 1047,
+          "w": 66,
+          "length": 152,
+          "facing": "west"
+        },
+        {
+          "kind": "temple",
+          "name": "白石神庙意象",
+          "package": "acropolis",
+          "x": 800,
+          "y": 375,
+          "w": 275
+        },
+        {
+          "kind": "stoa",
+          "name": "侧院长廊",
+          "package": "acropolis",
+          "x": 1190,
+          "y": 570,
+          "w": 208
+        }
+      ],
+      "nodes": [
+        {
+          "id": "arrival",
+          "x": 750,
+          "y": 1190
+        },
+        {
+          "id": "frame",
+          "x": 325,
+          "y": 850
+        },
+        {
+          "id": "echo",
+          "x": 1180,
+          "y": 835
+        },
+        {
+          "id": "compose",
+          "x": 750,
+          "y": 760
+        },
+        {
+          "id": "finish",
+          "x": 600,
+          "y": 300
+        }
+      ],
+      "pads": [
+        {
+          "x": 1120,
+          "y": 730
+        },
+        {
+          "x": 1190,
+          "y": 670
+        },
+        {
+          "x": 1260,
+          "y": 730
+        }
+      ],
+      "frameTarget": -25,
+      "spawn": {
+        "x": 750,
+        "y": 1230
+      },
+      "route": [
+        {
+          "x": 750,
+          "y": 1230
+        },
+        {
+          "x": 750,
+          "y": 950
+        },
+        {
+          "x": 750,
+          "y": 760
+        },
+        {
+          "x": 550,
+          "y": 640
+        },
+        {
+          "x": 550,
+          "y": 300
+        }
+      ]
+    },
+    "placements": [
+      {
+        "kind": "gate",
+        "name": "入境宫门",
+        "package": "palace",
+        "x": 750,
+        "y": 1100,
+        "w": 270
+      },
+      {
+        "kind": "gate",
+        "name": "承序门",
+        "package": "palace",
+        "x": 750,
+        "y": 845,
+        "w": 205
+      },
+      {
+        "kind": "fusion",
+        "name": "合璧共创殿",
+        "package": "palace",
+        "x": 750,
+        "y": 585,
+        "w": 320
+      },
+      {
+        "kind": "long-wing",
+        "name": "西廊",
+        "package": "palace",
+        "x": 490,
+        "y": 1047,
+        "w": 66,
+        "length": 152,
+        "facing": "east"
+      },
+      {
+        "kind": "long-wing",
+        "name": "东廊",
+        "package": "palace",
+        "x": 1010,
+        "y": 1047,
+        "w": 66,
+        "length": 152,
+        "facing": "west"
+      },
+      {
+        "kind": "temple",
+        "name": "白石神庙意象",
+        "package": "acropolis",
+        "x": 800,
+        "y": 375,
+        "w": 275
+      },
+      {
+        "kind": "stoa",
+        "name": "侧院长廊",
+        "package": "acropolis",
+        "x": 1190,
+        "y": 570,
+        "w": 208
+      }
+    ],
+    "cultureRefs": [
+      "acropolis-terrain",
+      "borrowed-view",
+      "column-rhythm",
+      "palace-order"
+    ],
+    "seed": "v7:ksndbk",
+    "provenance": {
+      "mode": "bundled-ai",
+      "model": "gpt-6-astra"
+    }
+  },
+  "initial": {
+    "motif": "moon",
+    "rhythm": "ascending",
+    "frameAngle": 0
+  },
+  "note": "历史 AI 方案用 v0.10 编译器重新编译；新增互动按本地默认策略补齐，非历史 AI 输出。本次打开不调用 API，从新进度开始。"
+}

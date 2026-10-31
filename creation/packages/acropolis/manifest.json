@@ -1,0 +1,9 @@
+{
+  "schema": "wanxiang.scene-package", "version": 1, "id": "acropolis", "name": "雅典卫城 · 柱廊台地",
+  "topology": "terrace", "renderer": "acropolis", "color": "#cbbb96",
+  "summary": "由入口走向抬升的台地，柱列、山墙与开阔前庭形成空间节奏。",
+  "landmarks": [{"id":"acropolis-gateway","name":"山门参照","kind":"gateway"},{"id":"acropolis-parthenon","name":"帕特农式柱列","kind":"temple"},{"id":"acropolis-olive","name":"橄榄树与侧廊","kind":"stoa"}],
+  "relation": "保留柱列—檐部—山墙的构件关系；不将抽象路线解释为卫城真实游线。",
+  "source": {"title":"Acropolis Restoration Service · Parthenon","url":"https://www.ysma.gr/en/monuments/parthenon/"},
+  "boundary": "此处为简化的建筑参照，不推断卫城与其他场景间存在直接建筑传承。"
+}

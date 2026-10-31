@@ -1,0 +1,14 @@
+{
+  "prompt": "以故宫的门院为主骨架，让雅典卫城的白石台地与柱廊进入侧院和远景；保留两翼呼应、侧庭回游与开敞前院，在西侧借景窗中看见白石神庙。月夜里用脚步留下回声。",
+  "packages": [
+    "palace",
+    "acropolis"
+  ],
+  "primary": "palace",
+  "skills": [
+    "palace-order",
+    "acropolis-terrain",
+    "column-rhythm",
+    "borrowed-view"
+  ]
+}

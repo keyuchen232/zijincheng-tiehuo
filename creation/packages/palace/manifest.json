@@ -1,0 +1,33 @@
+{
+  "schema": "wanxiang.scene-package",
+  "version": 1,
+  "id": "palace",
+  "name": "故宫 · 门院递进",
+  "topology": "axis",
+  "renderer": "palace",
+  "color": "#b65c43",
+  "summary": "沿门、院、殿的序列进入。对称廊庑与有层次的门庭组织道路。",
+  "landmarks": [
+    {
+      "id": "palace-gate",
+      "name": "宫门意象",
+      "kind": "gate"
+    },
+    {
+      "id": "palace-hall",
+      "name": "重檐殿宇",
+      "kind": "hall"
+    },
+    {
+      "id": "palace-wing",
+      "name": "对称廊庑",
+      "kind": "wing"
+    }
+  ],
+  "relation": "保留门—院—殿的进入关系；不将简化庭院当成故宫实测平面。",
+  "source": {
+    "title": "故宫博物院 · 建筑",
+    "url": "https://www.dpm.org.cn/explore/buildings.html"
+  },
+  "boundary": "像素建筑为当代门院参照；侧庭借景另有园林来源，融合建筑与小游戏均为现代虚构。"
+}

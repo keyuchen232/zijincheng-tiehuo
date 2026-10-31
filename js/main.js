@@ -594,6 +594,53 @@
   };
 
   /* ============================================================
+     创造模式（独立页面 · iframe 隔离 · 独立存档）
+     ============================================================ */
+  G.creationOpen = false;
+  G.CREATION_SRC = 'creation/index.html';
+  G.creationCreations = function () {
+    if (!Array.isArray(G.save.data.creations)) G.save.data.creations = [];
+    return G.save.data.creations;
+  };
+  G.openCreation = function () {
+    if (G.creationOpen) return;
+    G.creationOpen = true;
+    const frame = $('#creation-frame');
+    const loading = $('#creation-loading');
+    if (loading) loading.classList.remove('hidden');
+    if (frame && frame.dataset.loaded !== '1') {
+      frame.dataset.loaded = '1';
+      frame.onload = function () {
+        if (loading) loading.classList.add('hidden');
+        try {
+          // 同源 iframe：完成事件只在子窗口触发，必须监听 contentWindow
+          frame.contentWindow.addEventListener('wanxiang:creation-completed', function (ev) {
+            const d = (ev && ev.detail) || {};
+            if (typeof d.worldId !== 'string' || d.independent !== true) return;
+            const list = G.creationCreations();
+            list.push({ worldId: d.worldId, at: Date.now() });
+            G.save.persist();
+            G.ui.toast('创造模式 · 作品已定格：' + d.worldId, 'good', 2800);
+          });
+        } catch (e) { /* 跨域时静默：仍是独立页面 */ }
+      };
+      frame.src = G.CREATION_SRC;
+    } else if (loading) {
+      loading.classList.add('hidden');
+    }
+    G.show($('#creation'));
+    G.input.clearPressed();
+    try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
+  };
+  G.closeCreation = function () {
+    if (!G.creationOpen) return;
+    G.creationOpen = false;
+    G.hide($('#creation'));
+    G.input.clearPressed();
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+
+  /* ============================================================
      home hall
      ============================================================ */
   /* 家 · 大厅已经整体下线（只保留了创造模式的接口） */
@@ -783,7 +830,9 @@
       const thBtn = $('#btn-tiehua');
       if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
       const crBtn = $('#btn-create');
-      if (crBtn) crBtn.addEventListener('click', () => (G.enterCreateMode ? G.enterCreateMode() : enterCreate()));
+      if (crBtn) crBtn.addEventListener('click', () => G.openCreation());
+      const creationClose = $('#creation-close');
+      if (creationClose) creationClose.addEventListener('click', () => G.closeCreation());
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
@@ -823,6 +872,10 @@
     if (G.audio.ctx) G.audio.resume();
     if (G.ai && G.ai.open) {
       if (code === 'Escape') G.ai.close();
+      return;
+    }
+    if (G.creationOpen) {
+      if (code === 'Escape') G.closeCreation();
       return;
     }
     if (G.confirmOpen) {
