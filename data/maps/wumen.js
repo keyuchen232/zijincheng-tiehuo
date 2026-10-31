@@ -25,8 +25,8 @@ G.mod.register({
      写了这一行，进场就不播 nodes.wumen.enter 的对话了，改播过场。 */
   enterCut: 'wumen.intro',
 
-  size: { w: 640, h: 1120 },
-  spawn: { x: 320, y: 1010 },
+  size: { w: 640, h: 750 },
+  spawn: { x: 320, y: 710 },
   camera: { lookAhead: 46 },
   clock: '08:30',
   ambient: 'palace',
@@ -34,14 +34,18 @@ G.mod.register({
 
   /* 给 C 的初始变量。画笔读它们，玩法改它们 —— 这是美术与玩法的唯一接口。 */
   vars: {
-    gridDx: 18,   /* 卫城投影网格相对故宫网格的错位（像素）。0 = 已对齐 */
-    gridBoth: 0,  /* 选错原点时，两套网格一起被拖走的距离 */
+    gridDx: 18,      /* 卫城投影网格相对故宫网格的错位（像素）。0 = 已对齐 */
+    gridBoth: 0,     /* 选错原点时，两套网格一起被拖走的距离 */
+    seamShift: 0,    /* 1 = 中轴砖缝被拖歪，横缝左右错位（关 1 选 C 的痕迹） */
+    nailShift: 0,    /* 1 = 门钉间距被拉开（同一处痕迹，另一处证据） */
+    terraceGap: 0,   /* 1 = 月台与殿身之间裂开四像素（关 1 选 B 的痕迹） */
+    view: '',        /* 'silent' = 压暗静帧，逼玩家先看清楚再动手 */
   },
 
   /* ---------- 地面（烘焙到离屏画布，不参与每帧排序）---------- */
   ground: [
-    { painter: 'wumen.plaza', x: 0, y: 430, w: 640, h: 690, opt: {} },
-    { painter: 'wumen.grid', x: 0, y: 0, w: 640, h: 1120, opt: {} },
+    { painter: 'wumen.plaza', x: 0, y: 430, w: 640, h: 320, opt: {} },
+    { painter: 'wumen.grid', x: 0, y: 0, w: 640, h: 750, opt: {} },
   ],
 
   /* ---------- 碰撞 ---------- */
@@ -51,8 +55,11 @@ G.mod.register({
 
   /* ---------- 摆件（参与 baseY 遮挡排序）---------- */
   props: [
+    /* 远景投影层：帕特农柱廊站在午门屋脊后面。
+       放在 gate 之前 = 先画 = 在门后面；baseY 与门相同，地平线一致。 */
+    { painter: 'wumen.far', x: 320, baseY: 420, opt: {} },
     { painter: 'wumen.gate', x: 320, baseY: 420, opt: { w: 660 } },
-    { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { text: '午門' } },
+    { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { textKey: 'nodes.wumen.plaque' } },
     { painter: 'wumen.lantern', x: 96, baseY: 520, opt: {} },
     { painter: 'wumen.lantern', x: 544, baseY: 520, opt: {} },
   ],
@@ -93,6 +100,6 @@ G.mod.register({
 
   marker: { x: 320, y: 470, when: { notDone: ['wumen.origin'] } },
 
-  /* 下一关：等 A 做好 taihe 地图再填 'taihe'，现在留空只播完结算 */
-  next: null,
+  /* 下一关：太和殿月台（关 2） */
+  next: 'taihe',
 });

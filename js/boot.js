@@ -25,6 +25,47 @@
 (function () {
   'use strict';
 
+  /* 演示快线（docs/关卡设计-v1.0-落地版.md §6）：
+       ?demo=1  关 1 → 关 3 → 关 4 → 关 5 → 结局   （约 6–6.5 分钟）
+       ?demo=2  关 1 → 关 4 → 关 5 → 结局          （约 4 分钟）
+     做法是把被跳过的关卡：①把他们下面的交互点标成已完成，
+     ②把上一关的 next 直接接到下一关。
+     不改数据文件、不动 stage.js 的通关判定 —— 只是换一条走法。 */
+  function applyDemo() {
+    var G = window.G;
+    if (!G || typeof URLSearchParams !== 'function') return;
+    var demo = new URLSearchParams(window.location.search).get('demo');
+    if (demo !== '1' && demo !== '2') return;
+
+    var mapOf = function (id) { return G.mod.get('map', id); };
+    var done = function (id) { G.mod.done(id); };
+
+    /* 关 2 在两条演示线里都跳过 */
+    done('taihe.labels');
+    done('taihe.keep');
+    var taihe = mapOf('taihe');
+    var target = demo === '1' ? 'qianqing' : 'repair_bench';
+    if (taihe) taihe.next = target;
+
+    /* 关键：通关判定只在 spot 被解决时触发（js/stage.js 的 onSpotSolved），
+       进场不判。所以只把关 2 的 spot 标成 done 是不够的 —— 玩家打完关 1
+       仍会被 wumen.next 送进关 2，而关 2 的必过关点因为 when.notDone 已经
+       消失，整关没有可解的点，演示线就卡在那里。
+       于是把上一关也标成"已完成"，并把它的 next 直接接到目标关。 */
+    done('wumen');
+    var wumen = mapOf('wumen');
+    if (wumen) wumen.next = target;
+
+    /* ?demo=2 还要跳过关 3 */
+    if (demo === '2') {
+      done('qianqing.loadtest');
+      var qianqing = mapOf('qianqing');
+      if (qianqing) qianqing.next = 'repair_bench';
+    }
+
+    if (window.console) console.log('[boot] 演示快线 ?demo=' + demo);
+  }
+
   function start() {
     var G = window.G;
     if (!G) {
@@ -37,6 +78,7 @@
       return;
     }
     try {
+      applyDemo();
       G.mod.boot();
     } catch (err) {
       // 模块化出问题不能拖垮整个游戏：打一行红字，回到旧标题页

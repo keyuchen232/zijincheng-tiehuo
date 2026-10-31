@@ -304,9 +304,15 @@
           else self.go(start);
           return r;
         }
-        /* 开场动画：没看过就播一次，播完停在标题页 */
+        /* 开场动画：没看过就播一次。
+           播完直接落地午门——原来停在标题页，玩家还得再点一次
+           「进入万象灵境」，演示时那一下很像游戏已经结束了。
+           已经看过开场的人（cut.opening 已置位）才停在标题页。 */
         if (reg.cutscene.opening && G.cut && G.cut.play && !G.cut.seen('opening')) {
-          G.cut.play('opening', null);
+          G.cut.play('opening', function () {
+            if (G.fade && G.fade.to) G.fade.to(function () { self.go('wumen'); }, 140);
+            else self.go('wumen');
+          });
         }
         return r;
       });

@@ -106,11 +106,19 @@
 
       /* 交互点：inspect 走通用「看一眼」，puzzle 走 C 的玩法模块 */
       (map.spots || []).forEach(function (s) {
+        /* 标签模板可能带 {name}（ui.hud.look = 「观察 {name}」），
+           name 取 objects 里那一条的 name；玩法点用 labelObj 指明取哪一条，
+           取不到就留空，不显示花括号。 */
+        const objId = s.inspect || s.labelObj;
+        const obj = objId ? G.mod.object(objId) : null;
+        const lv = { name: (obj && obj.name) || s.name || '' };
         self.addInteract({
           x: s.x,
           y: s.y,
           r: s.r || 42,
-          label: G.str.has(s.labelKey || '') ? G.str.get(s.labelKey) : (s.label || '互动'),
+          /* 兜底也用文案表里的「查看」：js 里不许有中文（铁律③） */
+          label: G.str.has(s.labelKey || '') ? G.str.get(s.labelKey, lv)
+            : (s.label || G.str.get('ui.hud.interact')),
           condition: function () { return G.mod.test(s.when); },
           action: function () { G.mod.openSpot(s, self); },
         });
@@ -164,7 +172,11 @@
 
     /* ---------------- 通关判定 ---------------- */
     onSpotSolved(spot) {
-      const needed = (this.map.spots || []).filter(function (s) { return !!s.puzzle; });
+      /* optional: true 的 spot 不参与通关门槛 ——
+         关 2 的三块图层石随时可踩、可来回切，但不踩也能过关（P1 才强制）。 */
+      const needed = (this.map.spots || []).filter(function (s) {
+        return !!s.puzzle && !s.optional;
+      });
       const allDone = needed.every(function (s) { return G.mod.isDone(s.id); });
       if (!allDone) return;
 
