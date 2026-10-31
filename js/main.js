@@ -42,6 +42,13 @@
     cat: { title: '故宫猫', sub: 'PALACE CATS', text: '故宫里生活着一群“宫猫”。它们大多是被收编的流浪猫，有自己的名字和档案，也被观众称作紫禁城真正的主人。' },
     craftbench: { title: '大厅 · 合成台', sub: 'CRAFTING BENCH', text: '靠窗的合成台铺着墨绿毡垫，台面上摆着黄铜齿轮、玻璃瓶和配方卡。以后可以在这里拆解、拼合材料，制作新的物件。' },
     repairbench: { title: '大厅 · 修复台', sub: 'RESTORATION BENCH', text: '修复台有一盏带放大镜的铜灯、竹镊、毛笔、鱼鳔胶和金粉。碎瓷可以沿着裂缝补上金线，旧木器可以重新打磨。' },
+    fusion: { title: '万象灵境 · 雅典—故宫', sub: 'THE NEXUS ATLAS', text: '一座正在研发中的故宫数字沙盘。雅典卫城的建筑与考古数据包被接入同一套坐标系统后，故宫建筑本身没有被替换，但投影与来源标签发生了错位。' },
+    sundial: { title: '故宫档案 · 中轴简图', sub: 'GUGONG AXIS DOSSIER', text: '午门—太和殿—乾清宫的简化中轴图。故宫用层层门阙与月台陈设提示“正在进入中心”，这是它自己的礼制叙事，不能按卫城的“入口—胜利—主神”序列重排。' },
+    coxclock: { title: '卫城档案 · 帕特农与女像柱', sub: 'ACROPOLIS DOSSIER', text: '帕特农东山墙、伊瑞克提翁女像柱与舞乐图瓶画器盖的线图。它们是卫城参照层，不是被搬进故宫的实物；档案要标清来源，而不是让投影冒充故宫原生。' },
+    sourcecard: { title: '来源卡 · 宴乐对照', sub: 'SOURCE CARD · FEAST & MUSIC', text: '卫城舞乐图瓶画与《韩熙载夜宴图》可以比较“饮酒—奏乐—共宴”如何组织社会关系；但靖远鎏金银盘、隋墓骆驼上的酒神图像只证明传播有中介，不证明这两件作品直接相连。' },
+    ich_mortise: { title: '非遗 · 榫卯营造', sub: 'MORTISE & TENON', text: '中国传统木结构建筑营造技艺以榫卯咬合构件，不用钉子也能让木构层层受力。2009 年列入联合国教科文组织人类非物质文化遗产代表作名录。' },
+    ich_marble: { title: '非遗 · 提诺斯大理石', sub: 'TINIAN MARBLE CRAFT', text: '希腊提诺斯岛的大理石雕刻技艺，从采石、开料到凿刻、打磨，把石头的纹理与建筑构件接合在一起。2015 年列入联合国教科文组织人类非物质文化遗产代表作名录。' },
+    nexus: { title: '来源校准台', sub: 'SOURCE CALIBRATION', text: '故宫沙盘中央的校准装置。两份档案同时放入后，它比对空间关系与来源说明，把投影标签放回正确位置，而不是删除差异或改造故宫本体。' },
   };
 
   /* ============================================================
@@ -362,6 +369,31 @@
     G.setScene(G.gugongScene, { spawn: spawn || { x: 750, y: 1300 } });
   };
 
+  G.enterFusion = function (opts) {
+    opts = opts || {};
+    G.titleActive = false;
+    G.hide($('#title'));
+    const hud = $('#hud');
+    if (hud) hud.classList.remove('map-open');
+    G.ui.showHud(true);
+    G.ui.setHomeButton(false);
+    if (!G.fusionScene) G.fusionScene = new G.FusionScene();
+    G.setScene(G.fusionScene, { spawn: opts.spawn || { x: 720, y: 1040 }, skipIntro: !!opts.skipIntro });
+  };
+  G.leaveFusion = function () {
+    if (!G.scene || G.scene.id !== 'fusion' || G.fade.busy) return;
+    G.fade.to(() => {
+      if (G.scene && G.scene.exit) G.scene.exit();
+      G.scene = null;
+      G.sceneName = '';
+      G.titleActive = true;
+      G.ui.showHud(false);
+      G.ui.setHomeButton(false);
+      G.$('#hud').classList.remove('map-open');
+      G.show($('#title'));
+    }, 430);
+  };
+
   /* ============================================================
      home hall
      ============================================================ */
@@ -477,13 +509,29 @@
       return;
     }
     // modal layers
+    if (G.difficulty && G.difficulty.active) {
+      G.difficulty.key(code);
+      return;
+    }
+    if (G.archiveGame && G.archiveGame.active) {
+      G.archiveGame.key(code);
+      return;
+    }
+    if (G.sourceQuiz && G.sourceQuiz.active) {
+      G.sourceQuiz.key(code);
+      return;
+    }
     if (G.security && G.security.active) return;
     if (menu.open) {
       if (code === 'Escape') menu.close();
       return;
     }
     if (G.scene && G.scene.mapOpen) {
-      if (code === 'Escape' || code === 'KeyM') G.scene.toggleMap(false);
+      if (code === 'Escape' || code === 'KeyM') {
+        G.scene.toggleMap(false);
+        // consume the key so the scene update doesn't toggle it straight back open
+        G.input.clearPressed();
+      }
       return;
     }
     if (codex.open) {
@@ -512,12 +560,22 @@
     G.titleActive = true;
     const canvas = $('#game');
     const ctx = canvas.getContext('2d');
+    // render at 2x backing resolution while keeping the 640x360 logical world:
+    // canvas text and cached building plaques stay sharp when the stage is scaled up.
+    const RENDER_SCALE = 2;
+    canvas.width = G.W * RENDER_SCALE;
+    canvas.height = G.H * RENDER_SCALE;
+    ctx.scale(RENDER_SCALE, RENDER_SCALE);
     ctx.imageSmoothingEnabled = false;
+    G.renderScale = RENDER_SCALE;
     G.ctx = ctx;
 
     G.ui.init();
     G.dialog.init();
     G.cinema.init();
+    if (G.archiveGame) G.archiveGame.init();
+    if (G.difficulty) G.difficulty.init();
+    if (G.sourceQuiz) G.sourceQuiz.init();
     G.fade.init();
     G.input.init();
     G.initTouch();
@@ -528,12 +586,27 @@
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
+    $('#btn-fusion').addEventListener('click', () => G.enterFusion());
+    // tapping / clicking the map canvas closes the map (touch-friendly)
+    $('#game').addEventListener('pointerdown', () => {
+      if (G.scene && G.scene.mapOpen) {
+        G.scene.toggleMap(false);
+        G.input.clearPressed();
+      }
+    });
 
     const hasSave = G.save.load();
     G.audio.enabled = G.save.data.sound !== false;
     const soundBtn = $('#btn-sound');
     if (soundBtn) soundBtn.textContent = G.audio.enabled ? '♪' : '×';
     title.init();
+
+    // share link: play.html?mode=fusion jumps straight into the Athens–Gugong chapter
+    try {
+      if (new URLSearchParams(window.location.search).get('mode') === 'fusion') {
+        setTimeout(() => { if (G.titleActive) G.enterFusion(); }, 260);
+      }
+    } catch (e) { /* ignore */ }
 
     // first user gesture unlocks AudioContext
     const bootAudio = () => {
@@ -572,6 +645,9 @@
         G.dialog.el.classList.add('hidden');
       }
       G.cinema.active = false;
+      if (G.archiveGame) G.archiveGame.reset();
+      if (G.difficulty) G.difficulty.reset();
+      if (G.sourceQuiz) G.sourceQuiz.reset();
       G.overlayDepth = 0;
       G.titleActive = false;
       if ($('#hud')) $('#hud').classList.remove('map-open');
@@ -594,6 +670,10 @@
         resetUI();
         G.save.data.flags.introSeen = true;
         G.enterBeijing({ x: x || 1100, y: y || 1200 });
+      },
+      fusion(skipIntro) {
+        resetUI();
+        G.enterFusion({ skipIntro: skipIntro !== false });
       },
       home() {
         resetUI();

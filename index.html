@@ -12,7 +12,7 @@
 
 <div id="app">
   <div id="stage">
-    <canvas id="game" width="640" height="360" aria-label="游戏画面"></canvas>
+    <canvas id="game" width="1280" height="720" aria-label="游戏画面"></canvas>
     <div class="scanlines"></div>
     <div class="vignette"></div>
 
@@ -58,6 +58,7 @@
     <div id="dialog" class="hidden" role="dialog" aria-live="polite">
       <div class="dlg-name"><span id="dlg-name">旅行手账</span></div>
       <div class="dlg-body"><p id="dlg-text"></p></div>
+      <div class="dlg-options hidden" id="dlg-options"></div>
       <div class="dlg-next" id="dlg-next"><kbd>E</kbd> 继续</div>
     </div>
 
@@ -93,6 +94,7 @@
     <div class="title-actions">
       <button id="btn-start" class="btn btn-primary"><span>开始旅程</span><small>NEW JOURNEY</small></button>
       <button id="btn-continue" class="btn"><span>继续旅程</span><small>CONTINUE</small></button>
+      <button id="btn-fusion" class="btn btn-nexus"><span>万象灵境</span><small>NEXUS ATLAS</small></button>
     </div>
     <div class="title-foot">
       <span>明制衣冠 · 中轴线 · 非遗打铁花</span>
@@ -198,6 +200,52 @@
     </div>
   </div>
 </div>
+<!-- ================= 非遗档案小游戏 ================= -->
+<div id="archive-game" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="ag-card">
+    <div class="ag-top">
+      <span class="ag-kicker" id="ag-kicker">非遗 · 档案试炼</span>
+      <span class="ag-progress" id="ag-progress">0 / 3</span>
+    </div>
+    <h2 id="ag-title">榫卯合拢</h2>
+    <p id="ag-sub">等榫头对准卯口，按空格或点击画面。</p>
+    <canvas id="ag-canvas" width="520" height="230"></canvas>
+    <div class="ag-controls hidden" id="ag-controls">
+      <button id="ag-rotate">旋转 ↻</button>
+      <button id="ag-insert">插入榫头</button>
+    </div>
+    <div class="ag-bottom">
+      <span id="ag-hint">空格 / 点击画面</span>
+      <button class="ag-close" id="ag-close">退出</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 难度选择 ================= -->
+<div id="difficulty" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="diff-card">
+    <span class="diff-kicker" id="diff-kicker">非遗档案小游戏</span>
+    <h2 id="diff-title">选择难度</h2>
+    <p class="diff-sub">难度决定回合数、方向数和是否限时。选一个难度开始挑战。</p>
+    <div class="diff-btns" id="diff-btns"></div>
+    <button class="diff-back" id="diff-back">返回</button>
+  </div>
+</div>
+
+<!-- ================= 来源判断 ================= -->
+<div id="source-quiz" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="sq-card">
+    <span class="sq-kicker">来源判断 · SOURCE CARD</span>
+    <h2 id="sq-q">这条标签应该怎么改？</h2>
+    <p id="sq-sub">把“可对照”和“不能编造”分开。</p>
+    <div class="sq-options" id="sq-options"></div>
+    <div class="sq-foot">
+      <span id="sq-feedback"></span>
+      <button class="ag-close" id="sq-close">稍后再看</button>
+    </div>
+  </div>
+</div>
+
 <div id="fade"></div>
 <div id="rotate-hint">横屏体验更佳</div>
 
@@ -208,6 +256,10 @@
 <script src="js/gugong.js"></script>
 <script src="js/entry.js"></script>
 <script src="js/home.js"></script>
+<script src="js/fusion.js"></script>
+<script src="js/archive-game.js"></script>
+<script src="js/difficulty.js"></script>
+<script src="js/source-quiz.js"></script>
 <script src="js/minigame.js"></script>
 <script src="js/main.js"></script>
 </body>

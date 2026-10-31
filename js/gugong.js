@@ -747,7 +747,9 @@
 
     startMinigame() {
       if (!G.minigame) return;
-      G.minigame.start({
+      if (G.minigame.active) return;
+      const launch = (diff) => G.minigame.start({
+        diff,
         onScore: (score, best) => {
           G.save.data.best = Math.max(G.save.data.best, best);
           G.save.persist();
@@ -778,6 +780,21 @@
           this.refreshObjective();
           this.updateMarker();
         },
+      });
+      // 先确认是否现在挑战，再选难度；选择“否”则继续自由探索
+      G.dialog.ask({
+        name: '老赵',
+        text: G.save.flag('finished')
+          ? '炉子还旺着。要不要再来一场打铁花？（可无限次玩）'
+          : '炉子烧旺了，铁水正亮。现在来一场打铁花？',
+        options: [{ label: '是', value: true }, { label: '否', value: false }],
+      }, (ok) => {
+        if (ok) {
+          if (G.difficulty) G.difficulty.open('tiehua', launch);
+          else launch('hard');
+        } else {
+          G.dialog.show([{ name: '老赵', text: '好，你先随意逛逛。想打的时候，随时来找我。' }]);
+        }
       });
     }
 

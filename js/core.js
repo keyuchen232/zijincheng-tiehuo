@@ -193,7 +193,7 @@
       G.$('#loc-main').textContent = main;
       G.$('#loc-sub').textContent = sub;
       const seal = G.$('#loc-seal');
-      if (seal) seal.textContent = main.indexOf('家') >= 0 ? '家' : (main.indexOf('故宫') >= 0 ? '宫' : '京');
+      if (seal) seal.textContent = main.indexOf('家') >= 0 ? '家' : (main.indexOf('万象') >= 0 ? '境' : (main.indexOf('故宫') >= 0 ? '宫' : '京'));
     },
     objective(text) { G.$('#objective').textContent = text; },
     clock(time, date) {
@@ -251,7 +251,17 @@
       G.ui.prompt(null);
       this.render();
     },
+    ask(opts, cb) {
+      // opts: { name, text, options:[{label, value(chosen)}, ...] }
+      this.onPick = cb || null;
+      this.show([{
+        name: opts.name,
+        text: opts.text,
+        _opts: opts.options || [{ label: '是', value: true }, { label: '否', value: false }],
+      }]);
+    },
     render() {
+      this.clearOptions();
       const line = this.queue[this.idx];
       if (!line) { this.close(); return; }
       this.el.classList.toggle('narrator', !!line.narrator);
@@ -277,10 +287,42 @@
       this.timer = null;
       this.typing = false;
       G.$('#dlg-text').textContent = this.full;
-      G.$('#dlg-next').classList.add('blink');
+      const line = this.queue[this.idx];
+      if (line && line._opts) this.buildOptions(line);
+      else G.$('#dlg-next').classList.add('blink');
+    },
+    clearOptions() {
+      const box = G.$('#dlg-options');
+      if (box) { box.innerHTML = ''; box.classList.add('hidden'); }
+    },
+    buildOptions(line) {
+      const box = G.$('#dlg-options');
+      box.innerHTML = '';
+      G.$('#dlg-next').classList.remove('blink');
+      const self = this;
+      (line._opts || []).forEach((o) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = o.label;
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          self.pick(o.value);
+        });
+        box.appendChild(b);
+      });
+      box.classList.remove('hidden');
+    },
+    pick(value) {
+      const cb = this.onPick;
+      this.onPick = null;
+      this.optionValue = value;
+      this.close();
+      if (cb) setTimeout(() => cb(value), 20);
     },
     advance() {
       if (!this.active) return;
+      const line = this.queue[this.idx];
+      if (line && line._opts) return;
       if (this.typing) { this.finishType(); G.input.clearPressed(); return; }
       this.idx += 1;
       G.input.clearPressed();
@@ -292,15 +334,23 @@
       this.timer = null;
       this.active = false;
       this.typing = false;
+      this.clearOptions();
       this.el.classList.add('hidden');
       const cb = this.onDone;
       this.onDone = null;
       G.input.clearPressed();
       if (cb) setTimeout(cb, 30);
     },
-    skip() {
+    skip(holdPick) {
+      // holdPick：若遇到带选项的对话且未作答，用 holdPick(value) 代替；否则跳过
       let guard = 0;
       while (this.active && guard++ < 40) {
+        const line = this.queue[this.idx];
+        if (line && line._opts) {
+          if (holdPick) { this.pick(holdPick); return; }
+          this.finishType();
+          return;
+        }
         this.finishType();
         this.advance();
       }

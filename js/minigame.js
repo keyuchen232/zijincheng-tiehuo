@@ -10,6 +10,12 @@
   const THROWS = 6;
   const IDEAL_LO = 0.52, IDEAL_HI = 0.84;
 
+  const TIEHUA_DIFF = {
+    easy: { throws: 6, powerSpeed: 0.95, idealLo: 0.46, idealHi: 0.88, aimSpeed: 0.8 },
+    hard: { throws: 4, powerSpeed: 1.32, idealLo: 0.56, idealHi: 0.80, aimSpeed: 1.15 },
+    hell: { throws: 3, powerSpeed: 1.9, idealLo: 0.66, idealHi: 0.72, aimSpeed: 1.5 },
+  };
+
   class TiehuaGame {
     constructor() {
       this.active = false;
@@ -75,6 +81,15 @@
       this.active = true;
       this.finished = false;
       this.best = G.save.data.best || 0;
+      const dcfg = TIEHUA_DIFF[opts.diff] || TIEHUA_DIFF.hard;
+      this.diff = opts.diff || 'hard';
+      this.diffName = { easy: '简易', hard: '困难', hell: '地狱' }[this.diff] || '困难';
+      this.diffCfg = dcfg;
+      this.throwsTotal = dcfg.throws;
+      this.powerSpeed = dcfg.powerSpeed;
+      this.idealLo = dcfg.idealLo;
+      this.idealHi = dcfg.idealHi;
+      this.aimSpeed = dcfg.aimSpeed;
       this.reset();
       G.ui.showHud(false);
       G.ui.prompt(null);
@@ -84,7 +99,7 @@
       G.audio.sfx('gong');
       G.fx.clear();
       this.banner('第 一 勺');
-      this.setHint('按 <kbd>空格</kbd> 起炉 · 让铁水烧到最亮');
+      this.setHint('难度 · ' + (this.diffName || '困难') + ' · 按 <kbd>空格</kbd> 起炉 · 让铁水烧到最亮');
       this.phase = 'ready';
       this.startedAt = performance.now();
     }
@@ -94,7 +109,7 @@
       this.combo = 0;
       this.maxCombo = 0;
       this.perfect = 0;
-      this.throwsLeft = THROWS;
+      this.throwsLeft = this.throwsTotal || THROWS;
       this.power = 0;
       this.powerDir = 1;
       this.heat = 0.5;
@@ -174,7 +189,7 @@
 
     lockPower() {
       const p = this.power;
-      const inZone = p >= IDEAL_LO && p <= IDEAL_HI;
+      const inZone = p >= (this.idealLo != null ? this.idealLo : IDEAL_LO) && p <= (this.idealHi != null ? this.idealHi : IDEAL_HI);
       this.heat = inZone ? 0.75 + 0.25 * (1 - Math.abs(p - 0.68) / 0.16) : 0.35;
       this.heat = G.clamp(this.heat, 0.25, 1);
       this.banner(inZone ? (this.heat > 0.92 ? '火候正好' : '火候不错') : '火候偏了');
@@ -401,9 +416,10 @@
     updatePips() {
       const wrap = $('#mg-pips');
       if (!wrap) return;
-      if (wrap.children.length !== THROWS) {
+      if (wrap.children.length !== (this.throwsTotal || THROWS)) {
         wrap.innerHTML = '';
-        for (let i = 0; i < THROWS; i++) wrap.appendChild(document.createElement('i'));
+        const n = this.throwsTotal || THROWS;
+        for (let i = 0; i < n; i++) wrap.appendChild(document.createElement('i'));
       }
       Array.from(wrap.children).forEach((el, i) => el.classList.toggle('on', i < this.throwsLeft));
     }
@@ -452,13 +468,13 @@
         return;
       }
       if (this.phase === 'power') {
-        this.power += dt * 1.32 * this.powerDir;
+        this.power += dt * (this.powerSpeed || 1.32) * this.powerDir;
         if (this.power >= 1) { this.power = 1; this.powerDir = -1; }
         if (this.power <= 0) { this.power = 0; this.powerDir = 1; }
         const needle = $('#mg-needle');
         if (needle) needle.style.left = (this.power * 100) + '%';
       } else if (this.phase === 'aim') {
-        this.aimT += dt;
+        this.aimT += dt * (this.aimSpeed || 1);
         this.updateAimReticle();
       } else if (this.phase === 'flight') {
         this.flight += dt / 0.55;
