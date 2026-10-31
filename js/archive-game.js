@@ -213,14 +213,31 @@
         this.rotate();
         return;
       }
+      // 把屏幕坐标换算成画布逻辑坐标（520×230），再按“最近的箭头”判定，
+      // 让点击和画面上画出来的 ↑↓←→ 大箭头一一对应，避免点偏或点空白误触。
       const r = this.canvas.getBoundingClientRect();
-      const nx = (e.clientX - r.left) / r.width;
-      const ny = (e.clientY - r.top) / r.height;
-      if (nx > 0.4 && nx < 0.6 && ny > 0.4 && ny < 0.6) return;
-      if (ny < 0.45) this.enInput(0);
-      else if (nx > 0.55) this.enInput(1);
-      else if (ny > 0.55) this.enInput(2);
-      else this.enInput(3);
+      const px = ((e.clientX - r.left) / r.width) * 520;
+      const py = ((e.clientY - r.top) / r.height) * 230;
+      this.enHit(px, py);
+    },
+
+    enHit(px, py) {
+      // 底部回纹卡片只是“显示”当前进度，不作为输入区
+      if (py > 200) return;
+      // 与 drawMeander 里画出来的箭头中心完全一致
+      const pts = [
+        { dir: 0, x: 260, y: 52 },   // ↑
+        { dir: 1, x: 496, y: 120 },  // →
+        { dir: 2, x: 260, y: 194 },  // ↓
+        { dir: 3, x: 24, y: 120 },   // ←
+      ];
+      let bd = null, bdD = 1e9;
+      for (const p of pts) {
+        const d = Math.hypot(px - p.x, py - p.y);
+        if (d < bdD) { bdD = d; bd = p; }
+      }
+      // 只有点在箭头附近才算输入；点在中间石板上则忽略，避免误触
+      if (bd && bdD <= 46) this.enInput(bd.dir);
     },
 
     key(code) {
@@ -407,14 +424,22 @@
         });
         sx += cardW + gap;
       }
-      // click zones
-      c.strokeStyle = 'rgba(111,163,157,.3)';
-      c.strokeRect(6, 36, 508, 160);
-      G.text(c, '↑', 260, 52, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      G.text(c, '↓', 260, 194, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      G.text(c, '←', 24, 120, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      G.text(c, '→', 496, 120, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      C_text(c, '照着回纹方向，依次点击 / 按键', 260, 64, '#8d7c63');
+      // 四个方向点击区：热点圈与箭头一一对应（画在哪，点在哪）
+      const zones = [
+        { d: 0, x: 260, y: 52, ch: '↑' },
+        { d: 1, x: 496, y: 120, ch: '→' },
+        { d: 2, x: 260, y: 194, ch: '↓' },
+        { d: 3, x: 24, y: 120, ch: '←' },
+      ];
+      for (const z of zones) {
+        const current = this.enSeq[this.enIndex] === z.d && !this.done;
+        c.strokeStyle = current ? 'rgba(224,178,94,.95)' : 'rgba(111,163,157,.4)';
+        c.lineWidth = current ? 2.5 : 1.2;
+        c.beginPath(); c.arc(z.x, z.y, 20, 0, G.TAU); c.stroke();
+        c.lineWidth = 1;
+        G.text(c, z.ch, z.x, z.y + 5, { size: 17, color: current ? '#ffdf9e' : 'rgba(216,178,106,.85)', align: 'center', weight: 'bold' });
+      }
+      C_text(c, '照着回纹顺序，点击外圈的 ↑ ↓ ← →', 260, 24, '#8d7c63');
     },
   };
 
