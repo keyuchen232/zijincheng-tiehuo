@@ -740,11 +740,8 @@
     G.save.data.scene = 'gugong';
     G.save.persist();
     G.fade.to(() => {
-      G.enterPalace({ x: 750, y: 300 });
-      G.ui.toast('支线 · 打铁花：夜里，广场上的炉子已经热了', 'good', 2800);
-      setTimeout(() => {
-        if (G.scene && G.scene.startMinigame) G.scene.startMinigame(true);
-      }, 650);
+      G.enterPalace({ x: 750, y: 430 });
+      G.ui.toast('支线 · 打铁花：夜色里的神武门广场，去找老赵', 'good', 3000);
     }, 420);
   };
 
