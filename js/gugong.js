@@ -755,7 +755,7 @@
       });
     }
 
-    startMinigame() {
+    startMinigame(auto) {
       if (!G.minigame) return;
       if (G.minigame.active) return;
       const launch = (diff) => G.minigame.start({
@@ -791,6 +791,12 @@
           this.updateMarker();
         },
       });
+      // 支线入口直接进难度选择（auto），主线仍先问一句
+      if (auto) {
+        if (G.difficulty) G.difficulty.open('tiehua', launch);
+        else launch('hard');
+        return;
+      }
       // 先确认是否现在挑战，再选难度；选择“否”则继续自由探索
       G.dialog.ask({
         name: '老赵',

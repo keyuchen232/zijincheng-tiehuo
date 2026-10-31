@@ -606,7 +606,7 @@
       if (!G.homeScene) G.homeScene = new G.HomeScene();
       G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
       G.ui.setHomeButton(true);
-      G.ui.toast('回到家了 · 看看新打好的工作台', 'good', 2400);
+      G.ui.toast('回到家了 · 右边多了一张造境台', 'good', 2400);
     }, 360);
   };
   G.leaveHome = function () {
@@ -733,6 +733,29 @@
     }, 320);
   };
 
+  /* 支线 · 打铁花：直接进故宫夜场，站在神武门广场，选难度开打 */
+  G.enterTiehua = function () {
+    if (G.fade.busy) return;
+    G.audio.init();
+    G.audio.setEnabled(G.save.data.sound !== false);
+    G.save.flag('entered', true);
+    G.save.flag('night', true);
+    G.save.flag('metZhao', true);
+    G.save.flag('iron', true);
+    G.save.flag('charcoal', true);
+    G.save.flag('ladle', true);
+    G.save.data.flags.palaceIntroSeen = true;
+    G.save.data.scene = 'gugong';
+    G.save.persist();
+    G.fade.to(() => {
+      G.enterPalace({ x: 750, y: 300 });
+      G.ui.toast('支线 · 打铁花：夜里，广场上的炉子已经热了', 'good', 2800);
+      setTimeout(() => {
+        if (G.scene && G.scene.startMinigame) G.scene.startMinigame(true);
+      }, 650);
+    }, 420);
+  };
+
   /* 退出游戏：浏览器允许时直接关闭标签页，否则留在退出画面 */
   G.exitGame = function () {
     if (G.fade.busy) return;
@@ -771,7 +794,10 @@
         startNewGame();
       });
       $('#btn-continue').addEventListener('click', () => continueGame());
-      $('#btn-create').addEventListener('click', () => enterCreate());
+      const thBtn = $('#btn-tiehua');
+      if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
+      const crBtn = $('#btn-create');
+      if (crBtn) crBtn.addEventListener('click', () => enterCreate());
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {

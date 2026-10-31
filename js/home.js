@@ -145,6 +145,17 @@
         },
       });
 
+      // 造境台：通往创造模式（中西合璧）
+      this.addEntity({
+        x: 860, y: 520, baseY: 520,
+        draw: (c) => this.drawAtelier(c, 860, 520),
+      });
+      this.solid(826, 490, 68, 30);
+      this.addInteract({
+        x: 860, y: 556, r: 50, label: '走上造境台 · 创造模式',
+        action: () => this.enterAtelier(),
+      });
+
       // hanging lanterns
       for (const lx of [238, 664]) {
         this.addEntity({
@@ -498,6 +509,44 @@
         A.r(c, sx + 7, base - 80, 12, 1, '#6d7a5c');
         A.r(c, sx + 2, base - 6, 18, 2, '#6b4a2e');
       }
+    }
+
+    drawAtelier(c, x, base) {
+      A.shadow(c, x, base, 100, 4, 0.25);
+      // 台面
+      A.r(c, x - 48, base - 26, 96, 26, '#6b4a2c');
+      A.r(c, x - 48, base - 28, 96, 4, '#8a6238');
+      // 中式小样：红墙 + 金瓦
+      A.r(c, x - 38, base - 44, 30, 16, '#a8482f');
+      A.r(c, x - 42, base - 48, 38, 4, '#cf8f38');
+      A.r(c, x - 38, base - 52, 30, 4, '#e3ac4e');
+      // 希式小样：山墙 + 三根柱
+      c.save();
+      c.strokeStyle = '#e2d8bd';
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(x + 12, base - 40);
+      c.lineTo(x + 28, base - 54);
+      c.lineTo(x + 44, base - 40);
+      c.closePath();
+      c.stroke();
+      c.restore();
+      for (let i = 0; i < 3; i++) A.r(c, x + 17 + i * 10, base - 40, 3, 14, '#cfc4a9');
+      G.text(c, '造境台', x, base + 12, { size: 7, color: '#f0d9ae', align: 'center', outline: 'rgba(10,8,6,.9)', outlineWidth: 2.4 });
+    }
+
+    enterAtelier() {
+      if (G.fade.busy) return;
+      G.audio.sfx('page');
+      G.fade.to(() => {
+        if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+          G.mod.go('create');
+          G.ui.showHud(true);
+          G.ui.toast('造境台 · 把紫禁城与卫城的构件摆到同一台上', 'good', 3200);
+        } else if (G.enterFusion) {
+          G.enterFusion();
+        }
+      }, 360);
     }
 
     drawPlant(c, x, base) {

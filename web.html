@@ -874,7 +874,7 @@ body.title-mode #stage{visibility:hidden}
     <div class="title-actions">
       <button id="btn-start" class="btn btn-primary"><span>故事模式</span><small>STORY MODE</small></button>
       <button id="btn-continue" class="btn"><span>继续游戏</span><small>CONTINUE</small></button>
-      <button id="btn-create" class="btn btn-nexus"><span>创造模式</span><small>CREATIVE MODE</small></button>
+      <button id="btn-tiehua" class="btn btn-nexus"><span>支线 · 打铁花</span><small>SIDE QUEST</small></button>
       <button id="btn-exit" class="btn btn-quiet"><span>退出游戏</span><small>EXIT</small></button>
     </div>
     <div class="title-save" id="save-slot">
@@ -7233,7 +7233,7 @@ body.title-mode #stage{visibility:hidden}
       });
     }
 
-    startMinigame() {
+    startMinigame(auto) {
       if (!G.minigame) return;
       if (G.minigame.active) return;
       const launch = (diff) => G.minigame.start({
@@ -7269,6 +7269,12 @@ body.title-mode #stage{visibility:hidden}
           this.updateMarker();
         },
       });
+      // 支线入口直接进难度选择（auto），主线仍先问一句
+      if (auto) {
+        if (G.difficulty) G.difficulty.open('tiehua', launch);
+        else launch('hard');
+        return;
+      }
       // 先确认是否现在挑战，再选难度；选择“否”则继续自由探索
       G.dialog.ask({
         name: '老赵',
@@ -8071,6 +8077,17 @@ body.title-mode #stage{visibility:hidden}
         },
       });
 
+      // 造境台：通往创造模式（中西合璧）
+      this.addEntity({
+        x: 860, y: 520, baseY: 520,
+        draw: (c) => this.drawAtelier(c, 860, 520),
+      });
+      this.solid(826, 490, 68, 30);
+      this.addInteract({
+        x: 860, y: 556, r: 50, label: '走上造境台 · 创造模式',
+        action: () => this.enterAtelier(),
+      });
+
       // hanging lanterns
       for (const lx of [238, 664]) {
         this.addEntity({
@@ -8424,6 +8441,44 @@ body.title-mode #stage{visibility:hidden}
         A.r(c, sx + 7, base - 80, 12, 1, '#6d7a5c');
         A.r(c, sx + 2, base - 6, 18, 2, '#6b4a2e');
       }
+    }
+
+    drawAtelier(c, x, base) {
+      A.shadow(c, x, base, 100, 4, 0.25);
+      // 台面
+      A.r(c, x - 48, base - 26, 96, 26, '#6b4a2c');
+      A.r(c, x - 48, base - 28, 96, 4, '#8a6238');
+      // 中式小样：红墙 + 金瓦
+      A.r(c, x - 38, base - 44, 30, 16, '#a8482f');
+      A.r(c, x - 42, base - 48, 38, 4, '#cf8f38');
+      A.r(c, x - 38, base - 52, 30, 4, '#e3ac4e');
+      // 希式小样：山墙 + 三根柱
+      c.save();
+      c.strokeStyle = '#e2d8bd';
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(x + 12, base - 40);
+      c.lineTo(x + 28, base - 54);
+      c.lineTo(x + 44, base - 40);
+      c.closePath();
+      c.stroke();
+      c.restore();
+      for (let i = 0; i < 3; i++) A.r(c, x + 17 + i * 10, base - 40, 3, 14, '#cfc4a9');
+      G.text(c, '造境台', x, base + 12, { size: 7, color: '#f0d9ae', align: 'center', outline: 'rgba(10,8,6,.9)', outlineWidth: 2.4 });
+    }
+
+    enterAtelier() {
+      if (G.fade.busy) return;
+      G.audio.sfx('page');
+      G.fade.to(() => {
+        if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+          G.mod.go('create');
+          G.ui.showHud(true);
+          G.ui.toast('造境台 · 把紫禁城与卫城的构件摆到同一台上', 'good', 3200);
+        } else if (G.enterFusion) {
+          G.enterFusion();
+        }
+      }, 360);
     }
 
     drawPlant(c, x, base) {
@@ -17020,7 +17075,7 @@ window.WXL_AI = {
       if (!G.homeScene) G.homeScene = new G.HomeScene();
       G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
       G.ui.setHomeButton(true);
-      G.ui.toast('回到家了 · 看看新打好的工作台', 'good', 2400);
+      G.ui.toast('回到家了 · 右边多了一张造境台', 'good', 2400);
     }, 360);
   };
   G.leaveHome = function () {
@@ -17147,6 +17202,29 @@ window.WXL_AI = {
     }, 320);
   };
 
+  /* 支线 · 打铁花：直接进故宫夜场，站在神武门广场，选难度开打 */
+  G.enterTiehua = function () {
+    if (G.fade.busy) return;
+    G.audio.init();
+    G.audio.setEnabled(G.save.data.sound !== false);
+    G.save.flag('entered', true);
+    G.save.flag('night', true);
+    G.save.flag('metZhao', true);
+    G.save.flag('iron', true);
+    G.save.flag('charcoal', true);
+    G.save.flag('ladle', true);
+    G.save.data.flags.palaceIntroSeen = true;
+    G.save.data.scene = 'gugong';
+    G.save.persist();
+    G.fade.to(() => {
+      G.enterPalace({ x: 750, y: 300 });
+      G.ui.toast('支线 · 打铁花：夜里，广场上的炉子已经热了', 'good', 2800);
+      setTimeout(() => {
+        if (G.scene && G.scene.startMinigame) G.scene.startMinigame(true);
+      }, 650);
+    }, 420);
+  };
+
   /* 退出游戏：浏览器允许时直接关闭标签页，否则留在退出画面 */
   G.exitGame = function () {
     if (G.fade.busy) return;
@@ -17185,7 +17263,10 @@ window.WXL_AI = {
         startNewGame();
       });
       $('#btn-continue').addEventListener('click', () => continueGame());
-      $('#btn-create').addEventListener('click', () => enterCreate());
+      const thBtn = $('#btn-tiehua');
+      if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
+      const crBtn = $('#btn-create');
+      if (crBtn) crBtn.addEventListener('click', () => enterCreate());
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
