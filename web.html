@@ -20734,14 +20734,11 @@ window.WXL_SCRIPT = {
           else self.go(start);
           return r;
         }
-        /* 开场动画：没看过就播一次。
-           播完直接落地午门——原来停在标题页，玩家还得再点一次
-           「进入万象灵境」，演示时那一下很像游戏已经结束了。
-           已经看过开场的人（cut.opening 已置位）才停在标题页。 */
+        /* 开场动画：没看过就播一次，播完停在标题页。
+           不自动进关——玩家自己点「进入万象灵境」再开始。 */
         if (reg.cutscene.opening && G.cut && G.cut.play && !G.cut.seen('opening')) {
           G.cut.play('opening', function () {
-            if (G.fade && G.fade.to) G.fade.to(function () { self.go('wumen'); }, 140);
-            else self.go('wumen');
+            if (G.ui && G.ui.toast) G.ui.toast('点「进入万象灵境」开始', 'good', 2600);
           });
         }
         return r;
@@ -20785,6 +20782,8 @@ window.WXL_SCRIPT = {
         dateLabel: map.dateLabel,
         lookAhead: (map.camera && map.camera.lookAhead) != null ? map.camera.lookAhead : 42,
         dayGrade: map.dayGrade !== false,
+        /* 六关统一用中等强度的暖调/光雾，避免每张图各自满强度叠加 */
+        gradeStrength: map.gradeStrength == null ? 0.55 : map.gradeStrength,
       });
       this.map = map;
       this.vars = {};
@@ -22048,6 +22047,8 @@ window.WXL_SCRIPT = {
     const x = prop.x;
     const y = prop.baseY;
 
+    /* 台基投在地面的影：让月台“压”在地面上 */
+    A.shadow(ctx, x, y + 2, w + 18, 5, 0.28);
     ctx.save();
     /* 台基 */
     ctx.fillStyle = '#8a8073';
@@ -23214,6 +23215,13 @@ G.mod.register({
     { painter: 'hall.layerstone', x: 214, baseY: 706, opt: { layer: 'stones' } },
     { painter: 'hall.layerstone', x: 320, baseY: 726, opt: { layer: 'images' } },
     { painter: 'hall.layerstone', x: 426, baseY: 706, opt: { layer: 'labels' } },
+    /* 边缘的陈设：树、石与两对廊灯，避免月台四周太空 */
+    { painter: 'hall.trees', x: 70, baseY: 690, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 570, baseY: 690, opt: { n: 2 } },
+    { painter: 'hall.rock', x: 110, baseY: 620, opt: { s: 1.1 } },
+    { painter: 'hall.rock', x: 530, baseY: 620, opt: { s: 1.1 } },
+    { painter: 'wumen.lantern', x: 92, baseY: 640, opt: {} },
+    { painter: 'wumen.lantern', x: 548, baseY: 640, opt: {} },
   ],
 
   lights: [
@@ -23338,6 +23346,12 @@ G.mod.register({
     { painter: 'hall.columns', x: 444, baseY: 620, opt: { style: 'wood', n: 3, gap: 46, h: 132 } },
     { painter: 'hall.rock', x: 88, baseY: 760, opt: { s: 20 } },
     { painter: 'hall.rock', x: 552, baseY: 760, opt: { s: 20 } },
+    { painter: 'hall.trees', x: 66, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 574, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.rock', x: 110, baseY: 560, opt: { s: 1 } },
+    { painter: 'hall.rock', x: 530, baseY: 560, opt: { s: 1 } },
+    { painter: 'wumen.lantern', x: 96, baseY: 500, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 500, opt: {} },
   ],
 
   lights: [
@@ -23419,6 +23433,12 @@ G.mod.register({
     { painter: 'hall.bench', x: 320, baseY: 800, opt: { w: 300 } },
     { painter: 'wumen.lantern', x: 86, baseY: 660, opt: {} },
     { painter: 'hall.relic', x: 566, baseY: 830, opt: { s: 18 } },
+    { painter: 'hall.bench', x: 96, baseY: 430, opt: {} },
+    { painter: 'hall.bench', x: 544, baseY: 430, opt: {} },
+    { painter: 'hall.trees', x: 70, baseY: 520, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 570, baseY: 520, opt: { n: 2 } },
+    { painter: 'wumen.lantern', x: 96, baseY: 470, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 470, opt: {} },
   ],
 
   lights: [
@@ -23512,6 +23532,12 @@ G.mod.register({
     { painter: 'hall.terminal', x: 320, baseY: 700, opt: {} },
     { painter: 'hall.rock', x: 470, baseY: 860, opt: { s: 24 } },
     { painter: 'hall.rock', x: 168, baseY: 880, opt: { s: 18 } },
+    { painter: 'hall.trees', x: 70, baseY: 460, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 570, baseY: 460, opt: { n: 2 } },
+    { painter: 'hall.bench', x: 140, baseY: 540, opt: {} },
+    { painter: 'hall.bench', x: 500, baseY: 540, opt: {} },
+    { painter: 'wumen.lantern', x: 96, baseY: 500, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 500, opt: {} },
   ],
 
   lights: [
@@ -23596,6 +23622,12 @@ G.mod.register({
     /* 两处线索：看过之后自己会亮，没看过是暗的 */
     { painter: 'hall.clue', x: 176, baseY: 534, opt: { read: 'a' } },
     { painter: 'hall.clue', x: 464, baseY: 534, opt: { read: 'b' } },
+    { painter: 'hall.trees', x: 66, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 574, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.rock', x: 110, baseY: 560, opt: { s: 1.1 } },
+    { painter: 'hall.rock', x: 530, baseY: 560, opt: { s: 1.1 } },
+    { painter: 'wumen.lantern', x: 92, baseY: 500, opt: {} },
+    { painter: 'wumen.lantern', x: 548, baseY: 500, opt: {} },
   ],
 
   lights: [

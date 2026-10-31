@@ -56,6 +56,13 @@ G.mod.register({
     { painter: 'hall.layerstone', x: 214, baseY: 706, opt: { layer: 'stones' } },
     { painter: 'hall.layerstone', x: 320, baseY: 726, opt: { layer: 'images' } },
     { painter: 'hall.layerstone', x: 426, baseY: 706, opt: { layer: 'labels' } },
+    /* 边缘的陈设：树、石与两对廊灯，避免月台四周太空 */
+    { painter: 'hall.trees', x: 70, baseY: 690, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 570, baseY: 690, opt: { n: 2 } },
+    { painter: 'hall.rock', x: 110, baseY: 620, opt: { s: 1.1 } },
+    { painter: 'hall.rock', x: 530, baseY: 620, opt: { s: 1.1 } },
+    { painter: 'wumen.lantern', x: 92, baseY: 640, opt: {} },
+    { painter: 'wumen.lantern', x: 548, baseY: 640, opt: {} },
   ],
 
   lights: [

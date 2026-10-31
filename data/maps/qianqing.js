@@ -43,6 +43,12 @@ G.mod.register({
     { painter: 'hall.columns', x: 444, baseY: 620, opt: { style: 'wood', n: 3, gap: 46, h: 132 } },
     { painter: 'hall.rock', x: 88, baseY: 760, opt: { s: 20 } },
     { painter: 'hall.rock', x: 552, baseY: 760, opt: { s: 20 } },
+    { painter: 'hall.trees', x: 66, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 574, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.rock', x: 110, baseY: 560, opt: { s: 1 } },
+    { painter: 'hall.rock', x: 530, baseY: 560, opt: { s: 1 } },
+    { painter: 'wumen.lantern', x: 96, baseY: 500, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 500, opt: {} },
   ],
 
   lights: [

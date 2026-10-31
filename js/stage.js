@@ -28,6 +28,8 @@
         dateLabel: map.dateLabel,
         lookAhead: (map.camera && map.camera.lookAhead) != null ? map.camera.lookAhead : 42,
         dayGrade: map.dayGrade !== false,
+        /* 六关统一用中等强度的暖调/光雾，避免每张图各自满强度叠加 */
+        gradeStrength: map.gradeStrength == null ? 0.55 : map.gradeStrength,
       });
       this.map = map;
       this.vars = {};

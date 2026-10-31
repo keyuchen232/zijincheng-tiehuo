@@ -44,6 +44,12 @@ G.mod.register({
     /* 两处线索：看过之后自己会亮，没看过是暗的 */
     { painter: 'hall.clue', x: 176, baseY: 534, opt: { read: 'a' } },
     { painter: 'hall.clue', x: 464, baseY: 534, opt: { read: 'b' } },
+    { painter: 'hall.trees', x: 66, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 574, baseY: 470, opt: { n: 2 } },
+    { painter: 'hall.rock', x: 110, baseY: 560, opt: { s: 1.1 } },
+    { painter: 'hall.rock', x: 530, baseY: 560, opt: { s: 1.1 } },
+    { painter: 'wumen.lantern', x: 92, baseY: 500, opt: {} },
+    { painter: 'wumen.lantern', x: 548, baseY: 500, opt: {} },
   ],
 
   lights: [

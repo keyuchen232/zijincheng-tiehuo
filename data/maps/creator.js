@@ -39,6 +39,12 @@ G.mod.register({
     { painter: 'hall.terminal', x: 320, baseY: 700, opt: {} },
     { painter: 'hall.rock', x: 470, baseY: 860, opt: { s: 24 } },
     { painter: 'hall.rock', x: 168, baseY: 880, opt: { s: 18 } },
+    { painter: 'hall.trees', x: 70, baseY: 460, opt: { n: 2 } },
+    { painter: 'hall.trees', x: 570, baseY: 460, opt: { n: 2 } },
+    { painter: 'hall.bench', x: 140, baseY: 540, opt: {} },
+    { painter: 'hall.bench', x: 500, baseY: 540, opt: {} },
+    { painter: 'wumen.lantern', x: 96, baseY: 500, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 500, opt: {} },
   ],
 
   lights: [
