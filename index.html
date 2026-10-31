@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#120e0b">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23120e0b'/%3E%3Cpath d='M16 4 L28 27 H4 Z' fill='%239b3828'/%3E%3Crect x='13' y='19' width='6' height='8' fill='%23d8b26a'/%3E%3C/svg%3E">
-<title>紫禁城 · 铁火 — 北京中轴线像素之旅</title>
+<title>万象灵境 · 探索文明，自由造境</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -122,26 +122,37 @@
 
 <!-- ================= 标题页 ================= -->
 <div id="title" class="screen">
+  <canvas id="title-bg" width="640" height="360" aria-hidden="true"></canvas>
   <div class="title-grain"></div>
   <div class="title-inner">
-    <div class="title-eyebrow"><span></span>北京 · 中轴线 · 一条像素旅行<span></span></div>
-    <h1 class="title-logo"><span class="t-main">紫禁城</span><span class="t-dot">·</span><span class="t-fire">铁火</span></h1>
-    <p class="title-sub">穿过红墙金瓦，去看一场打铁花。</p>
+    <div class="title-eyebrow"><span></span>探索文明 · 自由造境<span></span></div>
+    <h1 class="title-logo"><span class="t-main">万象灵境</span></h1>
+    <p class="title-sub">从一处灵感，到万象世界</p>
     <div class="title-actions">
-      <button id="btn-start" class="btn btn-primary"><span>开始旅程</span><small>NEW JOURNEY</small></button>
-      <button id="btn-continue" class="btn"><span>继续旅程</span><small>CONTINUE</small></button>
-      <button id="btn-fusion" class="btn btn-nexus"><span>万象灵境</span><small>NEXUS ATLAS</small></button>
-      <button id="btn-athens" class="btn btn-nexus"><span>雅典 · 卫城</span><small>ATHENS · ACROPOLIS</small></button>
-      <button id="btn-artdemo" class="btn"><span>同境异笔</span><small>PLUGIN · 非主线</small></button>
-    </div>
-    <div class="title-foot">
-      <span>明制衣冠 · 中轴线 · 非遗打铁花</span>
-      <span class="title-keys">WASD / 方向键移动 &nbsp;·&nbsp; E 互动 &nbsp;·&nbsp; H 回家 &nbsp;·&nbsp; M 地图</span>
+      <button id="btn-start" class="btn btn-primary"><span>故事模式</span><small>STORY MODE</small></button>
+      <button id="btn-continue" class="btn"><span>继续游戏</span><small>CONTINUE</small></button>
+      <button id="btn-create" class="btn btn-nexus"><span>创造模式</span><small>CREATIVE MODE</small></button>
+      <button id="btn-exit" class="btn btn-quiet"><span>退出游戏</span><small>EXIT</small></button>
     </div>
   </div>
-  <div class="title-seal" aria-hidden="true"><b>宫</b><i>紫禁城</i></div>
+  <div class="title-foot">
+    <span>共创引擎团队出品 · 文化赛道</span>
+    <span class="title-keys">WASD / 方向键移动 &nbsp;·&nbsp; E 互动 &nbsp;·&nbsp; H 回家 &nbsp;·&nbsp; M 地图</span>
+  </div>
+  <div class="title-seal" aria-hidden="true"><b>境</b><i>万象灵境</i></div>
   <div class="title-corner tl"></div><div class="title-corner tr"></div>
   <div class="title-corner bl"></div><div class="title-corner br"></div>
+</div>
+
+<!-- ================= 退出画面 ================= -->
+<div id="exit-screen" class="screen hidden">
+  <div class="exit-card">
+    <div class="exit-seal">境</div>
+    <h2>已退出游戏</h2>
+    <p>万象仍在，随时可以再入境。</p>
+    <p class="exit-note">如果浏览器没有自动关闭这个标签页，可以直接关掉它，或点下面的按钮回到标题。</p>
+    <button class="btn btn-primary" id="btn-back-title"><span>重新入境</span><small>RE-ENTER</small></button>
+  </div>
 </div>
 
 <!-- ================= 安检入园 ================= -->
@@ -320,6 +331,7 @@
 <script src="js/athens.js"></script>
 <script src="js/acropolis.js"></script>
 <script src="js/puzzle.js"></script>
+<script src="js/portraits.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

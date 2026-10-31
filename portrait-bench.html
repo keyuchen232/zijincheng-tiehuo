@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>万象灵境 · 人物立绘审核</title>
+<style>
+  :root{
+    --paper:#f6efe2; --paper-2:#efe5d4; --ink:#2c2419; --ink-2:#5d5343;
+    --gold:#b98b45; --red:#a8442e; --blue:#33489c; --line:rgba(90,72,44,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{
+    background:
+      radial-gradient(ellipse at 50% -10%,#fffdf6 0%,var(--paper) 46%,var(--paper-2) 100%);
+    color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    padding:34px 40px 40px;display:flex;flex-direction:column;align-items:center;gap:22px;
+  }
+  header{text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+  .kicker{font-size:11px;letter-spacing:.4em;color:var(--red);text-transform:uppercase}
+  h1{font-family:"KaiTi","STKaiti",serif;font-weight:400;font-size:40px;letter-spacing:.16em;color:var(--ink)}
+  .sub{font-size:12.5px;letter-spacing:.14em;color:var(--ink-2)}
+  .sub b{color:var(--red);font-weight:600}
+  .row{display:flex;gap:44px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+  .card{
+    background:linear-gradient(180deg,#fffdf7,#f7f0e2);
+    border:1px solid var(--line);
+    box-shadow:0 18px 44px rgba(74,56,30,.14),inset 0 0 0 5px rgba(255,255,255,.6);
+    padding:16px 16px 14px;position:relative;
+  }
+  .card:before,.card:after{content:"";position:absolute;width:18px;height:18px;border:1px solid var(--gold);opacity:.55}
+  .card:before{left:6px;top:6px;border-right:0;border-bottom:0}
+  .card:after{right:6px;bottom:6px;border-left:0;border-top:0}
+  canvas{display:block;width:480px;height:600px;image-rendering:pixelated}
+  .meta{display:flex;align-items:baseline;gap:10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+  .meta b{font-family:"KaiTi","STKaiti",serif;font-size:26px;font-weight:400;letter-spacing:.1em}
+  .meta small{font-family:Consolas,monospace;font-size:10px;letter-spacing:.24em;color:#8d7a5a}
+  .meta em{font-style:normal;margin-left:auto;font-size:11px;color:#8a795d;letter-spacing:.08em}
+  .note{margin-top:8px;font-size:12px;line-height:1.8;color:#6d614d;letter-spacing:.02em;max-width:480px}
+  .tag{position:absolute;top:-11px;left:22px;background:var(--red);color:#fff5e6;font-size:10px;letter-spacing:.24em;padding:4px 10px}
+  .tag.alt{background:var(--blue)}
+  footer{font-size:11.5px;color:#8a7a60;letter-spacing:.1em;text-align:center;line-height:1.9}
+  footer b{color:#6b4f2c;font-weight:600}
+  body.solo header,body.solo footer,body.solo .card.hide{display:none}
+  body.solo{padding:18px;gap:0}
+  body.solo .card{padding:12px}
+  body.solo canvas{width:480px;height:600px}
+  @media (max-width:1100px){ canvas{width:360px;height:450px} body{padding:22px 16px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">NEXUS ATLAS · CHARACTER SHEET</div>
+  <h1>人物立绘 · 审核版</h1>
+  <div class="sub">像素立绘草图 / <b>尚未替换</b>游戏内角色，确认后再接入</div>
+</header>
+
+<div class="row">
+  <div class="card" id="card-hero">
+    <span class="tag">主角</span>
+    <canvas id="hero" width="480" height="600"></canvas>
+    <div class="meta"><b>小砚</b><small>THE TRAVELER</small><em>主角 · 入境者</em></div>
+    <p class="note">深色碎发，白色立领外套配朱红内衬，背着旧手账包；手里托着一块能投出建筑影像的平板。</p>
+  </div>
+  <div class="card" id="card-mentor">
+    <span class="tag alt">导师</span>
+    <canvas id="mentor" width="480" height="600"></canvas>
+    <div class="meta"><b>见微</b><small>THE MENTOR</small><em>导师 · 数据考据员</em></div>
+    <p class="note">栗棕色卷发扎侧马尾，蓝丝带；细金框眼镜、藏青西装外套，胸前一枚「境」字金徽章。</p>
+  </div>
+</div>
+
+<footer>
+  <div>参考海报配色与造型 · 3 倍像素放大 · 全部由 Canvas 现场绘制</div>
+  <div><b>审核通过后</b>：再决定是替换游戏内走动小人、还是作为对话框立绘接入。</div>
+</footer>
+
+<script src="js/portraits.js"></script>
+<script>
+(function(){
+  const P = window.G.portraits;
+  const params = new URLSearchParams(location.search);
+  const one = params.get('one');
+  if (one === 'hero' || one === 'mentor') {
+    document.body.classList.add('solo');
+    const other = document.getElementById('card-' + (one === 'hero' ? 'mentor' : 'hero'));
+    if (other) other.classList.add('hide');
+  }
+
+  function backdrop(ctx, who) {
+    const w = 480, h = 600;
+    // paper + warm halo
+    let g = ctx.createRadialGradient(w * 0.5, h * 0.34, 40, w * 0.5, h * 0.44, w * 0.92);
+    g.addColorStop(0, who === 'mentor' ? '#eaf3f1' : '#fdf3e2');
+    g.addColorStop(0.55, who === 'mentor' ? '#ddeae8' : '#f7e9d3');
+    g.addColorStop(1, '#e9ddc7');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    // faint pixel grid
+    ctx.save();
+    ctx.globalAlpha = 0.16;
+    ctx.fillStyle = '#8d7448';
+    for (let y = 24; y < h; y += 24) ctx.fillRect(0, y, w, 1);
+    for (let x = 24; x < w; x += 24) ctx.fillRect(x, 0, 1, h);
+    ctx.restore();
+
+    // vertical light beam
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const beam = ctx.createLinearGradient(0, 0, w, 0);
+    beam.addColorStop(0, 'rgba(255,244,214,0)');
+    beam.addColorStop(0.5, who === 'mentor' ? 'rgba(190,235,240,.34)' : 'rgba(255,236,190,.38)');
+    beam.addColorStop(1, 'rgba(255,244,214,0)');
+    ctx.fillStyle = beam;
+    ctx.fillRect(w * 0.14, 0, w * 0.72, h);
+    ctx.restore();
+
+    // floor shadow
+    ctx.save();
+    const sh = ctx.createRadialGradient(w / 2, h - 26, 8, w / 2, h - 26, 190);
+    sh.addColorStop(0, 'rgba(72,54,30,.34)');
+    sh.addColorStop(1, 'rgba(72,54,30,0)');
+    ctx.fillStyle = sh;
+    ctx.fillRect(0, h - 100, w, 100);
+    ctx.restore();
+
+    // drifting motes
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = who === 'mentor' ? '#7fc7cf' : '#d8a45c';
+    const seed = who === 'mentor' ? 3.7 : 1.3;
+    for (let i = 0; i < 26; i++) {
+      const x = ((Math.sin(i * seed * 12.9898) * 43758.5453) % 1 + 1) % 1 * w;
+      const y = ((Math.sin(i * seed * 78.233) * 12345.6789) % 1 + 1) % 1 * h;
+      const s = (i % 4 === 0) ? 3 : 2;
+      ctx.fillRect(Math.round(x), Math.round(y), s, s);
+    }
+    ctx.restore();
+  }
+
+  function draw() {
+    for (const who of ['hero', 'mentor']) {
+      const cv = document.getElementById(who);
+      const ctx = cv.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      backdrop(ctx, who);
+      // portrait grid: 160x200 -> 480x600 at scale 3, sits 20px above the bottom
+      P.draw(ctx, who, 0, -20, 3, performance.now() / 1000);
+    }
+  }
+  draw();
+  let last = 0;
+  function loop(now) {
+    requestAnimationFrame(loop);
+    if (now - last < 120) return;
+    last = now;
+    draw();
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
