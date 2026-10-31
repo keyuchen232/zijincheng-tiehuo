@@ -99,7 +99,14 @@ async function main() {
   await sleep(1600);
 
   check('title visible', await ev('!document.querySelector("#title").classList.contains("hidden")'));
-  check('fusion title button exists', await ev('!!document.querySelector("#btn-fusion")'));
+  check('title has four entries', (await ev('document.querySelectorAll("#title .title-actions .btn").length')) === 4);
+  check('story mode button exists', await ev('!!document.querySelector("#btn-start")'));
+  check('continue button exists', await ev('!!document.querySelector("#btn-continue")'));
+  check('creative mode button exists', await ev('!!document.querySelector("#btn-create")'));
+  check('exit button exists', await ev('!!document.querySelector("#btn-exit")'));
+  check('legacy entry buttons removed', await ev('document.querySelector("#btn-fusion") === null && document.querySelector("#btn-athens") === null'));
+  check('dialog body uses kai font', (await ev('getComputedStyle(document.querySelector("#dlg-text")).fontFamily')).indexOf('KaiTi') >= 0);
+  check('dialog name uses yahei font', (await ev('getComputedStyle(document.querySelector("#dlg-name")).fontFamily')).indexOf('Microsoft YaHei') >= 0);
   check('booking UI removed', await ev('document.querySelector("#booking") === null'));
   await ev('document.querySelector("#btn-start").click()');
   await sleep(1200);
@@ -295,12 +302,27 @@ async function main() {
   await ev('if (G.dialog.active) G.dialog.skip(); G.leaveFusion()');
   await sleep(900);
   check('fusion exits to title', await ev('G.titleActive === true'));
-  await ev('document.querySelector("#btn-fusion").click()');
+  await ev('document.querySelector("#btn-create").click()');
   await sleep(900);
-  check('fusion title button works', (await ev('G.scene && G.scene.id')) === 'fusion');
+  check('creative mode button works', (await ev('G.scene && G.scene.id')) === 'fusion');
   await ev('G.leaveFusion()');
   await sleep(900);
-  check('fusion button exit restores title', await ev('G.titleActive === true'));
+  check('creative mode exit restores title', await ev('G.titleActive === true'));
+
+  // exit game screen
+  await ev('document.querySelector("#btn-exit").click()');
+  await sleep(900);
+  check('exit screen shows', await ev('!document.querySelector("#exit-screen").classList.contains("hidden")'));
+  check('exit leaves title mode', await ev('G.titleActive === false'));
+  await ev('document.querySelector("#btn-back-title").click()');
+  await sleep(500);
+  check('re-enter title from exit screen', await ev('G.titleActive === true && !document.querySelector("#title").classList.contains("hidden")'));
+  check('exit screen hidden again', await ev('document.querySelector("#exit-screen").classList.contains("hidden")'));
+  await ev('document.querySelector("#btn-exit").click()');
+  await sleep(900);
+  await ev('window.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape", key: "Escape", bubbles: true }))');
+  await sleep(400);
+  check('Escape re-enters title from exit screen', await ev('G.titleActive === true && document.querySelector("#exit-screen").classList.contains("hidden")'));
 
   console.log('\nRESULTS', JSON.stringify(results, null, 2));
   if (errors.length) {
