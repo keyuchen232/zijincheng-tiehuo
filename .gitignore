@@ -31,3 +31,4 @@ chrome-shot-profile/
 .env
 .env.*
 !.env.example
+docs

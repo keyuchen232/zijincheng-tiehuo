@@ -1,0 +1,133 @@
+/* ============================================================
+   css/cut.css —— 过场演出的样式（配合 js/cut.js）
+   导演改节奏不用改这里；改「字多大、黑边多厚」才改这里。
+   ============================================================ */
+
+#cut {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 全局 .hidden 可能是 display:none，也可能只是 opacity:0，
+   这里统一兜住，避免过场结束还挡着鼠标 */
+#cut.hidden,
+#cut .hidden { display: none !important; }
+
+.cut-veil {
+  position: absolute;
+  inset: 0;
+  background: #08070a;
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+
+.cut-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 9vh;
+  background: #050406;
+  transition: transform 400ms ease;
+  pointer-events: none;
+}
+.cut-bar.top { top: 0; transform: translateY(-100%); }
+.cut-bar.bot { bottom: 0; transform: translateY(100%); }
+
+.cut-card {
+  position: absolute;
+  left: 50%;
+  bottom: 15vh;
+  transform: translateX(-50%);
+  width: min(780px, 86vw);
+  text-align: center;
+  pointer-events: none;
+}
+
+.cut-who {
+  margin: 0 0 10px;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  color: #cbb283;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.cut-text {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.85;
+  color: #f3ece0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.cut-sub {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: #b9ad97;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* 标题卡：开场那种大字 */
+#cut .cut-big { bottom: 50%; transform: translate(-50%, 50%); }
+#cut .cut-big .cut-text {
+  font-size: 46px;
+  letter-spacing: 0.3em;
+  line-height: 1.5;
+}
+#cut .cut-big .cut-sub {
+  font-size: 15px;
+  letter-spacing: 0.42em;
+  margin-top: 22px;
+}
+
+.cut-portrait-wrap {
+  position: absolute;
+  bottom: 12vh;
+  left: 6vw;
+  transition: transform 400ms ease, opacity 400ms ease;
+  pointer-events: none;
+}
+.cut-portrait-wrap.right { left: auto; right: 6vw; }
+.cut-portrait {
+  width: 240px;
+  height: 360px;
+  image-rendering: pixelated;
+  transition: opacity 400ms ease;
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.55));
+}
+
+.cut-hint {
+  position: absolute;
+  right: 22px;
+  bottom: 12px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: rgba(243, 236, 224, 0.42);
+  pointer-events: none;
+}
+
+/* 震屏：只抖画面，不抖黑边 */
+canvas.cut-shake {
+  animation: cut-shake 300ms linear;
+}
+@keyframes cut-shake {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-4px, 2px); }
+  40%  { transform: translate(3px, -3px); }
+  60%  { transform: translate(-2px, 3px); }
+  80%  { transform: translate(2px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+@media (max-width: 720px) {
+  .cut-text { font-size: 17px; }
+  #cut .cut-big .cut-text { font-size: 30px; letter-spacing: 0.2em; }
+  .cut-portrait { width: 168px; height: 252px; }
+  .cut-portrait-wrap { bottom: 16vh; }
+}

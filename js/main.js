@@ -640,6 +640,10 @@
     if (soundBtn) soundBtn.textContent = G.audio.enabled ? '♪' : '×';
     title.init();
 
+    // 模块化地基：等文案表就绪 → 自检「地图/画笔/玩法」→ 若带 ?map=xxx 直接进关
+    // G.mod.boot() 内部自己处理 titleActive 与 fade，这里不要再动它
+    if (G.mod && G.mod.boot) G.mod.boot();
+
     // share link: index.html?mode=fusion jumps straight into the Athens–Gugong chapter
     try {
       if (new URLSearchParams(window.location.search).get('mode') === 'fusion') {

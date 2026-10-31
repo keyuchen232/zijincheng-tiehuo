@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23120e0b'/%3E%3Cpath d='M16 4 L28 27 H4 Z' fill='%239b3828'/%3E%3Crect x='13' y='19' width='6' height='8' fill='%23d8b26a'/%3E%3C/svg%3E">
 <title>紫禁城 · 铁火 — 北京中轴线像素之旅</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/cut.css">
 </head>
 <body>
 
@@ -290,6 +291,32 @@
 <script src="js/art.js"></script>
 <script src="js/art-greek.js"></script>
 <script src="js/world.js"></script>
+
+<!-- ══════════════════════════════════════════════════════════
+     模块化地基：四个人都不改这几个文件，只调用它们的 API
+     js/str.js    文案表（G.str）
+     js/mod.js    注册表（G.mod）
+     js/stage.js  数据驱动关卡场景（G.StageScene）
+     js/cut.js    过场演出引擎（G.cut）
+     契约见 docs/模块接口.md
+     ══════════════════════════════════════════════════════════ -->
+<script src="js/str.js"></script>
+<script src="js/mod.js"></script>
+<script src="js/stage.js"></script>
+<script src="js/cut.js"></script>
+
+<!-- ═══ A · 美术/关卡  在下面这一块加自己的 js/art/*.js ═══ -->
+<script src="js/art/wumen.js"></script>
+<script src="data/maps/wumen.js"></script>
+<!-- ═══ A 结束 ═══ -->
+
+<!-- ═══ C · 玩法/交互/过场  在下面这一块加 js/mods/*.js 与 data/cuts/*.js ═══ -->
+<script src="js/mods/wumen-registration.js"></script>
+<script src="data/cuts/opening.js"></script>
+<script src="data/cuts/wumen-intro.js"></script>
+<!-- ═══ C 结束 ═══ -->
+
+<!-- ═══ 旧线（打铁花 / 雅典，逐步归档）═══ -->
 <script src="js/beijing.js"></script>
 <script src="js/gugong.js"></script>
 <script src="js/entry.js"></script>
