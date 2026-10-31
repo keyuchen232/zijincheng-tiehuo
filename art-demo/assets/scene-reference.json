@@ -1,0 +1,197 @@
+{
+  "identityKey": "1uoicql",
+  "scene": {
+    "spec": {
+      "version": 3,
+      "prompt": "让海月穿过白石柱廊，退潮时露出通往红檐殿的路。",
+      "theme": "tide",
+      "seed": "world:7xeqlw",
+      "weather": "clear",
+      "flowers": false,
+      "whale": true,
+      "manyLights": false,
+      "ruins": false,
+      "mirror": true,
+      "reverse": false,
+      "gardenChoice": "unset",
+      "offset": 0,
+      "roots": [
+        "axis",
+        "garden",
+        "symmetria"
+      ],
+      "schema": "wanxiang.world",
+      "revision": "0.4",
+      "layout": {
+        "width": 1440,
+        "height": 1200,
+        "axisX": 720,
+        "water": {
+          "x": 145,
+          "y": 716,
+          "w": 1150,
+          "h": 28
+        },
+        "bridges": {
+          "moon": {
+            "x": 688,
+            "y": 710,
+            "w": 64,
+            "h": 40
+          },
+          "flowers": {
+            "x": 586,
+            "y": 710,
+            "w": 68,
+            "h": 40
+          }
+        },
+        "axis": [
+          {
+            "id": "bridge",
+            "name": "流光桥",
+            "x": 720,
+            "y": 990
+          },
+          {
+            "id": "outerGate",
+            "name": "入境门",
+            "x": 720,
+            "y": 930
+          },
+          {
+            "id": "innerGate",
+            "name": "承序门",
+            "x": 720,
+            "y": 815
+          },
+          {
+            "id": "fusionHall",
+            "name": "合璧殿",
+            "x": 720,
+            "y": 610
+          },
+          {
+            "id": "rearHall",
+            "name": "后殿",
+            "x": 720,
+            "y": 430
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "guide",
+          "x": 775,
+          "y": 1035,
+          "culture": "axis"
+        },
+        {
+          "id": "axis",
+          "x": 720,
+          "y": 883,
+          "culture": "axis"
+        },
+        {
+          "id": "garden",
+          "x": 640,
+          "y": 772,
+          "culture": "garden"
+        },
+        {
+          "id": "tide",
+          "x": 800,
+          "y": 772,
+          "culture": "garden"
+        },
+        {
+          "id": "echo",
+          "x": 935,
+          "y": 686,
+          "culture": "symmetria"
+        },
+        {
+          "id": "finished",
+          "x": 720,
+          "y": 674,
+          "culture": "symmetria"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "guide",
+          "requires": [],
+          "label": "与守境人聊聊这座境",
+          "node": "guide"
+        },
+        {
+          "id": "axis",
+          "requires": [],
+          "label": "点亮门庭灯，穿过承序门",
+          "node": "axis"
+        },
+        {
+          "id": "garden",
+          "requires": [
+            "axis"
+          ],
+          "label": "在近处的借景窗选择海月或花雨",
+          "node": "garden"
+        },
+        {
+          "id": "tide",
+          "requires": [
+            "garden"
+          ],
+          "label": "拨转引潮石，让借来的景成为一条路",
+          "node": "tide"
+        },
+        {
+          "id": "echo",
+          "requires": [
+            "tide"
+          ],
+          "label": "越过水庭，为柱廊选择一种声音节奏",
+          "node": "echo"
+        },
+        {
+          "id": "finished",
+          "requires": [
+            "axis",
+            "garden",
+            "tide",
+            "echo"
+          ],
+          "label": "回到共创台，把这次相遇留成作品",
+          "node": "finished"
+        }
+      ],
+      "cultureRefs": [
+        "axis",
+        "garden",
+        "symmetria"
+      ]
+    },
+    "flags": {
+      "guide": true,
+      "axis": true,
+      "garden": true,
+      "tide": true,
+      "echo": true,
+      "finished": true
+    },
+    "garden": "moon",
+    "tide": "ebb",
+    "rhythm": "returning",
+    "player": {
+      "x": 720,
+      "y": 680
+    },
+    "view": "axis",
+    "style": "jade"
+  },
+  "model": "gpt-image-2",
+  "quality": "medium",
+  "sourceSha256": "12e7409f81952e71cc6f2425a5d5be3b484213abc98429f372d91d776bfd3861",
+  "resultSha256": "5d43c061872442c1077a9e47e308b871cc8b8ca3ed4917a9c7eb37a127894701"
+}

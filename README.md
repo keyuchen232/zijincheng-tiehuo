@@ -293,3 +293,16 @@ node serve.js      # 或 npm start / npm run dev / npm run serve
 ```
 
 截图 / 样张由无头 Chrome 生成，命令见 [STYLE.md §17](STYLE.md)。
+
+---
+
+## 合并说明（同步 upstream/main）
+
+本分支已合入 upstream/main 的新内容，与六关主线**互不冲突、各自独立**：
+
+- `#btn-create`「创造模式」→ 旧线 `enterCreate()`；`#btn-exit`「退出游戏」→ `G.exitGame()`（绑定在 `js/main.js:721-723`，按钮已补回标题页）。
+- `art-demo/`：队友的 AI 出图 Demo（独立页面 + `serve_ai.py`，不参与主游戏加载）。
+- 插件「同境异笔」：独立页面，以 iframe 隔离，不进主线。
+- 主线入口仍是标题页的 **「进入万象灵境」**（`#btn-stage` → `G.mod.go('wumen')`），旧线四入口收在「旧线 / LEGACY」折叠区。
+
+验收命令与六关流程不受影响，见上文「验收」一节。

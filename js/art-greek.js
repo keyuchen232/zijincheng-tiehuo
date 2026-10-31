@@ -382,7 +382,7 @@
     opts = Object.assign({
       columnH: 34, columnW: 6, columns: 0, steps: 3, entH: 10, pedH: 13,
       pediment: true, ruined: false, caryatid: false, name: '', color: null,
-      brokenFrom: -1,
+      brokenFrom: -1, backWall: true,
     }, opts || {});
     const key = 'temple|' + w + '|' + JSON.stringify(opts);
     if (spriteCache.has(key)) return spriteCache.get(key);
@@ -428,10 +428,12 @@
       if (opts.ruined && !skip && hh < opts.columnH) r(c, px - f.cw / 2, stylo - hh - 1, f.cw, 2, A.pal.marbleShade);
     }
     // back wall between columns
-    r(c, cx - w / 2 + f.cw, colTop + 2, Math.max(0, w - f.cw * 2), opts.columnH - 6, '#6d6552');
-    c.save(); c.globalAlpha = 0.5;
-    r(c, cx - w / 2 + f.cw, colTop + 2, Math.max(0, w - f.cw * 2), opts.columnH - 6, '#7d735d');
-    c.restore();
+    if (opts.backWall !== false) {
+      r(c, cx - w / 2 + f.cw, colTop + 2, Math.max(0, w - f.cw * 2), opts.columnH - 6, '#6d6552');
+      c.save(); c.globalAlpha = 0.5;
+      r(c, cx - w / 2 + f.cw, colTop + 2, Math.max(0, w - f.cw * 2), opts.columnH - 6, '#7d735d');
+      c.restore();
+    }
 
     // entablature: architrave, frieze, cornice
     const entTop = colTop - opts.entH;

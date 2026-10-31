@@ -331,21 +331,59 @@ const PROBE = `(async function () {
       await send('Runtime.evaluate', { expression: 'window.__BUDGET=' + Number(process.env.BUDGET) });
     }
 
-    /* ENTRY=1：从首页点「进入万象灵境」进主线（验证标题页入口，而不是靠 ?map= 深链） */
+    /* ENTRY=1：从标题页点「进入万象灵境」进主线（验证入口，而不是靠 ?map= 深链）。
+       注意：开场播完现在会直接落地午门（js/mod.js 的 boot 里改过），所以这里先把
+       「看过开场」写进存档再重载，才能回到标题页、真正点到那个按钮上。 */
     if (process.env.ENTRY === '1') {
+      const seed = await send('Runtime.evaluate', {
+        expression: `(function () {
+          var KEY = 'zijincheng.tiehuo.save.v1';
+          var s = {};
+          try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { s = {}; }
+          s.flags = s.flags || {};
+          s.flags['cut.opening'] = true;
+          localStorage.setItem(KEY, JSON.stringify(s));
+          return { seeded: true, seen: !!(window.G && G.cut && G.cut.seen && G.cut.seen('opening')) };
+        })()`, returnByValue: true,
+      });
+      console.log('开场存档：' + JSON.stringify(seed.result && seed.result.value));
+      await send('Page.navigate', { url: APP });
+      await sleep(3000);
+      const diag = await send('Runtime.evaluate', {
+        expression: `(function () {
+          var b = document.getElementById('btn-stage');
+          return {
+            seen: !!(window.G && G.cut && G.cut.seen && G.cut.seen('opening')),
+            titleActive: window.G ? G.titleActive : 'noG',
+            hasBtn: !!b,
+            visible: !!(b && b.offsetParent !== null),
+            scene: (window.G && G.scene && G.scene.map && G.scene.map.id) || '',
+            cut: !!(window.G && G.cut && G.cut.active),
+          };
+        })()`, returnByValue: true,
+      });
+      console.log('重载后诊断：' + JSON.stringify(diag.result && diag.result.value));
       const r = await send('Runtime.evaluate', {
         expression: `new Promise(function (done) {
           var t = setInterval(function () {
             var b = document.getElementById('btn-stage');
-            if (b && window.G && G.titleActive !== false) { clearInterval(t); b.click(); done('clicked'); }
+            var visible = b && b.offsetParent !== null;
+            if (b && visible && window.G && G.titleActive !== false) { clearInterval(t); b.click(); done('clicked'); }
           }, 250);
           setTimeout(function () { clearInterval(t); done('timeout'); }, 20000);
         })`, awaitPromise: true, returnByValue: true,
       });
       const how = r.result && r.result.value;
-      console.log('标题页入口：' + how);
-      if (how !== 'clicked') { console.log('✗ 找不到或点不到 #btn-stage'); code = 1; }
-      await sleep(2500);
+      await sleep(3000);
+      const sc = await send('Runtime.evaluate', {
+        expression: `(window.G && G.scene && G.scene.map && G.scene.map.id) || ''`, returnByValue: true,
+      });
+      const landed = (sc.result && sc.result.value) || '';
+      console.log('标题页入口：' + how + ' → 落地：' + (landed || '(空)'));
+      if (how !== 'clicked' || landed !== 'wumen') {
+        console.log('✗ 标题页入口没走到午门（#btn-stage 点不到，或点了没进主线）');
+        code = 1;
+      }
     }
 
     const res = await send('Runtime.evaluate', { expression: PROBE, awaitPromise: true, returnByValue: true });

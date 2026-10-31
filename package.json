@@ -2,7 +2,7 @@
   "name": "zijincheng-tiehuo",
   "version": "1.0.0",
   "private": true,
-  "description": "紫禁城 · 铁火 —— 640×360 像素风的北京中轴线小游戏：午门入园、故宫探索与打铁花。纯 Canvas 程序化绘制，零外部图片、零构建、零运行时依赖。",
+  "description": "万象灵境 —— 640×360 像素风的文化试验场：故事模式走北京中轴线、午门入园、故宫打铁花，创造模式进入雅典—故宫数字沙盘校准来源。纯 Canvas 程序化绘制，零外部图片、零构建、零运行时依赖。",
   "license": "MIT",
   "author": "cky11",
   "keywords": [

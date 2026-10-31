@@ -212,135 +212,279 @@
   };
 
   /* ============================================================
-     title background
+     title background — 万象灵境
+     a bright "two civilisations, one atlas" poster: the Forbidden
+     City on the left, the Acropolis on the right, a portal of
+     floating voxels between them, and the two travellers standing
+     on a holographic platform.
      ============================================================ */
   const titleArt = {
     t: 0,
+
+    /* chunky pixel ellipse */
+    puff(ctx, cx, cy, rx, ry, color) {
+      ctx.fillStyle = color;
+      const top = Math.ceil(cy - ry);
+      const bot = Math.ceil(cy + ry);
+      for (let y = top; y < bot; y++) {
+        const dy = (y + 0.5 - cy) / ry;
+        const hw = Math.floor(rx * Math.sqrt(Math.max(0, 1 - dy * dy)) + 0.5);
+        if (hw > 0) ctx.fillRect(Math.round(cx - hw), y, hw * 2, 1);
+      }
+    },
+
+    cloud(ctx, x, y, s, alpha) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const shade = '#cfe2f1';
+      this.puff(ctx, x - 26 * s, y + 4 * s, 24 * s, 10 * s, shade);
+      this.puff(ctx, x + 24 * s, y + 5 * s, 26 * s, 10 * s, shade);
+      this.puff(ctx, x, y + 2 * s, 32 * s, 14 * s, shade);
+      this.puff(ctx, x - 18 * s, y - 2 * s, 22 * s, 13 * s, '#ffffff');
+      this.puff(ctx, x + 12 * s, y - 5 * s, 24 * s, 14 * s, '#ffffff');
+      this.puff(ctx, x - 2 * s, y - 10 * s, 18 * s, 12 * s, '#ffffff');
+      ctx.restore();
+    },
+
+    cube(ctx, x, y, s, cols) {
+      const ix = Math.round(x - s / 2);
+      const iy = Math.round(y - s / 2);
+      ctx.fillStyle = cols.face;
+      ctx.fillRect(ix, iy, s, s);
+      ctx.fillStyle = cols.top;
+      ctx.fillRect(ix, iy, s, Math.max(2, Math.round(s * 0.32)));
+      ctx.fillStyle = cols.side;
+      ctx.fillRect(ix + s - Math.max(1, Math.round(s * 0.18)), iy + 1, Math.max(1, Math.round(s * 0.18)), s - 2);
+      ctx.fillStyle = 'rgba(255,255,255,.55)';
+      ctx.fillRect(ix + 1, iy + 1, Math.max(1, Math.round(s * 0.3)), 1);
+    },
+
     draw(ctx) {
       const t = this.t;
-      // sky
-      const g = ctx.createLinearGradient(0, 0, 0, 360);
-      g.addColorStop(0, '#070b18');
-      g.addColorStop(0.48, '#191323');
-      g.addColorStop(0.75, '#2b1820');
-      g.addColorStop(1, '#100b0b');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 640, 360);
-      // stars
-      for (let i = 0; i < 90; i++) {
-        const x = G.hash(i, 1, 91) * 640;
-        const y = G.hash(i, 2, 92) * 230;
-        const a = 0.2 + G.hash(i, 3, 93) * 0.7;
-        const tw = 0.6 + 0.4 * Math.sin(t * 1.2 + i);
+      const W = G.W, H = G.H;
+      const AG = G.artGreek || A;
+
+      /* ---------- sky ---------- */
+      const sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#7fbde5');
+      sky.addColorStop(0.38, '#b7ddf2');
+      sky.addColorStop(0.7, '#e6eedd');
+      sky.addColorStop(1, '#f6eeda');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H);
+
+      /* sun */
+      A.glow(ctx, 524, 62, 76, 'rgba(255,250,226,.85)', 0.32);
+      ctx.fillStyle = 'rgba(255,253,243,.9)';
+      ctx.beginPath(); ctx.arc(524, 62, 12, 0, G.TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.28)';
+      ctx.beginPath(); ctx.arc(524, 62, 19, 0, G.TAU); ctx.fill();
+
+      /* birds */
+      ctx.fillStyle = 'rgba(46,68,100,.34)';
+      for (const [bx, by] of [[158, 96], [186, 80], [210, 102], [232, 88]]) {
+        ctx.fillRect(bx - 3, by, 3, 1);
+        ctx.fillRect(bx - 1, by - 1, 1, 1);
+        ctx.fillRect(bx, by, 3, 1);
+      }
+
+      /* clouds */
+      this.cloud(ctx, 104, 92, 1.0, 0.95);
+      this.cloud(ctx, 430, 66, 0.8, 0.85);
+      this.cloud(ctx, 586, 116, 1.05, 0.8);
+      this.cloud(ctx, 262, 152, 0.8, 0.7);
+      this.cloud(ctx, 34, 172, 1.3, 0.6);
+      this.cloud(ctx, 620, 190, 0.95, 0.55);
+
+      /* soft cloud shelf behind the two cities */
+      ctx.save();
+      ctx.globalAlpha = 0.45;
+      for (let i = 0; i < 13; i++) {
+        const x = -20 + i * 56;
+        const y = 264 + (i % 3) * 5;
+        this.puff(ctx, x, y, 40, 13, i % 2 ? '#ffffff' : '#e7f2fa');
+        this.puff(ctx, x + 16, y - 6, 24, 10, '#ffffff');
+      }
+      ctx.restore();
+
+      /* ---------- left: the Forbidden City ---------- */
+      // low red wall running out to the left edge
+      A.wallH(ctx, -14, 86, 308, 30);
+      // a hall set back behind the gate
+      A.drawHall(ctx, 108, 286, 150, { wallH: 24, roofH: 20, double: true, name: '' });
+      // the gate itself
+      A.drawGate(ctx, 152, 308, 186, { wallH: 40, roofH: 24, double: true, arches: 3, name: '' });
+      // autumn trees + lanterns
+      A.tree(ctx, 36, 306, 1.7, { autumn: true });
+      A.tree(ctx, 244, 304, 1.1, { autumn: true });
+      A.tree(ctx, 64, 290, 0.9, { autumn: true });
+      for (const lx of [74, 208]) {
+        ctx.fillStyle = '#8d2b1d';
+        ctx.fillRect(lx - 3, 284, 6, 7);
+        ctx.fillStyle = '#ffd479';
+        ctx.fillRect(lx - 1, 286, 2, 3);
+      }
+
+      /* ---------- right: the Acropolis ---------- */
+      // rocky mound under the marble terrace
+      for (let i = 0; i < 10; i++) {
+        const ww = 168 + i * 4;
+        ctx.fillStyle = i % 2 ? '#a89a7c' : '#8f8267';
+        ctx.fillRect(500 - ww / 2, 306 + i, ww, 1);
+      }
+      ctx.fillStyle = '#6f6552';
+      ctx.fillRect(500 - 92, 316, 184, 2);
+      // marble terrace + a couple of loose drums
+      ctx.fillStyle = '#cfc3a6';
+      ctx.fillRect(414, 298, 172, 9);
+      ctx.fillStyle = '#e5dcc6';
+      ctx.fillRect(414, 298, 172, 2);
+      ctx.fillStyle = '#b6aa8d';
+      ctx.fillRect(414, 305, 172, 2);
+      AG.column(ctx, 426, 302, 24, 5, {});
+      AG.drawTemple(ctx, 500, 300, 152, {
+        columnH: 36, columnW: 6, columns: 8, steps: 3, entH: 10, pedH: 20,
+        name: '', backWall: false,
+      });
+      AG.oliveTree(ctx, 406, 304, 0.95);
+      ctx.fillStyle = '#b6aa8d';
+      ctx.fillRect(548, 302, 10, 4);
+      ctx.fillStyle = '#e5dcc6';
+      ctx.fillRect(548, 302, 10, 1);
+
+      /* soft contact shadows under both cities */
+      ctx.save();
+      const sh1 = ctx.createRadialGradient(160, 310, 10, 160, 312, 150);
+      sh1.addColorStop(0, 'rgba(70,50,40,.22)');
+      sh1.addColorStop(1, 'rgba(70,50,40,0)');
+      ctx.fillStyle = sh1;
+      ctx.fillRect(10, 296, 300, 46);
+      const sh2 = ctx.createRadialGradient(500, 314, 10, 500, 316, 140);
+      sh2.addColorStop(0, 'rgba(70,60,44,.2)');
+      sh2.addColorStop(1, 'rgba(70,60,44,0)');
+      ctx.fillStyle = sh2;
+      ctx.fillRect(360, 300, 280, 46);
+      ctx.restore();
+
+      /* ---------- portal light between the cities ---------- */
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const beam = ctx.createLinearGradient(0, 150, 0, 314);
+      beam.addColorStop(0, 'rgba(150,235,245,0)');
+      beam.addColorStop(0.55, 'rgba(150,235,245,.1)');
+      beam.addColorStop(1, 'rgba(120,220,235,.24)');
+      ctx.fillStyle = beam;
+      ctx.beginPath();
+      ctx.moveTo(326, 150);
+      ctx.lineTo(342, 150);
+      ctx.lineTo(366, 314);
+      ctx.lineTo(302, 314);
+      ctx.closePath();
+      ctx.fill();
+      A.glow(ctx, 334, 306, 72, 'rgba(120,220,235,.45)', 0.26);
+      ctx.restore();
+
+      /* floating voxels */
+      const cubes = [
+        [290, 208, 9, 0], [268, 184, 8, 0], [310, 196, 7, 1],
+        [344, 174, 8, 1], [372, 196, 9, 2], [396, 220, 8, 2],
+        [420, 238, 8, 2], [238, 228, 7, 0], [352, 212, 6, 1],
+        [286, 226, 5, 1], [150, 190, 6, 2], [468, 180, 7, 1],
+      ];
+      const cubeCols = [
+        { top: '#e06c4b', face: '#c0452f', side: '#8d2b1d' },
+        { top: '#ffe9b8', face: '#e2b463', side: '#a87c36' },
+        { top: '#ffffff', face: '#e6edf4', side: '#bccdda' },
+      ];
+      for (let i = 0; i < cubes.length; i++) {
+        const [cx0, cy0, s, kind] = cubes[i];
+        const bob = Math.sin(t * 1.15 + i * 1.7) * 2.4;
+        const drift = Math.sin(t * 0.55 + i * 0.9) * 1.6;
+        const x = cx0 + drift, y = cy0 + bob;
+        if (kind === 1) A.glow(ctx, x, y, s * 3.4, 'rgba(255,226,160,.4)', 0.22);
+        if (kind === 2) A.glow(ctx, x, y, s * 3.4, 'rgba(215,240,255,.4)', 0.18);
+        this.cube(ctx, x, y, s, cubeCols[kind]);
+      }
+
+      /* ---------- holographic platform ---------- */
+      const px = 334, py = 326, pw = 214, pd = 34;
+      ctx.save();
+      const glow = ctx.createRadialGradient(px, py, 10, px, py, 130);
+      glow.addColorStop(0, 'rgba(120,220,235,.3)');
+      glow.addColorStop(1, 'rgba(120,220,235,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(px - 140, py - 90, 280, 160);
+      ctx.restore();
+
+      const A0 = [px - pw / 2, py], B0 = [px, py - pd / 2], C0 = [px + pw / 2, py], D0 = [px, py + pd / 2];
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(A0[0], A0[1]);
+      ctx.lineTo(B0[0], B0[1]);
+      ctx.lineTo(C0[0], C0[1]);
+      ctx.lineTo(D0[0], D0[1]);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,.5)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(86,200,218,.75)';
+      ctx.lineWidth = 1;
+      const lerp2 = (p, q, k) => [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k];
+      for (let i = 1; i < 6; i++) {
+        const k = i / 6;
+        let p1 = lerp2(A0, B0, k), p2 = lerp2(D0, C0, k);
+        ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+        p1 = lerp2(A0, D0, k); p2 = lerp2(B0, C0, k);
+        ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(120,232,244,.95)';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(A0[0], A0[1]); ctx.lineTo(B0[0], B0[1]);
+      ctx.lineTo(C0[0], C0[1]); ctx.lineTo(D0[0], D0[1]);
+      ctx.closePath(); ctx.stroke();
+      ctx.restore();
+
+      /* ---------- the two travellers ---------- */
+      if (G.portraits && G.portraits.chibi) {
+        G.portraits.chibi(ctx, 'hero', 246, 226, 1.6);
+        G.portraits.chibi(ctx, 'mentor', 342, 224, 1.6);
+      }
+
+      /* ---------- foreground mist + sparks ---------- */
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const warm = ctx.createLinearGradient(W, 0, 0, H);
+      warm.addColorStop(0, 'rgba(255,214,150,.1)');
+      warm.addColorStop(0.6, 'rgba(255,214,150,.03)');
+      warm.addColorStop(1, 'rgba(255,214,150,0)');
+      ctx.fillStyle = warm;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+
+      const mist = ctx.createLinearGradient(0, 316, 0, H);
+      mist.addColorStop(0, 'rgba(255,252,244,0)');
+      mist.addColorStop(0.55, 'rgba(255,252,244,.34)');
+      mist.addColorStop(1, 'rgba(255,252,244,.72)');
+      ctx.fillStyle = mist;
+      ctx.fillRect(0, 316, W, H - 316);
+
+      for (let i = 0; i < 46; i++) {
+        const x = G.hash(i, 1, 21) * W;
+        const y = 150 + G.hash(i, 2, 22) * 190;
+        const a = 0.18 + G.hash(i, 3, 23) * 0.4;
+        const tw = 0.6 + 0.4 * Math.sin(t * 1.6 + i);
         ctx.globalAlpha = a * tw;
-        ctx.fillStyle = '#e7e9ff';
-        ctx.fillRect(Math.round(x), Math.round(y), G.hash(i, 4, 94) > 0.9 ? 2 : 1, 1);
+        ctx.fillStyle = i % 5 === 0 ? '#7fd6e0' : (i % 3 === 0 ? '#e8b463' : '#fff3cf');
+        ctx.fillRect(Math.round(x), Math.round(y), i % 7 === 0 ? 2 : 1, 1);
       }
       ctx.globalAlpha = 1;
-      // moon
-      A.glow(ctx, 512, 62, 70, 'rgba(230,205,150,.18)', 0.6);
-      ctx.fillStyle = '#f1e4c1';
-      ctx.beginPath(); ctx.arc(512, 62, 18, 0, G.TAU); ctx.fill();
-      ctx.fillStyle = 'rgba(205,190,150,.5)';
-      ctx.beginPath(); ctx.arc(518, 57, 4, 0, G.TAU); ctx.fill();
-      // distant ridge of city roofs
-      ctx.fillStyle = '#0b0c15';
-      for (let i = 0; i < 26; i++) {
-        const x = i * 26;
-        const h = 6 + G.hash(i, 5, 95) * 16;
-        ctx.fillRect(x, 264 - h, 22, h);
-        if (i % 4 === 0) {
-          ctx.fillStyle = 'rgba(216,178,106,.14)';
-          ctx.fillRect(x + 5, 264 - h + 4, 1, 1);
-          ctx.fillStyle = '#0b0c15';
-        }
-      }
-      // palace
-      A.drawHall(ctx, 300, 330, 130, { wallH: 28, roofH: 24, double: true, name: '' });
-      A.drawGate(ctx, 500, 352, 320, {
-        wallH: 62, roofH: 32, double: true, arches: 3, name: '神武门',
-      });
-      // tint to silhouette
-      ctx.fillStyle = 'rgba(7,9,20,.42)';
-      ctx.fillRect(0, 0, 640, 360);
-      // illuminated edges and roof glints
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      for (let i = 0; i < 7; i++) {
-        const x = 360 + i * 45;
-        A.glow(ctx, x, 286, 30, 'rgba(255,144,54,.25)', 0.22);
-      }
-      for (let i = 0; i < 9; i++) {
-        const x = 410 + i * 22;
-        A.glow(ctx, x, 236, 18, 'rgba(255,184,92,.18)', 0.25);
-        ctx.fillStyle = 'rgba(255,206,120,.28)';
-        ctx.fillRect(x, 235, 12, 1);
-      }
-      ctx.restore();
-      // lanterns on wall
-      for (const lx of [342, 382, 620]) {
-        A.glow(ctx, lx, 292, 26, 'rgba(255,150,60,.5)', 0.4);
-        ctx.fillStyle = '#d45637';
-        ctx.fillRect(lx - 4, 286, 8, 9);
-        ctx.fillStyle = '#ffd479';
-        ctx.fillRect(lx - 2, 289, 4, 3);
-      }
-      // crowd silhouette
-      ctx.fillStyle = '#070606';
-      for (let i = 0; i < 30; i++) {
-        const x = 300 + i * 12;
-        const h = 12 + G.hash(i, 7, 97) * 14;
-        ctx.fillRect(x, 352 - h, 7, h + 8);
-        ctx.beginPath(); ctx.arc(x + 3, 352 - h - 2, 4, 0, G.TAU); ctx.fill();
-      }
-      // furnace at the wall, molten iron thrown into the night
-      const ox = 432, oy = 327;
-      ctx.fillStyle = '#0d0908';
-      ctx.fillRect(ox - 18, oy - 8, 36, 12);
-      ctx.fillStyle = '#3b2616';
-      ctx.fillRect(ox - 14, oy - 12, 28, 8);
-      ctx.fillStyle = '#ff9d3c';
-      ctx.fillRect(ox - 8, oy - 10, 16, 3);
-      A.glow(ctx, ox, oy - 8, 100 + Math.sin(t * 7) * 8, 'rgba(255,132,40,.5)', 0.55);
-      A.glow(ctx, ox, oy, 44, 'rgba(255,236,160,.7)', 0.7);
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      for (let f = 0; f < 3; f++) {
-        const fx = ox + (f - 1) * 44;
-        const fy = oy + f * 5;
-        for (let i = 0; i < 110; i++) {
-          const cycle = (t * (0.36 + f * 0.03) + G.hash(i + f * 120, 1, 71)) % 1;
-          const ang = -Math.PI / 2 + (G.hash(i + f * 120, 2, 72) - 0.5) * (1.85 - f * 0.18);
-          const sp = 64 + G.hash(i + f * 120, 3, 73) * 190;
-          const x = fx + Math.cos(ang) * sp * cycle * 1.7;
-          const y = fy + Math.sin(ang) * sp * cycle + 300 * cycle * cycle;
-          const a = (1 - cycle) * (0.35 + G.hash(i + f * 120, 4, 74) * 0.65);
-          ctx.globalAlpha = a;
-          ctx.fillStyle = G.hash(i + f * 120, 5, 75) > 0.55 ? '#ffd479' : (G.hash(i + f * 120, 6, 76) > 0.5 ? '#ff9d3c' : '#fff3c4');
-          const s = G.hash(i + f * 120, 7, 77) > 0.82 ? 2 : 1;
-          ctx.fillRect(Math.round(x), Math.round(y), s, s);
-          if (s > 1) {
-            ctx.globalAlpha = a * 0.35;
-            ctx.fillRect(Math.round(x - Math.cos(ang) * 5), Math.round(y - Math.sin(ang) * 5), 1, 1);
-          }
-        }
-      }
-      ctx.restore();
-      // ground glow reflection
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      const rg = ctx.createLinearGradient(0, 330, 0, 360);
-      rg.addColorStop(0, 'rgba(255,130,40,.28)');
-      rg.addColorStop(1, 'rgba(255,80,20,0)');
-      ctx.fillStyle = rg;
-      ctx.fillRect(300, 330, 340, 30);
-      ctx.restore();
-      // foreground vignette
-      const vg = ctx.createRadialGradient(340, 170, 150, 340, 180, 390);
+
+      /* warm edge vignette */
+      const vg = ctx.createRadialGradient(320, 180, 170, 320, 190, 440);
       vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, 'rgba(0,0,0,.55)');
+      vg.addColorStop(1, 'rgba(96,76,44,.13)');
       ctx.fillStyle = vg;
-      ctx.fillRect(0, 0, 640, 360);
+      ctx.fillRect(0, 0, W, H);
     },
   };
 
@@ -391,6 +535,7 @@
       G.ui.setHomeButton(false);
       G.$('#hud').classList.remove('map-open');
       G.show($('#title'));
+      if (title) title.sync();
     }, 430);
   };
 
@@ -414,6 +559,36 @@
     G.ui.setHomeButton(false);
     if (!G.acropolisScene) G.acropolisScene = new G.AcropolisScene();
     G.setScene(G.acropolisScene, { spawn: spawn || { x: 750, y: 1300 } });
+  };
+
+  /* ============================================================
+     plugin: 同境异笔（独立页面 · iframe 隔离 · 不进主线）
+     ============================================================ */
+  G.artDemoOpen = false;
+  G.ART_DEMO_SRC = 'art-demo/index.html';
+  G.openArtDemo = function () {
+    if (G.artDemoOpen) return;
+    G.artDemoOpen = true;
+    const frame = $('#artdemo-frame');
+    const loading = $('#artdemo-loading');
+    if (loading) loading.classList.remove('hidden');
+    if (frame && frame.dataset.loaded !== '1') {
+      frame.onload = function () { if (loading) loading.classList.add('hidden'); };
+      frame.dataset.loaded = '1';
+      frame.src = G.ART_DEMO_SRC;
+    } else if (loading) {
+      loading.classList.add('hidden');
+    }
+    G.show($('#artdemo'));
+    G.input.clearPressed();
+    try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
+  };
+  G.closeArtDemo = function () {
+    if (!G.artDemoOpen) return;
+    G.artDemoOpen = false;
+    G.hide($('#artdemo'));
+    G.input.clearPressed();
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
   };
 
   /* ============================================================
@@ -471,7 +646,10 @@
     const f = G.save.data.flags;
     if (G.save.data.scene === 'home') {
       G.fade.to(() => {
+        G.titleActive = false;
+        G.hide($('#title'));
         if (!G.homeScene) G.homeScene = new G.HomeScene();
+        G.ui.showHud(true);
         G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
         G.ui.setHomeButton(true);
         G.ui.toast('回到家了', 'good', 2000);
@@ -488,9 +666,43 @@
       } else {
         G.enterBeijing({ x: 1100, y: 1200 });
       }
-      G.ui.toast('继续旅程', 'good', 2000);
+      G.ui.toast('继续故事', 'good', 2000);
     }, 520);
   }
+
+  /* 创造模式：进入万象灵境的故宫数字沙盘 / 创作终端 */
+  function enterCreate() {
+    G.audio.init();
+    G.audio.setEnabled(G.save.data.sound !== false);
+    G.fade.to(() => {
+      G.enterFusion();
+      G.ui.toast('创造模式 · 先校准来源，再走进创作终端', 'good', 3200);
+    }, 420);
+  }
+
+  /* 退出游戏：浏览器允许时直接关闭标签页，否则留在退出画面 */
+  G.exitGame = function () {
+    if (G.fade.busy) return;
+    G.save.persist();
+    G.audio.sfx('gong');
+    G.fade.to(() => {
+      G.titleActive = false;
+      G.hide($('#title'));
+      G.ui.showHud(false);
+      G.show($('#exit-screen'));
+      setTimeout(() => { try { window.close(); } catch (e) { /* ignore */ } }, 60);
+    }, 320);
+  };
+
+  G.backToTitle = function () {
+    if (G.fade.busy) return;
+    G.hide($('#exit-screen'));
+    G.show($('#title'));
+    G.titleActive = true;
+    G.ui.showHud(false);
+    if (title) title.sync();
+    G.input.clearPressed();
+  };
 
   /* ============================================================
      title init
@@ -500,16 +712,23 @@
     init() {
       $('#btn-start').addEventListener('click', () => {
         if (G.save.exists()) {
-          G.confirm('开始新旅程？', '当前进度与图鉴会被覆盖，最佳成绩会保留。', () => startNewGame());
+          G.confirm('重新开始故事？', '当前进度与图鉴会被覆盖，最佳成绩会保留。', () => startNewGame());
           return;
         }
         startNewGame();
       });
       $('#btn-continue').addEventListener('click', () => continueGame());
+      $('#btn-create').addEventListener('click', () => enterCreate());
+      $('#btn-exit').addEventListener('click', () => G.exitGame());
+      $('#btn-back-title').addEventListener('click', () => G.backToTitle());
+      this.sync();
+    },
+    sync() {
       const has = G.save.exists();
       const btn = $('#btn-continue');
+      if (!btn) return;
       btn.disabled = !has;
-      if (!has) btn.querySelector('small').textContent = 'NO JOURNEY';
+      btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
     },
   };
 
@@ -521,6 +740,15 @@
     if (G.confirmOpen) {
       if (code === 'Escape') G.closeConfirm(false);
       else if (code === 'Enter') G.closeConfirm(true);
+      return;
+    }
+    // exit screen: any confirm key re-enters the title
+    if ($('#exit-screen') && !$('#exit-screen').classList.contains('hidden')) {
+      if (code === 'Escape' || code === 'Enter' || code === 'Space') G.backToTitle();
+      return;
+    }
+    if (G.artDemoOpen) {
+      if (code === 'Escape') G.closeArtDemo();
       return;
     }
     // title
@@ -624,8 +852,10 @@
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
-    $('#btn-fusion').addEventListener('click', () => G.enterFusion());
-    $('#btn-athens').addEventListener('click', () => G.enterAthens());
+    const menuArt = $('#menu-artdemo');
+    if (menuArt) menuArt.addEventListener('click', () => { menu.close(); G.openArtDemo(); });
+    const artClose = $('#artdemo-close');
+    if (artClose) artClose.addEventListener('click', () => G.closeArtDemo());
     // tapping / clicking the map canvas closes the map (touch-friendly)
     $('#game').addEventListener('pointerdown', () => {
       if (G.scene && G.scene.mapOpen) {
@@ -669,6 +899,7 @@
       G.hide($('#menu'));
       G.hide($('#cinema'));
       G.hide($('#confirm'));
+      G.hide($('#exit-screen'));
       G.confirmOpen = false;
       G.hide($('#title'));
       G.security.active = false;
@@ -818,6 +1049,7 @@
     G.hide($('#mg-result'));
     G.hide($('#codex'));
     G.hide($('#menu'));
+    G.hide($('#exit-screen'));
     $('#mg-zone').style.left = '52%';
     $('#mg-zone').style.width = '32%';
     if (!hasSave) {
@@ -828,16 +1060,36 @@
     // main loop
     let last = performance.now();
     let titleT = 0;
+    let wasTitle = null;
+    const titleBg = $('#title-bg');
+    const titleBgCtx = titleBg ? titleBg.getContext('2d') : null;
+    if (titleBgCtx) titleBgCtx.imageSmoothingEnabled = false;
+    // the title art is a full-bleed poster: cover wide windows, contain narrow ones
+    function fitTitleBg() {
+      if (!titleBg) return;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const s = vw / vh >= 1.5
+        ? Math.max(vw / G.W, vh / G.H)
+        : Math.min(vw / G.W, vh / G.H);
+      titleBg.style.width = Math.round(G.W * s) + 'px';
+      titleBg.style.height = Math.round(G.H * s) + 'px';
+    }
+    fitTitleBg();
+    window.addEventListener('resize', fitTitleBg);
     function frame(now) {
       requestAnimationFrame(frame);
       let dt = (now - last) / 1000;
       last = now;
       if (!isFinite(dt) || dt < 0) dt = 0.016;
       dt = Math.min(dt, 0.05);
+      if (G.titleActive !== wasTitle) {
+        wasTitle = G.titleActive;
+        document.body.classList.toggle('title-mode', !!G.titleActive);
+      }
       if (G.titleActive) {
         titleT += dt;
         titleArt.t = titleT;
-        titleArt.draw(ctx);
+        if (titleBgCtx) titleArt.draw(titleBgCtx);
       } else if (G.minigameGreek && G.minigameGreek.active) {
         G.minigameGreek.update(dt);
         G.minigameGreek.draw(ctx);
