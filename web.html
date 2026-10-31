@@ -16518,23 +16518,26 @@ window.WXL_AI = {
     }, 320);
   };
 
-  /* 支线 · 打铁花：直接进故宫夜场，站在神武门广场，选难度开打 */
+  /* 支线 · 打铁花：从正阳门出发，沿中轴线一路走到午门、进宫、入夜 */
   G.enterTiehua = function () {
     if (G.fade.busy) return;
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
-    G.save.flag('entered', true);
-    G.save.flag('night', true);
-    G.save.flag('metZhao', true);
-    G.save.flag('iron', true);
-    G.save.flag('charcoal', true);
-    G.save.flag('ladle', true);
-    G.save.data.flags.palaceIntroSeen = true;
-    G.save.data.scene = 'gugong';
+    // 支线从头走：清掉入园 / 材料 / 夜场标记，保留图鉴与最佳成绩
+    G.save.flag('entered', false);
+    G.save.flag('metZhao', false);
+    G.save.flag('iron', false);
+    G.save.flag('charcoal', false);
+    G.save.flag('ladle', false);
+    G.save.flag('night', false);
+    G.save.data.flags.palaceIntroSeen = false;
+    G.save.data.flags.introSeen = true;
+    G.save.data.scene = 'beijing';
     G.save.persist();
     G.fade.to(() => {
-      G.enterPalace({ x: 750, y: 430 });
-      G.ui.toast('支线 · 打铁花：夜色里的神武门广场，去找老赵', 'good', 3000);
+      G.enterBeijing({ x: 1100, y: 1200 });
+      G.unlock('axis');
+      G.ui.toast('支线 · 打铁花：从正阳门出发，沿中轴线向北走到午门', 'good', 3600);
     }, 420);
   };
 
