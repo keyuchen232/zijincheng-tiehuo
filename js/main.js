@@ -594,6 +594,94 @@
   };
 
   /* ============================================================
+     万象灵境 · 六关（关卡选择）
+     玩家点「进入万象灵境」先看到六关列表：每关写明这一关要干什么，
+     点哪关进哪关；菜单里也能随时回到这里。
+     ============================================================ */
+  G.LEVEL_ORDER = ['wumen', 'taihe', 'qianqing', 'repair_bench', 'creator', 'shenwumen'];
+  G.levelDone = function (id) { return !!(G.save && G.save.flag && G.save.flag('spot.' + id)); };
+  G.levelMeta = function (id) {
+    let map = null;
+    try { map = (G.mod && G.mod.get) ? G.mod.get('map', id) : null; } catch (e) { map = null; }
+    const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : ((map && map.title) || id);
+    const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : ((map && map.sub) || '');
+    let obj = '';
+    try { obj = G.str.get((map && map.objectiveKey) || ('nodes.' + id + '.objective')); } catch (e) { obj = ''; }
+    if (!obj && map && map.objective) obj = map.objective;
+    return { id: id, name: name, sub: sub, obj: obj };
+  };
+  G.levelsOpen = false;
+  G.renderLevels = function () {
+    const grid = $('#levels-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    let doneN = 0;
+    G.LEVEL_ORDER.forEach(function (id, i) {
+      const m = G.levelMeta(id);
+      const done = G.levelDone(id);
+      if (done) doneN++;
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'lv-card' + (done ? ' done' : '');
+      card.dataset.map = id;
+      card.innerHTML = '<div class="lv-no">第 ' + (i + 1) + ' 关</div>' +
+        '<div class="lv-name">' + m.name + '</div>' +
+        '<div class="lv-sub">' + (m.sub || '') + '</div>' +
+        '<div class="lv-obj">' + (m.obj || '进入这一关查看目标') + '</div>' +
+        '<div class="lv-state"><b>' + (done ? '已完成' : '未完成') + '</b><span>· 点击进入</span></div>';
+      card.addEventListener('click', function () { G.enterLevel(id); });
+      grid.appendChild(card);
+    });
+    const prog = $('#levels-progress');
+    if (prog) prog.textContent = '进度 · ' + doneN + ' / ' + G.LEVEL_ORDER.length + '　（进度自动存档）';
+  };
+  G.openLevels = function () {
+    if (!G.titleActive && G.scene) return;   /* 关里不弹：从菜单进 */
+    G.levelsOpen = true;
+    G.renderLevels();
+    G.show($('#levels'));
+    G.input.clearPressed();
+  };
+  G.closeLevels = function () {
+    if (!G.levelsOpen) return;
+    G.levelsOpen = false;
+    G.hide($('#levels'));
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+  /* 进入某一关：第一次入境先播开场（倒计时），之后直接进 */
+  G.enterLevel = function (id) {
+    G.closeLevels();
+    const go = function () { G.mod.go(id); };
+    try {
+      if (G.mod.has && G.mod.has('cutscene', 'opening') && G.cut && G.cut.seen && !G.cut.seen('opening')) {
+        G.cut.play('opening', go);
+        return;
+      }
+    } catch (e) { /* 落到直接进关 */ }
+    go();
+  };
+  G.bindLevels = function () {
+    const closeBtn = $('#levels-close');
+    if (closeBtn) closeBtn.addEventListener('click', function () { G.closeLevels(); });
+    const box = $('#levels');
+    if (box) box.addEventListener('click', function (e) { if (e.target.id === 'levels') G.closeLevels(); });
+    const menuLevels = $('#menu-levels');
+    if (menuLevels) menuLevels.addEventListener('click', function () {
+      const menuEl = $('#menu');
+      if (menuEl) G.hide(menuEl);
+      G.levelsOpen = true;
+      G.renderLevels();
+      G.show($('#levels'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (!G.levelsOpen) return;
+      if (e.key === 'Escape') { G.closeLevels(); return; }
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= G.LEVEL_ORDER.length) G.enterLevel(G.LEVEL_ORDER[n - 1]);
+    });
+  };
+
+  /* ============================================================
      创造模式（独立页面 · iframe 隔离 · 独立存档）
      ============================================================ */
   G.creationOpen = false;
@@ -1088,6 +1176,7 @@
     codex.init();
     menu.init();
     if (G.ai) G.ai.init();
+    if (typeof G.bindLevels === 'function') G.bindLevels();
 
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));

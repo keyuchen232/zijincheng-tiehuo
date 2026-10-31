@@ -150,7 +150,11 @@
       const self = this;
       const id = this.map.id;
       const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : (this.map.title || id);
-      const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
+      let sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
+      /* HUD 里带「第 N 关 / 共 6 关」，玩家一眼知道自己在整条线的哪一段 */
+      if (G.LEVEL_ORDER && G.LEVEL_ORDER.indexOf(id) >= 0) {
+        sub = '第 ' + (G.LEVEL_ORDER.indexOf(id) + 1) + ' 关 · ' + (sub || '');
+      }
       G.ui.location(name, sub);
 
       const objKey = this.map.objectiveKey || ('nodes.' + id + '.objective');
@@ -173,6 +177,11 @@
         } else if (G.str.has(enterKey)) {
           G.dialog.show(G.str.dialog(enterKey));
         }
+      } else if (this.map.enterTip) {
+        /* 二次进入也给一句指引：玩家可能隔了很久回来，早忘了这关要干嘛 */
+        setTimeout(function () {
+          if (G.scene === self) G.ui.toast(self.map.enterTip, 'good', 3200);
+        }, 400);
       }
     }
 
