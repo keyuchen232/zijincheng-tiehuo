@@ -20,6 +20,7 @@ G.mod.register({
   /* 无 script.json 时的兜底显示名 */
   title: '午门',
   sub: '原点之争',
+  enterTip: '向北走到午门门洞前，按 E 查看叠印的网格',
 
   /* 进场过场（C 在 data/cuts/wumen-intro.js 里排练）。
      写了这一行，进场就不播 nodes.wumen.enter 的对话了，改播过场。 */

@@ -12,28 +12,28 @@ G.mod.register({
   id: 'wumen.intro',
 
   steps: [
-    { t: 'fade', to: 1, ms: 420, color: '#08070a' },
-    { t: 'bars', on: true, ms: 300 },
+    { t: 'fade', to: 1, ms: 320, color: '#08070a' },
+    { t: 'bars', on: true, ms: 240 },
 
     /* 她先开口，然后才看得见她 */
-    { t: 'card', key: 'cuts.wumen_intro.0', ms: 1500 },
-    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 340 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 2400 },
+    { t: 'card', key: 'cuts.wumen_intro.0', ms: 900 },
+    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 240 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 1400 },
 
     /* 地上那层灰绿的线，肉眼可见地对不上 */
-    { t: 'shake', ms: 260, amp: 4 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2600 },
+    { t: 'shake', ms: 220, amp: 4 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2200 },
 
     /* 玩家自己的一句：短、轻、别抢戏 */
-    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1800 },
+    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1100 },
 
     /* 她收尾：先把「这不是错」说清楚，否则玩家会把「分开」当成正确答案。
        这两句是主题的支点（见 docs/冲刺4小时.md §1），别删。 */
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 2300 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 2400 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 1300 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 1400 },
 
     { t: 'clear' },
     { t: 'bars', on: false, ms: 320 },
-    { t: 'fade', to: 0, ms: 520 }
+    { t: 'fade', to: 0, ms: 420 }
   ]
 });

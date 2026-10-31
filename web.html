@@ -21027,6 +21027,7 @@ window.WXL_SCRIPT = {
 
     /* ---------------- 生命周期 ---------------- */
     onEnter() {
+      const self = this;
       const id = this.map.id;
       const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : (this.map.title || id);
       const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
@@ -21045,7 +21046,10 @@ window.WXL_SCRIPT = {
       if (!G.save.flag('seen.' + id)) {
         G.save.flag('seen.' + id, true);
         if (cutId && G.mod.has('cutscene', cutId)) {
-          G.mod.cut(cutId, null);
+          G.mod.cut(cutId, function () {
+            // 过场结束再提示“走到哪里、按什么键”，否则开场期间会被黑边盖住
+            if (self.map.enterTip) G.ui.toast(self.map.enterTip, 'good', 3600);
+          });
         } else if (G.str.has(enterKey)) {
           G.dialog.show(G.str.dialog(enterKey));
         }
@@ -22903,6 +22907,7 @@ G.mod.register({
   /* 无 script.json 时的兜底显示名 */
   title: '午门',
   sub: '原点之争',
+  enterTip: '向北走到午门门洞前，按 E 查看叠印的网格',
 
   /* 进场过场（C 在 data/cuts/wumen-intro.js 里排练）。
      写了这一行，进场就不播 nodes.wumen.enter 的对话了，改播过场。 */
@@ -25302,29 +25307,29 @@ G.mod.register({
   id: 'wumen.intro',
 
   steps: [
-    { t: 'fade', to: 1, ms: 420, color: '#08070a' },
-    { t: 'bars', on: true, ms: 300 },
+    { t: 'fade', to: 1, ms: 320, color: '#08070a' },
+    { t: 'bars', on: true, ms: 240 },
 
     /* 她先开口，然后才看得见她 */
-    { t: 'card', key: 'cuts.wumen_intro.0', ms: 1500 },
-    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 340 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 2400 },
+    { t: 'card', key: 'cuts.wumen_intro.0', ms: 900 },
+    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 240 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 1400 },
 
     /* 地上那层灰绿的线，肉眼可见地对不上 */
-    { t: 'shake', ms: 260, amp: 4 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2600 },
+    { t: 'shake', ms: 220, amp: 4 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2200 },
 
     /* 玩家自己的一句：短、轻、别抢戏 */
-    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1800 },
+    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1100 },
 
     /* 她收尾：先把「这不是错」说清楚，否则玩家会把「分开」当成正确答案。
        这两句是主题的支点（见 docs/冲刺4小时.md §1），别删。 */
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 2300 },
-    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 2400 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 1300 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 1400 },
 
     { t: 'clear' },
     { t: 'bars', on: false, ms: 320 },
-    { t: 'fade', to: 0, ms: 520 }
+    { t: 'fade', to: 0, ms: 420 }
   ]
 });
 

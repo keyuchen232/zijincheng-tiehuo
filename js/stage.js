@@ -147,6 +147,7 @@
 
     /* ---------------- 生命周期 ---------------- */
     onEnter() {
+      const self = this;
       const id = this.map.id;
       const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : (this.map.title || id);
       const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
@@ -165,7 +166,10 @@
       if (!G.save.flag('seen.' + id)) {
         G.save.flag('seen.' + id, true);
         if (cutId && G.mod.has('cutscene', cutId)) {
-          G.mod.cut(cutId, null);
+          G.mod.cut(cutId, function () {
+            // 过场结束再提示“走到哪里、按什么键”，否则开场期间会被黑边盖住
+            if (self.map.enterTip) G.ui.toast(self.map.enterTip, 'good', 3600);
+          });
         } else if (G.str.has(enterKey)) {
           G.dialog.show(G.str.dialog(enterKey));
         }
