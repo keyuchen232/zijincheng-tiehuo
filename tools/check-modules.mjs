@@ -85,18 +85,24 @@ for (const f of listFiles('data/maps')) {
 const script = JSON.parse(rd('data/script.json'));
 const leaves = new Set();
 const arrays = new Set();
+const objs = new Set();
 (function flat(o, prefix) {
   for (const k of Object.keys(o)) {
     const v = o[k];
     const p = prefix ? prefix + '.' + k : k;
     if (Array.isArray(v)) arrays.add(p);
-    else if (v && typeof v === 'object') flat(v, p);
+    else if (v && typeof v === 'object') { objs.add(p); flat(v, p); }
     else leaves.add(p);
   }
 })(script, '');
 
+/* 一个 key 算"存在"，有三种情况：
+   1. 它就是一段文字（leaf）；
+   2. 它是一个数组（比如 cues，代码自己挑元素）；
+   3. 它是一个对象（比如 G.str.puzzle('taihe.labels') 要的就是整块数据）。
+   第 3 种以前漏了，会把正确的 G.str.puzzle('字面量') 判成"文案 key 不存在"。 */
 function hasKey(key) {
-  if (leaves.has(key) || arrays.has(key)) return true;
+  if (leaves.has(key) || arrays.has(key) || objs.has(key)) return true;
   const dot = key.indexOf('.');
   if (dot > 0) {
     const head = key.slice(0, dot);
@@ -107,15 +113,23 @@ function hasKey(key) {
   return false;
 }
 
+/* 有些存取器自带前缀，传进去的是「裸 id」而不是完整路径：
+     G.str.puzzle('taihe.labels')  → 真的读 puzzles['taihe.labels']
+     G.str.node('wumen')           → 真的读 nodes['wumen']
+     G.str.who('diotima')          → 真的读 characters['diotima']
+   不补上前缀，正确的调用会被判成"文案 key 不存在"。 */
+const PREFIXED = { puzzle: 'puzzles.', options: 'puzzles.', node: 'nodes.', who: 'characters.' };
+
 const jsFiles = ['js/str.js', 'js/mod.js', 'js/stage.js', ...owned];
 for (const f of jsFiles) {
   const s = rd(f);
-  const re = /G\.str\.(get|has|seg|dialog|puzzle|options|node)\(\s*'([^']+)'/g;
+  const re = /G\.str\.(get|has|seg|dialog|puzzle|options|node|who)\(\s*'([^']+)'/g;
   for (const m of s.matchAll(re)) {
     const key = m[2];
     /* 动态拼接的 key（'nodes.' + id + '.name'）只校验到点号为止，跳过 */
     if (!key || key.endsWith('.')) continue;
-    if (!hasKey(key)) err(f + ' 用到的文案 key 不存在：' + key);
+    const full = (PREFIXED[m[1]] || '') + key;
+    if (!hasKey(full)) err(f + ' 用到的文案 key 不存在：' + key);
   }
 }
 
@@ -124,6 +138,14 @@ const objIds = new Set((script.objects || []).map((o) => o.id));
 for (const f of listFiles('data/maps')) {
   for (const m of rd(f).matchAll(/inspect:\s*'([^']+)'/g)) {
     if (!objIds.has(m[1])) err(f + ' 的 inspect 引用了不存在的物件 ' + m[1]);
+  }
+  for (const m of rd(f).matchAll(/labelObj:\s*'([^']+)'/g)) {
+    if (!objIds.has(m[1])) err(f + ' 的 labelObj 引用了不存在的物件 ' + m[1]);
+  }
+  /* 地图里指向 script.json 的键（labelKey / nameKey / textKey）拼错时，
+     画面上只会少一行字，不会报错 —— 所以静态查一遍。 */
+  for (const m of rd(f).matchAll(/(labelKey|nameKey|textKey):\s*'([^']+)'/g)) {
+    if (!hasKey(m[2])) err(f + ' 的 ' + m[1] + ' 指向不存在的文案 ' + m[2]);
   }
 }
 

@@ -27,6 +27,11 @@ G.mod.register({
     /* 玩家自己的一句：短、轻、别抢戏 */
     { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1800 },
 
+    /* 她收尾：先把「这不是错」说清楚，否则玩家会把「分开」当成正确答案。
+       这两句是主题的支点（见 docs/冲刺4小时.md §1），别删。 */
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.4', ms: 2300 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.5', ms: 2400 },
+
     { t: 'clear' },
     { t: 'bars', on: false, ms: 320 },
     { t: 'fade', to: 0, ms: 520 }

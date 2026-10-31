@@ -778,13 +778,8 @@
   const title = {
     active: true,
     init() {
-      $('#btn-start').addEventListener('click', () => {
-        if (G.save.exists()) {
-          G.confirm('重新开始故事？', '当前进度与图鉴会被覆盖，最佳成绩会保留。', () => startStory());
-          return;
-        }
-        startStory();
-      });
+      const startBtn = $('#btn-start');
+      if (startBtn) startBtn.addEventListener('click', () => G.enterTiehua());
       $('#btn-continue').addEventListener('click', () => continueGame());
       const thBtn = $('#btn-tiehua');
       if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());

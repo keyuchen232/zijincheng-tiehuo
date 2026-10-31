@@ -1,41 +1,31 @@
 /* ============================================================
-   data/cuts/opening.js —— 开场动画
+   data/cuts/opening.js —— 开场（占位版：可跳过的黑屏倒计时）
    ------------------------------------------------------------
-   什么时候播：G.mod.boot() 发现这段没看过，就在标题页播一次。
-   想重看：清存档，或控制台 G.save.flag('cut.opening', false)。
-   想改节奏：只改 steps 里的 ms 和顺序，不用碰任何渲染代码。
+   正式开场动画由队友制作，这一段**不是**动画，只是一个占位：
+   黑场 + 3…2…1 倒计时 + 一行小字。
+   动画做好以后，只把下面的 steps 换成他的 steps 就行 ——
+   跳过提示与按键（空格 / 回车 / Esc / 点击）由 js/cut.js 统一提供，
+   写在 `.cut-hint` 上，不在这份数据里，所以换动画不用重做跳过。
+
+   跳过规则（js/cut.js）：
+     · 按一次 = 跳过当前这一步（黑屏倒计时只有一段，按一次就收场）
+     · 700ms 内连按两次 = 跳过整段（正式动画步骤很多时用这个）
+   想重看：控制台 G.save.flag('cut.opening', false) 后刷新。
    ============================================================ */
 G.mod.register({
   kind: 'cutscene',
   id: 'opening',
 
   steps: [
-    /* 1. 起：把标题画面压暗（不是纯黑，能看见云与城），缓推镜头 + 黑边 */
-    { t: 'fade', to: 0.45, ms: 0, color: '#08070a' },
-    { t: 'zoom', v: 1.05, ms: 2200 },
-    { t: 'bars', on: true, ms: 400 },
-    { t: 'wait', ms: 200 },
+    /* 起手：把标题画面压暗（不是纯黑，能看见云与城），黑边走一圈再倒计时 */
+    { t: 'fade', to: 0.5, ms: 0, color: '#08070a' },
+    { t: 'bars', on: true, ms: 420 },
 
-    /* 2. 第一口气：把这个世界的一句话讲完 */
-    { t: 'card', key: 'cuts.opening.0', ms: 1500 },
-    { t: 'wait', ms: 120 },
-    { t: 'card', key: 'cuts.opening.1', ms: 1600 },
-    { t: 'wait', ms: 120 },
-    { t: 'card', key: 'cuts.opening.2', ms: 1600 },
+    /* 占位倒计时：ms 总时长，from 起始数字（队员动画约 3 秒就够） */
+    { t: 'countdown', ms: 3000, from: 3, subKey: 'ui.cut.loading' },
 
-    /* 3. 错位的一瞬：震屏 + 白闪 + 一行系统错报 */
-    { t: 'shake', ms: 260, amp: 6 },
-    { t: 'flash', color: '#dfe7ea', ms: 180 },
-    { t: 'card', key: 'cuts.opening.3', subKey: 'cuts.opening.3sub', ms: 1500 },
-
-    /* 4. 收：亮出标题 */
-    { t: 'clear' },
-    { t: 'wait', ms: 200 },
-    { t: 'title', key: 'cuts.opening.title', subKey: 'cuts.opening.sub', ms: 1800 },
-
-    /* 5. 光进来，黑边退场 */
-    { t: 'bars', on: false, ms: 400 },
-    { t: 'fade', to: 0, ms: 500 },
-    { t: 'wait', ms: 200 }
-  ]
+    /* 收场：黑边退、画面亮开，交给 G.mod.boot() 回调整理进午门 */
+    { t: 'bars', on: false, ms: 320 },
+    { t: 'fade', to: 0, ms: 300 },
+  ],
 });

@@ -1,68 +1,91 @@
-# 万象灵境
+# 万象灵境 · 紫禁城铁火
 
+> 穿过红墙金瓦，去看一场打铁花；再走进一场「修复」，看清我们为什么要保留一些东西。
 
-一个 **640 × 360 像素风** 的文化试验场：从正阳门出发，沿北京中轴线走到午门，安检入园，在故宫里替老赵找齐打铁花的材料，等天黑之后亲手泼出一炉铁水；也可以转入 **「万象灵境 · 雅典—故宫」** 数字沙盘，在故宫与卫城的投影之间校准来源、走进创作终端。
+**主推玩法：万象灵境 · 六关主线（约 5–8 分钟）** —— 故宫沙盘被雅典卫城的数据包叠印：建筑本体没有改变，但投影、说明与来源标签错位了。玩家一处一处把它们修好，最后发现系统把一件**真实的历史融合藏品**也判成了「错误混入」。
 
-全部画面由 Canvas 程序化绘制，没有外部图片素材；游戏逻辑为原生 JavaScript，无构建步骤。
+另外保留了北京中轴线大地图 **「紫禁城 · 铁火」**（从正阳门走到午门、入园、故宫探索、打铁花），以及独立的 **雅典 · 卫城**（`athens-city/`）。
 
----
-
-## 游戏入口
-
-标题页只保留四个入口：
-
-| 入口 | 作用 |
-| --- | --- |
-| **故事模式** | 北京中轴线 → 午门安检 → 故宫探索 → 入夜打铁花（原「紫禁城 · 铁火」主线） |
-| **继续游戏** | 读取本机存档，回到上次的场景与任务进度 |
-| **创造模式** | 进入「万象灵境 · 雅典—故宫」数字沙盘：双档案、非遗小游戏、来源校准台与创作终端 |
-| **退出游戏** | 存档后退出；若浏览器不允许脚本关闭标签页，会停在退出画面，可「重新入境」回到标题 |
-
-独立的 **「雅典 · 卫城」** 游戏仍在 `athens-city/` 目录里单独运行，不再占用标题页入口。
+全部画面由 Canvas 程序化绘制，没有外部图片素材；游戏逻辑为原生 JavaScript，**没有构建步骤**（`data/script.js` 与 `web.html` 是可选产物）。
 
 ---
 
-## 本仓库包含两个游戏
+## 快速开始
 
-| 游戏 | 目录 | 端口 | 一句话 |
-| --- | --- | --- | --- |
-| **万象灵境** | 根目录 | 8123 | 故事模式：北京中轴线 → 故宫打铁花；创造模式：雅典—故宫数字沙盘 |
-| **[雅典 · 卫城](athens-city/README.md)** | `athens-city/` | 8213 | 希腊卫城：山门入城、卫城探索、点火圣火 |
-
-两个游戏完全独立：各自的 `index.html`、`serve.js`、存档键互不干扰，可以分别运行。
-
----
-
-## 运行
-
-需要 Node.js 18+。
-
-```bat
-双击 start.bat
-```
-
-或者手动：
+需要 Node.js 18+（零依赖）。
 
 ```bash
-cd forbidden-city
-node serve.js
+node serve.js            # 或 npm start
 # 打开 http://127.0.0.1:8123/
 ```
 
-> 不要直接双击 index.html。页面通过本地静态服务器读取脚本，`file://` 下部分浏览器会限制脚本与存储。
+Windows 也可以双击 `start.bat`。
 
-### 网站版（单文件）
+有三种进法：
 
-`web.html` 是全部 CSS / JS 内联后的单文件版本，**可以直接双击用浏览器打开**，也可以上传到任意静态托管（GitHub Pages、Netlify、Cloudflare Pages 等）。
+| 方式 | 地址 | 说明 |
+| --- | --- | --- |
+| **正常玩** | `http://127.0.0.1:8123/` | 标题页点 **「进入万象灵境 / WANXIANG · 六关」**（或按 Enter）→ 从午门开始六关主线 |
+| 直接进某一关 | `http://127.0.0.1:8123/?map=taihe` | `?map=` 可取 `wumen` / `taihe` / `qianqing` / `repair_bench` / `creator` / `shenwumen` |
+| 单看一段过场 | `http://127.0.0.1:8123/?cut=ending` | `?cut=` 可取 `opening` / `wumen.intro` / `ending` |
+| **单文件版（离线 / 投屏）** | 双击 `web.html` | 全部 CSS/JS/文案内联，`file://` 直接可玩，也可直接丢静态托管 |
 
-修改源码后重新生成：
+> 想玩旧线（北京中轴线 → 故宫 → 打铁花）：标题页最下面那个「旧线：打铁花」按钮，或 `?mode=fusion`。
+
+**第一次玩、不知道怎么操作？** 看 [`docs/攻略.md`](docs/攻略.md)：三十秒上手 + 六关答案 + 6 分钟最短路线 + 3 分钟演示脚本。
+
+### 开场：可跳过的黑屏倒计时（占位）
+
+正常玩（`/`）时会先播一段开场：黑屏 + 3 秒倒计时 + 「按 空格 跳过」提示，**按一次空格（或点一下画面）立刻跳过**，倒计时走完也会自动落地午门。
+
+这段是**占位**，正式开场动画由队友制作。接进来时只改 `data/cuts/opening.js` 的 `steps`（卡片 / 立绘 / 镜头都支持，见 `docs/模块接口.md` 的过场词表），**跳过功能不用动**：`js/cut.js` 的按键绑定、跳过提示（`ui.cut.skipHint`）与"按一次整段跳"的规则都在播放器里，换掉 `steps` 之后照样生效。
+
+### 为什么要重新生成 web.html
+
+`web.html` 是产物。改了源码之后：
 
 ```bash
-node tools/build-web.mjs   # 或 npm run build:web
-# 生成 web.html
+node tools/build-data.mjs   # data/script.json → data/script.js（file:// 下的文案回退包）
+node tools/build-web.mjs    # 生成 web.html
 ```
 
-当前开发服务器也会直接提供它：`http://127.0.0.1:8123/web.html`
+`data/script.js` 也被 `index.html` 引用（在 `js/str.js` 之前），所以**正常 http 访问同样能用**；它存在的意义是让单文件版和 `file://` 打开也能读到文案。
+
+---
+
+## 六关主线怎么走
+
+| 关 | 场景 | 玩家要做的事 | 想让人感觉到的东西 |
+| --- | --- | --- | --- |
+| 1 午门 · 配准 | 午门内广场 | 双网格错位，三选一把投影对准真实原点 | 先制造「哪些才是真正的错误」的疑问 |
+| 2 太和殿月台 · 说明校准 | 月台 | 把三块说明牌放回它该在的层；再对「要不要保留三段台阶的节奏」做一个决定 | 空间能组织行走与视线——用身体感到，而不是被讲解 |
+| 3 乾清宫 · 承重试验 | 前院 | 两种材料 × 三种做法，看哪个真能撑住 | 工艺之美来自懂材料，不是装饰 |
+| 4 修复台 · 来源链 | 修复台 | 三条线索各配一张来源卡，一个诱饵必须留白 | 分得清「误标 / 合理对照 / 真实交流」 |
+| 4 修复台 · 反转 | 修复台（查完来源后出现） | 系统把一件带外来构件的真藏品判为「错误混入 · 建议移除」，玩家改判 | 传统本身也是吸收、改造出来的；要修的是系统的判断 |
+| 5 御花园 · 创作终端 | 御花园 | 审一份 AI 生成的方案：点出被标错的来源、只改来源不删物件 | 保留不等于照搬，传承要写清出处 |
+| 6 神武门 · 出门一问 | 神武门 | 用一条线索咬合门禁，回答「我借鉴了什么 / 保留了什么 / 新造了什么」 | 带着理解离开，而不是通关 |
+
+结尾反转的藏品是**故宫博物院藏 清乾隆 铜镀金珐琅转花活动人物钟**（文物号 故00183132）：铜镀金嵌透明珐琅（欧洲传入的烧蓝，清代仅在广州制作，故又称广珐琅），底层乐箱以塔轮（fusee）与发条驱动，正面水法为齿轮长轴上的透明螺旋玻璃柱，两侧风景油画——**西洋机芯 + 广州工匠的本土改造**，是一条可查证的吸收链。
+
+> 史料边界：我们不说故宫与卫城存在直接传承或器物交换。「含有外来构件」也不自动等于「融合」——必须拿出吸收或转化的具体证据。虚构机关在文案里标明为当代创作。
+
+---
+
+## 验收 / 自检（四条命令）
+
+```bash
+node tools/check-modules.mjs   # 静态对账：地图 / 画笔 / 玩法 / 过场 / 文案 key 全链引用
+node tools/smoke.mjs           # 真浏览器冒烟：文案版本、带点 id 的 key、8 个玩法的正确分支
+node tools/playthrough.mjs     # 真浏览器全链走查：从午门一路点到结局
+node tools/check-opening.mjs   # 开场验收：倒计时在放、提示写了「空格」、按空格 0.2s 跳过、不按 3.7s 自动进
+```
+
+四条都要真跑（`smoke` / `playthrough` / `check-opening` 会自己起 headless Chrome，需要装 Chrome）。常用开关：
+
+```bash
+APP=http://127.0.0.1:8123/ ENTRY=1 node tools/playthrough.mjs   # 从标题页入口开始，验证首页按钮
+APP='file:///…/web.html?map=wumen' node tools/playthrough.mjs    # 验证单文件版
+```
 
 ---
 
@@ -72,16 +95,14 @@ node tools/build-web.mjs   # 或 npm run build:web
 | --- | --- |
 | WASD / 方向键 | 移动 |
 | Shift | 快走 |
-| E | 互动、对话继续 |
-| H | 回家 / 离开大厅 |
-| M | 打开 / 关闭地图（北京中轴线图、故宫导览图、万象灵境图） |
-| J | 旅行图鉴 |
+| E | 互动、对话继续、选项 |
+| 空格 / 点击 | 推进对话、跳过打字 |
 | Esc | 暂停菜单 |
-| 空格 / 回车 / E | 打铁花小游戏起炉、锁定火力、泼铁 |
-| 空格 / 点击画面 | 榫卯 / 大理石非遗小游戏：合拢、下凿 |
-| 1 / 2 / 3 · 点击 | 小游戏难度选择：简易 / 困难 / 地狱 |
+| M | 地图（六关为羊皮纸导览图） |
+| H | 回家 / 离开大厅（旧线） |
+| J | 旅行图鉴 |
 
-触屏设备会显示虚拟方向键、互动键与地图键。
+主线里所有选项都可以用鼠标点，触屏设备会显示虚拟方向键与互动键。
 
 ---
 
@@ -137,28 +158,8 @@ node tools/build-web.mjs   # 或 npm run build:web
 
 ---
 
-## 插件 · 同境异笔（非主线）
-
-标题页与暂停菜单里的 **「同境异笔 / PLUGIN」** 入口，会把一个**独立的小 Demo** 以 iframe 的形式开在游戏之上：
-
-- 它有自己的引擎、地图和存档键（`wanxiang.fusion.explore.*`），**不读也不写**主线的存档，关掉就回到原来的位置。
-- 玩法：写一句话 → 生成一座像素之境 → 探索 → 查看三种非像素转绘（青绿绢绘 / 水墨留白 / 纸雕光境）→ 输出收藏展签。
-- 离线即可运行：三张 AI 转绘样例已内嵌在 `art-demo/index.html`（约 8 MB 单文件）。**页面内为新场景实时转绘**需要在本机额外启动 Python 图像服务（见 `art-demo/Image接入-队友先读.md`）；未启动时显示“未连接”属于正常状态，不影响探索与样例查看。
-- 关闭：点顶部「返回游戏」；或焦点在游戏层时按 Esc。
-
-源码在 `art-demo/`，可重新构建与自检：
-
-```bash
-cd art-demo
-node build.js     # 由 src/ + assets/ + vendor/ 重新生成 index.html
-node verify.cjs   # 玩法与导出契约自检
-```
-
----
-
 ## 特色
 
-- **新的标题页**：明亮白昼的「双城一境」画面——左侧紫禁城、右侧帕特农，中间是漂浮的方块与全息台，主角与导师站在台上；标题为 **万象灵境**，入口收敛为四个。
 - **北京中轴线大地图**：正阳门、天安门、午门、故宫、景山、钟鼓楼、北海白塔、天坛、鸟巢、国贸、胡同、王府井等像素地标。
 - **故宫像素模型**：红墙、金瓦、脊兽、汉白玉台基、五座内金水桥、庑房与御花园。
 - **午门入园安检**：证件核验 + 行李安检的两段小演出。
@@ -173,18 +174,6 @@ node verify.cjs   # 玩法与导出契约自检
 
 ---
 
-## 人物立绘（审核中）
-
-主角 **小砚** 与导师 **见微** 的新立绘已经画好草图，**还没有替换进游戏**，先放在单独的审核页里：
-
-- 预览页：`portrait-bench.html`（`node serve.js` 后打开 `http://127.0.0.1:8123/portrait-bench.html`）
-- 审核图：[`shots/portraits.png`](shots/portraits.png)，单张：[主角 · 小砚](shots/portrait_hero.png) / [导师 · 见微](shots/portrait_mentor.png)
-- 绘制代码：`js/portraits.js`
-
-审核通过后，再决定是替换游戏里走动的小人，还是作为对话框立绘接入。
-
----
-
 ## 画面
 
 | | |
@@ -196,8 +185,6 @@ node verify.cjs   # 玩法与导出契约自检
 | ![难度选择](shots/difficulty.png) | ![榫卯小游戏](shots/archive_cn.png) |
 | ![回纹小游戏](shots/archive_en.png) | ![来源判断](shots/source_quiz.png) |
 | ![手绘地图](shots/map.png) | ![打铁花](shots/mgimpact.png) |
-| ![创造模式](shots/menu_create.png) | ![退出画面](shots/menu_exit.png) |
-| ![人物立绘审核](shots/portraits.png) | ![对话字体](shots/dialog.png) |
 
 ---
 
@@ -227,41 +214,54 @@ node serve.js
 ## 目录
 
 ```
-forbidden-city/
-  index.html          页面与 UI 结构
-  web.html            单文件网站版（可直接打开 / 静态托管）
-  styles.css          HUD、安检、图鉴、结算等界面
-  serve.js            本地静态服务器
-  start.bat           一键启动
-  STYLE.md            美术与地图风格规范
-  style-sheet.html    美术风格样张（Canvas 绘制）
-  map-bench.html      地图模板预览台
-  portrait-bench.html 人物立绘审核台（主角 / 导师，未接入主流程）
-  js/
-    core.js           输入、对话、音效、存档、粒子、场景管理
-    art.js            像素人物、宫殿、城门、道具、夜景绘制
-    portraits.js      主角与导师立绘、标题页小人（审核 / 未替换）
-    world.js          俯视世界、相机、碰撞、互动、绘制排序
-    beijing.js        北京中轴线地图与地标
-    gugong.js         故宫内部、任务、昼夜
-    home.js           家 · 大厅、合成台与修复台
-    fusion.js         万象灵境 · 雅典—故宫（投影错位地图）
-    art-greek.js      雅典美术（G.artGreek，与主美术并行）
-    athens.js         雅典城地图
-    acropolis.js      卫城地图
-    puzzle.js         日晷校日谜题 + 拍立得相机
-    minigame-greek.js 圣火小游戏（G.minigameGreek，与打铁花并存）
-    archive-game.js   榫卯合拢 / 回纹凿刻两个非遗档案小游戏
-    difficulty.js     小游戏难度选择（简易 / 困难 / 地狱）
-    source-quiz.js    三条来源卡判断
-    entry.js          午门入园安检
-    minigame.js       打铁花小游戏
-    main.js           标题、启动、图鉴、菜单、调试
-    map-template.js   地图模板：城东小院（1120 × 800）
-  athens-city/        雅典 · 卫城（独立游戏，见 athens-city/README.md）
-  tools/              build-web.mjs 单文件构建、无头浏览器截图与端到端测试脚本
-  shots/              截图
-  art-demo/           插件：同境异笔（独立单文件 Demo，iframe 接入，不进主线）
+index.html            页面、UI 结构、脚本加载顺序（新流程在文件末尾的「六关接线区」）
+web.html              单文件网站版（可直接双击打开 / 静态托管）
+styles.css            HUD、对话、图鉴等界面
+css/cut.css           过场（黑边、卡片、标题）样式
+serve.js              本地静态服务器
+start.bat             一键启动
+data/
+  script.json         全部主线文案（$schema wxl.script.v1，唯一文案真源）
+  script.js           由 build-data.mjs 生成，供 file:// 与单文件版使用
+  maps/*.js           六关卡地图（声明式：ground/props/spots/next）
+  cuts/*.js           过场脚本（opening / wumen-intro / ending）
+js/
+  core.js             输入、对话、音效、存档、粒子、场景管理
+  art.js              像素人物、宫殿、城门、道具、夜景绘制
+  world.js            俯视世界、相机、碰撞、互动、绘制排序
+  str.js              文案读取（带点 id 的路径查找）
+  mod.js              模块注册表与 boot()：地图 / 画笔 / 玩法 / 过场
+  stage.js            数据驱动关卡场景（G.StageScene）
+  cut.js              过场播放器（卡片 / 立绘 / 黑边 / 跳过）
+  boot.js             启动入口（最后一个被加载）
+  art/wumen.js        午门系画笔（铺地、双网格、门、门额、灯）
+  art/halls.js        太和殿 / 乾清宫 / 御花园 / 神武门共用画笔
+  mods/*.js           8 个玩法：配准、说明校准、保留选择、承重试验、来源链、反转改判、方案审阅、出门一问
+  beijing.js          旧线：北京中轴线地图与地标
+  gugong.js           旧线：故宫内部、任务、昼夜
+  home.js             旧线：家 · 大厅、合成台与修复台
+  fusion.js           旧线：万象灵境 · 雅典—故宫（投影错位地图）
+  archive-game.js     旧线：榫卯合拢 / 回纹凿刻非遗小游戏
+  difficulty.js       旧线：小游戏难度选择
+  source-quiz.js      旧线：三条来源卡判断
+  entry.js            旧线：午门入园安检
+  minigame.js         旧线：打铁花小游戏
+  main.js             旧线：标题、启动、图鉴、菜单
+  map-template.js     地图模板：城东小院（旧 WorldScene 写法，新地图见 data/maps/）
+athens-city/          雅典 · 卫城（独立游戏，见 athens-city/README.md）
+docs/
+  模块接口.md         地基 API 契约（写新关卡先读这个）
+  关卡设计-v1.0-落地版.md  六关设计定稿
+  冲刺4小时.md        排期、砍单线、演示脚本
+tools/
+  build-data.mjs      data/script.json → data/script.js
+  build-web.mjs       → web.html（内联全部样式与脚本）
+  check-modules.mjs   静态对账
+  smoke.mjs           冒烟测试（真浏览器）
+  playthrough.mjs     全链走查（真浏览器）
+  test.mjs            旧线的端到端测试（68 条断言）
+  shot.mjs            无头浏览器截图
+shots/                截图
 ```
 
 ---
@@ -270,8 +270,16 @@ forbidden-city/
 
 - 游戏中的入园安检是玩法化演出，不收集、不上传任何个人信息。
 - 打铁花为国家级非物质文化遗产，铁水温度可达约 1600°C，现实中的表演有严格的安全防护，请勿模仿。
-- 所有像素画面均由 Canvas 实时绘制。对话框内 **对话正文用楷体（KaiTi）**，**人物与建筑名称用微软雅黑（Microsoft YaHei）**；其余界面沿用微软雅黑。
+- 所有像素画面均由 Canvas 实时绘制；字体使用系统中文字体。
 - 本项目采用 [MIT 许可证](LICENSE) 开源。
+
+### 考据来源（结尾反转关）
+
+- 故宫博物院藏品页《铜镀金珐琅转花活动人物钟》（故00183132）：<https://www.dpm.org.cn/collection/clock/232081.html>
+- 故宫博物院藏品页（该页脚注亦说明「广东钟表的特点多为跑人、水法、转花伴随音乐」）
+- 广东省博物馆「清代广钟精品展」相关报道：<http://www.gd.gov.cn/zwgk/zdlyxxgkzl/whjg/content/post_4607463.html>
+
+文案里凡是我们没有核实的内容，都在 `sourceCards[].needsVerify` 里标了 `true`；主题边界（不声称故宫—卫城直接传承、外来构件≠融合）写进了来源卡的 `notClaim` 字段。
 
 ---
 
@@ -285,3 +293,16 @@ node serve.js      # 或 npm start / npm run dev / npm run serve
 ```
 
 截图 / 样张由无头 Chrome 生成，命令见 [STYLE.md §17](STYLE.md)。
+
+---
+
+## 合并说明（同步 upstream/main）
+
+本分支已合入 upstream/main 的新内容，与六关主线**互不冲突、各自独立**：
+
+- `#btn-create`「创造模式」→ 旧线 `enterCreate()`；`#btn-exit`「退出游戏」→ `G.exitGame()`（绑定在 `js/main.js:721-723`，按钮已补回标题页）。
+- `art-demo/`：队友的 AI 出图 Demo（独立页面 + `serve_ai.py`，不参与主游戏加载）。
+- 插件「同境异笔」：独立页面，以 iframe 隔离，不进主线。
+- 主线入口仍是标题页的 **「进入万象灵境」**（`#btn-stage` → `G.mod.go('wumen')`），旧线四入口收在「旧线 / LEGACY」折叠区。
+
+验收命令与六关流程不受影响，见上文「验收」一节。

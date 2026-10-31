@@ -39,3 +39,6 @@ chrome-shot-profile/
 # 画面优化过程截图
 .polish-shots/
 .chrome-shot-profile/
+
+# 封版备份目录（只留在本地，不进仓库）
+release-*/
