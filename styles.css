@@ -737,3 +737,15 @@ body.title-mode #stage{visibility:hidden}
 .cp-main:disabled{opacity:.45;cursor:not-allowed}
 .cp-actions button:not(.cp-main){border:1px solid #5a4529;background:#241b14;color:#c9b48a;padding:.5em .9em;cursor:pointer;border-radius:2px;font:inherit}
 @media(max-width:640px){.cp-groups{grid-template-columns:1fr}}
+
+/* 标题页底部信息：从绝对定位置回文档流，避免和换行后的按钮重叠 */
+.title-inner .title-foot{
+  position:static;left:auto;bottom:auto;
+  order:9;margin-top:1.15em;
+  flex-direction:column;align-items:center;text-align:center;gap:.45em;
+}
+.title-inner .title-keys{text-align:center}
+.title-inner .title-save{order:8;margin-top:.95em}
+@media(max-width:700px){
+  .title-inner .title-foot{display:flex;font-size:.62em}
+}
