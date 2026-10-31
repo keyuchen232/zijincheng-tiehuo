@@ -65,7 +65,7 @@ for (const f of owned) {
   for (const m of s.matchAll(/kind:\s*'cutscene'[\s\S]{0,240}?id:\s*'([^']+)'/g)) cuts.add(m[1]);
   const keyConst = /const\s+KEY\s*=\s*'([^']+)'/.exec(s);
   if (keyConst && /G\.mod\.puzzle\(\s*KEY\s*,/.test(s)) puzzles.add(keyConst[1]);
-  for (const m of s.matchAll(/kind:\s*'map'[\s\S]{0,240}?id:\s*'([^']+)'/g)) maps.add(m[1]);
+  for (const m of s.matchAll(/["']?kind["']?\s*:\s*["']map["'][\s\S]{0,240}?["']?id["']?\s*:\s*["']([^"']+)["']/g)) maps.add(m[1]);
 }
 if (!painters.size) warn('没有收集到任何 painter —— 检查 G.mod.painter( 的写法');
 if (!puzzles.size) warn('没有收集到任何 puzzle —— 检查 G.mod.puzzle( 的写法');

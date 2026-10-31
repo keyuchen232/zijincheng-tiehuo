@@ -162,7 +162,11 @@
 
         sfx: function (name) { if (G.audio) G.audio.sfx(name); },
         toast: function (text, kind) { G.ui.toast(text, kind || '', 2000); },
-        setVar: function (k, v) { if (scene && scene.vars) scene.vars[k] = v; },
+        setVar: function (k, v) {
+          if (!scene || !scene.vars) return;
+          if (scene.setVar) scene.setVar(k, v, spot);
+          else scene.vars[k] = v;
+        },
 
         dialog: function (key, done) {
           const lines = G.str.dialog(key);

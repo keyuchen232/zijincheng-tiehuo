@@ -176,7 +176,8 @@ input,select{font:inherit}
   color:var(--gold-hi);padding:.28em 1em;font-family:var(--sans);font-size:.9em;letter-spacing:.16em;
   box-shadow:0 4px 0 rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);
 }
-.dlg-name:before{content:"“";color:rgba(255,235,190,.45);margin-right:.45em;font-family:var(--sans)}
+.dlg-name:before{content:none}
+.dlg-name,.cut-who{font-family:"Microsoft YaHei","微软雅黑",sans-serif;letter-spacing:.04em}
 .dlg-body{min-height:3.7em;padding:.5em .2em .15em}
 .dlg-body p{font-family:var(--kai);line-height:1.95;font-size:1.1em;letter-spacing:.045em;color:#f0e2c8;white-space:pre-wrap;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 .dlg-body p .hl{color:var(--gold-hi)}

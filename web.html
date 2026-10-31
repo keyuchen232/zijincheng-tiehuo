@@ -186,7 +186,8 @@ input,select{font:inherit}
   color:var(--gold-hi);padding:.28em 1em;font-family:var(--sans);font-size:.9em;letter-spacing:.16em;
   box-shadow:0 4px 0 rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);
 }
-.dlg-name:before{content:"“";color:rgba(255,235,190,.45);margin-right:.45em;font-family:var(--sans)}
+.dlg-name:before{content:none}
+.dlg-name,.cut-who{font-family:"Microsoft YaHei","微软雅黑",sans-serif;letter-spacing:.04em}
 .dlg-body{min-height:3.7em;padding:.5em .2em .15em}
 .dlg-body p{font-family:var(--kai);line-height:1.95;font-size:1.1em;letter-spacing:.045em;color:#f0e2c8;white-space:pre-wrap;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 .dlg-body p .hl{color:var(--gold-hi)}
@@ -1204,6 +1205,7 @@ body.title-mode #stage{visibility:hidden}
       // opts: { name, text, options:[{label, value(chosen)}, ...] }
       this.onPick = cb || null;
       this.show([{
+        who: opts.who,
         name: opts.name,
         text: opts.text,
         _opts: opts.options || [{ label: '是', value: true }, { label: '否', value: false }],
@@ -1215,6 +1217,25 @@ body.title-mode #stage{visibility:hidden}
       if (!line) { this.close(); return; }
       this.el.classList.toggle('narrator', !!line.narrator);
       G.$('#dlg-name').textContent = line.name || (line.narrator ? '手记' : '旅人');
+      let portrait = this.el.querySelector('.dlg-portrait');
+      if (!portrait) {
+        portrait = document.createElement('canvas');
+        portrait.className = 'dlg-portrait';
+        portrait.width = 160; portrait.height = 200;
+        this.el.prepend(portrait);
+      }
+      const mentorName = G.str && G.str.who('diotima').name;
+      const speaker = line.who || (mentorName && line.name === mentorName ? 'diotima' : null);
+      const visible = !line.narrator && (speaker === 'diotima' || speaker === 'player');
+      portrait.classList.toggle('hidden', !visible);
+      this.el.classList.toggle('has-portrait', visible);
+      if (visible && G.portraits) {
+        const pc = portrait.getContext('2d');
+        pc.clearRect(0, 0, 160, 200);
+        G.portraits.draw(pc, speaker === 'diotima' ? 'mentor' : 'hero', 0, 0, 1, 0);
+        portrait.setAttribute('role', 'img');
+        portrait.setAttribute('aria-label', line.name || speaker);
+      }
       const target = line.text || '';
       this.full = target;
       this.shown = 0;
@@ -4580,6 +4601,11 @@ body.title-mode #stage{visibility:hidden}
 
     tryMove(nx, ny) {
       const p = this.player;
+      const b = this.bounds;
+      if (b) {
+        nx = G.clamp(nx, b.x + 4, b.x + b.w - 4);
+        ny = G.clamp(ny, b.y + 3, b.y + b.h - 2);
+      }
       if (!this.collides(nx, p.y)) p.x = G.clamp(nx, 6, this.w - 6);
       if (!this.collides(p.x, ny)) p.y = G.clamp(ny, 10, this.h - 4);
       p.x = G.clamp(p.x, 6, this.w - 6);
@@ -4633,7 +4659,7 @@ body.title-mode #stage{visibility:hidden}
       }
       this._nearest = best;
       const text = best ? best.label : '';
-      if (text !== this._promptText) {
+      if (text !== this._promptText || (text && G.ui.promptEl.classList.contains('hidden'))) {
         this._promptText = text;
         G.ui.prompt(text);
       }
@@ -14660,10 +14686,10 @@ body.title-mode #stage{visibility:hidden}
   };
   const MENTOR = {
     key: 'mentor',
-    name: '见微',
-    en: 'THE MENTOR',
-    role: '导师 · 万象灵境的数据考据员',
-    note: '栗棕色卷发扎成侧马尾，蓝丝带；细金框眼镜、藏青西装外套，胸前别一枚金色的「境」字徽章。',
+    name: '狄奥提玛',
+    en: 'DIOTIMA · ATHENS',
+    role: '导师 · 现代雅典女性博士生导师',
+    note: '成熟的雅典女性学者，栗棕齐肩发间有银丝，细框眼镜；深色西装、浅色衬衫、长裤与平底鞋，手持研究夹。',
     skin: '#f6cfa9', skinHi: '#ffe4c6', skinShade: '#dca87f', skinDeep: '#bd8560',
     hair: '#6f4a34', hairHi: '#9c6d4c', hairDeep: '#4a2f22',
     coat: '#26365c', coatShade: '#1a2742', coatHi: '#3a5282',
@@ -14905,214 +14931,39 @@ body.title-mode #stage{visibility:hidden}
      导师 · 见微 — 半身立绘  (160 × 200 virtual grid)
      ============================================================ */
   function drawMentor(c, t) {
-    const s = MENTOR;
-
-    /* ---- back hair (curly mass) ---- */
-    E(c, 80, 62, 43, 48, s.hairDeep);
-    // side curls
-    const backCurls = [
-      [40, 74, 12], [38, 88, 10], [44, 100, 9], [50, 108, 8],
-      [120, 74, 12], [122, 88, 10], [116, 100, 9], [110, 108, 8],
-      [56, 26, 12], [80, 20, 15], [104, 26, 12],
-      [44, 58, 10], [40, 96, 10], [118, 58, 10], [122, 92, 10],
-      [40, 80, 10], [120, 80, 10], [46, 30, 10], [112, 30, 10],
-    ];
-    for (const [x, y, r] of backCurls) E(c, x, y, r, r, s.hairDeep);
-
-    /* ---- neck ---- */
-    R(c, 70, 98, 20, 22, s.skinShade);
-    R(c, 72, 98, 16, 18, s.skin);
-    R(c, 72, 108, 16, 5, s.skinShade);
-
-    /* ---- face ---- */
-    E(c, 80, 70, 30, 35, s.skin);
-    E(c, 80, 101, 20, 3, s.skinShade, 99, 102);
-    E(c, 80, 92, 25, 10, s.skinHi, 60, 72);
-    R(c, 54, 58, 5, 18, s.skinShade);
-    R(c, 102, 58, 5, 18, s.skinShade);
-    // ears + pearl earrings
-    E(c, 49, 78, 5, 7, s.skin);
-    E(c, 111, 78, 5, 7, s.skin);
-    R(c, 47, 76, 3, 5, s.skinShade);
-    R(c, 110, 76, 3, 5, s.skinShade);
-    R(c, 46, 84, 4, 4, s.goldHi);
-    R(c, 110, 84, 4, 4, s.goldHi);
-
-    /* ---- eyes ---- */
-    E(c, 65, 77, 9, 10, '#fdf7ef');
-    E(c, 95, 77, 9, 10, '#fdf7ef');
-    E(c, 65, 78, 8, 9, s.eye);
-    E(c, 95, 78, 8, 9, s.eye);
-    E(c, 65, 80, 6, 7, s.iris);
-    E(c, 95, 80, 6, 7, s.iris);
-    E(c, 65, 81, 3, 5, s.hairDeep);
-    E(c, 95, 81, 3, 5, s.hairDeep);
-    R(c, 60, 72, 4, 4, '#ffffff');
-    R(c, 90, 72, 4, 4, '#ffffff');
-    R(c, 68, 85, 2, 2, '#e8c49e');
-    R(c, 98, 85, 2, 2, '#e8c49e');
-    Ehalf(c, 65, 72, 10, 8, s.hair, 'top');
-    Ehalf(c, 95, 72, 10, 8, s.hair, 'top');
-    // lashes at the outer corners
-    R(c, 53, 70, 4, 3, s.hair);
-    R(c, 83, 70, 4, 3, s.hair);
-
-    /* ---- brows ---- */
-    R(c, 55, 61, 17, 2, s.hairDeep);
-    R(c, 88, 61, 17, 2, s.hairDeep);
-
-    /* ---- glasses ---- */
-    c.save();
-    const lens = [[52, 69], [82, 69]];
-    for (const [lx, ly] of lens) {
-      R(c, lx + 2, ly, 20, 1, s.frame);
-      R(c, lx + 2, ly + 16, 20, 1, s.frame);
-      R(c, lx, ly + 2, 1, 13, s.frame);
-      R(c, lx + 23, ly + 2, 1, 13, s.frame);
-      R(c, lx + 1, ly + 1, 1, 1, s.frame);
-      R(c, lx + 22, ly + 1, 1, 1, s.frame);
-      R(c, lx + 1, ly + 15, 1, 1, s.frame);
-      R(c, lx + 22, ly + 15, 1, 1, s.frame);
-      c.globalAlpha = 0.5;
-      R(c, lx + 3, ly, 11, 1, '#d8b26a');
-      c.globalAlpha = 1;
+    function poly(points, color) {
+      c.beginPath(); points.forEach(function(p,i){if(i)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1]);});
+      c.closePath();c.fillStyle=color;c.fill();
     }
-    R(c, 77, 73, 5, 1, s.frame);   // bridge
-    R(c, 108, 73, 8, 1, s.frame);  // temple arm
-    c.globalAlpha = 0.1;
-    R(c, 54, 71, 20, 13, '#bfe4f5');
-    R(c, 84, 71, 20, 13, '#bfe4f5');
-    c.restore();
-    R(c, 54, 71, 3, 2, '#ffffff');
-
-    /* ---- nose / mouth / blush ---- */
-    R(c, 78, 88, 4, 4, s.skinShade);
-    R(c, 79, 91, 2, 2, s.skinDeep);
-    R(c, 72, 96, 14, 2, '#b05a45');
-    R(c, 70, 95, 3, 2, '#b05a45');
-    R(c, 85, 95, 3, 2, '#b05a45');
-    R(c, 74, 98, 4, 1, s.skinShade);
-    R(c, 84, 98, 4, 1, s.skinShade);
-    c.save(); c.globalAlpha = 0.32;
-    R(c, 53, 86, 10, 4, '#ee8f74');
-    R(c, 98, 86, 10, 4, '#ee8f74');
-    c.restore();
-
-    /* ---- curly bangs ---- */
-    const curls = [
-      [48, 40, 13, s.hair], [62, 32, 14, s.hair], [78, 26, 15, s.hair],
-      [95, 30, 14, s.hair], [110, 40, 12, s.hair], [56, 48, 10, s.hair],
-      [72, 46, 11, s.hair], [90, 44, 11, s.hair], [104, 50, 9, s.hair],
-    ];
-    for (const [x, y, r, col] of curls) E(c, x, y, r, r, col);
-    // highlight rings on curls
-    c.save(); c.globalAlpha = 0.55;
-    for (const [x, y, r] of curls) E(c, x - r * 0.3, y - r * 0.35, r * 0.45, r * 0.35, s.hairHi);
-    c.restore();
-    // deeper shadow under the curls
-    c.save(); c.globalAlpha = 0.5;
-    R(c, 48, 56, 16, 4, s.hairDeep);
-    R(c, 82, 54, 16, 4, s.hairDeep);
-    c.restore();
-
-    /* ---- side ponytail + ribbon ---- */
-    R(c, 112, 54, 14, 12, s.hairDeep);
-    E(c, 128, 66, 15, 16, s.hairDeep);
-    E(c, 134, 86, 13, 15, s.hair);
-    E(c, 130, 104, 11, 13, s.hair);
-    E(c, 122, 116, 9, 10, s.hairDeep);
-    E(c, 132, 74, 9, 9, s.hairHi);
-    E(c, 128, 96, 7, 8, s.hairHi);
-    // ribbon bow
-    R(c, 109, 50, 7, 5, s.blueDeep);
-    E(c, 113, 47, 7, 6, s.blue);
-    E(c, 125, 45, 7, 6, s.blue);
-    R(c, 118, 46, 4, 4, s.blueDeep);
-    E(c, 119, 49, 4, 4, s.blueHi);
-    c.save(); c.globalAlpha = 0.5;
-    R(c, 112, 44, 4, 2, '#a8d3f2');
-    R(c, 124, 42, 4, 2, '#a8d3f2');
-    c.restore();
-
-    /* ---- blazer ---- */
-    R(c, 20, 128, 120, 72, s.coat);
-    E(c, 80, 132, 60, 21, s.coat);
-    R(c, 20, 132, 9, 68, s.coatShade);
-    R(c, 131, 132, 9, 68, s.coatShade);
-    R(c, 23, 132, 3, 68, s.coatShade);
-    R(c, 134, 132, 3, 68, s.coatShade);
-    // lapels
-    for (let i = 0; i < 34; i++) {
-      R(c, 56 - i * 0.5, 122 + i, 7, 1, s.coatShade);
-      R(c, 97 + i * 0.5, 122 + i, 7, 1, s.coatShade);
-    }
-    R(c, 62, 122, 6, 40, s.coatHi);
-    R(c, 92, 122, 6, 40, s.coatHi);
-    R(c, 64, 122, 4, 6, s.coatShade);
-    R(c, 92, 122, 4, 6, s.coatShade);
-    R(c, 63, 126, 2, 30, s.coatHi);
-    R(c, 95, 126, 2, 30, s.coatHi);
-    // shirt front + open collar
-    R(c, 68, 120, 24, 50, s.shirt);
-    R(c, 68, 120, 24, 2, s.shirtShade);
-    R(c, 68, 120, 2, 50, s.shirtShade);
-    R(c, 90, 120, 2, 50, s.shirtShade);
-    R(c, 66, 119, 5, 7, s.shirt);
-    R(c, 89, 119, 5, 7, s.shirt);
-    R(c, 67, 123, 3, 3, s.shirtShade);
-    R(c, 90, 123, 3, 3, s.shirtShade);
-    // tie
-    R(c, 77, 119, 6, 6, s.blueDeep);
-    R(c, 78, 125, 4, 25, s.blue);
-    R(c, 78, 125, 1, 25, s.blueHi);
-    R(c, 79, 150, 2, 5, s.blueDeep);
-    // gold badge on the left lapel
-    R(c, 96, 134, 10, 12, s.gold);
-    R(c, 97, 135, 8, 10, '#a63d29');
-    R(c, 99, 137, 4, 6, s.goldHi);
-    // pocket
-    R(c, 30, 168, 18, 3, s.coatShade);
-    // hem shadow
-    R(c, 28, 192, 104, 8, s.coatShade);
-
-    /* ---- laptop ---- */
-    c.save();
-    c.globalAlpha = 0.25;
-    R(c, 38, 158, 84, 42, s.screenHi);
-    c.restore();
-    // screen (lid) behind
-    R(c, 44, 152, 72, 30, s.laptopDeep);
-    R(c, 47, 155, 66, 24, s.screen);
-    // parthenon line art on screen
-    R(c, 60, 172, 40, 2, '#8fe6ee');
-    R(c, 64, 170, 32, 2, '#8fe6ee');
-    for (let i = 0; i < 7; i++) R(c, 62 + i * 6, 162, 2, 10, '#8fe6ee');
-    for (let i = 0; i < 6; i++) R(c, 70 + i * 6, 158, 1, 1, '#c9f6fa');
-    R(c, 78, 156, 3, 3, s.goldHi);
-    // hologram flicker
-    if (Math.sin(t * 2.4) > 0.4) {
-      c.save(); c.globalAlpha = 0.35;
-      R(c, 50, 156 + Math.floor((t * 10) % 20), 60, 2, '#c9f6fa');
-      c.restore();
-    }
-    // keyboard base
-    R(c, 34, 182, 92, 12, s.laptop);
-    R(c, 36, 184, 88, 6, s.laptopShade);
-    for (let i = 0; i < 11; i++) R(c, 40 + i * 8, 186, 6, 3, s.laptopDeep);
-    R(c, 46, 192, 68, 3, s.laptop);
-    // hands
-    R(c, 26, 176, 14, 12, s.skin);
-    R(c, 120, 176, 14, 12, s.skin);
-    R(c, 26, 186, 12, 3, s.skinShade);
-    R(c, 122, 186, 12, 3, s.skinShade);
-    R(c, 38, 180, 6, 8, s.skinHi);
-    R(c, 116, 180, 6, 8, s.skinHi);
-
-    /* ---- rim light ---- */
-    c.save();
-    c.globalAlpha = 0.18;
-    R(c, 20, 132, 3, 58, '#fff3d0');
-    c.restore();
+    /* Shoulder-length hair, natural proportions and a calm mature expression. */
+    E(c,80,62,29,42,'#48352f');
+    R(c,51,59,13,50,'#48352f');R(c,96,59,13,50,'#48352f');
+    R(c,72,95,16,22,'#c39b81');
+    E(c,80,67,23,32,'#dbb79b');
+    E(c,57,70,3,6,'#d0a88d');E(c,103,70,3,6,'#d0a88d');
+    poly([[55,54],[57,32],[74,23],[94,28],[105,43],[105,60],[92,43],[75,45]],'#584036');
+    c.strokeStyle='#a99b91';c.lineWidth=1.5;c.beginPath();c.moveTo(62,34);c.lineTo(57,53);c.moveTo(94,32);c.lineTo(101,49);c.stroke();
+    R(c,63,59,12,2,'#594137');R(c,86,59,12,2,'#594137');
+    E(c,69,69,5,2,'#f4ece0');E(c,91,69,5,2,'#f4ece0');
+    R(c,68,67,3,4,'#302723');R(c,90,67,3,4,'#302723');
+    c.strokeStyle='#32343b';c.lineWidth=1.3;c.strokeRect(60,63,17,12);c.strokeRect(83,63,17,12);
+    c.beginPath();c.moveTo(77,68);c.lineTo(83,68);c.moveTo(56,65);c.lineTo(60,66);c.moveTo(100,66);c.lineTo(104,65);c.stroke();
+    c.strokeStyle='#ae846b';c.lineWidth=1;c.beginPath();c.moveTo(80,72);c.lineTo(82,81);c.lineTo(78,82);c.moveTo(70,90);c.quadraticCurveTo(80,94,90,90);c.moveTo(60,79);c.lineTo(65,81);c.moveTo(95,81);c.lineTo(100,79);c.stroke();
+    /* Tailored blazer and an open light blouse. */
+    poly([[65,108],[95,108],[108,200],[52,200]],'#ebe8df');
+    poly([[65,108],[47,111],[29,127],[23,200],[75,200],[73,147]],'#29384d');
+    poly([[95,108],[113,111],[131,127],[137,200],[85,200],[87,147]],'#233046');
+    poly([[64,108],[50,126],[62,137],[55,145],[76,181],[73,143]],'#4c5a6d');
+    poly([[96,108],[110,126],[98,137],[105,145],[84,181],[87,143]],'#435268');
+    poly([[72,107],[80,119],[72,130],[65,113]],'#faf7f0');
+    poly([[88,107],[80,119],[88,130],[95,113]],'#faf7f0');
+    R(c,80,138,2,2,'#a7a6a0');R(c,80,151,2,2,'#a7a6a0');
+    /* Research folder held against the torso. */
+    poly([[51,158],[107,151],[113,199],[56,200]],'#667d80');
+    poly([[55,160],[104,154],[105,160],[56,166]],'#d9ded7');
+    c.strokeStyle='#b4c2bf';c.lineWidth=1.5;c.beginPath();c.moveTo(63,177);c.lineTo(96,173);c.moveTo(64,183);c.lineTo(92,180);c.stroke();
+    E(c,52,181,7,10,'#d7b295');E(c,109,179,7,10,'#d7b295');
+    void t;
   }
 
   /* ------------------------------------------------------------
@@ -16639,6 +16490,177 @@ canvas.cut-shake {
 }
 
 </style>
+<style data-href="css/controls.css">
+/* 万象灵境 · 匾额式操作控件。最后加载，统一静态及动态生成按钮。
+   朱砂主行动 / 墨色次行动 / 金色键盘焦点；4px 间距基准。
+   仅改变控件呈现，不改变 canvas、场景或交互逻辑。 */
+:root{
+  --control-ink:#241b14;
+  --control-hover:#39291c;
+  --control-pressed:#17110d;
+  --control-edge:#9a7a42;
+  --control-copy:#f1e5cf;
+  --control-caption:#d2bea0;
+  --control-seal:#903624;
+  --control-seal-hover:#aa4430;
+  --control-disabled:#312a22;
+}
+
+button{
+  min-height:44px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform 120ms cubic-bezier(.23,1,.32,1),opacity 120ms;
+}
+button:focus-visible{
+  outline:2px solid var(--gold-hi);
+  outline-offset:3px;
+  box-shadow:0 0 0 5px var(--ink);
+}
+button:disabled{
+  cursor:not-allowed;
+  opacity:1;
+  filter:none;
+}
+
+/* Shared face: includes buttons made by core.js, difficulty.js and source-quiz.js. */
+.btn,.dlg-options button,.choice-opt,.diff-btn,.sq-option,
+.ag-controls button,.ag-close,.diff-back,.sec-enter,.pd-enter,
+.icon-btn,.bk-close,#artdemo .artdemo-close{
+  border:1px solid var(--control-edge);
+  border-radius:3px;
+  background:var(--control-ink);
+  color:var(--control-copy);
+  box-shadow:inset 0 1px 0 rgba(243,217,154,.08),0 2px 0 rgba(0,0,0,.32);
+  line-height:1.5;
+  transition:transform 120ms cubic-bezier(.23,1,.32,1),opacity 120ms;
+}
+.btn,.dlg-options button,.ag-controls button,.ag-close,.diff-back,
+.sec-enter,.pd-enter,#artdemo .artdemo-close{
+  padding:10px 20px;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.08em;
+}
+.btn{min-width:144px;gap:4px}
+.btn span{font-family:var(--kai);font-size:18px;line-height:1.4}
+.btn small,.title-legacy .btn small{
+  color:var(--control-caption);font-size:10px;line-height:1.4;letter-spacing:.12em;opacity:1;
+}
+.btn-primary,.sec-enter:not(:disabled),.pd-enter:not(:disabled){
+  background:var(--control-seal);border-color:var(--gold);color:var(--paper);
+}
+.btn-primary small{color:#f0d9b2}
+/* Creation uses the same architectural palette; the primary gate remains cinnabar. */
+.btn-nexus{background:#30251a;border-color:#b28e50;color:var(--gold-hi)}
+.btn-quiet,.btn-ghost{background:#211b16;border-color:#816b4b;color:#e0d3be}
+.btn-ghost[aria-expanded="true"]{background:var(--control-hover);border-color:var(--gold);color:var(--gold-hi)}
+
+@media (hover:hover){
+  :is(.btn,.dlg-options button,.choice-opt,.diff-btn,.sq-option,.ag-controls button,.ag-close,.diff-back,.sec-enter,.icon-btn,.bk-close):not(:disabled):hover,
+  #artdemo .artdemo-close:not(:disabled):hover{
+    background:var(--control-hover);border-color:var(--gold-hi);color:var(--paper);
+    box-shadow:inset 0 1px 0 rgba(243,217,154,.12),0 2px 0 rgba(0,0,0,.32);
+    transform:translateY(-1px);
+  }
+  :is(.btn-primary,.sec-enter,.pd-enter):not(:disabled):hover{background:var(--control-seal-hover)}
+}
+:is(.btn,.dlg-options button,.choice-opt,.diff-btn,.sq-option,.ag-controls button,.ag-close,.diff-back,.sec-enter,.icon-btn,.bk-close):not(:disabled):active,
+#artdemo .artdemo-close:not(:disabled):active{
+  transform:translateY(1px);background:var(--control-pressed);box-shadow:inset 0 2px 3px rgba(0,0,0,.3);
+}
+/* Preserve this positioned control's centering transform. */
+.pd-enter:not(:disabled):hover{transform:translateX(-50%)}
+.pd-enter:not(:disabled):active{transform:translate(-50%,1px);background:var(--control-pressed)}
+:is(.btn,.dlg-options button,.choice-opt,.diff-btn,.sq-option,.ag-controls button,.ag-close,.diff-back,.sec-enter,.pd-enter,.icon-btn,.bk-close):disabled{
+  background:var(--control-disabled);border-color:#655642;color:#b4a58f;
+  box-shadow:none;filter:none;opacity:1;
+}
+.btn:disabled small{color:#b4a58f}
+.btn:disabled{transform:none!important}
+:is(.diff-btn,.sq-option):disabled :is(b,small){color:inherit}
+/* Answer feedback remains legible when the quiz locks its options. */
+.sq-option.wrong,.sq-option.wrong:disabled{border-color:var(--red-hi);background:#45231b;color:#f1d2bd}
+.sq-option.right,.sq-option.right:disabled{border-color:#7fb7a8;background:#213c35;color:#e0f1df}
+
+/* Title: one readable row on wide screens, structured pairs on small screens. */
+.title-inner{max-height:calc(100dvh - 40px);overflow-y:auto;padding:4px 8px 20px;scrollbar-width:thin;scrollbar-color:var(--gold-dim) transparent}
+.title-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;width:min(960px,100%);margin-top:24px;padding:4px}
+.title-actions .btn{min-width:0;width:100%;padding:12px 16px;min-height:72px}
+.title-legacy{width:min(960px,100%);justify-content:center;gap:12px;padding:16px 4px 4px;margin-top:16px}
+.title-legacy .btn{font-size:14px;padding:10px 16px;min-width:160px}
+.title-foot{position:static;margin-top:24px;gap:8px;font-size:11px;line-height:1.6}
+
+/* Options wrap instead of forcing the dialog beyond the stage. */
+#dialog{max-height:calc(100% - 24px);overflow-y:auto;overscroll-behavior:contain;padding:16px 20px 12px;scrollbar-width:thin}
+.dlg-name{position:static;display:table;font-size:13px;margin-bottom:8px;padding:4px 12px}
+.dlg-body{min-height:0;padding:0 0 8px}
+/* Dialogue portraits are introduced by the main task; reserve real flow space. */
+#dialog .dlg-portrait{display:none}
+#dialog.has-portrait .dlg-portrait{display:block;float:left;width:80px;height:100px;margin:0 16px 8px 0;image-rendering:pixelated;border:1px solid var(--control-edge);background:var(--control-pressed)}
+#dialog.has-portrait .dlg-options,#dialog.has-portrait .dlg-next{clear:both}
+.dlg-body p,#dialog.narrator .dlg-body p{font-size:clamp(14px,1.3vw,19px);line-height:1.8}
+.dlg-options{flex-wrap:wrap;gap:8px;padding:8px 0 4px}
+.dlg-options button{font-family:var(--kai);font-size:16px;letter-spacing:.04em;max-width:100%;overflow-wrap:anywhere;text-align:left;flex:0 1 auto}
+.choice-body,.diff-btns,.sq-options{gap:8px}
+.choice-opt,.diff-btn,.sq-option{padding:12px 16px;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.diff-btn b{font-size:17px;font-weight:500}
+.diff-btn small{font-size:12px;line-height:1.6;color:var(--control-caption)}
+.choice-opt.sel{border-color:var(--gold);background:#3b2c1c;color:var(--gold-hi)}
+.choice-opt.sel span{box-shadow:none}
+.choice-opt.hover{transform:none}
+.icon-btn,.bk-close{width:44px;height:44px;min-width:44px;font-size:18px;flex:0 0 auto}
+.hud-right{gap:8px}
+.drawer-tabs{gap:8px;padding:0 16px}
+.drawer-tabs button{padding:8px 12px;font-size:14px;color:var(--control-caption);border-radius:3px 3px 0 0}
+.drawer-tabs button.on{color:var(--gold-hi)}
+.drawer-tabs button:not(:disabled):hover{background:var(--control-hover);color:var(--paper)}
+.drawer-tabs button:not(:disabled):active{background:var(--control-pressed)}
+.result-actions,.ag-controls{flex-wrap:wrap;gap:12px}
+.ag-bottom,.sq-foot{flex-wrap:wrap;gap:12px}
+.menu-actions{gap:8px}
+#artdemo .artdemo-bar{height:auto;min-height:60px;padding:8px 16px}
+#artdemo .artdemo-loading{inset:60px 0 0}
+
+/* Keep tall overlays reachable on short landscape windows. */
+.screen.overlay{overflow-y:auto;overscroll-behavior:contain}
+:is(.menu-card,.result-card,.sec-shell,.choice-card,.diff-card,.sq-card,.ag-card){max-height:94dvh;overflow-y:auto;scrollbar-width:thin}
+@media (max-width:760px){
+  .title-actions{grid-template-columns:repeat(2,minmax(0,1fr));max-width:480px;gap:8px;margin-top:16px}
+  .title-actions .btn{min-height:60px;padding:8px 12px}
+  .title-actions #btn-stage{grid-column:1 / -1}
+  .title-legacy{max-width:480px;gap:8px}
+  .title-legacy .btn{flex:1 1 140px;min-width:0}
+  .title-inner{top:16px;max-height:calc(100dvh - 32px)}
+  .title-foot{display:none}
+  .title-logo{font-size:clamp(48px,8.8vw,68px)}
+  .title-sub{font-size:13px;line-height:1.6;letter-spacing:.08em}
+  .hud-top{max-width:calc(100% - 208px)}
+  .hud-right{top:12px;right:12px}
+  #hud{padding:12px}
+  #dialog{bottom:12px;width:calc(100% - 24px);padding:12px 16px}
+  #dialog.has-portrait .dlg-portrait{width:64px;height:80px;margin-right:12px}
+  .dlg-options button{flex:1 1 180px}
+  .result-actions .btn{flex:1 1 160px;min-width:0}
+}
+@media (pointer:coarse){
+  .dpad{width:144px;height:144px;left:12px;bottom:12px}
+  .dpad button{width:44px;height:44px;font-size:16px;border-radius:3px}
+  .dpad .up{left:50px;top:0}
+  .dpad .left{left:0;top:50px}
+  .dpad .down{left:50px;top:50px}
+  .dpad .right{right:0;top:50px}
+  .touch-e{width:52px;height:52px;right:16px;bottom:16px;font-size:18px}
+  .touch-map{width:44px;height:44px;right:20px;bottom:80px;font-size:16px}
+  .dpad button:active,.touch-map:active,.touch-e:active{background:var(--control-seal);border-color:var(--gold-hi)}
+}
+@media (prefers-reduced-motion:reduce){
+  button{transition:none!important}
+  :is(.btn,.dlg-options button,.choice-opt,.diff-btn,.sq-option,.ag-controls button,.ag-close,.diff-back,.sec-enter,.icon-btn,.bk-close):not(:disabled):is(:hover,:active){transform:none}
+  .pd-enter:not(:disabled):active{transform:translateX(-50%)}
+}
+
+</style>
 <!-- 文案包：data/script.js 由 tools/build-data.mjs 从 data/script.json 生成，
      必须在 js/str.js 之前加载 —— 这样 file:// 双击打开也能读到文案
      （file:// 下 fetch 不到 json，str.js 会退回读 window.WXL_SCRIPT） -->
@@ -16842,7 +16864,7 @@ window.WXL_SCRIPT = {
    "name": "午门",
    "sub": "原点之争",
    "plaque": "午門",
-   "objective": "把卫城投影的坐标系贴到故宫沙盘上，让两套网格共用同一个原点。先分清哪一层在动。",
+   "objective": "走到午门门洞前中央按E，选择网格原点；让青灰网格贴合金网格，故宫砖缝不动。完成后留在原地按E继续。",
    "enter": [
     {
      "who": "narrator",
@@ -16894,7 +16916,7 @@ window.WXL_SCRIPT = {
   "taihe": {
    "name": "太和殿",
    "sub": "标签归位",
-   "objective": "把被投影盖错的说明牌放回原位；然后决定：这处空间关系要不要写进你自己的造境规则。",
+   "objective": "走到月台三块说明牌前中央按E，判断挪或留；两块错牌归位后原地按E选是否保留台阶关系，看实线、虚线或未采用标记；再按E继续。",
    "enter": [
     {
      "who": "narrator",
@@ -16942,7 +16964,7 @@ window.WXL_SCRIPT = {
   "qianqing": {
    "name": "乾清宫",
    "sub": "承重实验",
-   "objective": "判断投影里那根被换掉的柱子能不能撑住檐部；弄清木头与石头各自接受什么。",
+   "objective": "走到左侧女像柱与右侧木柱之间的横梁前按E，分别选连接方式；成功后柱顶出现接头、柱子站稳，选错会下沉起灰。完成后原地按E继续。",
    "enter": [
     {
      "who": "narrator",
@@ -16994,7 +17016,7 @@ window.WXL_SCRIPT = {
   "repair_bench": {
    "name": "修复台",
    "sub": "证据链 · 反转",
-   "objective": "把线索接到来源卡上，写明你比较的是哪个层面；然后处置系统判定的那件「异常」。",
+   "objective": "到修复台正前按E配来源卡与比较层面，诱饵留白会盖「未成立」章；再到右侧广钟前按E改判，成功后说明牌添双色与对勾；原地按E继续。",
    "enter": [
     {
      "who": "narrator",
@@ -17039,7 +17061,7 @@ window.WXL_SCRIPT = {
    "name": "御花园",
    "sub": "共同造境",
    "pavilion": "御景亭",
-   "objective": "用三件组件拼出自己的空间，审掉方案里那处来源错误，并写下你要保留什么。",
+   "objective": "到御景亭前的创作终端正前按E，选保留规则，指出方案违规项、类型和改法；成功签字后屏幕出现金色对勾。完成后原地按E继续。",
    "enter": [
     {
      "who": "narrator",
@@ -17084,7 +17106,7 @@ window.WXL_SCRIPT = {
    "name": "神武门",
    "sub": "亲手完成",
    "plaque": "神武門",
-   "objective": "走进自己造的空间，配对两条线索打开出口；出门时交代你借鉴了什么、保留了什么、新造了什么。",
+   "objective": "先到门前左右两张线索卡各按E，卡片变亮；再到中央门洞前按E配对，成功后门洞亮暖光；选完借鉴、保留、新造三句话，原地按E结束。",
    "enter": [
     {
      "who": "narrator",
@@ -19739,7 +19761,7 @@ window.WXL_SCRIPT = {
     return seg(key).map(function (row) {
       const who = row.who || 'narrator';
       const ch = (data && data.characters && data.characters[who]) || {};
-      const out = { text: row.text || '' };
+      const out = { who: who, text: row.text || '' };
       if (who === 'narrator') out.narrator = true;
       else out.name = ch.name || who;
       if (row.speed) out.speed = row.speed;
@@ -19979,7 +20001,11 @@ window.WXL_SCRIPT = {
 
         sfx: function (name) { if (G.audio) G.audio.sfx(name); },
         toast: function (text, kind) { G.ui.toast(text, kind || '', 2000); },
-        setVar: function (k, v) { if (scene && scene.vars) scene.vars[k] = v; },
+        setVar: function (k, v) {
+          if (!scene || !scene.vars) return;
+          if (scene.setVar) scene.setVar(k, v, spot);
+          else scene.vars[k] = v;
+        },
 
         dialog: function (key, done) {
           const lines = G.str.dialog(key);
@@ -20174,7 +20200,11 @@ window.WXL_SCRIPT = {
         dayGrade: map.dayGrade !== false,
       });
       this.map = map;
+      this.bounds = map.bounds || null;
       this.vars = {};
+      this.feedback = [];
+      this._continue = null;
+      this._objectiveText = '';
       this.ambient = map.ambient || 'palace';
       this.night = !!map.night;
       this.nightStrength = map.nightStrength == null ? 0.5 : map.nightStrength;
@@ -20188,6 +20218,15 @@ window.WXL_SCRIPT = {
 
       if (map.vars) {
         Object.keys(map.vars).forEach(function (k) { self.vars[k] = map.vars[k]; });
+      }
+
+      /* 未签署也会完成审核点；返回或读旧档时，允许再次审核而非直接送回出口。 */
+      this._reviewAgain = map.id === 'creator' && G.mod.isDone('creator.review') && !G.save.flag('creator.signed');
+
+      /* 线索完成旗标会跨刷新保留，配对门禁读的场景变量也要一并恢复。 */
+      if (map.id === 'shenwumen') {
+        if (G.mod.isDone('shenwumen.clue_a')) self.vars.clueARead = 1;
+        if (G.mod.isDone('shenwumen.clue_b')) self.vars.clueBRead = 1;
       }
 
       /* 地面：一次性烘焙到离屏画布，和现有场景同一套路（world.js:106） */
@@ -20257,14 +20296,29 @@ window.WXL_SCRIPT = {
         const obj = objId ? G.mod.object(objId) : null;
         const lv = { name: (obj && obj.name) || s.name || '' };
         self.addInteract({
+          _spot: s,
           x: s.x,
           y: s.y,
           r: s.r || 42,
           /* 兜底也用文案表里的「查看」：js 里不许有中文（铁律③） */
-          label: G.str.has(s.labelKey || '') ? G.str.get(s.labelKey, lv)
-            : (s.label || G.str.get('ui.hud.interact')),
-          condition: function () { return G.mod.test(s.when); },
-          action: function () { G.mod.openSpot(s, self); },
+          label: !self.needsReview(s) && !G.mod.test(s.when) && !!s.puzzle && !s.optional && self.canContinue()
+            ? G.str.get('ui.buttons.continue')
+            : (G.str.has(s.labelKey || '') ? G.str.get(s.labelKey, lv)
+              : (s.label || G.str.get('ui.hud.interact'))),
+          condition: function () {
+            return G.mod.test(s.when) || !!self.followUp(s) || (!!s.puzzle && !s.optional && self.canContinue());
+          },
+          action: function () {
+            if (self.needsReview(s)) { G.mod.openSpot(s, self); return; }
+            if (self._continue && !!s.puzzle && !s.optional) { self.continueStage(); return; }
+            const follow = self.followUp(s);
+            if (follow) G.mod.openSpot(follow, self);
+            else if (!!s.puzzle && !s.optional && self.canContinue()) {
+              self.onSpotSolved(s);
+              self.continueStage();
+            }
+            else G.mod.openSpot(s, self);
+          },
         });
       });
 
@@ -20314,17 +20368,90 @@ window.WXL_SCRIPT = {
       }
     }
 
+    needsReview(spot) {
+      return this._reviewAgain && spot.id === 'creator.review' && !G.save.flag('creator.signed');
+    }
+
+    /* 标签归位与保留选择属于同一次体验，旧存档也可从原位置接着完成。 */
+    followUp(spot) {
+      if (this.map.id !== 'taihe' || spot.id !== 'taihe.labels' || !G.mod.isDone(spot.id)) return null;
+      return (this.map.spots || []).find(function (s) {
+        return s.id === 'taihe.keep' && !G.mod.isDone(s.id);
+      }) || null;
+    }
+
+    /* 目标随完成旗标刷新；只指向可用的必需交互点。 */
+    update(dt) {
+      super.update(dt);
+      this.refreshObjective();
+    }
+
+    refreshObjective() {
+      const spots = this.map.spots || [];
+      let next = spots.find(function (s) {
+        return s.puzzle && !s.optional && !G.mod.isDone(s.id) && G.mod.test(s.when);
+      });
+      if (this._reviewAgain) {
+        next = spots.find((s) => this.needsReview(s)) || next;
+      }
+      /* 神武门先补齐线索，再验证出口。 */
+      if (this.map.id === 'shenwumen') {
+        next = spots.find(function (s) {
+          return (s.id === 'shenwumen.clue_a' || s.id === 'shenwumen.clue_b') && !G.mod.isDone(s.id);
+        }) || next;
+      }
+      if (this.map.id === 'taihe' && next && next.id === 'taihe.keep') {
+        next = spots.find(function (s) { return s.id === 'taihe.labels'; }) || next;
+      }
+      const names = {
+        'wumen.origin': '校准网格', 'taihe.labels': G.mod.isDone('taihe.labels') ? '选择台阶关系的保留方式' : '整理说明牌',
+        'taihe.keep': '选择台阶关系的保留方式', 'qianqing.loadtest': '继续承重实验',
+        'repair_bench.evidence': '核对证据卡', 'repair_bench.relic': '判断右侧藏品',
+        'creator.review': '审核造境方案', 'shenwumen.verify': '验证出口',
+        'shenwumen.clue_a': '阅读左侧线索', 'shenwumen.clue_b': '阅读右侧线索',
+      };
+      if (this._continue) next = this._continue.spot;
+      if (!next) return;
+      this.interactables.forEach((it) => {
+        if (!it._spot || !it._spot.puzzle || it._spot.optional) return;
+        if (this._continue) it.label = '按 E ' + (this.map.next ? '继续下一关' : '查看结局');
+        else if (this.followUp(it._spot)) it.label = '按 E 选择台阶关系的保留方式';
+      });
+      const horizontal = next.x < this.w * 0.4 ? '左侧' : next.x > this.w * 0.6 ? '右侧' : '中央';
+      const vertical = next.y < this.player.y - 28 ? '前方' : next.y > this.player.y + 28 ? '后方' : '附近';
+      const text = (this._continue ? '结果已留在场景中；' : '') + '到' + horizontal + vertical + '按 E ' +
+        (this._continue ? (this.map.next ? '继续下一关' : '查看结局') : (names[next.id] || '互动'));
+      if (text !== this._objectiveText) { this._objectiveText = text; this.objective(text); }
+    }
+
     /* ---------------- 通关判定 ---------------- */
+    canContinue() {
+      if (!this.map.next && !this.map.exitCut) return false;
+      const needed = (this.map.spots || []).filter(function (s) { return !!s.puzzle && !s.optional; });
+      return needed.length > 0 && needed.every(function (s) { return G.mod.isDone(s.id); });
+    }
+
     onSpotSolved(spot) {
+      if (spot.id === 'creator.review') this._reviewAgain = false;
+      const follow = this.followUp(spot);
+      if (follow) { this.refreshObjective(); return; }
       /* optional: true 的 spot 不参与通关门槛 ——
          关 2 的三块图层石随时可踩、可来回切，但不踩也能过关（P1 才强制）。 */
       const needed = (this.map.spots || []).filter(function (s) {
         return !!s.puzzle && !s.optional;
       });
       const allDone = needed.every(function (s) { return G.mod.isDone(s.id); });
-      if (!allDone) return;
-
+      if (!allDone) { this.refreshObjective(); return; }
+      if (this._continue) return;
       G.mod.done(this.map.id);
+      this._continue = { spot: spot };
+      this.refreshObjective();
+    }
+
+    /* 没有延时回调或输入锁；结果停留到玩家主动按 E。 */
+    continueStage() {
+      if (!this._continue || this._continuing) return;
+      this._continuing = true;
       const self = this;
       const proceed = function () {
         const outId = self.map.exitCut;
@@ -20353,10 +20480,88 @@ window.WXL_SCRIPT = {
         const self = this;
         this.screenPainters.forEach(function (id) { G.mod.paint(id, ctx, {}, self); });
       }
+      this.drawFeedback(ctx);
+    }
+
+    /* 只记录实际变化的重要状态；每个 key 独立存放，装饰变量不会覆盖结果。 */
+    recordFeedback(k, before, v, spot) {
+      if (before === v) return;
+      let text = '';
+      let bad = false;
+      const n = Number(v);
+      const side = this.vars.sagSide === 'wood' ? '木柱' : this.vars.sagSide === 'stone' ? '石柱' : '柱体';
+      switch (this.map.id + ':' + k) {
+        case 'wumen:gridDx':
+          text = n === 0 ? '青色投影线已对齐金色故宫线' : '青色投影线与金色故宫线仍有错位'; bad = n !== 0; break;
+        case 'wumen:gridBoth':
+          text = n === 0 ? '故宫参照线已回到门洞中心' : '故宫参照线被拖离门洞中心，需核对原点'; bad = n !== 0; break;
+        case 'taihe:labelsDone': text = '说明牌已核对 ' + v + ' / 3 块'; break;
+        case 'taihe:labelGlitch': text = n ? '误标留下了乱码痕迹' : '乱码痕迹已清除'; bad = !!n; break;
+        case 'taihe:keepSteps':
+          text = { keep: '台阶关系已写入保留规则', note: '台阶关系已记为待核', drop: '台阶关系未纳入保留规则' }[v] || ''; break;
+        case 'qianqing:sag': text = n ? side + '正在下沉（' + Math.round(n * 100) + '%）' : '柱体下沉量已归零'; bad = n > 0; break;
+        case 'qianqing:crack': text = n ? '柱身留下裂纹' : '柱身裂纹已清除'; bad = !!n; break;
+        case 'qianqing:stoneMethod': text = '石柱连接方式已记录：' + ({ dowel: '铅灌铁销', dry: '直接叠压', tenon: '榫卯' }[v] || v); break;
+        case 'qianqing:woodMethod': text = '木柱连接方式已记录：' + ({ dowel: '铅灌铁销', dry: '直接叠压', tenon: '榫卯' }[v] || v); break;
+        case 'repair_bench:stampUnfounded': text = n ? '证据台已盖「未成立」印章' : '「未成立」印章已清除'; break;
+        case 'repair_bench:crackCount': text = '比较层面有误，证据台折痕增至 ' + v + ' 道'; bad = true; break;
+        case 'repair_bench:evidenceDone': text = n ? '证据核对已完成，右侧藏品可判断' : '证据核对已重置'; break;
+        case 'repair_bench:verdictR07':
+          text = { fusion: '藏品已改判为历史融合，保留全件', stripped: '错判：藏品外来构件被拆除', erased: '错判：藏品外来说明被抹除', '': '错误处理已撤回，藏品恢复待判' }[v] || '';
+          bad = v === 'stripped' || v === 'erased'; break;
+        case 'creator:planSigned': text = n ? '造境方案已签署' : '方案签署状态已撤销'; bad = !n; break;
+        case 'shenwumen:doorLit': text = n ? '出口门洞已亮起暖光' : '出口门洞已熄灭'; bad = !n; break;
+        case 'shenwumen:clueARead': text = n ? '左侧线索已读亮' : '左侧线索已重置'; break;
+        case 'shenwumen:clueBRead': text = n ? '右侧线索已读亮' : '右侧线索已重置'; break;
+      }
+      if (!text) return;
+      const old = this.feedback.findIndex(function (f) { return f.key === k; });
+      if (old >= 0) this.feedback.splice(old, 1);
+      this.feedback.push({ key: k, text: text, bad: bad, spot: spot, time: this.time });
+    }
+
+    drawFeedback(ctx) {
+      if (!this.feedback.length) return;
+      ctx.save();
+      /* 画在原有 screenPainters 之后，不改变原画笔与世界坐标。 */
+      this.feedback.forEach((f, i) => {
+        if (!f.spot) return;
+        const x = f.spot.x - Math.round(this.cam.x) - (G.fx.ox || 0);
+        const y = f.spot.y - Math.round(this.cam.y) - (G.fx.oy || 0);
+        const wave = (Math.sin((this.time - f.time) * 3) + 1) / 2;
+        ctx.strokeStyle = f.bad ? '#f3977c' : '#ffd479';
+        ctx.globalAlpha = 0.3 + wave * 0.4;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y, 18 + wave * 10 + (i % 2) * 4, 0, Math.PI * 2); ctx.stroke();
+        /* 网格用参照线揭示相对/共同移动；其它变化在物件方向加引线。 */
+        if (f.key === 'gridDx' || f.key === 'gridBoth') {
+          const both = this.vars.gridBoth || 0;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath(); ctx.moveTo(x, y - 90); ctx.lineTo(x, y - 30); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.beginPath(); ctx.moveTo(x + both, y - 90); ctx.lineTo(x + both, y - 30);
+          ctx.moveTo(x + both + (this.vars.gridDx || 0), y - 90); ctx.lineTo(x + both + (this.vars.gridDx || 0), y - 30); ctx.stroke();
+        } else {
+          ctx.beginPath(); ctx.moveTo(x, y - 28); ctx.lineTo(x, y - 64); ctx.lineTo(x + 14, y - 74); ctx.stroke();
+        }
+      });
+      ctx.globalAlpha = 1;
+      const rows = this.feedback.slice(-6);
+      const width = Math.min(G.W - 24, 520);
+      ctx.fillStyle = 'rgba(16,12,9,.9)'; ctx.fillRect((G.W - width) / 2, 28, width, 10 + rows.length * 17);
+      rows.forEach(function (f, i) {
+        G.text(ctx, f.text, G.W / 2, 42 + i * 17, { size: 10, align: 'center', color: f.bad ? '#f3977c' : '#ffe2a1' });
+      });
+      ctx.restore();
     }
 
     /* ---------------- 给玩法模块的便捷接口 ---------------- */
-    setVar(k, v) { this.vars[k] = v; return v; }
+    setVar(k, v, spot) {
+      const before = this.vars[k];
+      this.vars[k] = v;
+      this.recordFeedback(k, before, v, spot);
+      return v;
+    }
     getVar(k, d) { return this.vars[k] == null ? d : this.vars[k]; }
 
     /* 画面重烘焙（改了 vars 后想立刻更新地面时用） */
@@ -20562,7 +20767,8 @@ window.WXL_SCRIPT = {
           ui.card.className = 'cut-card' + (big ? ' cut-big' : '');
           ui.card.classList.remove('hidden');
           if (s.who) {
-            ui.who.textContent = G.str && G.str.who ? G.str.who(s.who) : s.who;
+            const speaker = G.str && G.str.who ? G.str.who(s.who) : null;
+            ui.who.textContent = speaker && typeof speaker.name === 'string' ? speaker.name : String(s.who);
             const c = (G.str && G.str.raw && G.str.raw().characters) || {};
             const meta = c[s.who];
             ui.who.style.color = (meta && meta.color) || '#cbb283';
@@ -20832,17 +21038,18 @@ window.WXL_SCRIPT = {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = color.indexOf('124,146,158') >= 0 ? 1 : 3;
+    ctx.setLineDash([]);
     ctx.beginPath();
-    for (let x = x0 % cell; x <= w; x += cell) {
-      ctx.moveTo(Math.round(x) + 0.5, y0);
-      ctx.lineTo(Math.round(x) + 0.5, h);
+    /* Three rails and two crossbars: compact registration guides on the court. */
+    for (const offset of [-cell * 2, 0, cell * 2]) {
+      const x = Math.round(x0 + offset) + 0.5;
+      ctx.moveTo(x, 430);ctx.lineTo(x, Math.min(h, 598));
     }
-    /* 横线从 y0 % cell 起：这样必有一条横线过原点 y0，跟竖线过 x0 对称。
-       以前写成 y0 + (y0 % cell)，偏移算了两遍，网格原点与十字对不上。 */
-    for (let y = y0 % cell; y <= h; y += cell) {
-      ctx.moveTo(0, Math.round(y) + 0.5);
-      ctx.lineTo(w, Math.round(y) + 0.5);
+    for (const offset of [0, cell * 2]) {
+      const y = Math.round(y0 + offset) + 0.5;
+      ctx.moveTo(Math.max(0, x0 - cell * 2), y);
+      ctx.lineTo(Math.min(w, x0 + cell * 2), y);
     }
     ctx.stroke();
     ctx.restore();
@@ -20918,17 +21125,18 @@ window.WXL_SCRIPT = {
   /* 两套坐标系：金色=故宫（不动），青灰=卫城投影（会漂） */
   G.mod.painter('wumen.grid', function (ctx, prop, scene) {
     const v = (scene && scene.vars) || {};
-    const dx = (v.gridDx || 0) + (v.gridBoth || 0);
+    const both = v.gridBoth || 0;
+    const dx = (v.gridDx || 0) + both;
     const cell = 40;
 
     /* 故宫网格：原点固定在午门门洞中心 (320, 470) */
-    gridLines(ctx, 320, 470, prop.w, prop.h, cell, GOLD + '1)', 0.16);
+    gridLines(ctx, 320 + both, 470, prop.w, prop.h, cell, GOLD + '1)', 0.52);
 
     /* 卫城投影网格：整体偏移 dx。对齐后仍在，只是叠住了 */
-    gridLines(ctx, 320 + dx, 470, prop.w, prop.h, cell, CYAN + '1)', 0.20);
+    gridLines(ctx, 320 + dx, 470, prop.w, prop.h, cell, CYAN + '1)', 0.90);
 
     /* 原点标记：一个小小的十字，对齐后变成一个小金点 */
-    const ox = 320, oy = 470;
+    const ox = 320 + both, oy = 470;
     ctx.save();
     ctx.globalAlpha = v.gridDx === 0 ? 0.9 : 0.5;
     ctx.fillStyle = v.gridDx === 0 ? '#ffd479' : '#9fb3bd';
@@ -20955,21 +21163,20 @@ window.WXL_SCRIPT = {
       ctx.restore();
     }
 
-    /* 门钉：选 C 之后间距被拉开（34 → 40），同一行还错开半颗 ——
-       这是选单里没有说、但画面上看得见的那件事。 */
-    const pitch = v.nailShift ? 40 : 34;
-    const rows = 5, cols = 9;
+    /* Door hardware stays above the threshold, never in the walking court.
+       Wrong origin C still pulls the three engraved bands out of register. */
     ctx.save();
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const px = prop.x - ((cols - 1) / 2) * pitch + c * pitch;
-        const py = prop.baseY - 34 + r * 13 + (v.nailShift && r % 2 ? 3 : 0);
-        ctx.globalAlpha = 0.75;
-        ctx.fillStyle = '#d8b26a';
-        ctx.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 3);
+    ctx.strokeStyle = '#d8b26a';ctx.globalAlpha = 0.75;ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (const side of [-1, 1]) {
+      const cx = prop.x + side * 132;
+      for (let row = 0; row < 3; row++) {
+        const shift = v.nailShift && row % 2 ? 5 : 0;
+        const y = prop.baseY - 34 + row * 8;
+        ctx.moveTo(cx - 7 + shift, y);ctx.lineTo(cx + 7 + shift, y);
       }
     }
-    ctx.restore();
+    ctx.stroke();ctx.restore();
 
     /* 卫城投影：把帕特农山墙的轮廓用青灰描一遍，叠在城门上方。
        这是"投影叠印"，不是替换 —— 城门本身一格没动。 */
@@ -21410,6 +21617,21 @@ window.WXL_SCRIPT = {
       ctx.fillRect(x - s[1] / 2, s[0], s[1], 20);
     });
 
+    /* 玩家写入规则后，标记画在台阶表面，避免被不透明台阶盖住。 */
+    if (v.keepSteps) {
+      ctx.save();
+      ctx.strokeStyle = v.keepSteps === 'keep' ? '#8cdbc3' : '#d8b26a';
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.lineWidth = 2;
+      if (v.keepSteps !== 'drop') {
+        ctx.setLineDash(v.keepSteps === 'note' ? [4, 4] : []);
+        ctx.beginPath(); ctx.moveTo(x - 36, y + 7); ctx.lineTo(x + 36, y + 7); ctx.stroke();
+      }
+      ctx.font = '10px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(v.keepSteps === 'keep' ? '已保留 · 走近与抬头' : v.keepSteps === 'note' ? '待核 · 暂未写入规则' : '未采用 · 建筑仍留在原位', x, y + 22);
+      ctx.restore();
+    }
+
     /* 卫城投影：山墙轮廓，半透明青灰，叠在殿身之上（不是替换） */
     if (v.layerImages !== 0) {
       const alpha = v.layerStones === 1 ? 0.15 : 0.26;
@@ -21433,7 +21655,7 @@ window.WXL_SCRIPT = {
     }
 
     /* 标签层被搞乱：栏杆上三行错位的短横，像没渲染完的字 */
-    if (v.labelGlitch) {
+    if (v.labelGlitch && (v.labelsDone || 0) < 3) {
       ctx.globalAlpha = 0.55;
       ctx.fillStyle = '#b87f6a';
       for (let r = 0; r < 3; r++) {
@@ -21457,13 +21679,20 @@ window.WXL_SCRIPT = {
     const spots = (prop.opt && prop.opt.at) || [];
     ctx.save();
     plaques.forEach(function (q, i) {
-      const at = spots[i] || { dx: 0, dy: 0 };
+      const done = i < (v.labelsDone || 0);
+      const resolved = (prop.opt && prop.opt.resolved) || spots;
+      const at = (done ? resolved[i] : spots[i]) || { dx: 0, dy: 0 };
+      const glitch = v.labelGlitch && !done;
       const px = prop.x + (at.dx || 0);
       const py = prop.baseY + (at.dy || 0);
+      /* A short physical stem connects each label to its exhibit. */
+      ctx.globalAlpha=.8;ctx.strokeStyle='#81725c';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(px,py+4);ctx.lineTo(px,py+15);ctx.stroke();
+      ctx.fillStyle='#655c50';ctx.fillRect(px-10,py+14,20,3);
       const text = q.text || '';
       if (!text) return;
       const wid = Math.max(52, text.length * 11 + 10);
-      ctx.globalAlpha = v.labelGlitch ? 0.55 : 0.8;
+      ctx.globalAlpha = glitch ? 0.55 : 0.8;
       ctx.fillStyle = 'rgba(24,18,13,.78)';
       ctx.fillRect(px - wid / 2, py - 9, wid, 14);
       ctx.globalAlpha = 0.5;
@@ -21471,7 +21700,7 @@ window.WXL_SCRIPT = {
       ctx.strokeRect(px - wid / 2, py - 9, wid, 14);
       ctx.globalAlpha = 0.95;
       G.text(ctx, text, px, py - 2, {
-        size: 9, color: v.labelGlitch ? '#c98f77' : '#d8c9a8', align: 'center',
+        size: 9, color: glitch ? '#c98f77' : (done && i < 2 ? '#a7c8d2' : '#d8c9a8'), align: 'center',
         outline: 'rgba(8,6,4,.85)', outlineWidth: 1,
       });
     });
@@ -21502,7 +21731,13 @@ window.WXL_SCRIPT = {
       ctx.save();
       if (o.style === 'stone') {
         ctx.fillStyle = '#c9c0ad';
-        ctx.fillRect(px - 7 + tilt, y - hh, 14, hh);
+        ctx.beginPath();
+        ctx.moveTo(px - 9 + tilt, y - 6);ctx.lineTo(px - 5 + tilt, y - hh + 28);
+        ctx.lineTo(px + 5 + tilt, y - hh + 28);ctx.lineTo(px + 9 + tilt, y - 6);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.arc(px + tilt, y - hh + 18, 6, 0, Math.PI * 2);ctx.fill();
+        ctx.fillRect(px - 7 + tilt, y - hh + 24, 14, 8);
+        ctx.strokeStyle='#9c9382';ctx.lineWidth=1;
+        for(let fold=-1;fold<=1;fold++){ctx.beginPath();ctx.moveTo(px+fold*3,y-hh+38);ctx.lineTo(px+fold*5,y-10);ctx.stroke();}
         ctx.fillStyle = '#b3a996';
         ctx.fillRect(px - 11 + tilt, y - hh - 10, 22, 10);
         ctx.fillStyle = '#8c8374';
@@ -21516,8 +21751,16 @@ window.WXL_SCRIPT = {
         ctx.fillRect(px - 10, y - 5, 20, 5);
       }
 
+      /* Joint marks sit below the load beam, which is painted after stone columns. */
+      const method = v[o.style === 'stone' ? 'stoneMethod' : 'woodMethod'];
+      if (method) {
+        ctx.strokeStyle = method === 'dowel' ? '#b9c1bd' : '#d8b26a';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(px-7,y-hh+10);ctx.lineTo(px+7,y-hh+10);ctx.stroke();
+        if(method === 'tenon')ctx.strokeRect(px-3,y-hh+4,6,10);
+        if(method === 'dowel')ctx.fillRect(px-1,y-hh+1,2,14);
+      }
       /* 裂纹：塌过一次就一直留着 */
-      if (v.crack) {
+      if (v[o.style === 'stone' ? 'crackStone' : 'crackWood'] || (mine && v.crack)) {
         ctx.globalAlpha = 0.75;
         ctx.strokeStyle = '#2a221b';
         ctx.lineWidth = 1;
@@ -21534,7 +21777,7 @@ window.WXL_SCRIPT = {
       }
 
       /* 起灰：低透明度土色颗粒 */
-      if (v.dust) {
+      if (mine && v.dust) {
         ctx.globalAlpha = 0.35;
         ctx.fillStyle = '#8d7a5e';
         for (let d = 0; d < 12; d++) {
@@ -21548,6 +21791,12 @@ window.WXL_SCRIPT = {
     }
   });
 
+  G.mod.painter('hall.loadbeam', function(ctx,prop,scene){
+    const v=V(scene), y=prop.baseY-102;
+    ctx.save();ctx.fillStyle='#a29886';ctx.fillRect(138,y,328,13);
+    if(v.sag){const left=v.sagSide==='stone'?138:360;ctx.fillStyle='#665c4e';ctx.fillRect(left,y+13,106,v.sag*12);}
+    ctx.strokeStyle='#d4c9b5';ctx.strokeRect(138,y,328,13);ctx.restore();
+  });
   /* 修复台：一张长桌、几片纸、一盏台灯
      crackCount 0..3 → 纸面上多几道折痕
      stampUnfounded = 1 → 右下角压一枚"未成立"的印 */
@@ -21620,6 +21869,11 @@ window.WXL_SCRIPT = {
     /* 顶钮 */
     ctx.fillStyle = '#a98a56';
     ctx.fillRect(x - 3, y - s * 2 - 6, 6, 6);
+    /* Clock face and native wooden housing remain together after correction. */
+    ctx.fillStyle='#e9dfc6';ctx.beginPath();ctx.arc(x,y-s*1.16,s*.62,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#4a3b26';ctx.lineWidth=1;
+    for(let k=0;k<12;k++){const a=k*Math.PI/6;ctx.beginPath();ctx.moveTo(x+Math.sin(a)*s*.46,y-s*1.16-Math.cos(a)*s*.46);ctx.lineTo(x+Math.sin(a)*s*.55,y-s*1.16-Math.cos(a)*s*.55);ctx.stroke();}
+    ctx.beginPath();ctx.moveTo(x,y-s*1.55);ctx.lineTo(x,y-s*1.16);ctx.lineTo(x+s*.3,y-s*.98);ctx.stroke();
     /* 外来构件：齿轮 + 铅灌铁销 */
     const foreignAlpha = verdict === 'stripped' ? 0.12 : 0.9;
     ctx.globalAlpha = foreignAlpha;
@@ -21651,7 +21905,11 @@ window.WXL_SCRIPT = {
       ctx.fillRect(x - s, y + 2, s * 2, 9);
       ctx.globalAlpha = 0.6;
       ctx.fillStyle = '#8f7c5e';
-      for (let i = 0; i < 3; i++) ctx.fillRect(x - s + 3 + i * 9, y + 5, 6, 2);
+      if(verdict === 'fusion'){
+        ctx.fillStyle='#9cbec6';ctx.fillRect(x-s+3,y+4,s-5,2);
+        ctx.fillStyle='#8b6738';ctx.fillRect(x+2,y+4,s-5,2);
+        ctx.strokeStyle='#346c53';ctx.beginPath();ctx.moveTo(x+s-8,y+7);ctx.lineTo(x+s-5,y+9);ctx.lineTo(x+s-1,y+3);ctx.stroke();
+      } else for (let i = 0; i < 3; i++) ctx.fillRect(x - s + 3 + i * 9, y + 5, 6, 2);
       ctx.globalAlpha = 1;
     }
     ctx.restore();
@@ -21668,38 +21926,20 @@ window.WXL_SCRIPT = {
     ctx.save();
     ctx.fillStyle = '#241d18';
     ctx.fillRect(x - 70, y - 104, 140, 104);
-    ctx.fillStyle = signed ? '#16343a' : '#101a1e';
+    ctx.fillStyle = signed ? '#16343a' : '#173039';
     ctx.fillRect(x - 62, y - 96, 124, 78);
 
-    if (signed) {
-      /* 整屏亮：网格 + 两条参考线 */
-      ctx.globalAlpha = 0.55;
-      ctx.strokeStyle = '#7c929e';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 6; i++) {
-        ctx.beginPath();
-        ctx.moveTo(x - 58, y - 88 + i * 12);
-        ctx.lineTo(x + 58, y - 88 + i * 12);
-        ctx.stroke();
+    /* A lit nine-cell sandbox exists before signing. Signing approves sources. */
+    ctx.globalAlpha=.75;ctx.strokeStyle='#7c929e';ctx.lineWidth=1;
+    for(let row=0;row<3;row++)for(let col=0;col<3;col++)ctx.strokeRect(x-57+col*38,y-91+row*23,35,20);
+    if(v.keepWhat){
+      const colors=['#d8b26a','#9cbec6','#c99587'];
+      for(let i=0;i<3;i++){
+        const col=v.keepWhat==='acropolis_axis'?1:i;
+        ctx.fillStyle=colors[i];ctx.fillRect(x-53+col*38,y-86+i*23,24,10);
       }
-      ctx.globalAlpha = 0.9;
-      ctx.strokeStyle = v.keepWhat === 'acropolis_axis' ? '#7c929e' : '#d8b26a';
-      ctx.beginPath();
-      ctx.moveTo(x - 5, y - 88);
-      ctx.lineTo(x - 5, y - 22);
-      ctx.stroke();
-      ctx.strokeStyle = v.keepWhat === 'acropolis_axis' ? '#d8b26a' : '#7c929e';
-      ctx.beginPath();
-      ctx.moveTo(x - 46, y - 30);
-      ctx.lineTo(x + 46, y - 30);
-      ctx.stroke();
-    } else {
-      /* 未签：只有边框亮 */
-      ctx.globalAlpha = 0.5;
-      ctx.strokeStyle = '#7c929e';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x - 62, y - 96, 124, 78);
     }
+    if(signed){ctx.strokeStyle='#ffd479';ctx.beginPath();ctx.moveTo(x+28,y-26);ctx.lineTo(x+36,y-20);ctx.lineTo(x+51,y-35);ctx.stroke();}
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = signed ? '#ffd479' : '#6a5a3c';
     ctx.fillRect(x - 30, y - 10, 60, 6);
@@ -21810,6 +22050,29 @@ window.WXL_SCRIPT = {
     ctx.restore();
   });
 
+  G.mod.painter('mentor.diotima', function(ctx,prop,scene){
+    ctx.save();ctx.translate(prop.x,prop.baseY==null?prop.y:prop.baseY);ctx.scale(.16,.16);
+    G.mod.paint('portrait.diotima',ctx,{w:240,h:360},scene);ctx.restore();
+  });
+  /* Physical comparison models on the terrace, each resting on a plinth. */
+  G.mod.painter('hall.references',function(ctx,prop,scene){
+    const v=V(scene);if(v.layerImages===0)return;
+    const y=prop.baseY;ctx.save();ctx.globalAlpha=v.layerStones===1?.45:.85;
+    ctx.fillStyle='#7a807b';ctx.fillRect(110,y,140,7);ctx.fillRect(394,y,136,7);
+    ctx.fillStyle='#b2c0bd';ctx.strokeStyle='#718c96';ctx.lineWidth=2;
+    /* East pediment: actual triangular gable and column supports. */
+    ctx.beginPath();ctx.moveTo(114,y-44);ctx.lineTo(180,y-78);ctx.lineTo(246,y-44);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillRect(116,y-44,128,8);
+    for(let i=0;i<6;i++){ctx.fillRect(124+i*21,y-36,7,36);ctx.fillRect(121+i*21,y-39,13,4);}
+    /* Caryatid porch: six human silhouettes support the entablature. */
+    ctx.fillRect(396,y-60,132,9);
+    for(let i=0;i<6;i++){
+      const x=406+i*22;ctx.beginPath();ctx.arc(x,y-43,5,0,Math.PI*2);ctx.fill();
+      ctx.fillRect(x-7,y-53,14,5);ctx.beginPath();ctx.moveTo(x-5,y-37);ctx.lineTo(x+5,y-37);ctx.lineTo(x+8,y);ctx.lineTo(x-8,y);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#788f93';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y-33);ctx.lineTo(x,y-4);ctx.stroke();
+    }
+    ctx.restore();
+  });
   /* 树丛（御花园，opt: n / size） */
   G.mod.painter('hall.trees', function (ctx, prop) {
     const o = prop.opt || {};
@@ -21828,860 +22091,1213 @@ window.WXL_SCRIPT = {
 
 </script>
 <script data-src="js/art/portraits.js">
-/* ============================================================
-   A · 美术  立绘画笔（过场用）
-   ------------------------------------------------------------
-   过场里的 { t:'portrait', who:'diotima' } 会去找 painter 'portrait.<who>'。
-   画布固定 240 × 360，**原点 = 脚底中心**（js/cut.js 的 _paint 会
-   translate 到 (width/2, height-12)），所以往上画就是负 y。
-
-   画法约定和别处一样：纯函数、只画、不读存档、不弹窗、不写文字。
-   立绘是"人"，不是"界面"，所以不画边框、不画名牌。
-   ============================================================ */
+/* Modern Athenian doctoral supervisor. Feet-centered 240 x 360 portrait API. */
 (function () {
   'use strict';
   const G = window.G;
   if (!G || !G.mod) return;
-
-  const INK = '#241d19';
-  const GOLD = '216,178,106';
-
-  function robe(ctx) {
-    /* 希顿长袍：从脚踝到头肩，右深左浅 */
-    ctx.beginPath();
-    ctx.moveTo(-52, -6);
-    ctx.quadraticCurveTo(-58, -96, -40, -168);
-    ctx.quadraticCurveTo(-30, -212, -20, -226);
-    ctx.lineTo(22, -226);
-    ctx.quadraticCurveTo(32, -208, 42, -166);
-    ctx.quadraticCurveTo(56, -92, 50, -6);
-    ctx.quadraticCurveTo(0, 6, -52, -6);
-    ctx.closePath();
-    ctx.fillStyle = '#e9e1d0';
-    ctx.fill();
-
-    /* 右半边的暗部，让袍子有体积 */
-    ctx.save();
-    ctx.clip();
-    ctx.beginPath();
-    ctx.moveTo(14, -232);
-    ctx.quadraticCurveTo(40, -150, 52, -4);
-    ctx.lineTo(64, -4);
-    ctx.lineTo(64, -232);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(176,158,132,0.55)';
-    ctx.fill();
-    /* 布褶 */
-    ctx.strokeStyle = 'rgba(150,132,108,0.5)';
-    ctx.lineWidth = 1.6;
-    for (let i = 0; i < 5; i++) {
-      const x = -34 + i * 17;
-      ctx.beginPath();
-      ctx.moveTo(x, -20);
-      ctx.quadraticCurveTo(x + 3, -110, x - 2, -196);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  function himation(ctx) {
-    /* 希玛纯：深青披巾，从左肩斜到右胯 */
-    ctx.beginPath();
-    ctx.moveTo(-24, -228);
-    ctx.quadraticCurveTo(-48, -198, -46, -150);
-    ctx.quadraticCurveTo(-40, -96, 6, -74);
-    ctx.quadraticCurveTo(34, -66, 52, -74);
-    ctx.quadraticCurveTo(44, -140, 20, -206);
-    ctx.quadraticCurveTo(6, -232, -24, -228);
-    ctx.closePath();
-    ctx.fillStyle = '#31485c';
-    ctx.fill();
-
-    ctx.save();
-    ctx.clip();
-    ctx.strokeStyle = 'rgba(20,34,46,0.7)';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.moveTo(-40 + i * 6, -196);
-      ctx.quadraticCurveTo(-10 + i * 10, -140, 40, -110 + i * 12);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    /* 披巾边缘一道金线 */
-    ctx.beginPath();
-    ctx.moveTo(-24, -228);
-    ctx.quadraticCurveTo(-48, -198, -46, -150);
-    ctx.quadraticCurveTo(-40, -96, 6, -74);
-    ctx.strokeStyle = 'rgba(' + GOLD + ',0.55)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  function head(ctx) {
-    /* 脖子 */
-    ctx.beginPath();
-    ctx.moveTo(-10, -230);
-    ctx.lineTo(10, -230);
-    ctx.lineTo(9, -246);
-    ctx.lineTo(-9, -246);
-    ctx.closePath();
-    ctx.fillStyle = '#c9a37c';
-    ctx.fill();
-
-    /* 后发：盘髻 + 两侧卷发 */
-    ctx.beginPath();
-    ctx.moveTo(-26, -262);
-    ctx.quadraticCurveTo(-30, -296, -6, -302);
-    ctx.quadraticCurveTo(20, -304, 27, -282);
-    ctx.quadraticCurveTo(30, -266, 22, -256);
-    ctx.quadraticCurveTo(14, -276, -4, -278);
-    ctx.quadraticCurveTo(-18, -280, -26, -262);
-    ctx.closePath();
-    ctx.fillStyle = INK;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(-2, -318, 15, 11, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    /* 脸 */
-    ctx.beginPath();
-    ctx.moveTo(-19, -286);
-    ctx.quadraticCurveTo(-21, -258, -8, -246);
-    ctx.quadraticCurveTo(2, -240, 12, -248);
-    ctx.quadraticCurveTo(22, -260, 19, -284);
-    ctx.quadraticCurveTo(6, -296, -19, -286);
-    ctx.closePath();
-    ctx.fillStyle = '#dcbb92';
-    ctx.fill();
-
-    /* 眉、眼、唇：简笔，别画太细（像素风里会糊） */
-    ctx.strokeStyle = INK;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-12, -276);
-    ctx.lineTo(-3, -274);
-    ctx.moveTo(4, -274);
-    ctx.lineTo(13, -276);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.ellipse(-7, -270, 3.4, 2.2, 0, 0, Math.PI * 2);
-    ctx.ellipse(8, -270, 3.4, 2.2, 0, 0, Math.PI * 2);
-    ctx.fillStyle = INK;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-2, -258);
-    ctx.quadraticCurveTo(3, -255, 8, -258);
-    ctx.strokeStyle = '#a9705f';
-    ctx.lineWidth = 2.4;
-    ctx.stroke();
-
-    /* 前额的深色发际 */
-    ctx.beginPath();
-    ctx.moveTo(-19, -286);
-    ctx.quadraticCurveTo(-4, -298, 19, -284);
-    ctx.quadraticCurveTo(6, -292, -8, -290);
-    ctx.closePath();
-    ctx.fillStyle = INK;
-    ctx.fill();
-
-    /* 金发带 */
-    ctx.beginPath();
-    ctx.moveTo(-20, -292);
-    ctx.quadraticCurveTo(0, -303, 21, -289);
-    ctx.strokeStyle = 'rgba(' + GOLD + ',0.95)';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-  }
-
-  function scroll(ctx) {
-    /* 左手握卷轴：几卷纸 + 一道系带 */
-    ctx.save();
-    ctx.translate(-46, -150);
-    ctx.rotate(-0.22);
-    ctx.fillStyle = '#f2e7cf';
-    ctx.fillRect(-6, -34, 13, 68);
-    ctx.fillStyle = '#e0d0ad';
-    ctx.fillRect(-6, -34, 13, 8);
-    ctx.fillRect(-6, 26, 13, 8);
-    ctx.strokeStyle = 'rgba(150,120,80,0.6)';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(-6, -14);
-    ctx.lineTo(7, -14);
-    ctx.stroke();
-    ctx.restore();
-
-    /* 握卷轴的手 */
-    ctx.beginPath();
-    ctx.ellipse(-44, -158, 10, 12, -0.2, 0, Math.PI * 2);
-    ctx.fillStyle = '#d6b189';
-    ctx.fill();
-  }
-
-  function arm(ctx) {
-    /* 右手：从披巾里伸出来，轻轻提着布边 */
-    ctx.beginPath();
-    ctx.moveTo(26, -212);
-    ctx.quadraticCurveTo(46, -178, 40, -142);
-    ctx.quadraticCurveTo(38, -124, 30, -122);
-    ctx.strokeStyle = '#dcbb92';
-    ctx.lineWidth = 13;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.ellipse(29, -118, 9, 11, 0.2, 0, Math.PI * 2);
-    ctx.fillStyle = '#d6b189';
-    ctx.fill();
-  }
-
   G.mod.painter('portrait.diotima', function (ctx, prop) {
-    const w = (prop && prop.w) || 240;
-    const h = (prop && prop.h) || 360;
-
-    /* 地面的一小圈暖光：让人物不像贴在空气里 */
-    const g = ctx.createRadialGradient(0, -20, 6, 0, -20, 120);
-    g.addColorStop(0, 'rgba(' + GOLD + ',0.22)');
-    g.addColorStop(1, 'rgba(' + GOLD + ',0)');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.ellipse(0, -18, 96, 40, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(0, -4, 52, 9, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fill();
-
-    robe(ctx);
-    arm(ctx);
-    himation(ctx);
-    scroll(ctx);
-    head(ctx);
-
-    /* 头顶一点边缘光，和游戏里的金色时刻一致 */
-    ctx.beginPath();
-    ctx.moveTo(-22, -286);
-    ctx.quadraticCurveTo(-4, -306, 20, -286);
-    ctx.strokeStyle = 'rgba(' + GOLD + ',0.35)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    /* 画布比画的实际高度略高，留白由 CSS 的 drop-shadow 收住 */
-    void w; void h;
+    function poly(points, color) {
+      ctx.beginPath(); points.forEach(function(p,i){ if(i)ctx.lineTo(p[0],p[1]);else ctx.moveTo(p[0],p[1]); });
+      ctx.closePath();ctx.fillStyle=color;ctx.fill();
+    }
+    function ellipse(x,y,rx,ry,color){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}
+    ctx.save();
+    ellipse(0,-3,43,7,'rgba(0,0,0,.28)');
+    /* Separate trouser legs and low, flat shoes. */
+    poly([[-32,-145],[-3,-145],[-5,-13],[-31,-13]],'#26303d');
+    poly([[3,-145],[32,-145],[34,-13],[8,-13]],'#202936');
+    ctx.fillStyle='#414d5c';ctx.fillRect(-26,-135,3,111);ctx.fillRect(12,-135,3,111);
+    poly([[-32,-17],[-6,-17],[-4,-3],[-40,-3],[-40,-9]],'#171c24');
+    poly([[8,-17],[33,-17],[43,-8],[43,-3],[7,-3]],'#171c24');
+    /* Light blouse under a tailored navy blazer. */
+    ctx.fillStyle='#d2ac91';ctx.fillRect(-10,-245,20,24);
+    poly([[-20,-230],[20,-230],[30,-143],[-29,-143]],'#ebe8df');
+    poly([[-13,-229],[-32,-231],[-49,-216],[-40,-137],[-5,-137],[-10,-191]],'#29384d');
+    poly([[13,-229],[32,-231],[48,-215],[41,-137],[5,-137],[11,-191]],'#233046');
+    poly([[-15,-230],[-29,-214],[-18,-204],[-24,-194],[-6,-165]],'#4c5a6d');
+    poly([[15,-230],[28,-214],[18,-204],[24,-194],[6,-165]],'#435268');
+    poly([[-10,-231],[0,-218],[-8,-207],[-17,-225]],'#faf7f0');
+    poly([[10,-231],[0,-218],[8,-207],[17,-225]],'#faf7f0');
+    ctx.fillStyle='#85909a';ctx.fillRect(3,-164,3,3);ctx.fillRect(3,-150,3,3);
+    /* Sleeves, research folder and a relaxed hand. */
+    poly([[-35,-225],[-48,-216],[-56,-159],[-43,-154],[-31,-204]],'#29384d');
+    poly([[35,-225],[48,-215],[54,-166],[41,-161],[29,-204]],'#233046');
+    poly([[-58,-190],[-25,-197],[-15,-142],[-50,-135]],'#667d80');
+    poly([[-54,-187],[-28,-192],[-27,-186],[-53,-181]],'#d9ded7');
+    ctx.strokeStyle='#b4c2bf';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-49,-174);ctx.lineTo(-30,-178);ctx.moveTo(-47,-167);ctx.lineTo(-28,-171);ctx.stroke();
+    ellipse(-43,-153,8,10,'#d7b295');ellipse(45,-156,7,10,'#d7b295');
+    /* Shoulder-length chestnut hair, a few silver strands, mature face. */
+    ellipse(0,-274,31,43,'#48352f');
+    poly([[-29,-277],[-30,-237],[-18,-231],[-18,-264]],'#48352f');
+    poly([[19,-274],[30,-278],[32,-239],[20,-233]],'#48352f');
+    ellipse(0,-272,22,30,'#dbb79b');
+    poly([[-24,-282],[-20,-301],[0,-311],[24,-298],[25,-280],[10,-292],[-8,-289]],'#584036');
+    ctx.strokeStyle='#a99b91';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-18,-299);ctx.lineTo(-24,-282);ctx.moveTo(17,-300);ctx.lineTo(23,-284);ctx.stroke();
+    /* Restrained eyes and rectangular spectacles remain legible in map scale. */
+    ctx.strokeStyle='#282a30';ctx.lineWidth=2;
+    ctx.strokeRect(-19,-280,16,11);ctx.strokeRect(3,-280,16,11);
+    ctx.beginPath();ctx.moveTo(-3,-275);ctx.lineTo(3,-275);ctx.stroke();
+    ellipse(-11,-274,2,2,'#302723');ellipse(11,-274,2,2,'#302723');
+    ctx.strokeStyle='#a57f69';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(1,-270);ctx.lineTo(3,-261);ctx.lineTo(-1,-260);ctx.moveTo(-8,-252);ctx.quadraticCurveTo(0,-248,8,-252);ctx.moveTo(-18,-265);ctx.lineTo(-14,-263);ctx.moveTo(14,-263);ctx.lineTo(18,-265);ctx.stroke();
+    ctx.restore();
+    void prop;
   });
 })();
 
 </script>
 <script data-src="data/maps/wumen.js">
-/* ============================================================
-   A · 美术/关卡  示例地图：午门（关 1 · 原点之争）
-   ------------------------------------------------------------
-   这份文件就是「地图」的全部定义：尺寸、出生点、碰撞、
-   摆件坐标、交互点坐标、灯光、镜头。
-   画笔在 js/art/wumen.js，玩法在 js/mods/wumen-registration.js。
-
-   分工铁律：
-     · 本文件只被 A 改
-     · 里面的 painter 名字必须和 js/art/wumen.js 里登记的一致
-     · 里面的 puzzle  名字必须和 js/mods/*.js   里登记的一致
-     · C 想改画面，只能改 scene.vars（见下方 vars），不能改这里的坐标
-
-   坐标约定：x 为水平（0=左），y 为纵向（0=最上，越大越靠南/越靠近镜头）。
-   ============================================================ */
+/* Compact interaction court; all movement is confined by bounds. */
 G.mod.register({
-  kind: 'map',
-  id: 'wumen',
-
-  /* 无 script.json 时的兜底显示名 */
-  title: '午门',
-  sub: '原点之争',
-
-  /* 进场过场（C 在 data/cuts/wumen-intro.js 里排练）。
-     写了这一行，进场就不播 nodes.wumen.enter 的对话了，改播过场。 */
-  enterCut: 'wumen.intro',
-
-  size: { w: 640, h: 750 },
-  spawn: { x: 320, y: 710 },
-  camera: { lookAhead: 46 },
-  clock: '08:30',
-  ambient: 'palace',
-  background: '#171310',
-
-  /* 给 C 的初始变量。画笔读它们，玩法改它们 —— 这是美术与玩法的唯一接口。 */
-  vars: {
-    gridDx: 18,      /* 卫城投影网格相对故宫网格的错位（像素）。0 = 已对齐 */
-    gridBoth: 0,     /* 选错原点时，两套网格一起被拖走的距离 */
-    seamShift: 0,    /* 1 = 中轴砖缝被拖歪，横缝左右错位（关 1 选 C 的痕迹） */
-    nailShift: 0,    /* 1 = 门钉间距被拉开（同一处痕迹，另一处证据） */
-    terraceGap: 0,   /* 1 = 月台与殿身之间裂开四像素（关 1 选 B 的痕迹） */
-    view: '',        /* 'silent' = 压暗静帧，逼玩家先看清楚再动手 */
+  "kind": "map",
+  "id": "wumen",
+  "title": "午门",
+  "sub": "原点之争",
+  "enterCut": "wumen.intro",
+  "size": {
+    "w": 640,
+    "h": 620
   },
-
-  /* ---------- 地面（烘焙到离屏画布，不参与每帧排序）---------- */
-  ground: [
-    { painter: 'wumen.plaza', x: 0, y: 430, w: 640, h: 320, opt: {} },
-    { painter: 'wumen.grid', x: 0, y: 0, w: 640, h: 750, opt: {} },
-  ],
-
-  /* ---------- 碰撞 ---------- */
-  solids: [
-    { x: 12, y: 262, w: 616, h: 148 },   /* 城门墙体：整段不可穿过 */
-  ],
-
-  /* ---------- 摆件（参与 baseY 遮挡排序）---------- */
-  props: [
-    /* 远景投影层：帕特农柱廊站在午门屋脊后面。
-       放在 gate 之前 = 先画 = 在门后面；baseY 与门相同，地平线一致。 */
-    { painter: 'wumen.far', x: 320, baseY: 420, opt: {} },
-    { painter: 'wumen.gate', x: 320, baseY: 420, opt: { w: 660 } },
-    { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { textKey: 'nodes.wumen.plaque' } },
-    { painter: 'wumen.lantern', x: 96, baseY: 520, opt: {} },
-    { painter: 'wumen.lantern', x: 544, baseY: 520, opt: {} },
-  ],
-
-  lights: [
-    { x: 96, y: 500, r: 70, color: '#ffcf86', a: 0.22 },
-    { x: 544, y: 500, r: 70, color: '#ffcf86', a: 0.22 },
-  ],
-
-  /* ---------- 人物 ---------- */
-  npcs: [],
-
-  /* ---------- 交互点 ----------
-     inspect: 走通用「看一眼」，文案取 script.json 的 objects.<id>
-     puzzle : 走 C 的玩法模块
-     when   : 条件，满足才出现（见 js/mod.js 的 test）                */
-  spots: [
+  "spawn": {
+    "x": 320,
+    "y": 576
+  },
+  "camera": {
+    "lookAhead": 46
+  },
+  "clock": "08:30",
+  "ambient": "palace",
+  "background": "#171310",
+  "vars": {
+    "gridDx": 18,
+    "gridBoth": 0,
+    "seamShift": 0,
+    "nailShift": 0,
+    "terraceGap": 0,
+    "view": ""
+  },
+  "ground": [
     {
-      id: 'wumen.origin',
-      x: 320, y: 486, r: 68,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'wumen.registration',
-      when: { notDone: ['wumen.origin'] },
+      "painter": "wumen.plaza",
+      "x": 0,
+      "y": 410,
+      "w": 640,
+      "h": 210,
+      "opt": {}
     },
     {
-      id: 'wumen.look_grid',
-      x: 150, y: 700, r: 46,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_wumen_grid',
+      "painter": "wumen.grid",
+      "x": 0,
+      "y": 0,
+      "w": 640,
+      "h": 620,
+      "opt": {}
+    }
+  ],
+  "solids": [
+    {
+      "x": 12,
+      "y": 262,
+      "w": 616,
+      "h": 148
+    }
+  ],
+  "props": [
+    {
+      "painter": "wumen.far",
+      "x": 320,
+      "baseY": 420,
+      "opt": {}
     },
     {
-      id: 'wumen.look_gate',
-      x: 500, y: 470, r: 44,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_wumen_gate',
+      "painter": "wumen.gate",
+      "x": 320,
+      "baseY": 420,
+      "opt": {
+        "w": 660
+      }
     },
+    {
+      "painter": "wumen.plaque",
+      "x": 320,
+      "baseY": 268,
+      "opt": {
+        "textKey": "nodes.wumen.plaque"
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 96,
+      "baseY": 520,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 544,
+      "baseY": 520,
+      "opt": {}
+    }
   ],
-
-  marker: { x: 320, y: 470, when: { notDone: ['wumen.origin'] } },
-
-  /* 下一关：太和殿月台（关 2） */
-  next: 'taihe',
+  "lights": [
+    {
+      "x": 96,
+      "y": 500,
+      "r": 70,
+      "color": "#ffcf86",
+      "a": 0.22
+    },
+    {
+      "x": 544,
+      "y": 500,
+      "r": 70,
+      "color": "#ffcf86",
+      "a": 0.22
+    }
+  ],
+  "npcs": [
+    {
+      "id": "diotima",
+      "painter": "mentor.diotima",
+      "x": 398,
+      "y": 556,
+      "r": 22,
+      "dialogKey": "nodes.wumen.enter"
+    }
+  ],
+  "spots": [
+    {
+      "id": "wumen.origin",
+      "x": 320,
+      "y": 486,
+      "r": 34,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "wumen.registration",
+      "when": {
+        "notDone": [
+          "wumen.origin"
+        ]
+      }
+    },
+    {
+      "id": "wumen.look_grid",
+      "x": 170,
+      "y": 554,
+      "r": 30,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_wumen_grid"
+    },
+    {
+      "id": "wumen.look_gate",
+      "x": 484,
+      "y": 468,
+      "r": 30,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_wumen_gate"
+    }
+  ],
+  "marker": {
+    "x": 320,
+    "y": 486,
+    "when": {
+      "notDone": [
+        "wumen.origin"
+      ]
+    }
+  },
+  "next": "taihe",
+  "bounds": {
+    "x": 100,
+    "y": 430,
+    "w": 440,
+    "h": 170
+  }
 });
 
 </script>
 <script data-src="data/maps/taihe.js">
-/* ============================================================
-   A · 美术/关卡  关 2：太和殿 · 月台（空间说明校准）
-   ------------------------------------------------------------
-   这一关要让玩家"走三折台阶、抬头看殿身"，再把写错的说明牌
-   放回它们该在的位置。走法就是内容：台阶改不了，牌子能改。
-
-   交互点：
-     taihe.labels  三块牌子归位（C 的玩法）
-     taihe.keep    主动选择"这条关系我要不要带走"（C 的玩法）
-     look_*        通用"看一眼"，文案取 script.json 的 objects.*
-   ============================================================ */
+/* Compact interaction court; all movement is confined by bounds. */
 G.mod.register({
-  kind: 'map',
-  id: 'taihe',
-
-  title: '太和殿',
-  sub: '月台',
-
-  size: { w: 640, h: 780 },
-  spawn: { x: 320, y: 736 },
-  camera: { lookAhead: 44 },
-  clock: '09:10',
-  ambient: 'palace',
-  background: '#171310',
-
-  vars: {
-    keepSteps: '',       /* keep / note / drop —— 玩家对"保留关系"的选择 */
-    labelsDone: 0,       /* 已经归位的牌子数 */
-    layerStones: 0,      /* 1 = 石作层打开：栏杆下的浮雕与台基石雕看得清楚 */
-    layerImages: 1,      /* 0 = 图像层关掉：卫城投影整层不画 */
-    layerLabels: 1,      /* 0 = 标签层关掉：说明牌与匾额名字都不写 */
-    labelGlitch: 0,      /* 1 = 挪错过的牌子上留着乱码（不清零，带着也能通关） */
+  "kind": "map",
+  "id": "taihe",
+  "title": "太和殿",
+  "sub": "月台",
+  "size": {
+    "w": 640,
+    "h": 650
   },
-
-  ground: [
-    { painter: 'hall.marble', x: 0, y: 380, w: 640, h: 400, opt: {} },
+  "spawn": {
+    "x": 320,
+    "y": 610
+  },
+  "camera": {
+    "lookAhead": 44
+  },
+  "clock": "09:10",
+  "ambient": "palace",
+  "background": "#171310",
+  "vars": {
+    "keepSteps": "",
+    "labelsDone": 0,
+    "layerStones": 0,
+    "layerImages": 1,
+    "layerLabels": 1,
+    "labelGlitch": 0
+  },
+  "ground": [
+    {
+      "painter": "hall.marble",
+      "x": 0,
+      "y": 380,
+      "w": 640,
+      "h": 270,
+      "opt": {}
+    }
   ],
-
-  solids: [
-    { x: 12, y: 246, w: 616, h: 124 },   /* 殿身与台基：不可穿过 */
+  "solids": [
+    {
+      "x": 12,
+      "y": 246,
+      "w": 616,
+      "h": 124
+    }
   ],
-
-  props: [
-    { painter: 'hall.palace', x: 320, baseY: 330, opt: { w: 520, wallH: 36, roofH: 34, double: true, nameKey: 'nodes.taihe.name' } },
-    { painter: 'hall.terrace', x: 320, baseY: 470, opt: { w: 560 } },
-    { painter: 'hall.labelplates', x: 320, baseY: 470, opt: {
-      at: [
-        { dx: -120, dy: -34 },
-        { dx: 0, dy: -42 },
-        { dx: 120, dy: -34 },
-      ],
-    } },
-    { painter: 'wumen.lantern', x: 92, baseY: 560, opt: {} },
-    { painter: 'wumen.lantern', x: 548, baseY: 560, opt: {} },
-    /* 三块图层石：踩上去开或关一层，本身不挡通关（optional） */
-    { painter: 'hall.layerstone', x: 214, baseY: 706, opt: { layer: 'stones' } },
-    { painter: 'hall.layerstone', x: 320, baseY: 726, opt: { layer: 'images' } },
-    { painter: 'hall.layerstone', x: 426, baseY: 706, opt: { layer: 'labels' } },
+  "props": [
+    {
+      "painter": "hall.palace",
+      "x": 320,
+      "baseY": 330,
+      "opt": {
+        "w": 520,
+        "wallH": 36,
+        "roofH": 34,
+        "double": true,
+        "nameKey": "nodes.taihe.name"
+      }
+    },
+    {
+      "painter": "hall.terrace",
+      "x": 320,
+      "baseY": 470,
+      "opt": {
+        "w": 560
+      }
+    },
+    {
+      "painter": "hall.labelplates",
+      "x": 320,
+      "baseY": 470,
+      "opt": {
+        "at": [
+          {
+            "dx": 142,
+            "dy": -46
+          },
+          {
+            "dx": -138,
+            "dy": -46
+          },
+          {
+            "dx": 0,
+            "dy": -34
+          }
+        ],
+        "resolved": [
+          {
+            "dx": -138,
+            "dy": -46
+          },
+          {
+            "dx": 142,
+            "dy": -46
+          },
+          {
+            "dx": 0,
+            "dy": -34
+          }
+        ]
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 92,
+      "baseY": 560,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 548,
+      "baseY": 560,
+      "opt": {}
+    },
+    {
+      "painter": "hall.layerstone",
+      "x": 216,
+      "baseY": 612,
+      "opt": {
+        "layer": "stones"
+      }
+    },
+    {
+      "painter": "hall.layerstone",
+      "x": 320,
+      "baseY": 612,
+      "opt": {
+        "layer": "images"
+      }
+    },
+    {
+      "painter": "hall.layerstone",
+      "x": 424,
+      "baseY": 612,
+      "opt": {
+        "layer": "labels"
+      }
+    },
+    {
+      "painter": "hall.references",
+      "x": 320,
+      "baseY": 416,
+      "opt": {}
+    }
   ],
-
-  lights: [
-    { x: 92, y: 540, r: 68, color: '#ffcf86', a: 0.20 },
-    { x: 548, y: 540, r: 68, color: '#ffcf86', a: 0.20 },
+  "lights": [
+    {
+      "x": 92,
+      "y": 540,
+      "r": 68,
+      "color": "#ffcf86",
+      "a": 0.2
+    },
+    {
+      "x": 548,
+      "y": 540,
+      "r": 68,
+      "color": "#ffcf86",
+      "a": 0.2
+    }
   ],
-
-  npcs: [],
-
-  spots: [
+  "npcs": [
     {
-      id: 'taihe.labels',
-      x: 320, y: 520, r: 70,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'taihe.labels',
-      when: { notDone: ['taihe.labels'] },
-    },
-    {
-      id: 'taihe.keep',
-      x: 150, y: 660, r: 54,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'taihe.keep',
-      when: { notDone: ['taihe.keep'] },
-    },
-    {
-      id: 'taihe.look_steps',
-      x: 512, y: 600, r: 46,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_taihe_steps',
-    },
-    {
-      id: 'taihe.look_railing',
-      x: 128, y: 486, r: 44,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_taihe_railing',
-    },
-    {
-      id: 'taihe.look_archive',
-      x: 430, y: 432, r: 44,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_taihe_archive',
-    },
-    {
-      id: 'taihe.look_plaque',
-      x: 320, y: 384, r: 40,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_taihe_plaque',
-    },
-    /* 三块图层石：不挡通关，随时可以来回踩 */
-    {
-      id: 'taihe.layer.stones',
-      x: 214, y: 700, r: 34,
-      labelKey: 'ui.hud.layer',
-      puzzle: 'taihe.layer.stones',
-      optional: true,
-    },
-    {
-      id: 'taihe.layer.images',
-      x: 320, y: 720, r: 34,
-      labelKey: 'ui.hud.layer',
-      puzzle: 'taihe.layer.images',
-      optional: true,
-    },
-    {
-      id: 'taihe.layer.labels',
-      x: 426, y: 700, r: 34,
-      labelKey: 'ui.hud.layer',
-      puzzle: 'taihe.layer.labels',
-      optional: true,
-    },
+      "id": "diotima",
+      "painter": "mentor.diotima",
+      "x": 400,
+      "y": 552,
+      "r": 22,
+      "dialogKey": "nodes.taihe.enter"
+    }
   ],
-
-  marker: { x: 320, y: 520, when: { notDone: ['taihe.labels'] } },
-
-  next: 'qianqing',
+  "spots": [
+    {
+      "id": "taihe.labels",
+      "x": 320,
+      "y": 506,
+      "r": 32,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "taihe.labels",
+      "when": {
+        "notDone": [
+          "taihe.labels"
+        ]
+      }
+    },
+    {
+      "id": "taihe.keep",
+      "x": 156,
+      "y": 544,
+      "r": 28,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "taihe.keep",
+      "when": {
+        "notDone": [
+          "taihe.keep"
+        ]
+      }
+    },
+    {
+      "id": "taihe.look_steps",
+      "x": 490,
+      "y": 548,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_taihe_steps"
+    },
+    {
+      "id": "taihe.look_railing",
+      "x": 130,
+      "y": 454,
+      "r": 26,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_taihe_railing"
+    },
+    {
+      "id": "taihe.look_archive",
+      "x": 442,
+      "y": 418,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_taihe_archive"
+    },
+    {
+      "id": "taihe.look_plaque",
+      "x": 320,
+      "y": 394,
+      "r": 26,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_taihe_plaque"
+    },
+    {
+      "id": "taihe.layer.stones",
+      "x": 216,
+      "y": 606,
+      "r": 25,
+      "labelKey": "ui.hud.layer",
+      "puzzle": "taihe.layer.stones",
+      "optional": true
+    },
+    {
+      "id": "taihe.layer.images",
+      "x": 320,
+      "y": 606,
+      "r": 25,
+      "labelKey": "ui.hud.layer",
+      "puzzle": "taihe.layer.images",
+      "optional": true
+    },
+    {
+      "id": "taihe.layer.labels",
+      "x": 424,
+      "y": 606,
+      "r": 25,
+      "labelKey": "ui.hud.layer",
+      "puzzle": "taihe.layer.labels",
+      "optional": true
+    }
+  ],
+  "marker": {
+    "x": 320,
+    "y": 506,
+    "when": {
+      "notDone": [
+        "taihe.labels"
+      ]
+    }
+  },
+  "next": "qianqing",
+  "bounds": {
+    "x": 100,
+    "y": 380,
+    "w": 440,
+    "h": 250
+  }
 });
 
 </script>
 <script data-src="data/maps/qianqing.js">
-/* ============================================================
-   A · 美术/关卡  关 3：乾清宫 · 承重实验
-   ------------------------------------------------------------
-   左边一排石柱（女像柱），右边一排木柱（故宫）。
-   玩法在 js/mods/qianqing-loadtest.js：选材料 + 选连接方式 → 加载。
-   柱子只是"看得见的材料特性"，判断全在文案里。
-   ============================================================ */
+/* Compact interaction court; all movement is confined by bounds. */
 G.mod.register({
-  kind: 'map',
-  id: 'qianqing',
-
-  title: '乾清宫',
-  sub: '承重实验',
-
-  size: { w: 640, h: 810 },
-  spawn: { x: 320, y: 770 },
-  camera: { lookAhead: 44 },
-  clock: '10:40',
-  ambient: 'palace',
-  background: '#151210',
-
-  vars: {
-    stoneMethod: '',   /* stone 柱最后用了哪种连接 */
-    woodMethod: '',    /* wood 柱最后用了哪种连接 */
-    tested: 0,         /* 已经成功的材料数 */
-    sag: 0,            /* 0..1 塌陷进度：只作用在 sagSide 那组柱子上 */
-    sagSide: '',       /* 'stone' | 'wood' —— 这次塌的是哪一边 */
-    crack: 0,          /* 1 = 柱身上留着裂纹（塌过就留，不清零） */
-    dust: 0,           /* 1 = 正在起土 */
+  "kind": "map",
+  "id": "qianqing",
+  "title": "乾清宫",
+  "sub": "承重实验",
+  "size": {
+    "w": 640,
+    "h": 650
   },
-
-  ground: [
-    { painter: 'hall.court', x: 0, y: 380, w: 640, h: 430, opt: {} },
-  ],
-
-  solids: [
-    { x: 12, y: 250, w: 616, h: 116 },
-  ],
-
-  props: [
-    { painter: 'hall.palace', x: 320, baseY: 336, opt: { w: 470, wallH: 32, roofH: 30, nameKey: 'nodes.qianqing.name' } },
-    { painter: 'hall.columns', x: 196, baseY: 620, opt: { style: 'stone', n: 3, gap: 46, h: 132 } },
-    { painter: 'hall.columns', x: 444, baseY: 620, opt: { style: 'wood', n: 3, gap: 46, h: 132 } },
-    { painter: 'hall.rock', x: 88, baseY: 760, opt: { s: 20 } },
-    { painter: 'hall.rock', x: 552, baseY: 760, opt: { s: 20 } },
-  ],
-
-  lights: [
-    { x: 320, y: 470, r: 120, color: '#ffcf86', a: 0.14 },
-  ],
-
-  npcs: [],
-
-  spots: [
+  "spawn": {
+    "x": 320,
+    "y": 610
+  },
+  "camera": {
+    "lookAhead": 44
+  },
+  "clock": "10:40",
+  "ambient": "palace",
+  "background": "#151210",
+  "vars": {
+    "stoneMethod": "",
+    "woodMethod": "",
+    "tested": 0,
+    "sag": 0,
+    "sagSide": "",
+    "crack": 0,
+    "dust": 0
+  },
+  "ground": [
     {
-      id: 'qianqing.loadtest',
-      x: 320, y: 700, r: 78,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'qianqing.loadtest',
-      when: { notDone: ['qianqing.loadtest'] },
+      "painter": "hall.court",
+      "x": 0,
+      "y": 380,
+      "w": 640,
+      "h": 270,
+      "opt": {}
+    }
+  ],
+  "solids": [
+    {
+      "x": 12,
+      "y": 250,
+      "w": 616,
+      "h": 116
     },
     {
-      id: 'qianqing.look_stone',
-      x: 196, y: 640, r: 48,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_qianqing_caryatid',
+      "x": 140,
+      "y": 488,
+      "w": 160,
+      "h": 14
     },
     {
-      id: 'qianqing.look_wood',
-      x: 444, y: 640, r: 48,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_qianqing_woodcol',
-    },
+      "x": 444,
+      "y": 488,
+      "w": 20,
+      "h": 14
+    }
   ],
-
-  marker: { x: 320, y: 700, when: { notDone: ['qianqing.loadtest'] } },
-
-  next: 'repair_bench',
+  "props": [
+    {
+      "painter": "hall.palace",
+      "x": 320,
+      "baseY": 336,
+      "opt": {
+        "w": 470,
+        "wallH": 32,
+        "roofH": 30,
+        "nameKey": "nodes.qianqing.name"
+      }
+    },
+    {
+      "painter": "hall.columns",
+      "x": 220,
+      "baseY": 500,
+      "opt": {
+        "style": "stone",
+        "n": 6,
+        "gap": 28,
+        "h": 90
+      }
+    },
+    {
+      "painter": "hall.columns",
+      "x": 454,
+      "baseY": 500,
+      "opt": {
+        "style": "wood",
+        "n": 1,
+        "gap": 28,
+        "h": 90
+      }
+    },
+    {
+      "painter": "hall.loadbeam",
+      "x": 320,
+      "baseY": 500,
+      "opt": {}
+    }
+  ],
+  "lights": [
+    {
+      "x": 320,
+      "y": 470,
+      "r": 120,
+      "color": "#ffcf86",
+      "a": 0.14
+    }
+  ],
+  "npcs": [
+    {
+      "id": "diotima",
+      "painter": "mentor.diotima",
+      "x": 402,
+      "y": 600,
+      "r": 22,
+      "dialogKey": "nodes.qianqing.enter"
+    }
+  ],
+  "spots": [
+    {
+      "id": "qianqing.loadtest",
+      "x": 320,
+      "y": 560,
+      "r": 34,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "qianqing.loadtest",
+      "when": {
+        "notDone": [
+          "qianqing.loadtest"
+        ]
+      }
+    },
+    {
+      "id": "qianqing.look_stone",
+      "x": 194,
+      "y": 526,
+      "r": 30,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_qianqing_caryatid"
+    },
+    {
+      "id": "qianqing.look_wood",
+      "x": 446,
+      "y": 526,
+      "r": 30,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_qianqing_woodcol"
+    }
+  ],
+  "marker": {
+    "x": 320,
+    "y": 560,
+    "when": {
+      "notDone": [
+        "qianqing.loadtest"
+      ]
+    }
+  },
+  "next": "repair_bench",
+  "bounds": {
+    "x": 100,
+    "y": 380,
+    "w": 440,
+    "h": 250
+  }
 });
 
 </script>
 <script data-src="data/maps/repair_bench.js">
-/* ============================================================
-   A · 美术/关卡  关 4：修复台（来源判断 → 结尾反转）
-   ------------------------------------------------------------
-   这一关有两个玩法：
-     repair_bench.evidence  三条线索各接一张来源卡（有一条要留白）
-     repair_bench.relic     R-07 待处置：系统判它是"错误混入"（反转）
-
-   第二个交互点在 evidence 做完之后才出现（when.done），
-   因为反转要建立在"你会看来源了"之后 —— 顺序就是意义。
-   ============================================================ */
+/* Compact interaction court; all movement is confined by bounds. */
 G.mod.register({
-  kind: 'map',
-  id: 'repair_bench',
-
-  title: '修复台',
-  sub: '来源判断',
-
-  size: { w: 640, h: 890 },
-  spawn: { x: 320, y: 848 },
-  camera: { lookAhead: 42 },
-  clock: '11:50',
-  ambient: 'palace',
-  background: '#120f0d',
-
-  vars: {
-    evidenceDone: 0,     /* 三条线索接完 = 1 */
-    verdictR07: '',      /* 空 = 未判 · fusion = 改判历史融合 · stripped/erased = 错判 */
-    crackCount: 0,       /* 层面说错一次 = 桌上多一道折痕（0..4） */
-    stampUnfounded: 0,   /* 1 = 盖过「未成立」—— 诱饵留白留对了 */
+  "kind": "map",
+  "id": "repair_bench",
+  "title": "修复台",
+  "sub": "来源判断",
+  "size": {
+    "w": 640,
+    "h": 650
   },
-
-  ground: [
-    { painter: 'hall.court', x: 0, y: 380, w: 640, h: 510, opt: {} },
-  ],
-
-  solids: [
-    { x: 12, y: 300, w: 616, h: 96 },
-  ],
-
-  props: [
-    { painter: 'hall.palace', x: 320, baseY: 392, opt: { w: 380, wallH: 26, roofH: 24, nameKey: 'nodes.repair_bench.name' } },
-    { painter: 'hall.bench', x: 320, baseY: 800, opt: { w: 300 } },
-    { painter: 'wumen.lantern', x: 86, baseY: 660, opt: {} },
-    { painter: 'hall.relic', x: 566, baseY: 830, opt: { s: 18 } },
-  ],
-
-  lights: [
-    { x: 320, y: 740, r: 130, color: '#ffcf86', a: 0.20 },
-    { x: 86, y: 640, r: 60, color: '#ffcf86', a: 0.16 },
-  ],
-
-  npcs: [],
-
-  spots: [
+  "spawn": {
+    "x": 320,
+    "y": 610
+  },
+  "camera": {
+    "lookAhead": 42
+  },
+  "clock": "11:50",
+  "ambient": "palace",
+  "background": "#120f0d",
+  "vars": {
+    "evidenceDone": 0,
+    "verdictR07": "",
+    "crackCount": 0,
+    "stampUnfounded": 0
+  },
+  "ground": [
     {
-      id: 'repair_bench.evidence',
-      x: 320, y: 800, r: 86,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'repair_bench.evidence',
-      when: { notDone: ['repair_bench.evidence'] },
+      "painter": "hall.court",
+      "x": 0,
+      "y": 380,
+      "w": 640,
+      "h": 270,
+      "opt": {}
+    }
+  ],
+  "solids": [
+    {
+      "x": 12,
+      "y": 300,
+      "w": 616,
+      "h": 96
     },
     {
-      /* 反转：R-07 那件带外来构件的钟。要先会看来源，才轮到它。 */
-      id: 'repair_bench.relic',
-      x: 468, y: 838, r: 62,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'repair_bench.relic',
-      when: { done: ['repair_bench.evidence'] },
-    },
-    {
-      id: 'bench.look_cards',
-      x: 190, y: 762, r: 44,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_bench_cards',
-    },
-    {
-      id: 'bench.look_stamp',
-      x: 248, y: 786, r: 40,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_bench_stamp',
-    },
-    {
-      id: 'bench.look_clock',
-      x: 566, y: 780, r: 46,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_bench_clock',
-    },
+      "x": 180,
+      "y": 476,
+      "w": 240,
+      "h": 44
+    }
   ],
-
-  marker: { x: 320, y: 800, when: { notDone: ['repair_bench.evidence'] } },
-
-  next: 'creator',
+  "props": [
+    {
+      "painter": "hall.palace",
+      "x": 320,
+      "baseY": 392,
+      "opt": {
+        "w": 380,
+        "wallH": 26,
+        "roofH": 24,
+        "nameKey": "nodes.repair_bench.name"
+      }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 320,
+      "baseY": 520,
+      "opt": {
+        "w": 300
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 86,
+      "baseY": 490,
+      "opt": {}
+    },
+    {
+      "painter": "hall.relic",
+      "x": 472,
+      "baseY": 530,
+      "opt": {
+        "s": 18
+      }
+    }
+  ],
+  "lights": [
+    {
+      "x": 320,
+      "y": 474,
+      "r": 130,
+      "color": "#ffcf86",
+      "a": 0.2
+    }
+  ],
+  "npcs": [
+    {
+      "id": "diotima",
+      "painter": "mentor.diotima",
+      "x": 390,
+      "y": 604,
+      "r": 22,
+      "dialogKey": "nodes.repair_bench.enter"
+    }
+  ],
+  "spots": [
+    {
+      "id": "repair_bench.evidence",
+      "x": 320,
+      "y": 552,
+      "r": 32,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "repair_bench.evidence",
+      "when": {
+        "notDone": [
+          "repair_bench.evidence"
+        ]
+      }
+    },
+    {
+      "id": "repair_bench.relic",
+      "x": 460,
+      "y": 560,
+      "r": 30,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "repair_bench.relic",
+      "when": {
+        "done": [
+          "repair_bench.evidence"
+        ]
+      }
+    },
+    {
+      "id": "bench.look_cards",
+      "x": 150,
+      "y": 486,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_bench_cards"
+    },
+    {
+      "id": "bench.look_stamp",
+      "x": 222,
+      "y": 566,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_bench_stamp"
+    },
+    {
+      "id": "bench.look_clock",
+      "x": 476,
+      "y": 474,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_bench_clock"
+    }
+  ],
+  "marker": {
+    "x": 320,
+    "y": 552,
+    "when": {
+      "notDone": [
+        "repair_bench.evidence"
+      ]
+    }
+  },
+  "next": "creator",
+  "bounds": {
+    "x": 100,
+    "y": 410,
+    "w": 440,
+    "h": 220
+  }
 });
 
 </script>
 <script data-src="data/maps/creator.js">
-/* ============================================================
-   A · 美术/关卡  关 5：御花园 · 创作终端（共同造境）
-   ------------------------------------------------------------
-   玩法 creator.review 审的是"AI 给的方案里，哪一件的来源写错了"。
-   注意它不打分：三项选择（保留 / 记下 / 放弃）都算通过，
-   这里只负责把终端摆出来，让玩家有地方动手。
-   ============================================================ */
+/* Compact interaction court; all movement is confined by bounds. */
 G.mod.register({
-  kind: 'map',
-  id: 'creator',
-
-  title: '御花园',
-  sub: '共同造境',
-
-  size: { w: 640, h: 930 },
-  spawn: { x: 320, y: 890 },
-  camera: { lookAhead: 42 },
-  clock: '13:20',
-  ambient: 'palace',
-  background: '#141110',
-
-  vars: {
-    planSigned: 0,      /* 方案签过字 = 1 */
-    keepWhat: '',       /* 玩家说"我要留住的那一条" */
+  "kind": "map",
+  "id": "creator",
+  "title": "御花园",
+  "sub": "共同造境",
+  "size": {
+    "w": 640,
+    "h": 620
   },
-
-  ground: [
-    { painter: 'hall.court', x: 0, y: 380, w: 640, h: 550, opt: {} },
-  ],
-
-  solids: [
-    { x: 12, y: 250, w: 616, h: 90 },
-  ],
-
-  props: [
-    { painter: 'hall.palace', x: 320, baseY: 336, opt: { w: 330, wallH: 22, roofH: 20, nameKey: 'nodes.creator.pavilion' } },
-    { painter: 'hall.trees', x: 140, baseY: 640, opt: { n: 2, size: 56 } },
-    { painter: 'hall.trees', x: 516, baseY: 668, opt: { n: 2, size: 52 } },
-    { painter: 'hall.terminal', x: 320, baseY: 700, opt: {} },
-    { painter: 'hall.rock', x: 470, baseY: 860, opt: { s: 24 } },
-    { painter: 'hall.rock', x: 168, baseY: 880, opt: { s: 18 } },
-  ],
-
-  lights: [
-    { x: 320, y: 640, r: 120, color: '#9fd6e0', a: 0.16 },
-  ],
-
-  npcs: [],
-
-  spots: [
+  "spawn": {
+    "x": 320,
+    "y": 576
+  },
+  "camera": {
+    "lookAhead": 42
+  },
+  "clock": "13:20",
+  "ambient": "palace",
+  "background": "#141110",
+  "vars": {
+    "planSigned": 0,
+    "keepWhat": ""
+  },
+  "ground": [
     {
-      /* 没签字就一直开着：没签的方案，神武门不认，得回来重签 */
-      id: 'creator.review',
-      x: 320, y: 700, r: 90,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'creator.review',
-      when: { flag: { 'creator.signed': false } },
+      "painter": "hall.court",
+      "x": 0,
+      "y": 380,
+      "w": 640,
+      "h": 240,
+      "opt": {}
+    }
+  ],
+  "solids": [
+    {
+      "x": 12,
+      "y": 250,
+      "w": 616,
+      "h": 90
     },
     {
-      id: 'creator.look_terminal',
-      x: 196, y: 720, r: 46,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_creator_terminal',
+      "x": 250,
+      "y": 426,
+      "w": 140,
+      "h": 50
+    }
+  ],
+  "props": [
+    {
+      "painter": "hall.palace",
+      "x": 320,
+      "baseY": 336,
+      "opt": {
+        "w": 330,
+        "wallH": 22,
+        "roofH": 20,
+        "nameKey": "nodes.creator.pavilion"
+      }
     },
     {
-      id: 'creator.look_guide',
-      x: 452, y: 744, r: 46,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_creator_guide',
+      "painter": "hall.trees",
+      "x": 90,
+      "baseY": 464,
+      "opt": {
+        "n": 1,
+        "size": 56
+      }
     },
+    {
+      "painter": "hall.trees",
+      "x": 550,
+      "baseY": 464,
+      "opt": {
+        "n": 1,
+        "size": 52
+      }
+    },
+    {
+      "painter": "hall.terminal",
+      "x": 320,
+      "baseY": 476,
+      "opt": {}
+    }
   ],
-
-  marker: { x: 320, y: 700, when: { notDone: ['creator.review'] } },
-
-  next: 'shenwumen',
+  "lights": [
+    {
+      "x": 320,
+      "y": 414,
+      "r": 120,
+      "color": "#9fd6e0",
+      "a": 0.16
+    }
+  ],
+  "npcs": [
+    {
+      "id": "diotima",
+      "painter": "mentor.diotima",
+      "x": 430,
+      "y": 454,
+      "r": 22,
+      "dialogKey": "nodes.creator.enter"
+    }
+  ],
+  "spots": [
+    {
+      "id": "creator.review",
+      "x": 320,
+      "y": 514,
+      "r": 32,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "creator.review",
+      "when": {
+        "flag": {
+          "creator.signed": false
+        }
+      }
+    },
+    {
+      "id": "creator.look_terminal",
+      "x": 190,
+      "y": 504,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_creator_terminal"
+    },
+    {
+      "id": "creator.look_guide",
+      "x": 450,
+      "y": 536,
+      "r": 28,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_creator_guide"
+    }
+  ],
+  "marker": {
+    "x": 320,
+    "y": 514,
+    "when": {
+      "notDone": [
+        "creator.review"
+      ]
+    }
+  },
+  "next": "shenwumen",
+  "bounds": {
+    "x": 100,
+    "y": 370,
+    "w": 440,
+    "h": 230
+  }
 });
 
 </script>
 <script data-src="data/maps/shenwumen.js">
-/* ============================================================
-   A · 美术/关卡  关 6：神武门 · 规则化失败（出口只认你写的规则）
-   ------------------------------------------------------------
-   玩法 shenwumen.verify：
-     配对两条线索 → 门亮 → 出门之前说清三件事（借鉴 / 保留 / 新造）
-   通关后播 exitCut 'ending'，然后停在这里（next: null）。
-   ============================================================ */
+/* Compact interaction court; all movement is confined by bounds. */
 G.mod.register({
-  kind: 'map',
-  id: 'shenwumen',
-
-  title: '神武门',
-  sub: '出口',
-
-  size: { w: 640, h: 690 },
-  spawn: { x: 320, y: 650 },
-  camera: { lookAhead: 46 },
-  clock: '16:40',
-  ambient: 'palace',
-  background: '#171310',
-
-  vars: {
-    doorLit: 0,          /* 门亮了没有 */
-    clueARead: 0,        /* 檐下那组斗拱看过了 */
-    clueBRead: 0,        /* 柱廊第六位少女看过了 */
-    saidBorrow: '',      /* 我借鉴了什么 */
-    saidKeep: '',        /* 我保留了什么 */
-    saidNew: '',         /* 我新造了什么 */
+  "kind": "map",
+  "id": "shenwumen",
+  "title": "神武门",
+  "sub": "出口",
+  "size": {
+    "w": 640,
+    "h": 620
   },
-
-  ground: [
-    { painter: 'hall.marble', x: 0, y: 380, w: 640, h: 310, opt: {} },
-  ],
-
-  solids: [
-    { x: 12, y: 260, w: 616, h: 130 },
-  ],
-
-  props: [
-    { painter: 'hall.door', x: 320, baseY: 420, opt: { w: 620, wallH: 74, roofH: 40, arches: 3, nameKey: 'nodes.shenwumen.name' } },
-    { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { textKey: 'nodes.shenwumen.plaque' } },
-    { painter: 'wumen.lantern', x: 96, baseY: 520, opt: {} },
-    { painter: 'wumen.lantern', x: 544, baseY: 520, opt: {} },
-    /* 两处线索：看过之后自己会亮，没看过是暗的 */
-    { painter: 'hall.clue', x: 176, baseY: 534, opt: { read: 'a' } },
-    { painter: 'hall.clue', x: 464, baseY: 534, opt: { read: 'b' } },
-  ],
-
-  lights: [
-    { x: 96, y: 500, r: 68, color: '#ffcf86', a: 0.20 },
-    { x: 544, y: 500, r: 68, color: '#ffcf86', a: 0.20 },
-  ],
-
-  npcs: [],
-
-  spots: [
+  "spawn": {
+    "x": 320,
+    "y": 574
+  },
+  "camera": {
+    "lookAhead": 46
+  },
+  "clock": "16:40",
+  "ambient": "palace",
+  "background": "#171310",
+  "vars": {
+    "doorLit": 0,
+    "clueARead": 0,
+    "clueBRead": 0,
+    "saidBorrow": "",
+    "saidKeep": "",
+    "saidNew": ""
+  },
+  "ground": [
     {
-      id: 'shenwumen.verify',
-      x: 320, y: 500, r: 78,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'shenwumen.verify',
-      when: { notDone: ['shenwumen.verify'] },
+      "painter": "hall.marble",
+      "x": 0,
+      "y": 380,
+      "w": 640,
+      "h": 240,
+      "opt": {}
+    }
+  ],
+  "solids": [
+    {
+      "x": 12,
+      "y": 260,
+      "w": 616,
+      "h": 130
+    }
+  ],
+  "props": [
+    {
+      "painter": "hall.door",
+      "x": 320,
+      "baseY": 420,
+      "opt": {
+        "w": 620,
+        "wallH": 74,
+        "roofH": 40,
+        "arches": 3,
+        "nameKey": "nodes.shenwumen.name"
+      }
     },
     {
-      /* 门不亮就回头：这个点只在「方案没签」时出现 */
-      id: 'shenwumen.back',
-      x: 320, y: 640, r: 40,
-      labelKey: 'ui.hud.interact',
-      puzzle: 'shenwumen.back',
-      optional: true,
-      when: { flag: { 'creator.signed': false } },
+      "painter": "wumen.plaque",
+      "x": 320,
+      "baseY": 268,
+      "opt": {
+        "textKey": "nodes.shenwumen.plaque"
+      }
     },
     {
-      id: 'shenwumen.clue_a',
-      x: 176, y: 520, r: 40,
-      labelKey: 'ui.hud.clue',
-      labelObj: 'obj_shenwumen_clue_a',
-      puzzle: 'shenwumen.clue_a',
-      when: { notDone: ['shenwumen.clue_a'] },
+      "painter": "wumen.lantern",
+      "x": 96,
+      "baseY": 520,
+      "opt": {}
     },
     {
-      id: 'shenwumen.clue_b',
-      x: 464, y: 520, r: 40,
-      labelKey: 'ui.hud.clue',
-      labelObj: 'obj_shenwumen_clue_b',
-      puzzle: 'shenwumen.clue_b',
-      when: { notDone: ['shenwumen.clue_b'] },
+      "painter": "wumen.lantern",
+      "x": 544,
+      "baseY": 520,
+      "opt": {}
     },
     {
-      id: 'shenwumen.look_door',
-      x: 512, y: 470, r: 44,
-      labelKey: 'ui.hud.look',
-      inspect: 'obj_shenwumen_door',
+      "painter": "hall.clue",
+      "x": 174,
+      "baseY": 482,
+      "opt": {
+        "read": "a"
+      }
     },
+    {
+      "painter": "hall.clue",
+      "x": 464,
+      "baseY": 516,
+      "opt": {
+        "read": "b"
+      }
+    }
   ],
-
-  marker: { x: 320, y: 500, when: { notDone: ['shenwumen.verify'] } },
-
-  exitCut: 'ending',
-  next: null,
+  "lights": [
+    {
+      "x": 96,
+      "y": 500,
+      "r": 68,
+      "color": "#ffcf86",
+      "a": 0.2
+    },
+    {
+      "x": 544,
+      "y": 500,
+      "r": 68,
+      "color": "#ffcf86",
+      "a": 0.2
+    }
+  ],
+  "npcs": [
+    {
+      "id": "diotima",
+      "painter": "mentor.diotima",
+      "x": 396,
+      "y": 574,
+      "r": 22,
+      "dialogKey": "nodes.shenwumen.enter"
+    }
+  ],
+  "spots": [
+    {
+      "id": "shenwumen.verify",
+      "x": 320,
+      "y": 460,
+      "r": 32,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "shenwumen.verify",
+      "when": {
+        "notDone": [
+          "shenwumen.verify"
+        ]
+      }
+    },
+    {
+      "id": "shenwumen.back",
+      "x": 320,
+      "y": 564,
+      "r": 28,
+      "labelKey": "ui.hud.interact",
+      "puzzle": "shenwumen.back",
+      "optional": true,
+      "when": {
+        "flag": {
+          "creator.signed": false
+        }
+      }
+    },
+    {
+      "id": "shenwumen.clue_a",
+      "x": 174,
+      "y": 494,
+      "r": 28,
+      "labelKey": "ui.hud.clue",
+      "labelObj": "obj_shenwumen_clue_a",
+      "puzzle": "shenwumen.clue_a",
+      "when": {
+        "notDone": [
+          "shenwumen.clue_a"
+        ]
+      }
+    },
+    {
+      "id": "shenwumen.clue_b",
+      "x": 464,
+      "y": 528,
+      "r": 28,
+      "labelKey": "ui.hud.clue",
+      "labelObj": "obj_shenwumen_clue_b",
+      "puzzle": "shenwumen.clue_b",
+      "when": {
+        "notDone": [
+          "shenwumen.clue_b"
+        ]
+      }
+    },
+    {
+      "id": "shenwumen.look_door",
+      "x": 492,
+      "y": 440,
+      "r": 26,
+      "labelKey": "ui.hud.look",
+      "inspect": "obj_shenwumen_door"
+    }
+  ],
+  "marker": {
+    "x": 320,
+    "y": 460,
+    "when": {
+      "notDone": [
+        "shenwumen.verify"
+      ]
+    }
+  },
+  "exitCut": "ending",
+  "next": null,
+  "bounds": {
+    "x": 100,
+    "y": 410,
+    "w": 440,
+    "h": 190
+  }
 });
 
 </script>
@@ -22997,9 +23613,12 @@ G.mod.register({
 
       api.dialog('puzzles.' + KEY + '.body', function () {
         api.ask(KEY, function (choice) {
+          api.setVar('keepSteps', choice);
+          repaint();
           api.dialog('puzzles.' + KEY + '.outcome.' + choice, function () {
-            api.setVar('keepSteps', choice);
-            G.save.flag('keep.steps', choice);
+            G.save.flag('keep.steps', choice === 'keep');
+            G.save.flag('keep.steps.note', choice === 'note');
+            G.save.flag('keep.steps.drop', choice === 'drop');
             G.save.persist();
             repaint();
             if (choice === 'keep') api.toast(G.str.get('ui.toast.kept'), 'ok');
@@ -23203,17 +23822,24 @@ G.mod.register({
       const mets = pz.methods || [];
       let i = 0;
       let told = false;
+      let sagRun = 0;
+      function stopSag() { sagRun += 1; api.setVar('sag', 0); api.setVar('dust', 0); }
 
       /* 塌陷：四档下沉 + 起土，1.8 秒后复位，裂纹留在柱身上 */
       function sag(material) {
+        stopSag();
+        const run = sagRun;
         api.setVar('sagSide', material);
+        api.setVar(material === 'wood' ? 'crackWood' : 'crackStone', 1);
         [0.25, 0.5, 0.75, 1].forEach(function (v, k) {
           setTimeout(function () {
+            if (run !== sagRun) return;
             api.setVar('sag', v);
             api.setVar('dust', 1);
           }, k * 150);
         });
         setTimeout(function () {
+          if (run !== sagRun) return;
           api.setVar('sag', 0);
           api.setVar('dust', 0);
           api.setVar('crack', 1);
@@ -23249,10 +23875,12 @@ G.mod.register({
           const oc = ((pz.outcome || {})[m.id] || {})[v];
           if (!oc) { round(); return; }
 
+          stopSag();
           api.setVar('sagSide', '');
+          if (!oc.ok) sag(m.id);
+          else api.setVar(m.id === 'wood' ? 'woodMethod' : 'stoneMethod', v);
           G.dialog.show(toLines(oc.lines), function () {
             if (!oc.ok) {
-              sag(m.id);
               api.toast(G.str.get(seg('hint')), 'warn');
               round();                       /* 塌了再来，不 pass */
               return;

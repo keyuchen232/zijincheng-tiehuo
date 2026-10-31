@@ -212,10 +212,10 @@ const PROBE = `(async function () {
     if (window.__ONCE !== mid) { window.__ONCE = mid; trace(mid + ' 待做玩法点 ' + spots.map(function (s) { return s.id; }).join(',')); }
 
     if (!spots.length) {
-      /* 这关的玩法点都过了，等它自动进下一关 */
-      trace(mid + ' 无待做点 → 等下一关');
-      if (mi === MAPS.length - 1) break;
-      mi++;
+      /* 玩家看过结果后主动继续；此测试直接调用同一方法，真实 E 另有交互回归。 */
+      if (sc._continue && !sc._continuing) sc.continueStage();
+      await tick(null);
+      if (mi === MAPS.length - 1 && G.cut && G.cut.seen('ending')) break;
       await sleep(150);
       continue;
     }

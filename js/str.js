@@ -86,7 +86,7 @@
     return seg(key).map(function (row) {
       const who = row.who || 'narrator';
       const ch = (data && data.characters && data.characters[who]) || {};
-      const out = { text: row.text || '' };
+      const out = { who: who, text: row.text || '' };
       if (who === 'narrator') out.narrator = true;
       else out.name = ch.name || who;
       if (row.speed) out.speed = row.speed;
