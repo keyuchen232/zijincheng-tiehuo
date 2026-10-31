@@ -4877,4 +4877,16 @@ Remove all labels and game UI. No text, border, watermark, pixel art, nearest-ne
 <script>
 window.WanxiangDistribution=document.documentElement.outerHTML;
 </script>
+<script>
+/* 宿主对接：把「作品完成」同时广播到 localStorage 与 opener，主页即使拿不到窗口引用也能收到 */
+(function(){
+  function send(detail){
+    var d = detail || {};
+    var rec = { worldId: String(d.worldId||''), independent: d.independent===true, at: Date.now() };
+    try { localStorage.setItem('wxl.creation.done', JSON.stringify(rec)); } catch(e){}
+    try { if (window.opener && !window.opener.closed) window.opener.postMessage({ type:'wanxiang:creation-completed', detail: rec }, '*'); } catch(e){}
+  }
+  window.addEventListener('wanxiang:creation-completed', function(e){ send(e && e.detail); });
+})();
+</script>
 </body></html>

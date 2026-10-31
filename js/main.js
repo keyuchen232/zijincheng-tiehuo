@@ -625,7 +625,72 @@
     if (st) st.textContent = last ? ('已成画 · ' + last.worldId) : '尚未成画';
     if (ex) ex.disabled = !last;
   };
+  G.creationWindow = null;
+  /* 作品完成后的落盘：窗口事件 / postMessage / localStorage 三条路都汇到这里 */
+  G.creationHandleDone = function (d, w) {
+    d = d || {};
+    if (typeof d.worldId !== 'string' || d.independent !== true) return;
+    const list = G.creationCreations();
+    if (list.some(function (c) { return c.worldId === d.worldId; })) return;
+    let artifact = null;
+    try {
+      const api = (w || G.creationWindow || {});
+      if (api.FusionExplore && typeof api.FusionExplore.artifact === 'function') artifact = api.FusionExplore.artifact();
+    } catch (e) { /* 拿不到就只存 worldId */ }
+    list.push({ worldId: d.worldId, at: Date.now(), artifact: artifact });
+    while (list.length > 3) list.shift();
+    G.save.persist();
+    G.ui.toast('创造模式 · 作品已定格：' + d.worldId + '（可导出）', 'good', 3000);
+  };
+  G.bindCreationWindow = function (w) {
+    if (!w) return;
+    G.creationWindow = w;
+    const onDone = function (ev) { G.creationHandleDone((ev && ev.detail) || {}, w); };
+    try { w.addEventListener('wanxiang:creation-completed', onDone); } catch (e) { /* 跨域就只剩独立页面 */ }
+  };
+  /* 新标签页没给出窗口引用时，靠 postMessage（带 opener 时）和 storage 事件兜底 */
+  if (typeof window !== 'undefined' && !G._creationBridgeBound) {
+    G._creationBridgeBound = true;
+    window.addEventListener('message', function (ev) {
+      if (ev.origin !== location.origin) return;
+      const m = ev.data || {};
+      if (m.type === 'wanxiang:creation-completed') G.creationHandleDone(m.detail, null);
+    });
+    window.addEventListener('storage', function (ev) {
+      if (ev.key !== 'wxl.creation.done' || !ev.newValue) return;
+      let rec = null;
+      try { rec = JSON.parse(ev.newValue); } catch (e) { return; }
+      G.creationHandleDone(rec, null);
+    });
+  }
+
+  /* 创造模式：默认新开一个整窗页面；被浏览器拦截时回退到 iframe 层 */
   G.openCreation = function () {
+    let w = null;
+    /* _blank 才会开成“标签页”；带窗口名会被浏览器当成弹窗新窗口 */
+    try { w = window.open('creation/index.html', '_blank'); } catch (e) { w = null; }
+    if (w) {
+      try { w.focus(); } catch (e) { /* ignore */ }
+      G.bindCreationWindow(w);
+      G.ui.toast('创造模式已在新标签页打开', 'good', 2200);
+      return;
+    }
+    /* 回退 1：用 <a target=_blank> 再试一次整窗（通常不会被拦） */
+    try {
+      const a = document.createElement('a');
+      a.href = 'creation/index.html';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      G.ui.toast('创造模式已在新标签打开', 'good', 2200);
+      return;
+    } catch (e) { /* ignore */ }
+    /* 回退 2：内嵌 iframe */
+    G.openCreationInline();
+  };
+  G.openCreationInline = function () {
     if (G.creationOpen) return;
     G.creationOpen = true;
     const frame = $('#creation-frame');
@@ -637,21 +702,8 @@
         if (loading) loading.classList.add('hidden');
         try {
           // 同源 iframe：完成事件只在子窗口触发，必须监听 contentWindow
-          frame.contentWindow.addEventListener('wanxiang:creation-completed', function (ev) {
-            const d = (ev && ev.detail) || {};
-            if (typeof d.worldId !== 'string' || d.independent !== true) return;
-            let artifact = null;
-            try {
-              const api = frame.contentWindow.FusionExplore;
-              if (api && typeof api.artifact === 'function') artifact = api.artifact();
-            } catch (e) { /* 抓不到就只存 worldId */ }
-            const list = G.creationCreations();
-            list.push({ worldId: d.worldId, at: Date.now(), artifact: artifact });
-            while (list.length > 3) list.shift();   // 只留最近三件，避免存档过大
-            G.save.persist();
-            G.creationSyncStatus();
-            G.ui.toast('创造模式 · 作品已定格：' + d.worldId + '（可导出）', 'good', 3000);
-          });
+          G.bindCreationWindow(frame.contentWindow);
+          frame.contentWindow.addEventListener('wanxiang:creation-completed', function () { G.creationSyncStatus(); });
           // AI 服务状态（同源 /api/status，未启动时走本地生成）
           fetch('/api/status', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s2) {
             const ai = $('#creation-ai');
