@@ -564,4 +564,6 @@ input,select{font:inherit}
 #artdemo .artdemo-close{padding:.35em 1em;border:1px solid #6b5434;background:rgba(42,32,24,.92);color:#e9d9bc;font-size:.92em;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
 #artdemo .artdemo-close:hover{border-color:var(--gold);color:#fff0d2}
 #artdemo iframe{flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;display:block;background:#05080f}
+#artdemo .artdemo-loading{position:absolute;inset:42px 0 0 0;display:grid;place-items:center;background:#05080f;color:#8fa8a2;font-size:14px;letter-spacing:.14em;pointer-events:none}
+#artdemo .artdemo-loading.hidden{display:none}
 @media(max-width:640px){#artdemo .artdemo-bar{height:36px;padding:0 .6em}#artdemo .artdemo-title{font-size:11px}#artdemo .artdemo-actions a{display:none}}

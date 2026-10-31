@@ -425,9 +425,14 @@
     if (G.artDemoOpen) return;
     G.artDemoOpen = true;
     const frame = $('#artdemo-frame');
+    const loading = $('#artdemo-loading');
+    if (loading) loading.classList.remove('hidden');
     if (frame && frame.dataset.loaded !== '1') {
-      frame.src = G.ART_DEMO_SRC;
+      frame.onload = function () { if (loading) loading.classList.add('hidden'); };
       frame.dataset.loaded = '1';
+      frame.src = G.ART_DEMO_SRC;
+    } else if (loading) {
+      loading.classList.add('hidden');
     }
     G.show($('#artdemo'));
     G.input.clearPressed();
