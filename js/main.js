@@ -417,6 +417,31 @@
   };
 
   /* ============================================================
+     plugin: 同境异笔（独立页面 · iframe 隔离 · 不进主线）
+     ============================================================ */
+  G.artDemoOpen = false;
+  G.ART_DEMO_SRC = 'art-demo/index.html';
+  G.openArtDemo = function () {
+    if (G.artDemoOpen) return;
+    G.artDemoOpen = true;
+    const frame = $('#artdemo-frame');
+    if (frame && frame.dataset.loaded !== '1') {
+      frame.src = G.ART_DEMO_SRC;
+      frame.dataset.loaded = '1';
+    }
+    G.show($('#artdemo'));
+    G.input.clearPressed();
+    try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
+  };
+  G.closeArtDemo = function () {
+    if (!G.artDemoOpen) return;
+    G.artDemoOpen = false;
+    G.hide($('#artdemo'));
+    G.input.clearPressed();
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+
+  /* ============================================================
      home hall
      ============================================================ */
   G.homeReturn = null;
@@ -523,6 +548,10 @@
       else if (code === 'Enter') G.closeConfirm(true);
       return;
     }
+    if (G.artDemoOpen) {
+      if (code === 'Escape') G.closeArtDemo();
+      return;
+    }
     // title
     if (G.titleActive) {
       if (code === 'Enter' || code === 'Space') {
@@ -626,6 +655,10 @@
     $('#btn-home').addEventListener('click', () => G.toggleHome());
     $('#btn-fusion').addEventListener('click', () => G.enterFusion());
     $('#btn-athens').addEventListener('click', () => G.enterAthens());
+    $('#btn-artdemo').addEventListener('click', () => G.openArtDemo());
+    const menuArt = $('#menu-artdemo');
+    if (menuArt) menuArt.addEventListener('click', () => { menu.close(); G.openArtDemo(); });
+    $('#artdemo-close').addEventListener('click', () => G.closeArtDemo());
     // tapping / clicking the map canvas closes the map (touch-friendly)
     $('#game').addEventListener('pointerdown', () => {
       if (G.scene && G.scene.mapOpen) {

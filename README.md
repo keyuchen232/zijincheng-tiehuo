@@ -114,6 +114,25 @@ node tools/build-web.mjs
 
 ---
 
+## 插件 · 同境异笔（非主线）
+
+标题页与暂停菜单里的 **「同境异笔 / PLUGIN」** 入口，会把一个**独立的小 Demo** 以 iframe 的形式开在游戏之上：
+
+- 它有自己的引擎、地图和存档键（`wanxiang.fusion.explore.*`），**不读也不写**主线的存档，关掉就回到原来的位置。
+- 玩法：写一句话 → 生成一座像素之境 → 探索 → 查看三种非像素转绘（青绿绢绘 / 水墨留白 / 纸雕光境）→ 输出收藏展签。
+- 离线即可运行：三张 AI 转绘样例已内嵌在 `art-demo/index.html`（约 8 MB 单文件）。**页面内为新场景实时转绘**需要在本机额外启动 Python 图像服务（见 `art-demo/Image接入-队友先读.md`）；未启动时显示“未连接”属于正常状态，不影响探索与样例查看。
+- 关闭：点顶部「返回游戏」；或焦点在游戏层时按 Esc。
+
+源码在 `art-demo/`，可重新构建与自检：
+
+```bash
+cd art-demo
+node build.js     # 由 src/ + assets/ + vendor/ 重新生成 index.html
+node verify.cjs   # 玩法与导出契约自检
+```
+
+---
+
 ## 特色
 
 - **北京中轴线大地图**：正阳门、天安门、午门、故宫、景山、钟鼓楼、北海白塔、天坛、鸟巢、国贸、胡同、王府井等像素地标。
@@ -162,6 +181,11 @@ forbidden-city/
     gugong.js         故宫内部、任务、昼夜
     home.js           家 · 大厅、合成台与修复台
     fusion.js         万象灵境 · 雅典—故宫（投影错位地图）
+    art-greek.js      雅典美术（G.artGreek，与主美术并行）
+    athens.js         雅典城地图
+    acropolis.js      卫城地图
+    puzzle.js         日晷校日谜题 + 拍立得相机
+    minigame-greek.js 圣火小游戏（G.minigameGreek，与打铁花并存）
     archive-game.js   榫卯合拢 / 回纹凿刻两个非遗档案小游戏
     difficulty.js     小游戏难度选择（简易 / 困难 / 地狱）
     source-quiz.js    三条来源卡判断
@@ -170,6 +194,7 @@ forbidden-city/
     main.js           标题、启动、图鉴、菜单、调试
   tools/              无头浏览器截图与端到端测试脚本
   shots/              截图
+  art-demo/           插件：同境异笔（独立单文件 Demo，iframe 接入，不进主线）
 ```
 
 ---
