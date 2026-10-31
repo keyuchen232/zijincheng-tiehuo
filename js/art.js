@@ -557,6 +557,40 @@
       const doorH = Math.round(wallH * (central ? 0.62 : 0.5));
       // window lattice：门洞先落影，再画门板与格心，门楣有受光棱
       const wx = mid - doorW / 2, wy = top + 5;
+      if (opts && opts.openDoor && central) {
+        // 敞开的殿门：门里一进到底的暗，两扇门板向外斜开
+        r(c, wx, wy, doorW, doorH, '#1a100a');
+        c.save();
+        const og = c.createLinearGradient(0, wy, 0, wy + doorH);
+        og.addColorStop(0, 'rgba(52,34,20,.55)');
+        og.addColorStop(1, 'rgba(10,6,4,1)');
+        c.fillStyle = og;
+        c.fillRect(wx + 1, wy + 1, doorW - 2, doorH - 2);
+        c.restore();
+        const leaf = Math.max(3, Math.round(doorW * 0.22));
+        for (const side of [-1, 1]) {
+          const ox = mid + side * (leaf - 1);
+          const px = mid + side * (leaf + 5);
+          c.fillStyle = '#5d3a22';
+          c.beginPath();
+          c.moveTo(ox, wy + 1);
+          c.lineTo(px, wy + 3);
+          c.lineTo(px, wy + doorH - 3);
+          c.lineTo(ox, wy + doorH - 1);
+          c.closePath();
+          c.fill();
+          c.fillStyle = A.pal.gold;
+          c.fillRect(px - 1, wy + 4, 1, 2);
+          c.fillRect(px - 1, wy + doorH - 6, 1, 2);
+        }
+        // 门槛与门内的一线亮
+        r(c, wx, wy + doorH - 1, doorW, 1, '#6b4a2a');
+        c.save();
+        c.globalAlpha = 0.4;
+        c.fillStyle = '#c9a566';
+        c.fillRect(wx + 2, wy + 1, doorW - 4, 1);
+        c.restore();
+      } else {
       r(c, wx, wy, doorW, doorH, '#3d1610');
       r(c, wx + 1, wy + 1, doorW - 2, doorH - 2, '#5c2419');
       r(c, wx + 1, wy + 1, doorW - 2, 1, '#8a3a29');
@@ -573,6 +607,7 @@
       c.fillStyle = '#1a0c07';
       c.fillRect(wx, wy + doorH - 1, doorW, 1);
       c.restore();
+      }
       // gold studs
       if (central && doorW > 14) {
         c.fillStyle = A.pal.gold;
@@ -1240,7 +1275,8 @@
     const rw = w + 8, rh = 8;
     for (let i = 0; i < rh; i++) {
       const t = i / (rh - 1);
-      const hw = Math.round(rw / 2 * (1 - 0.45 * t));
+      // 屋脊在最上最窄，檐口在最下最宽
+      const hw = Math.round(rw / 2 * (0.55 + 0.45 * t));
       r(ctx, x - hw, baseY - h - rh + i, hw * 2, 1, i % 3 === 0 ? '#5b5a55' : '#6e6d67');
     }
     r(ctx, x - rw / 2, baseY - h - 2, rw, 1, '#4a4945');

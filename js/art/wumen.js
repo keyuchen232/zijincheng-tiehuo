@@ -126,6 +126,53 @@
     });
   });
 
+
+  /* 石狮 / 华表 / 树 / 台阶 / 人群 / 告示牌：填满广场，靠近城门两侧 */
+  G.mod.painter('wumen.lion', function (ctx, prop) {
+    G.art.lion(ctx, prop.x, prop.baseY, !!(prop.opt && prop.opt.flip));
+  });
+
+  G.mod.painter('wumen.huabiao', function (ctx, prop) {
+    const x = prop.x, b = prop.baseY;
+    ctx.save();
+    ctx.fillStyle = 'rgba(20,14,10,.25)';
+    ctx.beginPath(); ctx.ellipse(x, b, 16, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    G.art.r(ctx, x - 3, b - 78, 6, 78, '#d9cfb4');
+    G.art.r(ctx, x - 3, b - 78, 2, 78, '#efe7d2');
+    G.art.r(ctx, x - 9, b - 84, 18, 7, '#cfc3a6');
+    G.art.r(ctx, x - 6, b - 90, 12, 6, '#e4dbc4');
+    G.art.r(ctx, x - 12, b - 56, 24, 3, '#efe7d2');
+    G.art.r(ctx, x - 9, b - 52, 18, 2, '#cfc3a6');
+  });
+
+  G.mod.painter('wumen.tree', function (ctx, prop) {
+    const kind = (prop.opt && prop.opt.kind) || 'pine';
+    if (kind === 'pine') G.art.pine(ctx, prop.x, prop.baseY, (prop.opt && prop.opt.s) || 0.9);
+    else G.art.tree(ctx, prop.x, prop.baseY, (prop.opt && prop.opt.s) || 0.95, { autumn: !!(prop.opt && prop.opt.autumn) });
+  });
+
+  G.mod.painter('wumen.steps', function (ctx, prop) {
+    const w = (prop.opt && prop.opt.w) || 180;
+    for (let i = 0; i < 5; i++) {
+      G.art.r(ctx, prop.x - w / 2 + i * 4, prop.baseY + i * 3, w - i * 8, 3, i % 2 ? '#cfc4a9' : '#b8ac90');
+    }
+  });
+
+  G.mod.painter('wumen.crowd', function (ctx, prop, scene) {
+    const n = (prop.opt && prop.opt.n) || 6;
+    const t = (scene && scene.time) || 0;
+    G.art.crowd(ctx, prop.x, prop.baseY, n, t, (prop.opt && prop.opt.seed) || 3);
+  });
+
+  G.mod.painter('wumen.sign', function (ctx, prop) {
+    G.art.sign(ctx, prop.x, prop.baseY, (prop.opt && prop.opt.text) || '午门广场', { w: (prop.opt && prop.opt.w) || 54 });
+  });
+
+  G.mod.painter('wumen.vat', function (ctx, prop) {
+    G.art.vat(ctx, prop.x, prop.baseY, { water: true });
+  });
+
   /* 廊灯 */
   G.mod.painter('wumen.lantern', function (ctx, prop) {
     G.art.lantern(ctx, prop.x, prop.baseY, {});

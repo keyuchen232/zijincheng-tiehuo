@@ -53,8 +53,32 @@ G.mod.register({
   props: [
     { painter: 'wumen.gate', x: 320, baseY: 420, opt: { w: 660 } },
     { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { text: '午門' } },
+    /* 门前：台阶 + 石狮 + 华表 + 铜缸，把广场压满 */
+    { painter: 'wumen.steps', x: 320, baseY: 428, opt: { w: 190 } },
+    { painter: 'wumen.lion', x: 150, baseY: 470, opt: { flip: false } },
+    { painter: 'wumen.lion', x: 490, baseY: 470, opt: { flip: true } },
+    { painter: 'wumen.huabiao', x: 112, baseY: 476, opt: {} },
+    { painter: 'wumen.huabiao', x: 528, baseY: 476, opt: {} },
+    { painter: 'wumen.vat', x: 210, baseY: 512, opt: {} },
+    { painter: 'wumen.vat', x: 430, baseY: 512, opt: {} },
+    /* 两侧松树与廊灯 */
+    { painter: 'wumen.tree', x: 74, baseY: 640, opt: { kind: 'pine', s: 0.8 } },
+    { painter: 'wumen.tree', x: 566, baseY: 640, opt: { kind: 'pine', s: 0.8 } },
+    { painter: 'wumen.tree', x: 74, baseY: 830, opt: { kind: 'tree', s: 0.85 } },
+    { painter: 'wumen.tree', x: 566, baseY: 830, opt: { kind: 'tree', s: 0.85 } },
+    { painter: 'wumen.tree', x: 74, baseY: 1020, opt: { kind: 'pine', s: 0.9 } },
+    { painter: 'wumen.tree', x: 566, baseY: 1020, opt: { kind: 'pine', s: 0.9 } },
     { painter: 'wumen.lantern', x: 96, baseY: 520, opt: {} },
     { painter: 'wumen.lantern', x: 544, baseY: 520, opt: {} },
+    { painter: 'wumen.lantern', x: 96, baseY: 760, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 760, opt: {} },
+    { painter: 'wumen.lantern', x: 96, baseY: 940, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 940, opt: {} },
+    /* 告示牌与人群 */
+    { painter: 'wumen.sign', x: 190, baseY: 566, opt: { text: '午門 · 广场', w: 58 } },
+    { painter: 'wumen.sign', x: 450, baseY: 566, opt: { text: '入園請出示證件', w: 72 } },
+    { painter: 'wumen.crowd', x: 320, baseY: 610, opt: { n: 7, seed: 3 } },
+    { painter: 'wumen.crowd', x: 236, baseY: 900, opt: { n: 5, seed: 7 } },
   ],
 
   lights: [

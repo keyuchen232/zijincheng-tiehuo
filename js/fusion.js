@@ -284,8 +284,18 @@
         this.addEntity({ x: tx, y: ty, baseY: ty, draw: (c) => A.tree(c, tx, ty, size) });
       }
 
+      // 两翼的松树与长椅，把花坛与广场的空隙填上
+      for (const [tx2, ty2, sz2] of [[300, 680, .8], [950, 680, .8], [300, 1040, .85], [950, 1040, .85], [430, 1240, .8], [1010, 1240, .8]]) {
+        this.addEntity({ x: tx2, y: ty2, baseY: ty2, draw: (c) => A.pine(c, tx2, ty2, sz2) });
+      }
+      for (const [bxp2, byp2] of [[520, 1120], [920, 1120]]) {
+        this.addEntity({ x: bxp2, y: byp2, baseY: byp2, draw: (c) => A.bench(c, bxp2, byp2) });
+      }
+      for (const [vx2, vy2] of [[560, 1240], [880, 1240], [560, 640], [880, 640]]) {
+        this.addEntity({ x: vx2, y: vy2, baseY: vy2, draw: (c) => A.vat(c, vx2, vy2, { water: true }) });
+      }
       // Victorian lamps
-      for (const [lx, ly] of [[606, 1160], [834, 1160], [606, 720], [834, 720], [460, 300], [980, 300]]) {
+      for (const [lx, ly] of [[606, 1160], [834, 1160], [606, 720], [834, 720], [460, 300], [980, 300], [480, 980], [960, 980], [500, 450], [940, 450]]) {
         this.addEntity({ x: lx, y: ly, baseY: ly, draw: (c) => this.drawLamp(c, lx, ly) });
       }
 
@@ -347,23 +357,12 @@
 
       // 中轴御道：一条干净的浅色石带
       A.paving(c, 646, 300, 148, 1260, '#ddd3bb', '#c7bca2', 9, 12);
-      // 一条很淡的红毯中线，收住视线
-      c.save();
-      c.globalAlpha = 0.14;
-      c.fillStyle = '#8d3a2b';
-      c.fillRect(712, 300, 16, 1260);
-      c.restore();
 
       // 宫前横道
       A.paving(c, 300, 1070, 840, 90, '#d8ceb6', '#c3b79b', 13, 12);
 
-      // 宫前广场：只留一条迎驾的淡红条带
+      // 宫前广场
       A.paving(c, 416, 950, 608, 120, '#d4c9af', '#beb397', 31, 12);
-      c.save();
-      c.globalAlpha = 0.1;
-      c.fillStyle = '#8d3a2b';
-      c.fillRect(646, 950, 148, 120);
-      c.restore();
 
       // 终端圆台：一圈石沿，别的不画
       c.save();

@@ -2348,6 +2348,40 @@ body.title-mode #stage{visibility:hidden}
       const doorH = Math.round(wallH * (central ? 0.62 : 0.5));
       // window lattice：门洞先落影，再画门板与格心，门楣有受光棱
       const wx = mid - doorW / 2, wy = top + 5;
+      if (opts && opts.openDoor && central) {
+        // 敞开的殿门：门里一进到底的暗，两扇门板向外斜开
+        r(c, wx, wy, doorW, doorH, '#1a100a');
+        c.save();
+        const og = c.createLinearGradient(0, wy, 0, wy + doorH);
+        og.addColorStop(0, 'rgba(52,34,20,.55)');
+        og.addColorStop(1, 'rgba(10,6,4,1)');
+        c.fillStyle = og;
+        c.fillRect(wx + 1, wy + 1, doorW - 2, doorH - 2);
+        c.restore();
+        const leaf = Math.max(3, Math.round(doorW * 0.22));
+        for (const side of [-1, 1]) {
+          const ox = mid + side * (leaf - 1);
+          const px = mid + side * (leaf + 5);
+          c.fillStyle = '#5d3a22';
+          c.beginPath();
+          c.moveTo(ox, wy + 1);
+          c.lineTo(px, wy + 3);
+          c.lineTo(px, wy + doorH - 3);
+          c.lineTo(ox, wy + doorH - 1);
+          c.closePath();
+          c.fill();
+          c.fillStyle = A.pal.gold;
+          c.fillRect(px - 1, wy + 4, 1, 2);
+          c.fillRect(px - 1, wy + doorH - 6, 1, 2);
+        }
+        // 门槛与门内的一线亮
+        r(c, wx, wy + doorH - 1, doorW, 1, '#6b4a2a');
+        c.save();
+        c.globalAlpha = 0.4;
+        c.fillStyle = '#c9a566';
+        c.fillRect(wx + 2, wy + 1, doorW - 4, 1);
+        c.restore();
+      } else {
       r(c, wx, wy, doorW, doorH, '#3d1610');
       r(c, wx + 1, wy + 1, doorW - 2, doorH - 2, '#5c2419');
       r(c, wx + 1, wy + 1, doorW - 2, 1, '#8a3a29');
@@ -2364,6 +2398,7 @@ body.title-mode #stage{visibility:hidden}
       c.fillStyle = '#1a0c07';
       c.fillRect(wx, wy + doorH - 1, doorW, 1);
       c.restore();
+      }
       // gold studs
       if (central && doorW > 14) {
         c.fillStyle = A.pal.gold;
@@ -3031,7 +3066,8 @@ body.title-mode #stage{visibility:hidden}
     const rw = w + 8, rh = 8;
     for (let i = 0; i < rh; i++) {
       const t = i / (rh - 1);
-      const hw = Math.round(rw / 2 * (1 - 0.45 * t));
+      // 屋脊在最上最窄，檐口在最下最宽
+      const hw = Math.round(rw / 2 * (0.55 + 0.45 * t));
       r(ctx, x - hw, baseY - h - rh + i, hw * 2, 1, i % 3 === 0 ? '#5b5a55' : '#6e6d67');
     }
     r(ctx, x - rw / 2, baseY - h - 2, rw, 1, '#4a4945');
@@ -5381,6 +5417,18 @@ body.title-mode #stage{visibility:hidden}
         });
       }
 
+      // 中轴大街的路灯、长椅与鸽子，让大街不空
+      for (const [lx, ly] of [[822, 1120], [1178, 1120], [822, 1240], [1178, 1240], [960, 1310], [1178, 1330]]) {
+        this.addEntity({ x: lx, y: ly, baseY: ly, draw: (c) => A.streetlamp(c, lx, ly, this.night) });
+      }
+      for (const [bxp, byp] of [[882, 1056], [1138, 1056]]) {
+        this.addEntity({ x: bxp, y: byp, baseY: byp, draw: (c) => A.bench(c, bxp, byp) });
+      }
+      for (const [px2, py2, sd] of [[1046, 1180, 4], [1150, 1202, 5], [1092, 1232, 6], [1198, 1252, 7]]) {
+        this.addEntity({ x: px2, y: py2, baseY: py2, draw: (c) => A.pigeon(c, px2, py2, this.time, sd) });
+      }
+      this.addEntity({ x: 1042, y: 1084, baseY: 1084, draw: (c) => A.foodCart(c, 1042, 1084) });
+
       /* -------- 王府井 -------- */
       const wf = [
         { x: 1410, y: 1070, name: '百货大楼', color: '#6a3d2c' },
@@ -6430,7 +6478,8 @@ body.title-mode #stage{visibility:hidden}
           A.wallH(c, 930, 1320, 1512, 30);
         },
       });
-      this.solid(590, 1490, 320, 24);
+      this.solid(590, 1490, 120, 24);
+      this.solid(790, 1490, 120, 24);
       this.solid(180, 1490, 410, 24);
       this.solid(910, 1490, 410, 24);
       this.addInteract({
@@ -6488,9 +6537,11 @@ body.title-mode #stage{visibility:hidden}
       this.addBuilding(750, 1040, (c) => {
         A.drawHall(c, 750, 1040, 300, {
           wallH: 40, roofH: 34, double: true, name: '太和殿', bays: 7, platformPad: 56, stairW: 52,
+          openDoor: true,
         });
       });
-      this.solid(570, 995, 360, 45);
+      this.solid(570, 995, 144, 45);
+      this.solid(786, 995, 144, 45);
       this.addInteract({
         x: 940, y: 1090, r: 40, label: '太和殿 · 金銮殿',
         action: () => {
@@ -6627,9 +6678,11 @@ body.title-mode #stage{visibility:hidden}
       this.addBuilding(750, 772, (c) => {
         A.drawHall(c, 750, 772, 196, {
           wallH: 32, roofH: 28, double: true, name: '保和殿', platformPad: 38,
+          openDoor: true,
         });
       });
-      this.solid(640, 744, 220, 30);
+      this.solid(640, 744, 74, 30);
+      this.solid(786, 744, 74, 30);
       this.addInteract({
         x: 900, y: 790, r: 34, label: '保和殿',
         action: () => {
@@ -6653,9 +6706,11 @@ body.title-mode #stage{visibility:hidden}
       this.addBuilding(750, 574, (c) => {
         A.drawHall(c, 750, 574, 236, {
           wallH: 34, roofH: 28, double: true, name: '乾清宫', platformPad: 40,
+          openDoor: true,
         });
       });
-      this.solid(610, 544, 280, 32);
+      this.solid(610, 544, 104, 32);
+      this.solid(786, 544, 104, 32);
       this.addInteract({
         x: 940, y: 600, r: 40, label: '乾清宫',
         action: () => {
@@ -6673,9 +6728,11 @@ body.title-mode #stage{visibility:hidden}
       this.addBuilding(750, 406, (c) => {
         A.drawHall(c, 750, 406, 190, {
           wallH: 30, roofH: 26, double: true, name: '坤宁宫', platformPad: 34,
+          openDoor: true,
         });
       });
-      this.solid(644, 380, 212, 28);
+      this.solid(644, 380, 70, 28);
+      this.solid(786, 380, 70, 28);
       this.addInteract({
         x: 910, y: 420, r: 34, label: '坤宁宫',
         action: () => G.dialog.show([
@@ -7187,6 +7244,26 @@ body.title-mode #stage{visibility:hidden}
         for (const e of this.entities) if (e.lantern) e.night = false;
         return;
       }
+      // 广场两侧的松树与陈设，把中轴两边的空地填住
+      for (const [tx, ty, sz] of [[300, 1240, .95], [1200, 1240, .95], [300, 1000, .9], [1200, 1000, .9], [300, 820, .9], [1200, 820, .9], [300, 640, .9], [1200, 640, .9], [300, 460, .85], [1200, 460, .85]]) {
+        this.addEntity({ x: tx, y: ty, baseY: ty, draw: (c) => A.pine(c, tx, ty, sz) });
+      }
+      for (const [vx, vy] of [[560, 1300], [940, 1300], [560, 900], [940, 900], [560, 480], [940, 480]]) {
+        this.addEntity({ x: vx, y: vy, baseY: vy, draw: (c) => A.vat(c, vx, vy, { water: true }) });
+      }
+      for (const [sx2, sy2, txt] of [[430, 1318, '太和门广场'], [1070, 1318, '太和殿广场']]) {
+        this.addEntity({ x: sx2, y: sy2, baseY: sy2, draw: (c) => A.sign(c, sx2, sy2, txt, { w: 60 }) });
+      }
+      // 广场上的鸽子与一位看殿的游客
+      for (const [px, py, seed] of [[700, 1146, 1], [800, 1162, 2], [764, 1186, 3]]) {
+        this.addEntity({ x: px, y: py, baseY: py, draw: (c) => A.pigeon(c, px, py, this.time, seed) });
+      }
+      this.addNPC({
+        x: 620, y: 1160, name: '游客', wander: 0,
+        palette: { robe: '#4f7f9f', robeDark: '#345c76', robeLight: '#6fa3c4', trim: '#f0d083', hatType: 'cap', hat: '#e1b34d', bag: '#7a5131' },
+        lines: [{ name: '游客', text: '太和殿前这块广场，比照片里大得多。' }],
+      });
+
       const lampSpots = [
         [690, 1180], [810, 1180], [690, 1060], [810, 1060], [690, 940], [810, 940],
         [690, 820], [810, 820], [690, 700], [810, 700], [690, 580], [810, 580],
@@ -8709,8 +8786,18 @@ body.title-mode #stage{visibility:hidden}
         this.addEntity({ x: tx, y: ty, baseY: ty, draw: (c) => A.tree(c, tx, ty, size) });
       }
 
+      // 两翼的松树与长椅，把花坛与广场的空隙填上
+      for (const [tx2, ty2, sz2] of [[300, 680, .8], [950, 680, .8], [300, 1040, .85], [950, 1040, .85], [430, 1240, .8], [1010, 1240, .8]]) {
+        this.addEntity({ x: tx2, y: ty2, baseY: ty2, draw: (c) => A.pine(c, tx2, ty2, sz2) });
+      }
+      for (const [bxp2, byp2] of [[520, 1120], [920, 1120]]) {
+        this.addEntity({ x: bxp2, y: byp2, baseY: byp2, draw: (c) => A.bench(c, bxp2, byp2) });
+      }
+      for (const [vx2, vy2] of [[560, 1240], [880, 1240], [560, 640], [880, 640]]) {
+        this.addEntity({ x: vx2, y: vy2, baseY: vy2, draw: (c) => A.vat(c, vx2, vy2, { water: true }) });
+      }
       // Victorian lamps
-      for (const [lx, ly] of [[606, 1160], [834, 1160], [606, 720], [834, 720], [460, 300], [980, 300]]) {
+      for (const [lx, ly] of [[606, 1160], [834, 1160], [606, 720], [834, 720], [460, 300], [980, 300], [480, 980], [960, 980], [500, 450], [940, 450]]) {
         this.addEntity({ x: lx, y: ly, baseY: ly, draw: (c) => this.drawLamp(c, lx, ly) });
       }
 
@@ -8772,23 +8859,12 @@ body.title-mode #stage{visibility:hidden}
 
       // 中轴御道：一条干净的浅色石带
       A.paving(c, 646, 300, 148, 1260, '#ddd3bb', '#c7bca2', 9, 12);
-      // 一条很淡的红毯中线，收住视线
-      c.save();
-      c.globalAlpha = 0.14;
-      c.fillStyle = '#8d3a2b';
-      c.fillRect(712, 300, 16, 1260);
-      c.restore();
 
       // 宫前横道
       A.paving(c, 300, 1070, 840, 90, '#d8ceb6', '#c3b79b', 13, 12);
 
-      // 宫前广场：只留一条迎驾的淡红条带
+      // 宫前广场
       A.paving(c, 416, 950, 608, 120, '#d4c9af', '#beb397', 31, 12);
-      c.save();
-      c.globalAlpha = 0.1;
-      c.fillStyle = '#8d3a2b';
-      c.fillRect(646, 950, 148, 120);
-      c.restore();
 
       // 终端圆台：一圈石沿，别的不画
       c.save();
@@ -18774,6 +18850,53 @@ canvas.cut-shake {
     });
   });
 
+
+  /* 石狮 / 华表 / 树 / 台阶 / 人群 / 告示牌：填满广场，靠近城门两侧 */
+  G.mod.painter('wumen.lion', function (ctx, prop) {
+    G.art.lion(ctx, prop.x, prop.baseY, !!(prop.opt && prop.opt.flip));
+  });
+
+  G.mod.painter('wumen.huabiao', function (ctx, prop) {
+    const x = prop.x, b = prop.baseY;
+    ctx.save();
+    ctx.fillStyle = 'rgba(20,14,10,.25)';
+    ctx.beginPath(); ctx.ellipse(x, b, 16, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    G.art.r(ctx, x - 3, b - 78, 6, 78, '#d9cfb4');
+    G.art.r(ctx, x - 3, b - 78, 2, 78, '#efe7d2');
+    G.art.r(ctx, x - 9, b - 84, 18, 7, '#cfc3a6');
+    G.art.r(ctx, x - 6, b - 90, 12, 6, '#e4dbc4');
+    G.art.r(ctx, x - 12, b - 56, 24, 3, '#efe7d2');
+    G.art.r(ctx, x - 9, b - 52, 18, 2, '#cfc3a6');
+  });
+
+  G.mod.painter('wumen.tree', function (ctx, prop) {
+    const kind = (prop.opt && prop.opt.kind) || 'pine';
+    if (kind === 'pine') G.art.pine(ctx, prop.x, prop.baseY, (prop.opt && prop.opt.s) || 0.9);
+    else G.art.tree(ctx, prop.x, prop.baseY, (prop.opt && prop.opt.s) || 0.95, { autumn: !!(prop.opt && prop.opt.autumn) });
+  });
+
+  G.mod.painter('wumen.steps', function (ctx, prop) {
+    const w = (prop.opt && prop.opt.w) || 180;
+    for (let i = 0; i < 5; i++) {
+      G.art.r(ctx, prop.x - w / 2 + i * 4, prop.baseY + i * 3, w - i * 8, 3, i % 2 ? '#cfc4a9' : '#b8ac90');
+    }
+  });
+
+  G.mod.painter('wumen.crowd', function (ctx, prop, scene) {
+    const n = (prop.opt && prop.opt.n) || 6;
+    const t = (scene && scene.time) || 0;
+    G.art.crowd(ctx, prop.x, prop.baseY, n, t, (prop.opt && prop.opt.seed) || 3);
+  });
+
+  G.mod.painter('wumen.sign', function (ctx, prop) {
+    G.art.sign(ctx, prop.x, prop.baseY, (prop.opt && prop.opt.text) || '午门广场', { w: (prop.opt && prop.opt.w) || 54 });
+  });
+
+  G.mod.painter('wumen.vat', function (ctx, prop) {
+    G.art.vat(ctx, prop.x, prop.baseY, { water: true });
+  });
+
   /* 廊灯 */
   G.mod.painter('wumen.lantern', function (ctx, prop) {
     G.art.lantern(ctx, prop.x, prop.baseY, {});
@@ -18837,8 +18960,32 @@ G.mod.register({
   props: [
     { painter: 'wumen.gate', x: 320, baseY: 420, opt: { w: 660 } },
     { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { text: '午門' } },
+    /* 门前：台阶 + 石狮 + 华表 + 铜缸，把广场压满 */
+    { painter: 'wumen.steps', x: 320, baseY: 428, opt: { w: 190 } },
+    { painter: 'wumen.lion', x: 150, baseY: 470, opt: { flip: false } },
+    { painter: 'wumen.lion', x: 490, baseY: 470, opt: { flip: true } },
+    { painter: 'wumen.huabiao', x: 112, baseY: 476, opt: {} },
+    { painter: 'wumen.huabiao', x: 528, baseY: 476, opt: {} },
+    { painter: 'wumen.vat', x: 210, baseY: 512, opt: {} },
+    { painter: 'wumen.vat', x: 430, baseY: 512, opt: {} },
+    /* 两侧松树与廊灯 */
+    { painter: 'wumen.tree', x: 74, baseY: 640, opt: { kind: 'pine', s: 0.8 } },
+    { painter: 'wumen.tree', x: 566, baseY: 640, opt: { kind: 'pine', s: 0.8 } },
+    { painter: 'wumen.tree', x: 74, baseY: 830, opt: { kind: 'tree', s: 0.85 } },
+    { painter: 'wumen.tree', x: 566, baseY: 830, opt: { kind: 'tree', s: 0.85 } },
+    { painter: 'wumen.tree', x: 74, baseY: 1020, opt: { kind: 'pine', s: 0.9 } },
+    { painter: 'wumen.tree', x: 566, baseY: 1020, opt: { kind: 'pine', s: 0.9 } },
     { painter: 'wumen.lantern', x: 96, baseY: 520, opt: {} },
     { painter: 'wumen.lantern', x: 544, baseY: 520, opt: {} },
+    { painter: 'wumen.lantern', x: 96, baseY: 760, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 760, opt: {} },
+    { painter: 'wumen.lantern', x: 96, baseY: 940, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 940, opt: {} },
+    /* 告示牌与人群 */
+    { painter: 'wumen.sign', x: 190, baseY: 566, opt: { text: '午門 · 广场', w: 58 } },
+    { painter: 'wumen.sign', x: 450, baseY: 566, opt: { text: '入園請出示證件', w: 72 } },
+    { painter: 'wumen.crowd', x: 320, baseY: 610, opt: { n: 7, seed: 3 } },
+    { painter: 'wumen.crowd', x: 236, baseY: 900, opt: { n: 5, seed: 7 } },
   ],
 
   lights: [

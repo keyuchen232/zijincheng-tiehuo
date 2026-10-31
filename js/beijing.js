@@ -291,6 +291,18 @@
         });
       }
 
+      // 中轴大街的路灯、长椅与鸽子，让大街不空
+      for (const [lx, ly] of [[822, 1120], [1178, 1120], [822, 1240], [1178, 1240], [960, 1310], [1178, 1330]]) {
+        this.addEntity({ x: lx, y: ly, baseY: ly, draw: (c) => A.streetlamp(c, lx, ly, this.night) });
+      }
+      for (const [bxp, byp] of [[882, 1056], [1138, 1056]]) {
+        this.addEntity({ x: bxp, y: byp, baseY: byp, draw: (c) => A.bench(c, bxp, byp) });
+      }
+      for (const [px2, py2, sd] of [[1046, 1180, 4], [1150, 1202, 5], [1092, 1232, 6], [1198, 1252, 7]]) {
+        this.addEntity({ x: px2, y: py2, baseY: py2, draw: (c) => A.pigeon(c, px2, py2, this.time, sd) });
+      }
+      this.addEntity({ x: 1042, y: 1084, baseY: 1084, draw: (c) => A.foodCart(c, 1042, 1084) });
+
       /* -------- 王府井 -------- */
       const wf = [
         { x: 1410, y: 1070, name: '百货大楼', color: '#6a3d2c' },
