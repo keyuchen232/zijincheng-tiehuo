@@ -1180,7 +1180,7 @@
       if (G.titleActive) {
         titleT += dt;
         titleArt.t = titleT;
-        if (titleBgCtx) titleArt.draw(titleBgCtx);
+        if (titleBgCtx && !document.querySelector('.title-poster-image')?.naturalWidth) titleArt.draw(titleBgCtx);
       } else if (G.minigameGreek && G.minigameGreek.active) {
         G.minigameGreek.update(dt);
         G.minigameGreek.draw(ctx);

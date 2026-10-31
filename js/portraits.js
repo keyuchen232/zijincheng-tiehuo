@@ -1,6 +1,6 @@
 /* ============================================================
    万象灵境 — character portraits (review build)
-   主角「小砚」与导师「见微」的半身立绘 / 标题页小人，全部程序化像素绘制。
+   主角「小砚」与导师「狄奥提玛」的半身立绘 / 标题页小人，全部程序化像素绘制。
    本文件供审核：先不替换游戏内走动小人。
    ============================================================ */
 (function () {
@@ -270,41 +270,91 @@
   }
 
   /* ============================================================
-     导师 · 见微 — 半身立绘  (160 × 200 virtual grid)
+     导师 · 狄奥提玛 — 半身立绘  (160 × 200 virtual grid)
      ============================================================ */
   function drawMentor(c, t) {
-    function poly(points, color) {
-      c.beginPath(); points.forEach(function(p,i){if(i)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1]);});
-      c.closePath();c.fillStyle=color;c.fill();
+    const s = MENTOR;
+    // Same integer rectangles / scanline ellipses as drawHero.
+    E(c, 80, 62, 32, 43, s.hairDeep);
+    R(c, 48, 58, 14, 51, s.hairDeep);
+    R(c, 98, 58, 14, 51, s.hairDeep);
+    R(c, 51, 69, 6, 36, s.hair);
+    R(c, 104, 66, 5, 39, s.hair);
+    R(c, 72, 94, 16, 23, s.skinShade);
+    R(c, 75, 96, 10, 15, s.skin);
+    E(c, 80, 68, 25, 33, s.skin);
+    E(c, 55, 72, 3, 6, s.skinShade);
+    E(c, 105, 72, 3, 6, s.skinShade);
+    R(c, 58, 62, 3, 17, s.skinShade);
+    R(c, 99, 62, 3, 17, s.skinShade);
+    Ehalf(c, 80, 51, 33, 31, s.hair, 'top');
+    R(c, 49, 43, 9, 19, s.hair);
+    R(c, 55, 39, 17, 12, s.hair);
+    R(c, 67, 35, 14, 10, s.hair);
+    R(c, 81, 36, 13, 9, s.hair);
+    R(c, 93, 42, 10, 12, s.hair);
+    R(c, 102, 49, 9, 18, s.hair);
+    R(c, 57, 32, 13, 3, s.hairHi);
+    R(c, 91, 35, 9, 3, s.hairHi);
+    // Silver at both temples follows a visibly stepped pixel contour.
+    R(c, 58, 39, 2, 10, '#b9b1a8');
+    R(c, 55, 49, 2, 17, '#b9b1a8');
+    R(c, 100, 42, 2, 10, '#b9b1a8');
+    R(c, 104, 52, 2, 19, '#b9b1a8');
+    R(c, 62, 59, 14, 2, s.hairDeep);
+    R(c, 85, 59, 14, 2, s.hairDeep);
+    E(c, 69, 70, 6, 3, s.shirt);
+    E(c, 91, 70, 6, 3, s.shirt);
+    R(c, 68, 68, 3, 4, s.eye);
+    R(c, 90, 68, 3, 4, s.eye);
+    // Frames are four one-pixel bars, never stroked half-pixel edges.
+    for (const gx of [60, 83]) {
+      R(c, gx, 64, 17, 1, s.frame);
+      R(c, gx, 75, 17, 1, s.frame);
+      R(c, gx, 65, 1, 10, s.frame);
+      R(c, gx + 16, 65, 1, 10, s.frame);
     }
-    /* Shoulder-length hair, natural proportions and a calm mature expression. */
-    E(c,80,62,29,42,'#48352f');
-    R(c,51,59,13,50,'#48352f');R(c,96,59,13,50,'#48352f');
-    R(c,72,95,16,22,'#c39b81');
-    E(c,80,67,23,32,'#dbb79b');
-    E(c,57,70,3,6,'#d0a88d');E(c,103,70,3,6,'#d0a88d');
-    poly([[55,54],[57,32],[74,23],[94,28],[105,43],[105,60],[92,43],[75,45]],'#584036');
-    c.strokeStyle='#a99b91';c.lineWidth=1.5;c.beginPath();c.moveTo(62,34);c.lineTo(57,53);c.moveTo(94,32);c.lineTo(101,49);c.stroke();
-    R(c,63,59,12,2,'#594137');R(c,86,59,12,2,'#594137');
-    E(c,69,69,5,2,'#f4ece0');E(c,91,69,5,2,'#f4ece0');
-    R(c,68,67,3,4,'#302723');R(c,90,67,3,4,'#302723');
-    c.strokeStyle='#32343b';c.lineWidth=1.3;c.strokeRect(60,63,17,12);c.strokeRect(83,63,17,12);
-    c.beginPath();c.moveTo(77,68);c.lineTo(83,68);c.moveTo(56,65);c.lineTo(60,66);c.moveTo(100,66);c.lineTo(104,65);c.stroke();
-    c.strokeStyle='#ae846b';c.lineWidth=1;c.beginPath();c.moveTo(80,72);c.lineTo(82,81);c.lineTo(78,82);c.moveTo(70,90);c.quadraticCurveTo(80,94,90,90);c.moveTo(60,79);c.lineTo(65,81);c.moveTo(95,81);c.lineTo(100,79);c.stroke();
-    /* Tailored blazer and an open light blouse. */
-    poly([[65,108],[95,108],[108,200],[52,200]],'#ebe8df');
-    poly([[65,108],[47,111],[29,127],[23,200],[75,200],[73,147]],'#29384d');
-    poly([[95,108],[113,111],[131,127],[137,200],[85,200],[87,147]],'#233046');
-    poly([[64,108],[50,126],[62,137],[55,145],[76,181],[73,143]],'#4c5a6d');
-    poly([[96,108],[110,126],[98,137],[105,145],[84,181],[87,143]],'#435268');
-    poly([[72,107],[80,119],[72,130],[65,113]],'#faf7f0');
-    poly([[88,107],[80,119],[88,130],[95,113]],'#faf7f0');
-    R(c,80,138,2,2,'#a7a6a0');R(c,80,151,2,2,'#a7a6a0');
-    /* Research folder held against the torso. */
-    poly([[51,158],[107,151],[113,199],[56,200]],'#667d80');
-    poly([[55,160],[104,154],[105,160],[56,166]],'#d9ded7');
-    c.strokeStyle='#b4c2bf';c.lineWidth=1.5;c.beginPath();c.moveTo(63,177);c.lineTo(96,173);c.moveTo(64,183);c.lineTo(92,180);c.stroke();
-    E(c,52,181,7,10,'#d7b295');E(c,109,179,7,10,'#d7b295');
+    R(c, 77, 68, 6, 1, s.frame);
+    R(c, 56, 65, 4, 1, s.frame);
+    R(c, 100, 65, 4, 1, s.frame);
+    R(c, 80, 74, 2, 8, s.skinShade);
+    R(c, 78, 81, 5, 2, s.skinShade);
+    R(c, 70, 90, 5, 1, '#a66d5a');
+    R(c, 75, 91, 10, 1, '#a66d5a');
+    R(c, 85, 90, 5, 1, '#a66d5a');
+    R(c, 61, 80, 5, 1, s.skinShade);
+    R(c, 94, 80, 5, 1, s.skinShade);
+    // Stepped shoulders, navy blazer, open light blouse and lapels.
+    E(c, 80, 147, 57, 34, s.coat);
+    R(c, 23, 147, 114, 53, s.coat);
+    R(c, 23, 148, 8, 52, s.coatShade);
+    R(c, 129, 148, 8, 52, s.coatShade);
+    R(c, 66, 109, 28, 91, s.shirtShade);
+    R(c, 73, 114, 14, 86, s.shirt);
+    for (let i = 0; i < 8; i++) {
+      R(c, 54 + i * 2, 114 + i * 6, 9, 6, s.coatHi);
+      R(c, 97 - i * 2, 114 + i * 6, 9, 6, s.coatHi);
+    }
+    R(c, 67, 109, 7, 7, s.shirt);
+    R(c, 71, 116, 6, 6, s.shirt);
+    R(c, 86, 109, 7, 7, s.shirt);
+    R(c, 83, 116, 6, 6, s.shirt);
+    R(c, 80, 136, 2, 2, '#a7a6a0');
+    R(c, 80, 149, 2, 2, '#a7a6a0');
+    R(c, 36, 141, 3, 52, s.coatHi);
+    R(c, 121, 141, 3, 52, s.coatShade);
+    // Research folder, paper edge, label and hands.
+    R(c, 51, 158, 58, 42, '#4b646a');
+    R(c, 55, 155, 50, 7, '#d9ded7');
+    R(c, 54, 163, 52, 37, '#667d80');
+    R(c, 58, 166, 2, 34, '#819595');
+    R(c, 65, 172, 30, 2, '#d9ded7');
+    R(c, 65, 179, 24, 2, '#b4c2bf');
+    R(c, 65, 185, 28, 2, '#b4c2bf');
+    E(c, 51, 181, 7, 10, s.skin);
+    E(c, 109, 181, 7, 10, s.skin);
+    R(c, 46, 187, 10, 2, s.skinShade);
+    R(c, 104, 187, 10, 2, s.skinShade);
     void t;
   }
 
@@ -407,20 +457,21 @@
     c.translate(Math.round(x), Math.round(y));
     c.scale(k, k);
     c.save(); c.globalAlpha = 0.22; R(c, 12, 62, 20, 2, '#2b2418'); c.restore();
-    // legs: skirt + tights
-    R(c, 13, 49, 16, 6, s.coat);
-    R(c, 14, 55, 5, 6, '#2f3540');
-    R(c, 22, 55, 5, 6, '#2f3540');
-    R(c, 13, 59, 7, 3, '#6b4a30');
-    R(c, 21, 59, 7, 3, '#6b4a30');
+    // Separate navy trouser legs and flat shoes.
+    R(c, 14, 48, 5, 12, s.coatShade);
+    R(c, 22, 48, 5, 12, s.coatShade);
+    R(c, 14, 49, 1, 9, s.coatHi);
+    R(c, 22, 49, 1, 9, s.coatHi);
+    R(c, 12, 59, 8, 3, '#171c24');
+    R(c, 21, 59, 8, 3, '#171c24');
     // body
     R(c, 11, 30, 18, 20, s.coat);
     R(c, 12, 31, 2, 18, s.coatHi);
     R(c, 26, 31, 2, 18, s.coatShade);
-    // shirt + tie
+    // Open light blouse.
     R(c, 17, 30, 6, 12, s.shirt);
-    R(c, 19, 31, 2, 10, s.blue);
-    R(c, 18, 30, 4, 3, s.blueDeep);
+    R(c, 19, 30, 2, 3, s.skinShade);
+    R(c, 19, 35, 1, 1, s.shirtShade);
     // lapels
     R(c, 15, 31, 2, 10, s.coatShade);
     R(c, 23, 31, 2, 10, s.coatShade);
@@ -429,31 +480,30 @@
     R(c, 28, 32, 4, 13, s.coat);
     R(c, 8, 43, 4, 6, s.skin);
     R(c, 28, 43, 4, 6, s.skin);
-    // laptop
-    R(c, 12, 39, 16, 9, s.laptopShade);
-    R(c, 13, 40, 14, 7, s.screen);
-    R(c, 15, 43, 10, 1, s.screenHi);
-    R(c, 16, 41, 8, 1, s.screenHi);
-    R(c, 11, 47, 18, 2, s.laptop);
-    R(c, 12, 47, 16, 1, s.laptopShade);
+    // Research folder with a pale paper edge.
+    R(c, 12, 40, 16, 12, '#4b646a');
+    R(c, 13, 39, 14, 2, '#d9ded7');
+    R(c, 14, 42, 12, 9, '#667d80');
+    R(c, 16, 44, 8, 1, '#d9ded7');
+    R(c, 16, 47, 6, 1, '#b4c2bf');
     R(c, 9, 43, 3, 5, s.skin);
     R(c, 28, 43, 3, 5, s.skin);
     // neck + head
     R(c, 18, 27, 4, 3, s.skinShade);
     R(c, 12, 13, 16, 15, s.hairDeep);
     R(c, 13, 14, 14, 13, s.skin);
-    // curly hair
-    R(c, 11, 11, 18, 6, s.hair);
-    E(c, 13, 16, 4, 4, s.hair);
-    E(c, 20, 14, 4, 4, s.hair);
-    E(c, 26, 16, 4, 4, s.hair);
-    E(c, 16, 11, 4, 3, s.hair);
-    E(c, 23, 11, 4, 3, s.hair);
-    R(c, 14, 12, 5, 2, s.hairHi);
-    R(c, 22, 10, 4, 2, s.hairHi);
-    // ponytail
-    E(c, 29, 20, 4, 6, s.hair);
-    R(c, 28, 16, 4, 3, s.blue);
+    // Shoulder-length chestnut hair, stepped fringe and silver temples.
+    R(c, 11, 12, 18, 5, s.hair);
+    R(c, 14, 10, 12, 3, s.hair);
+    R(c, 10, 16, 3, 14, s.hairDeep);
+    R(c, 27, 16, 3, 14, s.hairDeep);
+    R(c, 11, 16, 2, 12, s.hair);
+    R(c, 27, 16, 2, 12, s.hair);
+    R(c, 13, 16, 5, 2, s.hair);
+    R(c, 23, 16, 4, 3, s.hair);
+    R(c, 15, 12, 6, 1, s.hairHi);
+    R(c, 12, 17, 1, 7, '#b9b1a8');
+    R(c, 27, 18, 1, 7, '#b9b1a8');
     // ears
     R(c, 11, 20, 2, 3, s.skin);
     R(c, 27, 20, 2, 3, s.skin);

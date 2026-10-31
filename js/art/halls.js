@@ -192,6 +192,23 @@
     });
   });
 
+  /* 台面先于殿身绘制；前缘和台阶仍由 hall.terrace 在前景绘制。 */
+  G.mod.painter('hall.terrace.deck', function (ctx, prop) {
+    const o = prop.opt || {};
+    const w = o.w || 560;
+    const top = o.topY == null ? prop.baseY : o.topY;
+    const front = o.frontY == null ? top + 121 : o.frontY;
+    ctx.save();
+    ctx.fillStyle = '#a29889';
+    ctx.fillRect(prop.x - w / 2, top, w, front - top);
+    ctx.fillStyle = '#b7ad9c';
+    ctx.fillRect(prop.x - w / 2, top, w, 2);
+    ctx.fillStyle = '#8a8073';
+    for (let y = top + 18; y < front; y += 18) ctx.fillRect(prop.x - w / 2, y, w, 1);
+    for (let x = prop.x - w / 2 + 40; x < prop.x + w / 2; x += 40) ctx.fillRect(x, top + 2, 1, front - top - 2);
+    ctx.restore();
+  });
+
   /* 月台：台基 + 栏杆 + 三段台阶 + 卫城山墙投影轮廓
      layerStones = 1 → 露出底下故宫自己的石雕，投影同时淡到 0.15
      layerImages = 0 → 投影整层不画

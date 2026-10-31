@@ -46,6 +46,16 @@ G.mod.register({
   ],
   "props": [
     {
+      "painter": "hall.terrace.deck",
+      "x": 320,
+      "baseY": 329,
+      "opt": {
+        "w": 560,
+        "topY": 330,
+        "frontY": 454
+      }
+    },
+    {
       "painter": "hall.palace",
       "x": 320,
       "baseY": 330,
