@@ -526,6 +526,40 @@ input,select{font:inherit}
   #rotate-hint{display:flex}
 }
 
+/* ================= 抉择 (choice) ================= */
+.choice-card{
+  width:min(460px,92vw);background:linear-gradient(180deg,#241b13,#140f0b);border:1px solid #7b603b;
+  box-shadow:0 30px 90px #000,inset 0 0 70px rgba(216,178,106,.04);padding:2em 1.8em 1.5em;text-align:center;position:relative;
+}
+.choice-kicker{font-family:var(--mono);font-size:.6em;letter-spacing:.3em;color:var(--teal)}
+.choice-card h2{font-family:var(--kai);font-size:1.65em;letter-spacing:.14em;color:#f2dfb8;margin:.4em 0 1em;line-height:1.5}
+.choice-body{display:flex;flex-direction:column;gap:.55em;text-align:left}
+.choice-opt{
+  display:flex;align-items:flex-start;gap:.7em;padding:.85em .9em;border:1px solid #3c3124;background:rgba(255,255,255,.02);
+  color:#d9c6a4;font-size:.82em;letter-spacing:.04em;line-height:1.6;cursor:pointer;transition:.15s;text-align:left;
+}
+.choice-opt span{flex:0 0 auto;width:.6em;height:.6em;border:1px solid #6b5434;margin-top:.34em;border-radius:0}
+.choice-opt.sel{background:rgba(216,178,106,.1);border-color:var(--gold);color:#ffe9c2}
+.choice-opt.sel span{background:var(--gold);box-shadow:0 0 10px rgba(216,178,106,.6)}
+.choice-opt.hover{transform:translateX(2px)}
+.choice-hint{margin-top:1.1em;font-size:.62em;color:#7e6f5b;letter-spacing:.12em}
+.choice-hint kbd{font-family:var(--mono);border:1px solid var(--gold);padding:.1em .45em;color:var(--gold-hi);background:#2b2016;margin:0 .15em}
+
+/* ================= 卫城日晷校日 (puzzle) ================= */
+#puzzle{background:rgba(7,6,5,.28);backdrop-filter:none;pointer-events:none}
+#puzzle>*{pointer-events:auto}
+.pd-kicker{position:absolute;top:1.4em;left:1.7em;font-family:var(--mono);font-size:.6em;letter-spacing:.3em;color:var(--teal);text-shadow:0 2px 6px #000}
+.pd-ask{position:absolute;top:1.1em;left:50%;transform:translateX(-50%);font-family:var(--kai);font-size:1.7em;letter-spacing:.3em;color:#f6dfb0;text-shadow:0 0 26px rgba(255,150,60,.25),0 3px 8px #000}
+.pd-hint{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);background:rgba(16,12,9,.9);border:1px solid #6b5434;padding:.6em 1.1em;font-size:.86em;letter-spacing:.1em;color:#e9d9bc;text-align:center;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+.pd-hint kbd{font-family:var(--mono);border:1px solid var(--gold);padding:.1em .45em;color:var(--gold-hi);margin:0 .2em;background:#2b2016}
+.pd-msg{position:absolute;left:50%;top:22%;transform:translate(-50%,-50%) scale(.85);font-family:var(--kai);font-size:2em;letter-spacing:.22em;color:#ffe3ad;opacity:0;text-shadow:0 0 20px rgba(255,140,50,.5),0 4px 0 #4b1d0b;transition:.16s;white-space:nowrap}
+.pd-msg.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.pd-score{position:absolute;top:1.4em;right:1.7em;text-align:right;background:rgba(16,12,9,.78);border:1px solid rgba(216,178,106,.5);padding:.4em .8em}
+.pd-score span{display:block;font-size:.6em;letter-spacing:.2em;color:#a99473}
+.pd-score b{font-family:var(--mono);font-size:1.4em;color:#ffe2a8}
+.pd-enter{position:absolute;left:50%;bottom:2.6%;transform:translateX(-50%);padding:.7em 1.6em;border:1px solid #6b5434;background:rgba(42,32,24,.9);color:#7f6e57;letter-spacing:.2em;font-size:.78em;cursor:pointer;pointer-events:auto}
+.pd-enter:not([disabled]){background:linear-gradient(180deg,#a9442f,#7c291c);border-color:#d8a25e;color:#fff0d2;box-shadow:0 3px 0 #3c100a}
+.pd-enter:hover{background:linear-gradient(180deg,#bf5138,#8d3021)}
 </style>
 </head>
 <body>
@@ -583,7 +617,43 @@ input,select{font:inherit}
     </div>
 
     <!-- ============ 过场字卡 ============ -->
-    <div id="cinema" class="hidden">
+      <div id="choice" class="screen overlay hidden" role="dialog" aria-modal="true">
+    <div class="choice-card">
+      <div class="choice-kicker">抉择</div>
+      <h2 id="choice-ask">你要怎么做？</h2>
+      <div class="choice-body" id="choice-body"></div>
+      <div class="choice-hint"><kbd>↑</kbd><kbd>↓</kbd> 选择 &nbsp;·&nbsp; <kbd>E</kbd> / <kbd>空格</kbd> 确定</div>
+    </div>
+  </div>
+  <div id="puzzle" class="screen overlay hidden">
+    <div class="pd-kicker">校 日 · 引 雷</div>
+    <h2 class="pd-ask" id="pd-ask">校日 · 卫城</h2>
+    <div class="pd-hint" id="pd-hint">左 / 右 转表针 · 空格 锁定</div>
+    <div class="pd-msg" id="pd-msg"></div>
+    <div class="pd-score"><span>得分</span><b id="pd-score">0</b></div>
+    <button class="pd-enter" id="pd-enter">等一下再锁定</button>
+  </div>
+
+  <div id="pd-result" class="screen overlay hidden">
+    <div class="result-card">
+      <div class="result-kicker">苏尼翁 · 海灯 / 卫城日晷</div>
+      <h2 id="pd-res-title">日影正中</h2>
+      <div class="result-stars" id="pd-res-stars">★★★</div>
+      <div class="result-score"><span>本场得分</span><b id="pd-res-score">0</b></div>
+      <div class="result-grid">
+        <div><span>完美</span><b id="pd-res-perfect">0</b></div>
+        <div><span>最高连击</span><b id="pd-res-combo">0</b></div>
+        <div><span>历史最佳</span><b id="pd-res-best">0</b></div>
+      </div>
+      <p class="result-line" id="pd-res-line">影子一站稳，整座石台都亮了起来。</p>
+      <div class="result-actions">
+        <button class="btn" id="pd-retry"><span>再校一轮</span></button>
+        <button class="btn btn-primary" id="pd-exit"><span>收好手账</span></button>
+      </div>
+    </div>
+  </div>
+
+<div id="cinema" class="hidden">
       <div class="cine-rule"></div>
       <div class="cine-line" id="cine-line"></div>
       <div class="cine-sub" id="cine-sub"></div>
@@ -615,6 +685,7 @@ input,select{font:inherit}
       <button id="btn-start" class="btn btn-primary"><span>开始旅程</span><small>NEW JOURNEY</small></button>
       <button id="btn-continue" class="btn"><span>继续旅程</span><small>CONTINUE</small></button>
       <button id="btn-fusion" class="btn btn-nexus"><span>万象灵境</span><small>NEXUS ATLAS</small></button>
+      <button id="btn-athens" class="btn btn-nexus"><span>雅典 · 卫城</span><small>ATHENS · ACROPOLIS</small></button>
     </div>
     <div class="title-foot">
       <span>明制衣冠 · 中轴线 · 非遗打铁花</span>
@@ -1126,6 +1197,80 @@ input,select{font:inherit}
         this.finishType();
         this.advance();
       }
+    },
+  };
+
+  /* ---------------- dialogue choice ---------------- */
+  G.choice = {
+    active: false,
+    onPick: null,
+    choiceWaiting: false,
+    _hover: -1,
+    el: null,
+    optionEls: [],
+    init() {
+      this.el = G.$('#choice');
+      this.optionEls = G.$$('#choice .choice-opt');
+      this.optionEls.forEach((o) => {
+        o.addEventListener('mouseenter', () => {
+          o.classList.add('hover');
+          this.optionEls.forEach((x) => x.classList.remove('sel'));
+          o.classList.add('sel');
+        });
+        o.addEventListener('click', () => this.pick(parseInt(o.dataset.i, 10)));
+      });
+      G.$('#choice').addEventListener('click', (e) => { if (e.target.id === 'choice') G.audio.sfx('error'); });
+    },
+    show(lines, opts) {
+      lines = lines || [];
+      this.onPick = (opts && opts.onPick) || null;
+      const askEl = G.$('#choice-ask');
+      askEl.innerHTML = (opts && opts.title) || '你偏要向哪个方向走？';
+      G.$('#choice-body').innerHTML = '';
+      const body = G.$('#choice-body');
+      lines.forEach((l, i) => {
+        const el = document.createElement('button');
+        el.className = 'choice-opt' + (i === 0 ? ' sel' : '');
+        el.dataset.i = String(i);
+        el.innerHTML = '<span></span>' + l.text;
+        el.setAttribute('aria-label', l.text);
+        body.appendChild(el);
+      });
+      this.optionEls = G.$$('#choice .choice-opt');
+      this._hover = 0;
+      this.choiceWaiting = true;
+      this.active = true;
+      G.overlayDepth++;
+      G.show(this.el);
+      G.ui.prompt(null);
+      G.audio.sfx('page');
+    },
+    move(d) {
+      if (!this.active) return;
+      const n = this.optionEls.length;
+      if (!n) return;
+      this._hover = (this._hover + d + n) % n;
+      this.optionEls.forEach((o, i) => o.classList.toggle('sel', i === this._hover));
+      G.audio.sfx('blip');
+    },
+    pick(i) {
+      if (!this.active) return;
+      const n = this.optionEls.length;
+      const idx = i == null ? this._hover : i;
+      if (idx < 0 || idx >= n) return;
+      const cb = this.onPick;
+      G.audio.sfx('confirm');
+      this.close();
+      if (cb) setTimeout(() => cb(idx), 30);
+    },
+    close() {
+      if (!this.active) return;
+      this.active = false;
+      this.choiceWaiting = false;
+      this.onPick = null;
+      G.hide(this.el);
+      G.overlayDepth = Math.max(0, G.overlayDepth - 1);
+      G.input.clearPressed();
     },
   };
 
@@ -2818,6 +2963,1297 @@ input,select{font:inherit}
         ctx.fillRect(Math.round(px - 2), Math.round(y - ph + 2 + bob), 1, 1);
       }
     }
+  };
+})();
+
+</script>
+<script data-src="js/art-greek.js">
+/* ============================================================
+   雅典 · 圣火 — pixel art library
+   All art is drawn procedurally on a 640x360 canvas.
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const A = (G.artGreek = {});
+  const INK = '#17110e';
+
+  A.pal = {
+    ink: INK,
+    marble: '#e5dcc6', marbleHi: '#f4eeda', marbleMid: '#d2c7ab',
+    marbleDark: '#b6aa8d', marbleShade: '#968a70',
+    stone: '#cfc3a6', stoneDark: '#8f8267',
+    terra: '#a8503a', terraDark: '#7d382a', terraHi: '#c2694c',
+    bronze: '#a8763c', bronzeDark: '#6f4a24', bronzeHi: '#d8a85c',
+    gold: '#d8b26a', goldHi: '#f4dda0', goldDark: '#8f682f',
+    olive: '#6a7a45', oliveDark: '#4a5730', oliveHi: '#879a5a',
+    cypress: '#37502f', cypressDark: '#243620', cypressHi: '#4e6c3f',
+    azure: '#3a6f8f', azureDeep: '#24495f', azureHi: '#6fa5bd',
+    wine: '#7d2f28', wineDark: '#55201b',
+    hair: '#2a1d14', skin: '#e0b088', skinDark: '#bd8c66',
+    white: '#efe9d8', black: '#1a1614',
+    sand: '#c9b489', sandDark: '#a8926a',
+    grass: '#6d7c4e', grassDark: '#4f5c37', grassHi: '#8a9a63',
+    night: '#0b1026',
+  };
+
+  const ACTOR_DEFAULT = {
+    robe: '#efe6d0', robeDark: '#c9bb9d', robeLight: '#fbf5e6',
+    trim: '#a8763c', pants: '#3a3630', shoe: '#4a3222',
+    skin: '#e0b088', skinShade: '#bd8c66', hair: '#2a1d14',
+    hat: '#7d2f28', bag: '#8a5a33', eye: '#241a14', hatType: 'none',
+    scarf: null,
+  };
+
+  A.actorPalettes = {
+    player: { robe: '#f0e7d2', robeDark: '#c6b896', robeLight: '#fffdf6', trim: '#b07c3e', scarf: '#c9a557' },
+    priest: { robe: '#d9cdb4', robeDark: '#a99c81', robeLight: '#f1e8d2', trim: '#8f682f', hatType: 'laurel', hair: '#b9b1a2', skin: '#c9976c' },
+    guard: { robe: '#7d2f28', robeDark: '#55201b', robeLight: '#a04a3c', trim: '#d8b26a', hatType: 'helmet', hat: '#c9b98f', scarf: '#d8b26a' },
+    tourist: { robe: '#3a6f8f', robeDark: '#24495f', robeLight: '#5b8dab', trim: '#e0c78f', hatType: 'cap', hat: '#b54a38', bag: '#3f5a6b' },
+    tourist2: { robe: '#b45a45', robeDark: '#833a2c', robeLight: '#cf7860', trim: '#e8c78f', hatType: 'none', bag: '#76543a' },
+    auntie: { robe: '#8d3d55', robeDark: '#68273c', robeLight: '#ad5870', trim: '#e3b980', hatType: 'none', scarf: '#d8b26a' },
+    child: { robe: '#4f7f9f', robeDark: '#345c76', robeLight: '#6fa3c4', trim: '#f0d083', hatType: 'cap', hat: '#e1b34d', bag: '#7a5131' },
+    vendor: { robe: '#6f5240', robeDark: '#4a3528', robeLight: '#8f6c52', trim: '#c99b5d', hatType: 'straw', bag: '#7a5131' },
+    worker: { robe: '#345d6b', robeDark: '#22414b', robeLight: '#4b7d8c', trim: '#d9b269', hatType: 'petasos', hat: '#d9b269', bag: '#5b4127' },
+    guide: { robe: '#7a3c33', robeDark: '#552720', robeLight: '#975348', trim: '#e3c183', hatType: 'none', scarf: '#dfc48d' },
+    kore: { robe: '#e7ddc6', robeDark: '#b8ab8d', robeLight: '#f6efdd', trim: '#a8763c', hatType: 'none', hair: '#3b2a1a' },
+  };
+
+  /* ------------------------------------------------------------
+     primitives
+     ------------------------------------------------------------ */
+  function r(ctx, x, y, w, h, c) {
+    ctx.fillStyle = c;
+    ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  }
+  A.r = r;
+
+  A.shadow = function (ctx, x, y, w, h, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha == null ? 0.32 : alpha;
+    ctx.fillStyle = '#0a0705';
+    const ww = Math.max(2, Math.round(w));
+    ctx.fillRect(Math.round(x - ww / 2), Math.round(y - 1), ww, 1);
+    ctx.fillRect(Math.round(x - ww / 2 + 1), Math.round(y), ww - 2, 1);
+    if (h) ctx.fillRect(Math.round(x - ww / 2 + 2), Math.round(y + 1), ww - 4, 1);
+    ctx.restore();
+  };
+
+  A.dither = function (ctx, x, y, w, h, c, density, seed) {
+    ctx.fillStyle = c;
+    density = density == null ? 0.18 : density;
+    for (let yy = 0; yy < h; yy++) {
+      for (let xx = 0; xx < w; xx++) {
+        if (G.hash(x + xx, y + yy, seed || 7) < density) ctx.fillRect(x + xx, y + yy, 1, 1);
+      }
+    }
+  };
+
+  /* pale marble / limestone paving */
+  A.paving = function (ctx, x, y, w, h, base, alt, seed, tile) {
+    tile = tile || 16;
+    r(ctx, x, y, w, h, base || A.pal.marbleMid);
+    ctx.save();
+    const slab = tile * 2;
+    for (let yy = 0; yy < h; yy += slab) {
+      for (let xx = 0; xx < w; xx += slab) {
+        const n = G.hash(x + xx, y + yy, (seed || 3) + 5);
+        ctx.globalAlpha = 0.06 + n * 0.06;
+        ctx.fillStyle = n < 0.5 ? (alt || A.pal.marble) : '#efe7d2';
+        ctx.fillRect(x + xx, y + yy, Math.min(slab, w - xx), Math.min(slab, h - yy));
+      }
+    }
+    ctx.globalAlpha = 0.1;
+    for (let yy = 0; yy < h; yy += tile) {
+      for (let xx = 0; xx < w; xx += tile) {
+        const n = G.hash(x + xx, y + yy, seed || 3);
+        if (n < 0.14) {
+          ctx.fillStyle = alt || A.pal.marble;
+          ctx.fillRect(x + xx + 1, y + yy + 1, tile - 1, tile - 1);
+        } else if (n > 0.88) {
+          ctx.fillStyle = '#f2ecda';
+          ctx.fillRect(x + xx + 1, y + yy + 1, tile - 1, 1);
+        }
+      }
+    }
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = '#16110c';
+    for (let yy = 0; yy < h; yy += tile) ctx.fillRect(x, y + yy, w, 1);
+    for (let xx = 0; xx < w; xx += tile) ctx.fillRect(x + xx, y, 1, h);
+    ctx.restore();
+  };
+
+  A.glow = function (ctx, x, y, radius, color, alpha) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    g.addColorStop(0, color);
+    g.addColorStop(0.4, color);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = alpha == null ? 0.4 : alpha;
+    ctx.fillStyle = g;
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    ctx.restore();
+  };
+
+  /* ------------------------------------------------------------
+     characters
+     ------------------------------------------------------------ */
+  function drawActorSide(ctx, x, y, top, frame, moving, p, o) {
+    const step = moving ? (frame === 1 ? 1 : frame === 2 ? -1 : 0) : 0;
+    // legs
+    r(ctx, x - 2 + step, top + 15, 2, 3, p.pants);
+    r(ctx, x + 1 - step, top + 15, 2, 3, p.pants);
+    r(ctx, x - 3 + step, top + 17, 3, 2, p.shoe);
+    r(ctx, x + 1 - step, top + 17, 4, 2, p.shoe);
+    // back arm
+    r(ctx, x - 1, top + 9, 2, 4, p.robeDark);
+    // body
+    r(ctx, x - 3, top + 8, 7, 7, p.robeDark);
+    r(ctx, x - 3, top + 8, 6, 6, p.robe);
+    r(ctx, x - 3, top + 12, 6, 1, p.trim);
+    // bag on back
+    r(ctx, x - 5, top + 9, 2, 5, p.bag);
+    // head
+    r(ctx, x - 4, top - 1, 9, 10, p.hair);
+    r(ctx, x - 3, top + 2, 7, 6, p.skin);
+    r(ctx, x - 4, top - 1, 9, 3, p.hair);
+    r(ctx, x - 4, top + 2, 2, 4, p.hair);
+    // face
+    r(ctx, x - 1, top + 4, 1, 1, p.eye);
+    r(ctx, x + 3, top + 4, 1, 2, p.skinShade);
+    r(ctx, x + 1, top + 6, 2, 1, p.skinShade);
+    // hat
+    if (p.hatType === 'laurel') {
+      r(ctx, x - 5, top - 2, 10, 2, '#c9a557');
+      r(ctx, x - 5, top - 2, 3, 1, '#e0c07a');
+      r(ctx, x + 2, top - 2, 3, 1, '#e0c07a');
+    } else if (p.hatType === 'helmet') {
+      r(ctx, x - 5, top - 3, 10, 3, p.hat);
+      r(ctx, x - 5, top - 4, 10, 1, '#8f3a2b');
+      r(ctx, x - 1, top - 6, 2, 3, '#8f3a2b');
+    } else if (p.hatType === 'petasos') {
+      r(ctx, x - 6, top - 2, 12, 2, p.hat);
+      r(ctx, x - 2, top - 5, 4, 3, p.hat);
+    } else if (p.hatType === 'cap') {
+      r(ctx, x - 4, top - 2, 8, 2, p.hat);
+      r(ctx, x - 5, top, 4, 1, p.hat);
+    } else if (p.hatType === 'straw') {
+      r(ctx, x - 7, top - 1, 14, 2, '#c9a05a');
+      r(ctx, x - 3, top - 5, 6, 4, '#d8b26a');
+    }
+    // front hand
+    r(ctx, x + 1, top + 12, 2, 2, p.skin);
+    if (o.accessory === 'spear') {
+      r(ctx, x + 4, top - 6, 1, 24, '#5a3a24');
+      r(ctx, x + 3, top - 8, 3, 3, '#c8c3b2');
+    } else if (o.accessory === 'torch') {
+      r(ctx, x + 3, top + 1, 1, 12, '#7d5b36');
+      r(ctx, x + 2, top - 1, 4, 2, '#b06a2c');
+    }
+    if (p.scarf) r(ctx, x - 2, top + 7, 5, 1, p.scarf);
+  }
+
+  A.drawActor = function (ctx, x, y, opt) {
+    opt = opt || {};
+    const p = Object.assign({}, ACTOR_DEFAULT, opt.palette || {});
+    const dir = opt.dir || 'down';
+    const moving = !!opt.moving;
+    const frame = opt.frame || 0;
+    const t = opt.time || 0;
+    const scale = opt.scale || 1;
+    x = Math.round(x);
+    y = Math.round(y);
+    const bob = moving ? (frame === 1 ? 0 : 1) : (Math.sin(t * 1.9 + (opt.phase || 0)) > 0.3 ? 0 : 1);
+    const top = y - 19 + bob;
+
+    ctx.save();
+    if (opt.alpha != null) ctx.globalAlpha = opt.alpha;
+    if (scale !== 1) {
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.translate(-x, -y);
+    }
+    A.shadow(ctx, x, y, moving ? 10 : 9, 2, 0.3);
+
+    if (dir === 'left') {
+      ctx.translate(x, 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-x, 0);
+      drawActorSide(ctx, x, y, top, frame, moving, p, opt);
+      ctx.restore();
+      return;
+    }
+    if (dir === 'right') {
+      drawActorSide(ctx, x, y, top, frame, moving, p, opt);
+      ctx.restore();
+      return;
+    }
+
+    const step = moving ? (frame === 1 ? 1 : frame === 2 ? -1 : 0) : 0;
+    // legs
+    r(ctx, x - 3 + step, top + 15, 2, 3, p.pants);
+    r(ctx, x + 1 - step, top + 15, 2, 3, p.pants);
+    r(ctx, x - 4 + step, top + 17, 3, 2, p.shoe);
+    r(ctx, x + 1 - step, top + 17, 4, 2, p.shoe);
+
+    // body outline + chiton
+    r(ctx, x - 4, top + 7, 9, 9, INK);
+    r(ctx, x - 4, top + 8, 8, 7, p.robeDark);
+    r(ctx, x - 3, top + 8, 7, 6, p.robe);
+    r(ctx, x + 2, top + 9, 2, 5, p.robeDark);
+    r(ctx, x - 3, top + 12, 7, 1, p.trim);
+    r(ctx, x - 3, top + 13, 7, 1, p.robeDark);
+    r(ctx, x - 1, top + 8, 3, 1, p.trim);
+
+    // arms
+    const armSwing = moving ? (frame === 1 ? 1 : -1) : 0;
+    r(ctx, x - 6, top + 9 + armSwing, 2, 4, p.robeDark);
+    r(ctx, x + 5, top + 9 - armSwing, 2, 4, p.robeDark);
+    r(ctx, x - 6, top + 13 + armSwing, 2, 2, p.skin);
+    r(ctx, x + 5, top + 13 - armSwing, 2, 2, p.skin);
+
+    // head
+    r(ctx, x - 5, top - 1, 10, 10, INK);
+    r(ctx, x - 4, top, 8, 8, p.skin);
+    r(ctx, x - 4, top, 8, 3, p.hair);
+    r(ctx, x - 4, top + 1, 2, 5, p.hair);
+    r(ctx, x + 3, top + 1, 1, 4, p.hair);
+    // face / eyes
+    if (dir === 'down') {
+      r(ctx, x - 2, top + 4, 1, 1, p.eye);
+      r(ctx, x + 1, top + 4, 1, 1, p.eye);
+      r(ctx, x - 1, top + 6, 2, 1, p.skinShade);
+      r(ctx, x - 3, top + 5, 1, 1, '#c98f68');
+      r(ctx, x + 2, top + 5, 1, 1, '#c98f68');
+    } else {
+      r(ctx, x - 4, top + 2, 8, 6, p.hair);
+      r(ctx, x - 2, top + 7, 4, 1, p.skinShade);
+      r(ctx, x - 3, top + 8, 6, 5, p.bag);
+      r(ctx, x - 3, top + 8, 6, 1, '#a87845');
+    }
+
+    // headwear
+    if (p.hatType === 'laurel') {
+      r(ctx, x - 5, top - 2, 10, 2, '#c9a557');
+      r(ctx, x - 5, top - 2, 3, 1, '#e0c07a');
+      r(ctx, x + 2, top - 2, 3, 1, '#e0c07a');
+      r(ctx, x - 1, top - 3, 2, 1, '#d8b26a');
+    } else if (p.hatType === 'helmet') {
+      r(ctx, x - 5, top - 3, 10, 3, p.hat);
+      r(ctx, x - 5, top - 4, 10, 1, '#8f3a2b');
+      r(ctx, x - 1, top - 7, 2, 4, '#8f3a2b');
+      r(ctx, x - 4, top + 1, 1, 2, p.hat);
+      r(ctx, x + 3, top + 1, 1, 2, p.hat);
+    } else if (p.hatType === 'petasos') {
+      r(ctx, x - 6, top - 2, 12, 2, p.hat);
+      r(ctx, x - 1, top - 5, 2, 3, p.hat);
+    } else if (p.hatType === 'cap') {
+      r(ctx, x - 5, top - 2, 10, 2, p.hat);
+      r(ctx, x - 5, top, 4, 1, p.hat);
+      r(ctx, x + 1, top - 1, 3, 1, '#ffffff');
+    } else if (p.hatType === 'straw') {
+      r(ctx, x - 7, top - 1, 14, 2, '#c9a05a');
+      r(ctx, x - 4, top - 5, 8, 4, '#d8b26a');
+      r(ctx, x - 4, top - 5, 8, 1, '#e7c78a');
+    } else {
+      r(ctx, x - 2, top - 3, 4, 3, p.hair);
+      r(ctx, x - 1, top - 2, 2, 2, '#3b2a22');
+    }
+
+    if (p.scarf) {
+      r(ctx, x - 3, top + 7, 7, 1, p.scarf);
+      r(ctx, x + 2, top + 8, 1, 3, p.scarf);
+    }
+
+    // accessory
+    if (opt.accessory === 'spear') {
+      r(ctx, x + 6, top - 8, 1, 25, '#64432a');
+      r(ctx, x + 5, top - 10, 3, 3, '#cfc9b7');
+      r(ctx, x + 6, top - 12, 1, 2, '#b2a993');
+    } else if (opt.accessory === 'torch') {
+      r(ctx, x + 6, top + 1, 1, 13, '#7d5b36');
+      r(ctx, x + 5, top - 1, 4, 2, '#b06a2c');
+      r(ctx, x + 6, top - 3, 2, 2, '#ffd479');
+    } else if (opt.accessory === 'basket') {
+      r(ctx, x - 7, top + 10, 5, 5, '#c9a05a');
+      r(ctx, x - 7, top + 10, 5, 1, '#8f6a32');
+    }
+    ctx.restore();
+  };
+
+  /* ------------------------------------------------------------
+     greek architecture
+     ------------------------------------------------------------ */
+  const spriteCache = new Map();
+
+  /* one fluted column, y is the base line */
+  function column(c, x, baseY, h, w, opt) {
+    opt = opt || {};
+    const mar = opt.color || A.pal.marble;
+    const lit = opt.lit || A.pal.marbleHi;
+    const dark = opt.dark || A.pal.marbleShade;
+    w = Math.max(3, Math.round(w || 6));
+    h = Math.max(4, Math.round(h || 30));
+    const half = w / 2;
+    const left = Math.round(x - half);
+    // base
+    r(c, left - 1, baseY - 2, w + 2, 2, dark);
+    r(c, left, baseY - 3, w, 1, lit);
+    // shaft
+    const shaftTop = baseY - h + 4;
+    r(c, left, shaftTop, w, h - 7, mar);
+    r(c, left, shaftTop, 1, h - 7, lit);
+    r(c, left + w - 1, shaftTop, 1, h - 7, dark);
+    // flutes
+    c.save();
+    c.globalAlpha = 0.22;
+    c.fillStyle = dark;
+    for (let i = 2; i < w - 1; i += 2) c.fillRect(left + i, shaftTop + 1, 1, h - 9);
+    c.restore();
+    // capital
+    r(c, left - 1, baseY - h + 1, w + 2, 2, mar);
+    r(c, left - 2, baseY - h, w + 4, 2, lit);
+    r(c, left - 1, baseY - h - 1, w + 2, 1, dark);
+    r(c, left - 2, baseY - h, w + 4, 1, '#f6f0dd');
+  }
+  A.column = column;
+
+  function kore(c, x, baseY, h, opt) {
+    opt = opt || {};
+    const robe = opt.color || A.pal.marble;
+    const dark = A.pal.marbleShade;
+    const s = Math.max(0.7, h / 30);
+    r(c, x - 3 * s, baseY - 2, 6 * s, 2, dark);
+    r(c, x - 2.5 * s, baseY - h, 5 * s, h - 2, robe);
+    r(c, x - 2.5 * s, baseY - h, 1 * s, h - 2, A.pal.marbleHi);
+    r(c, x + 1.5 * s, baseY - h, 1 * s, h - 2, dark);
+    // drapery folds
+    c.save(); c.globalAlpha = 0.3; c.fillStyle = dark;
+    for (let yy = baseY - h + 5 * s; yy < baseY - 3; yy += 4) c.fillRect(x - 2 * s, yy, 4 * s, 1);
+    c.restore();
+    // head
+    r(c, x - 2 * s, baseY - h - 4 * s, 4 * s, 4 * s, A.pal.marbleHi);
+    r(c, x - 1.5 * s, baseY - h - 4.5 * s, 3 * s, 1, A.pal.hair);
+    r(c, x - 2.4 * s, baseY - h - 2 * s, 4.8 * s, 6 * s, robe);
+  }
+
+  /* column count + pitch for a temple facade */
+  function facadeColumns(w, opt) {
+    const cw = opt.columnW || 6;
+    const n = opt.columns || Math.max(3, Math.round(w / 20));
+    const pitch = n > 1 ? (w - cw) / (n - 1) : 0;
+    return { n, cw, pitch };
+  }
+
+  A.templeSprite = function (w, opts) {
+    opts = Object.assign({
+      columnH: 34, columnW: 6, columns: 0, steps: 3, entH: 10, pedH: 13,
+      pediment: true, ruined: false, caryatid: false, name: '', color: null,
+      brokenFrom: -1,
+    }, opts || {});
+    const key = 'temple|' + w + '|' + JSON.stringify(opts);
+    if (spriteCache.has(key)) return spriteCache.get(key);
+    const padX = 46;
+    const stepH = 3;
+    const stairH = opts.steps * stepH;
+    const bodyH = opts.columnH + opts.entH + (opts.pediment ? opts.pedH : 0);
+    const ch = Math.ceil(stairH + bodyH + 40);
+    const cw = Math.ceil(w + padX * 2);
+    const cv = document.createElement('canvas');
+    cv.width = cw; cv.height = ch;
+    const c = cv.getContext('2d');
+    c.imageSmoothingEnabled = false;
+    const cx = Math.round(cw / 2);
+    const base = ch - 12;
+
+    // crepidoma (stepped platform)
+    for (let i = 0; i < opts.steps; i++) {
+      const sw = w + 18 - i * 6;
+      const sy = base - i * stepH;
+      r(c, cx - sw / 2, sy - stepH, sw, stepH, i === opts.steps - 1 ? A.pal.marble : A.pal.marbleMid);
+      r(c, cx - sw / 2, sy - stepH, sw, 1, A.pal.marbleHi);
+      r(c, cx - sw / 2, sy - 1, sw, 1, A.pal.marbleShade);
+    }
+    const stylo = base - stairH;
+
+    // colonnade
+    const f = facadeColumns(w, opts);
+    const colTop = stylo - opts.columnH;
+    for (let i = 0; i < f.n; i++) {
+      const px = cx - w / 2 + f.cw / 2 + i * f.pitch;
+      let hh = opts.columnH;
+      let skip = false;
+      if (opts.ruined) {
+        const n = G.hash(i, 3, Math.round(w));
+        if (n < 0.28) skip = true;
+        else if (n < 0.6) hh = Math.round(opts.columnH * (0.35 + n * 0.75));
+      }
+      if (opts.brokenFrom >= 0 && i >= opts.brokenFrom) { if (i % 2 === 0) skip = true; else hh = Math.round(opts.columnH * 0.5); }
+      if (opts.caryatid) kore(c, px, stylo, opts.columnH - 2, { color: opts.color });
+      else if (!skip) column(c, px, stylo, hh, f.cw, { color: opts.color });
+      // broken stump top
+      if (opts.ruined && !skip && hh < opts.columnH) r(c, px - f.cw / 2, stylo - hh - 1, f.cw, 2, A.pal.marbleShade);
+    }
+    // back wall between columns
+    r(c, cx - w / 2 + f.cw, colTop + 2, Math.max(0, w - f.cw * 2), opts.columnH - 6, '#6d6552');
+    c.save(); c.globalAlpha = 0.5;
+    r(c, cx - w / 2 + f.cw, colTop + 2, Math.max(0, w - f.cw * 2), opts.columnH - 6, '#7d735d');
+    c.restore();
+
+    // entablature: architrave, frieze, cornice
+    const entTop = colTop - opts.entH;
+    r(c, cx - w / 2 - 4, entTop, w + 8, opts.entH, A.pal.marble);
+    r(c, cx - w / 2 - 4, entTop, w + 8, 3, A.pal.marbleHi);
+    // frieze: triglyphs and metopes
+    c.save();
+    for (let i = 0; i < f.n; i++) {
+      const gx = cx - w / 2 + f.cw / 2 + i * f.pitch - (f.pitch - f.cw > 8 ? 2 : 0);
+      c.fillStyle = A.pal.marbleShade;
+      c.fillRect(Math.round(gx - 2), entTop + 3, 3, opts.entH - 5);
+      c.fillStyle = A.pal.marbleDark;
+      c.fillRect(Math.round(gx - 1), entTop + 4, 1, opts.entH - 6);
+    }
+    c.restore();
+    r(c, cx - w / 2 - 5, entTop + opts.entH - 2, w + 10, 2, A.pal.marbleHi);
+    r(c, cx - w / 2 - 5, entTop + opts.entH, w + 10, 1, A.pal.marbleShade);
+
+    // pediment
+    if (opts.pediment) {
+      const pBase = entTop - 1;
+      const halfW = w / 2 + 6;
+      for (let i = 0; i < opts.pedH; i++) {
+        const t = i / opts.pedH;
+        const hw = halfW * (1 - t);
+        const y = pBase - i;
+        r(c, cx - hw, y, hw * 2, 1, i % 4 === 0 ? A.pal.marbleMid : A.pal.marble);
+      }
+      // tympanum recess
+      c.save(); c.globalAlpha = 0.35;
+      r(c, cx - halfW * 0.72, pBase - opts.pedH * 0.55, halfW * 1.44, opts.pedH * 0.55 - 1, A.pal.marbleShade);
+      c.restore();
+      // raking cornice
+      c.save();
+      c.globalAlpha = 0.85;
+      c.strokeStyle = A.pal.marbleHi; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(cx - halfW, pBase); c.lineTo(cx, pBase - opts.pedH); c.lineTo(cx + halfW, pBase); c.stroke();
+      c.restore();
+      // acroterion
+      r(c, cx - 1, pBase - opts.pedH - 3, 2, 3, A.pal.bronze);
+      // pediment figures
+      if (!opts.ruined) {
+        for (const [fx, fh] of [[-0.5, 3], [-0.2, 4], [0.15, 4], [0.45, 3]]) {
+          r(c, cx + fx * halfW - 1, pBase - opts.pedH * 0.5 - fh + 2, 2, fh, A.pal.marbleHi);
+        }
+      }
+      if (opts.name) {
+        G.text(c, opts.name, cx, pBase - opts.pedH * 0.34, {
+          size: 6, color: '#7d7058', align: 'center', weight: 'bold',
+        });
+      }
+    }
+
+    const spr = { cv, ax: cx, ay: base };
+    spriteCache.set(key, spr);
+    return spr;
+  };
+
+  A.drawTemple = function (ctx, x, baseY, w, opts) {
+    opts = opts || {};
+    const s = A.templeSprite(w, opts);
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#20140d';
+    ctx.beginPath();
+    ctx.ellipse(x + 8, baseY - 2, w * 0.6, 7, 0, 0, G.TAU);
+    ctx.fill();
+    ctx.restore();
+    ctx.drawImage(s.cv, Math.round(x - s.ax), Math.round(baseY - s.ay));
+  };
+
+  /* the Propylaea — wide gate with central portico */
+  A.gateSprite = function (w, opts) {
+    opts = Object.assign({ wallH: 34, roofH: 20, columns: 6, name: '山门', step: true }, opts || {});
+    const key = 'gate|' + w + '|' + JSON.stringify(opts);
+    if (spriteCache.has(key)) return spriteCache.get(key);
+    const padX = 50;
+    const ch = opts.wallH + opts.roofH + 48;
+    const cw = Math.ceil(w + padX * 2);
+    const cv = document.createElement('canvas');
+    cv.width = cw; cv.height = ch;
+    const c = cv.getContext('2d');
+    const cx = cw / 2, base = ch - 10;
+    // steps
+    for (let i = 0; i < 3; i++) {
+      const sw = w + 26 - i * 6;
+      r(c, cx - sw / 2, base - i * 3 - 3, sw, 3, A.pal.marbleMid);
+      r(c, cx - sw / 2, base - i * 3 - 3, sw, 1, A.pal.marble);
+    }
+    const stylo = base - 9;
+    // side walls / wings
+    const wingW = Math.round(w * 0.3);
+    for (const side of [-1, 1]) {
+      const wx = cx + side * (w / 2 - wingW / 2);
+      r(c, wx - wingW / 2, stylo - opts.wallH, wingW, opts.wallH, '#6d6552');
+      r(c, wx - wingW / 2, stylo - opts.wallH, wingW, 2, A.pal.marble);
+      r(c, wx - wingW / 2, stylo - 2, wingW, 2, A.pal.marbleShade);
+    }
+    // central colonnade over a dark doorway
+    r(c, cx - 22, stylo - opts.wallH + 6, 44, opts.wallH - 6, '#2a241b');
+    r(c, cx - 18, stylo - opts.wallH + 10, 36, opts.wallH - 10, '#14100c');
+    const n = 4;
+    for (let i = 0; i < n; i++) {
+      const px = cx - 30 + i * 20;
+      column(c, px, stylo, opts.wallH + 6, 6, {});
+    }
+    // entablature + low pediment
+    r(c, cx - w / 2 - 2, stylo - opts.wallH - 10, w + 4, 10, A.pal.marble);
+    r(c, cx - w / 2 - 2, stylo - opts.wallH - 10, w + 4, 2, A.pal.marbleHi);
+    const halfW = w / 2 + 8;
+    for (let i = 0; i < opts.roofH; i++) {
+      const t = i / opts.roofH;
+      const hw = halfW * (1 - t);
+      r(c, cx - hw, stylo - opts.wallH - 10 - i, hw * 2, 1, i % 3 === 0 ? A.pal.marbleMid : A.pal.marble);
+    }
+    if (opts.name) {
+      const pw = 54;
+      r(c, cx - pw / 2, stylo - opts.wallH - 8, pw, 7, '#2e2a20');
+      G.text(c, opts.name, cx, stylo - opts.wallH - 2, { size: 6, color: '#e8d9b6', align: 'center', weight: 'bold' });
+    }
+    const spr = { cv, ax: cx, ay: base };
+    spriteCache.set(key, spr);
+    return spr;
+  };
+
+  A.drawGate = function (ctx, x, baseY, w, opts) {
+    const s = A.gateSprite(w, opts);
+    ctx.save();
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = '#1c120c';
+    ctx.beginPath(); ctx.ellipse(x + 10, baseY - 2, w * 0.58, 8, 0, 0, G.TAU); ctx.fill();
+    ctx.restore();
+    ctx.drawImage(s.cv, Math.round(x - s.ax), Math.round(baseY - s.ay));
+  };
+
+  /* low marble parapet, horizontal run */
+  A.wallH = function (ctx, x1, x2, baseY, h, opts) {
+    opts = opts || {};
+    const w = x2 - x1;
+    const col = opts.color || A.pal.marbleMid;
+    r(ctx, x1, baseY - h, w, h, col);
+    r(ctx, x1, baseY - h, w, 1, A.pal.marble);
+    r(ctx, x1, baseY - 2, w, 2, A.pal.marbleShade);
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = A.pal.marbleShade;
+    for (let xx = x1 + 6; xx < x2; xx += 12) ctx.fillRect(xx, baseY - h + 2, 1, h - 4);
+    ctx.restore();
+  };
+
+  /* low marble parapet, vertical run */
+  A.wallV = function (ctx, x, y1, y2, w, opts) {
+    opts = opts || {};
+    const h = y2 - y1;
+    const col = opts.color || A.pal.marbleMid;
+    r(ctx, x, y1, w, h, col);
+    r(ctx, x, y1, 1, h, A.pal.marble);
+    r(ctx, x + w - 1, y1, 1, h, A.pal.marbleShade);
+    ctx.save();
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = A.pal.marbleShade;
+    for (let yy = y1 + 6; yy < y2; yy += 12) ctx.fillRect(x + 2, yy, w - 4, 1);
+    ctx.restore();
+  };
+
+  /* roman arch (Hadrian's Gate) */
+  A.arch = function (ctx, x, baseY, w, h, opt) {
+    opt = opt || {};
+    const col = opt.color || A.pal.marble;
+    const dark = A.pal.marbleShade;
+    A.shadow(ctx, x, baseY, w + 6, 3, 0.26);
+    // base
+    r(ctx, x - w / 2, baseY - 4, w, 4, A.pal.marbleMid);
+    // piers
+    for (const side of [-1, 1]) {
+      const px = x + side * (w / 2 - 8);
+      r(ctx, px - 6, baseY - h, 12, h - 4, col);
+      r(ctx, px - 6, baseY - h, 12, 2, A.pal.marbleHi);
+      r(ctx, px - 6, baseY - h, 1, h - 4, '#f4eeda');
+      r(ctx, px + 5, baseY - h, 1, h - 4, dark);
+      r(ctx, px - 7, baseY - 5, 14, 2, dark);
+    }
+    // arch
+    const arcR = w / 2 - 8;
+    const arcY = baseY - h + 12;
+    for (let a = 0; a <= Math.PI; a += 0.06) {
+      const px = x + Math.cos(a) * arcR;
+      const py = arcY - Math.sin(a) * arcR * 0.62;
+      r(ctx, px - 1, py, 3, 3, col);
+    }
+    r(ctx, x - arcR, arcY - 2, arcR * 2, 3, A.pal.marbleHi);
+  };
+
+  /* theatre — semicircular seating */
+  A.theater = function (ctx, x, baseY, rad, opt) {
+    opt = opt || {};
+    A.shadow(ctx, x, baseY, rad * 2, 3, 0.24);
+    // cavea rows
+    for (let ring = 4; ring >= 0; ring--) {
+      const rr = rad * (0.5 + ring * 0.12);
+      ctx.save();
+      ctx.fillStyle = ring % 2 ? '#c4b79a' : '#d3c7aa';
+      ctx.beginPath();
+      ctx.ellipse(x, baseY - 4, rr, rr * 0.34, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.restore();
+    }
+    // orchestra
+    r(ctx, x - rad * 0.22, baseY - 5, rad * 0.44, 3, '#cbbf9f');
+    // scene building
+    r(ctx, x - rad * 0.34, baseY - 22, rad * 0.68, 18, '#8f8468');
+    r(ctx, x - rad * 0.34, baseY - 22, rad * 0.68, 2, A.pal.marble);
+    for (let i = 0; i < 4; i++) r(ctx, x - rad * 0.26 + i * rad * 0.18, baseY - 18, 3, 10, '#5c5340');
+  };
+
+  /* stoa — long colonnade with shallow roof */
+  A.stoa = function (ctx, x, baseY, w, opt) {
+    opt = opt || {};
+    const h = opt.h || 24;
+    A.shadow(ctx, x, baseY, w, 3, 0.2);
+    r(ctx, x - w / 2, baseY - 5, w, 5, A.pal.marbleMid);
+    const n = Math.max(3, Math.round(w / 16));
+    for (let i = 0; i < n; i++) {
+      const px = x - w / 2 + 6 + i * (w - 12) / (n - 1);
+      column(ctx, px, baseY - 5, h, 5, {});
+    }
+    r(ctx, x - w / 2 - 3, baseY - h - 8, w + 6, 8, A.pal.marble);
+    r(ctx, x - w / 2 - 3, baseY - h - 8, w + 6, 2, A.pal.marbleHi);
+    // tiled roof
+    r(ctx, x - w / 2 - 6, baseY - h - 11, w + 12, 3, A.pal.terra);
+    r(ctx, x - w / 2 - 6, baseY - h - 11, w + 12, 1, A.pal.terraHi);
+    r(ctx, x - w / 2 - 2, baseY - h - 14, w + 4, 3, A.pal.terraDark);
+    // back wall
+    r(ctx, x - w / 2 + 6, baseY - h - 4, w - 12, h - 1, '#6f6652');
+    ctx.save(); ctx.globalAlpha = 0.4;
+    for (let i = 0; i < n; i++) {
+      const px = x - w / 2 + 6 + i * (w - 12) / (n - 1);
+      ctx.fillStyle = '#4c4536'; ctx.fillRect(Math.round(px) + 2, baseY - h - 3, 2, h - 2);
+    }
+    ctx.restore();
+  };
+
+  /* the Parthenon, the icon of the Acropolis */
+  A.parthenon = function (ctx, x, baseY, s, opt) {
+    s = s || 1;
+    const w = 230 * s;
+    A.drawTemple(ctx, x, baseY, w, {
+      columnH: 46 * s, columnW: 7 * s, columns: 8, steps: 3,
+      entH: 13, pedH: 18, name: 'ΠΑΡΘΕΝΩΝ',
+    });
+  };
+
+  /* Erechtheion with the porch of the Caryatids */
+  A.caryatidPorch = function (ctx, x, baseY, s) {
+    s = s || 1;
+    A.shadow(ctx, x, baseY, 70 * s, 3, 0.22);
+    r(ctx, x - 34 * s, baseY - 5, 68 * s, 5, A.pal.marbleMid);
+    for (let i = 0; i < 6; i++) {
+      const px = x - 27 * s + i * 10 * s;
+      kore(ctx, px, baseY - 5, 30 * s, {});
+    }
+    r(ctx, x - 38 * s, baseY - 40 * s, 76 * s, 7 * s, A.pal.marble);
+    r(ctx, x - 38 * s, baseY - 40 * s, 76 * s, 2 * s, A.pal.marbleHi);
+    for (let i = 0; i < 40 * s; i++) {
+      const t = i / (40 * s);
+      const hw = 38 * s * (1 - t * 0.9);
+      r(ctx, x - hw, baseY - 40 * s - i, hw * 2, 1, i % 3 === 0 ? A.pal.marbleMid : A.pal.marble);
+    }
+  };
+
+  /* temple of Olympian Zeus — the surviving colossal columns */
+  A.templeOfZeus = function (ctx, x, baseY, s) {
+    s = s || 1;
+    A.shadow(ctx, x, baseY, 120 * s, 4, 0.24);
+    for (let i = 0; i < 4; i++) {
+      r(ctx, x - 62 * s, baseY - i * 3, 124 * s, 3, i % 2 ? A.pal.marbleMid : A.pal.marble);
+    }
+    const xs = [-46, -28, -8, 14, 34, 50];
+    xs.forEach((ox, i) => {
+      const hh = (i === 2 || i === 4) ? 66 : (i === 0 || i === 5 ? 54 : 40);
+      column(ctx, x + ox * s, baseY - 12, hh * s, 9 * s, {});
+      if (hh > 50) r(ctx, x + ox * s - 6 * s, baseY - 12 - hh * s, 12 * s, 4 * s, A.pal.marbleHi);
+    });
+    // fallen drum
+    r(ctx, x + 22 * s, baseY - 9, 16 * s, 8 * s, A.pal.marbleMid);
+    r(ctx, x + 22 * s, baseY - 9, 16 * s, 2 * s, A.pal.marble);
+    // scattered blocks
+    r(ctx, x - 58 * s, baseY - 6, 12 * s, 5 * s, A.pal.marbleDark);
+    r(ctx, x + 44 * s, baseY - 5, 9 * s, 4 * s, A.pal.marbleDark);
+  };
+
+  /* temple of Poseidon on the cliff at Sounion */
+  A.templeOfPoseidon = function (ctx, x, baseY, s) {
+    s = s || 1;
+    // cliff
+    for (let i = 0; i < 30 * s; i++) {
+      const ww = (70 - i * 1.6) * s;
+      r(ctx, x - ww, baseY - i, ww * 2, 1, i % 5 === 0 ? '#7d6c52' : '#8d7c60');
+    }
+    A.drawTemple(ctx, x, baseY - 26 * s, 92 * s, {
+      columnH: 26 * s, columnW: 6 * s, columns: 6, steps: 2, entH: 10, pedH: 12,
+      ruined: true,
+    });
+    // sea below
+    A.sea(ctx, x - 220 * s, baseY + 2, 440 * s, 30 * s, 0, 5);
+  };
+
+  /* Hephaisteion in the Agora */
+  A.hephaisteion = function (ctx, x, baseY, s) {
+    s = s || 1;
+    A.drawTemple(ctx, x, baseY, 120 * s, {
+      columnH: 30 * s, columnW: 6 * s, columns: 6, steps: 2, entH: 10, pedH: 12, name: '',
+    });
+  };
+
+  /* Athena Promachos — a gilded bronze statue */
+  A.athenaStatue = function (ctx, x, baseY, s, t) {
+    s = s || 1;
+    A.shadow(ctx, x, baseY, 28 * s, 3, 0.34);
+    // stepped pedestal
+    A.r(ctx, x - 14 * s, baseY - 3 * s, 28 * s, 3 * s, A.pal.marbleDark);
+    A.r(ctx, x - 11 * s, baseY - 7 * s, 22 * s, 4 * s, A.pal.marbleMid);
+    A.r(ctx, x - 11 * s, baseY - 7 * s, 22 * s, 1 * s, A.pal.marble);
+    A.r(ctx, x - 8 * s, baseY - 10 * s, 16 * s, 3 * s, A.pal.marble);
+    const foot = baseY - 10 * s;
+    const gold = '#b8924e', lit = '#e0bd74', dark = '#7d5c2c', deep = '#5a4120';
+    // robe: trapezoid, 8 wide at the waist and 16 at the hem
+    for (let i = 0; i < 30 * s; i++) {
+      const t01 = i / (30 * s);
+      const ww = (8 + t01 * 8) * s;
+      A.r(ctx, x - ww / 2, foot - i, ww, 1, i % 6 === 0 ? deep : gold);
+    }
+    // vertical drapery folds
+    for (const fx of [-0.28, 0, 0.28]) {
+      for (let i = 2; i < 30 * s; i += 3) {
+        const t01 = i / (30 * s);
+        const ww = (8 + t01 * 8) * s;
+        A.r(ctx, x + fx * ww, foot - i, 1, 2, dark);
+      }
+    }
+    // belt
+    A.r(ctx, x - 4 * s, foot - 17 * s, 8 * s, 2 * s, dark);
+    // torso
+    A.r(ctx, x - 4 * s, foot - 26 * s, 8 * s, 9 * s, gold);
+    A.r(ctx, x - 4 * s, foot - 26 * s, 2 * s, 9 * s, lit);
+    A.r(ctx, x + 2 * s, foot - 26 * s, 2 * s, 9 * s, dark);
+    // shoulders and arms
+    A.r(ctx, x - 7 * s, foot - 26 * s, 3 * s, 8 * s, dark);
+    A.r(ctx, x + 4 * s, foot - 26 * s, 3 * s, 8 * s, dark);
+    A.r(ctx, x - 7 * s, foot - 18 * s, 3 * s, 2 * s, lit);
+    A.r(ctx, x + 4 * s, foot - 18 * s, 3 * s, 2 * s, lit);
+    // neck and head
+    A.r(ctx, x - 2 * s, foot - 29 * s, 4 * s, 3 * s, lit);
+    A.r(ctx, x - 3 * s, foot - 36 * s, 6 * s, 7 * s, lit);
+    A.r(ctx, x + 1 * s, foot - 36 * s, 2 * s, 7 * s, gold);
+    // crested helmet
+    A.r(ctx, x - 4 * s, foot - 39 * s, 8 * s, 4 * s, gold);
+    A.r(ctx, x - 4 * s, foot - 39 * s, 8 * s, 1 * s, lit);
+    A.r(ctx, x - 1 * s, foot - 43 * s, 2 * s, 5 * s, '#8f3a2b');
+    A.r(ctx, x - 2 * s, foot - 41 * s, 4 * s, 2 * s, '#a8452f');
+    // spear in the right hand
+    A.r(ctx, x - 9 * s, foot - 44 * s, 1 * s, 36 * s, '#d8c9a2');
+    A.r(ctx, x - 10 * s, foot - 47 * s, 3 * s, 4 * s, '#efe6cf');
+    //round shield on the left
+    ctx.save();
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.arc(x + 8 * s, foot - 15 * s, 6 * s, 0, G.TAU); ctx.fill();
+    ctx.fillStyle = gold;
+    ctx.beginPath(); ctx.arc(x + 8 * s, foot - 15 * s, 4.5 * s, 0, G.TAU); ctx.fill();
+    ctx.fillStyle = lit;
+    ctx.beginPath(); ctx.arc(x + 8 * s, foot - 15 * s, 1.6 * s, 0, G.TAU); ctx.fill();
+    ctx.restore();
+    A.glow(ctx, x, foot - 20 * s, 34 * s, 'rgba(255,200,110,.14)', 0.6);
+  };
+
+  /* a fallen column drum */
+  A.columnDrum = function (ctx, x, baseY, len, opt) {
+    opt = opt || {};
+    const s = opt.s || 1;
+    len = (len || 22) * s;
+    A.shadow(ctx, x, baseY, len + 4, 3, 0.26);
+    A.r(ctx, x - len / 2, baseY - 8 * s, len, 8 * s, A.pal.marbleMid);
+    A.r(ctx, x - len / 2, baseY - 8 * s, len, 2 * s, A.pal.marble);
+    A.r(ctx, x - len / 2, baseY - 2 * s, len, 2 * s, A.pal.marbleShade);
+    // end face with flutes
+    ctx.save();
+    ctx.fillStyle = A.pal.marbleDark;
+    ctx.beginPath(); ctx.ellipse(x - len / 2 + 1, baseY - 4 * s, 2, 4 * s, 0, 0, G.TAU); ctx.fill();
+    ctx.restore();
+    for (let i = -len / 2 + 3; i < len / 2 - 2; i += 4) A.r(ctx, x + i, baseY - 7 * s, 1, 5 * s, 'rgba(150,138,112,.5)');
+  };
+
+  /* loose rubble blocks and potsherds */
+  A.rubble = function (ctx, x, baseY, s) {
+    s = s || 1;
+    A.r(ctx, x - 7 * s, baseY - 4 * s, 6 * s, 4 * s, A.pal.marbleDark);
+    A.r(ctx, x - 7 * s, baseY - 4 * s, 6 * s, 1 * s, A.pal.marble);
+    A.r(ctx, x, baseY - 3 * s, 4 * s, 3 * s, A.pal.marbleShade);
+    A.r(ctx, x + 4 * s, baseY - 2 * s, 3 * s, 2 * s, '#a8503a');
+  };
+
+  /* a laurel / myrtle bush */
+  A.bush = function (ctx, x, baseY, s) {
+    s = s || 1;
+    A.shadow(ctx, x, baseY, 18 * s, 2, 0.2);
+    const blobs = [[0, -8, 9], [-6, -5, 6], [6, -6, 6], [-2, -12, 6]];
+    for (let i = 0; i < blobs.length; i++) {
+      const [bx, by, br] = blobs[i];
+      A.r(ctx, x + bx * s - br * s / 2, baseY + by * s, br * s, br * s * 0.7, i % 2 ? A.pal.olive : A.pal.oliveDark);
+    }
+    ctx.save(); ctx.globalAlpha = 0.6; ctx.fillStyle = '#9aa86a';
+    for (let i = 0; i < 8; i++) {
+      const h = G.hash(x + i, baseY, 9);
+      ctx.fillRect(x + Math.round((h - 0.5) * 14 * s), baseY - 6 * s - Math.round(h * 8 * s), 1, 1);
+    }
+    ctx.restore();
+  };
+
+
+  /* ------------------------------------------------------------
+     nature & props
+     ------------------------------------------------------------ */
+  A.oliveTree = function (ctx, x, baseY, size, opt) {
+    opt = opt || {};
+    size = size || 1;
+    const p = opt.autumn ? ['#8f7a3a', '#a89044', '#6f5c2a'] : [A.pal.olive, A.pal.oliveHi, A.pal.oliveDark];
+    A.shadow(ctx, x, baseY, 26 * size, 3, 0.24);
+    // gnarled trunk
+    r(ctx, x - 2 * size, baseY - 14 * size, 4 * size, 14 * size, '#6b5236');
+    r(ctx, x - 3 * size, baseY - 10 * size, 2 * size, 6 * size, '#5a432c');
+    r(ctx, x + 2 * size, baseY - 12 * size, 2 * size, 8 * size, '#7d6242');
+    const blobs = [
+      [0, -26, 16], [-11, -20, 11], [11, -21, 11], [-6, -32, 10], [8, -31, 9], [0, -36, 8],
+    ];
+    for (let i = 0; i < blobs.length; i++) {
+      const [bx, by, br] = blobs[i];
+      const col = p[i % p.length];
+      r(ctx, x + bx * size - br * size / 2, baseY + by * size, br * size, br * size * 0.66, col);
+      if (i % 2 === 0) r(ctx, x + bx * size - br * size / 2 + 2, baseY + by * size - 2, br * size - 5, 2, p[1]);
+    }
+    // silver-green leaf flecks
+    ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = '#a8b579';
+    for (let i = 0; i < 26; i++) {
+      const h = G.hash(x + i, baseY, 3);
+      ctx.fillRect(x + Math.round((h - 0.5) * 32 * size), baseY - 18 * size - Math.round(h * 18 * size), 1, 1);
+    }
+    ctx.restore();
+    // terracotta pot at the foot sometimes
+    if (opt.pot) {
+      r(ctx, x - 6 * size, baseY - 6 * size, 12 * size, 6 * size, A.pal.terra);
+      r(ctx, x - 7 * size, baseY - 7 * size, 14 * size, 2 * size, A.pal.terraHi);
+    }
+  };
+
+  A.cypress = function (ctx, x, baseY, size) {
+    size = size || 1;
+    A.shadow(ctx, x, baseY, 10 * size, 2, 0.24);
+    r(ctx, x - 1, baseY - 6 * size, 2, 6 * size, '#4a3a26');
+    for (let i = 0; i < 26 * size; i++) {
+      const t = i / (26 * size);
+      const hw = (5 * size) * (1 - t) + 1;
+      r(ctx, x - hw, baseY - 6 * size - i, hw * 2, 1, i % 4 === 0 ? A.pal.cypressDark : (i % 4 === 2 ? A.pal.cypressHi : A.pal.cypress));
+    }
+  };
+
+  A.pine = function (ctx, x, baseY, size) {
+    size = size || 1;
+    A.shadow(ctx, x, baseY, 16 * size, 2, 0.25);
+    r(ctx, x - 1, baseY - 9 * size, 2, 9 * size, '#4b301c');
+    for (let i = 0; i < 4; i++) {
+      const yy = baseY - 8 * size - i * 6 * size;
+      const ww = (16 - i * 3) * size;
+      r(ctx, x - ww / 2, yy, ww, 4 * size, i % 2 ? '#2e4a30' : '#375737');
+      r(ctx, x - ww / 2 + 2, yy, ww - 4, 1, '#4f7145');
+    }
+  };
+
+  A.palm = function (ctx, x, baseY, size, t) {
+    size = size || 1;
+    A.shadow(ctx, x, baseY, 12 * size, 2, 0.22);
+    r(ctx, x - 1, baseY - 30 * size, 2, 30 * size, '#6b5236');
+    for (let i = 0; i < 6; i++) {
+      const a = -Math.PI / 2 + (i - 2.5) * 0.42;
+      ctx.save();
+      ctx.strokeStyle = i % 2 ? '#4e6c3f' : '#5f8149';
+      ctx.lineWidth = 2 * size;
+      const sway = Math.sin((t || 0) * 1.2 + i) * 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x, baseY - 30 * size);
+      ctx.quadraticCurveTo(x + Math.cos(a) * 10 * size + sway, baseY - 34 * size, x + Math.cos(a) * 16 * size + sway, baseY - 30 * size + Math.sin(a) * 6 * size);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  A.amphora = function (ctx, x, baseY, opt) {
+    opt = opt || {};
+    const col = opt.color || A.pal.terra;
+    const s = opt.s || 1;
+    A.shadow(ctx, x, baseY, 10 * s, 2, 0.24);
+    r(ctx, x - 4 * s, baseY - 4 * s, 8 * s, 4 * s, A.pal.terraDark);
+    r(ctx, x - 3 * s, baseY - 10 * s, 6 * s, 7 * s, col);
+    r(ctx, x - 2 * s, baseY - 12 * s, 4 * s, 3 * s, col);
+    r(ctx, x - 3 * s, baseY - 11 * s, 1 * s, 4 * s, '#2a1a12');
+    r(ctx, x + 2 * s, baseY - 11 * s, 1 * s, 4 * s, '#2a1a12');
+    r(ctx, x - 2 * s, baseY - 13 * s, 4 * s, 1 * s, A.pal.terraHi);
+    // black figure band
+    r(ctx, x - 3 * s, baseY - 8 * s, 6 * s, 2 * s, '#2a1a12');
+  };
+
+  A.brazier = function (ctx, x, baseY, lit, t) {
+    A.shadow(ctx, x, baseY, 20, 2, 0.3);
+    // tripod legs
+    for (const dx of [-6, 0, 6]) {
+      r(ctx, x + dx - 1, baseY - 8, 2, 8, A.pal.bronzeDark);
+    }
+    // bowl
+    r(ctx, x - 8, baseY - 14, 16, 7, A.pal.bronzeDark);
+    r(ctx, x - 7, baseY - 14, 14, 5, A.pal.bronze);
+    r(ctx, x - 8, baseY - 15, 16, 2, A.pal.bronzeHi);
+    r(ctx, x - 9, baseY - 12, 1, 4, A.pal.bronzeHi);
+    r(ctx, x + 8, baseY - 12, 1, 4, A.pal.bronzeHi);
+    if (lit) {
+      A.glow(ctx, x, baseY - 18, 40 + Math.sin((t || 0) * 7) * 4, 'rgba(255,168,60,.5)', 0.55);
+      for (let i = 0; i < 5; i++) {
+        const f = 3 + G.hash(i, 2, 7) * 6;
+        const fx = x - 5 + i * 3 + Math.sin((t || 0) * 9 + i) * 1.2;
+        r(ctx, fx, baseY - 16 - f, 2, f, i % 2 ? '#ffb347' : '#ffd479');
+      }
+      r(ctx, x - 4, baseY - 18, 8, 3, '#fff3c4');
+    } else {
+      r(ctx, x - 5, baseY - 16, 10, 2, '#3a2a1c');
+    }
+  };
+
+  A.tripod = function (ctx, x, baseY) {
+    A.shadow(ctx, x, baseY, 12, 2, 0.24);
+    for (const dx of [-4, 0, 4]) r(ctx, x + dx - 1, baseY - 10, 2, 10, A.pal.bronzeDark);
+    r(ctx, x - 6, baseY - 16, 12, 6, A.pal.bronze);
+    r(ctx, x - 7, baseY - 17, 14, 2, A.pal.bronzeHi);
+    r(ctx, x - 6, baseY - 11, 12, 1, A.pal.bronzeDark);
+  };
+
+  A.laurel = function (ctx, x, baseY, h) {
+    h = h || 14;
+    r(ctx, x - 1, baseY - h, 2, h, '#5a432c');
+    for (let i = 0; i < 6; i++) {
+      const yy = baseY - h + i * 2;
+      const side = i % 2 ? 1 : -1;
+      r(ctx, x + side * 2 - 1, yy, 3, 1, A.pal.oliveHi);
+    }
+  };
+
+  A.sign = function (ctx, x, baseY, text, opt) {
+    opt = opt || {};
+    const w = opt.w || 52, h = opt.h || 16;
+    r(ctx, x - 1, baseY - 20, 2, 20, '#5a432c');
+    r(ctx, x - w / 2, baseY - 36, w, h, '#6d5a3c');
+    r(ctx, x - w / 2 + 1, baseY - 35, w - 2, h - 2, '#e3d7bb');
+    ctx.strokeStyle = '#8f7a52'; ctx.strokeRect(x - w / 2 + 0.5, baseY - 35.5, w - 1, h - 1);
+    G.text(ctx, text, x, baseY - 36 + h / 2 + 3, { size: opt.size || 7, color: '#4a3a26', align: 'center', weight: 'bold' });
+  };
+
+  A.bench = function (ctx, x, baseY) {
+    A.shadow(ctx, x, baseY, 20, 2, 0.22);
+    r(ctx, x - 9, baseY - 2, 2, 2, A.pal.marbleDark);
+    r(ctx, x + 7, baseY - 2, 2, 2, A.pal.marbleDark);
+    r(ctx, x - 9, baseY - 6, 18, 4, A.pal.marble);
+    r(ctx, x - 9, baseY - 6, 18, 1, A.pal.marbleHi);
+  };
+
+  A.rock = function (ctx, x, baseY, s) {
+    s = s || 1;
+    A.shadow(ctx, x, baseY, 18 * s, 2, 0.25);
+    r(ctx, x - 8 * s, baseY - 14 * s, 14 * s, 14 * s, '#b3a88b');
+    r(ctx, x - 5 * s, baseY - 20 * s, 8 * s, 10 * s, '#c9bfa2');
+    r(ctx, x + 2 * s, baseY - 16 * s, 7 * s, 9 * s, '#9c9174');
+    r(ctx, x - 6 * s, baseY - 11 * s, 3 * s, 5 * s, '#7d7259');
+    r(ctx, x - 3 * s, baseY - 19 * s, 2 * s, 2 * s, '#ded5ba');
+  };
+
+  A.well = function (ctx, x, baseY) {
+    A.shadow(ctx, x, baseY, 18, 2, 0.26);
+    r(ctx, x - 8, baseY - 8, 16, 8, A.pal.marbleMid);
+    r(ctx, x - 7, baseY - 9, 14, 2, A.pal.marble);
+    r(ctx, x - 5, baseY - 8, 10, 3, '#2a4a4a');
+    for (let i = 0; i < 4; i++) r(ctx, x - 8 + i * 4, baseY - 6, 1, 4, A.pal.marbleDark);
+  };
+
+  A.altar = function (ctx, x, baseY, lit, t) {
+    A.shadow(ctx, x, baseY, 26, 3, 0.26);
+    r(ctx, x - 12, baseY - 10, 24, 10, A.pal.marbleMid);
+    r(ctx, x - 12, baseY - 10, 24, 2, A.pal.marbleHi);
+    r(ctx, x - 14, baseY - 12, 28, 3, A.pal.marble);
+    r(ctx, x - 10, baseY - 3, 20, 2, A.pal.marbleDark);
+    if (lit) {
+      A.glow(ctx, x, baseY - 20, 46, 'rgba(255,170,70,.5)', 0.5);
+      for (let i = 0; i < 4; i++) {
+        const f = 4 + Math.sin((t || 0) * 6 + i) * 2 + i;
+        r(ctx, x - 6 + i * 4, baseY - 14 - f, 2, f, i % 2 ? '#ffb347' : '#ffd479');
+      }
+    }
+  };
+
+  A.lamp = function (ctx, x, baseY, night, opt) {
+    opt = opt || {};
+    r(ctx, x - 1, baseY - 26, 2, 26, '#5a4a32');
+    r(ctx, x - 4, baseY - 29, 8, 4, '#5a4a32');
+    r(ctx, x - 3, baseY - 28, 6, 3, night ? '#ffdca0' : '#d9c9a6');
+    if (night) A.glow(ctx, x, baseY - 27, 26, 'rgba(255,180,90,.5)', 0.4);
+    if (opt.cloth) {
+      r(ctx, x - 3, baseY - 34, 6, 5, A.pal.terra);
+      r(ctx, x - 3, baseY - 34, 6, 1, A.pal.terraHi);
+    }
+  };
+
+  A.bridge = function (ctx, cx, y, w, opt) {
+    opt = opt || {};
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#0d2426';
+    ctx.beginPath();
+    ctx.ellipse(cx, y + 2, w / 2 + 5, 16, 0, 0, G.TAU);
+    ctx.fill();
+    ctx.restore();
+    r(ctx, cx - w / 2, y - 12, w, 24, A.pal.marbleDark);
+    r(ctx, cx - w / 2, y - 11, w, 22, A.pal.marble);
+    for (let i = 0; i < w; i += 7) r(ctx, cx - w / 2 + i, y - 11, 1, 22, A.pal.marbleDark);
+    r(ctx, cx - w / 2, y - 12, w, 2, '#f0e9d7');
+    r(ctx, cx - w / 2, y + 11, w, 2, A.pal.stoneDark);
+    // low parapet
+    for (let i = 0; i <= w; i += 8) {
+      const px = cx - w / 2 + i;
+      r(ctx, px, y - 15, 2, 5, A.pal.marble);
+      r(ctx, px, y + 9, 2, 5, A.pal.marble);
+    }
+  };
+
+  A.water = function (ctx, x, y, w, h, t, seed) {
+    r(ctx, x, y, w, h, A.pal.azureDeep);
+    r(ctx, x, y + 1, w, h - 2, A.pal.azure);
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = A.pal.azureHi;
+    for (let yy = y + 3; yy < y + h - 2; yy += 7) {
+      const off = Math.sin((t || 0) * 1.2 + yy * 0.3 + (seed || 0)) * 5;
+      for (let xx = x + 4; xx < x + w - 4; xx += 22) ctx.fillRect(xx + off, yy, 10, 1);
+    }
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#8fbfb4';
+    ctx.fillRect(x, y, w, 1);
+    ctx.fillStyle = '#16363f';
+    ctx.fillRect(x, y + h - 1, w, 1);
+    ctx.restore();
+  };
+
+  A.sea = function (ctx, x, y, w, h, t, seed) {
+    r(ctx, x, y, w, h, '#1f4557');
+    ctx.save();
+    for (let yy = y + 2; yy < y + h; yy += 4) {
+      ctx.globalAlpha = 0.2 + G.hash(yy, 2, 3) * 0.12;
+      ctx.fillStyle = '#6fa5bd';
+      const off = Math.sin((t || 0) * 0.9 + yy * 0.4 + (seed || 0)) * 8;
+      ctx.fillRect(x + 6 + off, yy, w * 0.3, 1);
+      ctx.fillRect(x + w * 0.55 - off, yy, Math.min(w * 0.35, w - 20), 1);
+    }
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#cfe6ea';
+    ctx.fillRect(x, y, w, 1);
+    ctx.restore();
+  };
+
+  /* ------------------------------------------------------------
+     living things
+     ------------------------------------------------------------ */
+  A.cat = function (ctx, x, y, t, opt) {
+    opt = opt || {};
+    const orange = opt.color || '#c58448';
+    const bob = Math.sin((t || 0) * 2.4) * 0.8;
+    A.shadow(ctx, x, y, 12, 2, 0.25);
+    r(ctx, x - 6, y - 8 + bob, 10, 6, orange);
+    r(ctx, x - 5, y - 9 + bob, 7, 2, '#e2b070');
+    r(ctx, x + 3, y - 13 + bob, 7, 7, orange);
+    r(ctx, x + 4, y - 12 + bob, 5, 4, '#e2b070');
+    r(ctx, x + 3, y - 14 + bob, 2, 2, orange);
+    r(ctx, x + 8, y - 14 + bob, 2, 2, orange);
+    r(ctx, x + 5, y - 11 + bob, 1, 1, '#2b2118');
+    r(ctx, x + 8, y - 11 + bob, 1, 1, '#2b2118');
+    r(ctx, x + 7, y - 9 + bob, 1, 1, '#b86a56');
+    ctx.strokeStyle = orange;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x - 6, y - 5 + bob);
+    ctx.quadraticCurveTo(x - 12, y - 8, x - 10 + Math.sin((t || 0) * 2) * 2, y - 13);
+    ctx.stroke();
+    r(ctx, x - 4, y - 3, 2, 3, orange);
+    r(ctx, x + 1, y - 3, 2, 3, orange);
+  };
+
+  A.seagull = function (ctx, x, y, t, seed) {
+    const fly = Math.sin((t || 0) * 2 + (seed || 0)) * 1.4;
+    const flap = Math.sin((t || 0) * 8 + (seed || 0)) > 0;
+    r(ctx, x - 1, y - 2 + fly, 3, 2, '#f2f0e8');
+    r(ctx, x, y - 3 + fly, 1, 1, '#e8d8a8');
+    if (flap) {
+      r(ctx, x - 5, y - 3 + fly, 4, 1, '#e6e4dc');
+      r(ctx, x + 3, y - 3 + fly, 4, 1, '#e6e4dc');
+    } else {
+      r(ctx, x - 4, y - 1 + fly, 3, 1, '#e6e4dc');
+      r(ctx, x + 2, y - 1 + fly, 3, 1, '#e6e4dc');
+    }
+  };
+
+  A.goat = function (ctx, x, y, t) {
+    const bob = Math.sin((t || 0) * 1.6) * 0.6;
+    A.shadow(ctx, x, y, 14, 2, 0.24);
+    r(ctx, x - 6, y - 8 + bob, 11, 5, '#d9cfbb');
+    r(ctx, x + 4, y - 10 + bob, 5, 5, '#e6ddc8');
+    r(ctx, x + 5, y - 12 + bob, 2, 2, '#c9bfa8');
+    r(ctx, x + 8, y - 9 + bob, 1, 1, '#3a3228');
+    for (const dx of [-5, -1, 2, 5]) r(ctx, x + dx, y - 3, 1, 3, '#8f8570');
+  };
+
+  A.flag = function (ctx, x, baseY, t, color) {
+    r(ctx, x, baseY - 26, 1, 26, '#7d6a4a');
+    const wav = Math.sin((t || 0) * 3) * 1.5;
+    r(ctx, x + 1, baseY - 26 + wav, 12, 7, color || A.pal.terra);
+    r(ctx, x + 1, baseY - 26 + wav, 12, 1, '#e8d9b6');
+  };
+
+  /* ------------------------------------------------------------
+     light / grade
+     ------------------------------------------------------------ */
+  A.dayGrade = function (ctx, t, strength) {
+    strength = strength == null ? 1 : strength;
+    ctx.save();
+    const g = ctx.createLinearGradient(0, 0, 640, 360);
+    g.addColorStop(0, 'rgba(255,206,140,' + (0.18 * strength) + ')');
+    g.addColorStop(0.42, 'rgba(255,190,120,' + (0.05 * strength) + ')');
+    g.addColorStop(0.72, 'rgba(70,90,110,' + (0.03 * strength) + ')');
+    g.addColorStop(1, 'rgba(20,44,64,' + (0.14 * strength) + ')');
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 640, 360);
+    ctx.restore();
+    A.glow(ctx, 100, 4, 190, 'rgba(255,224,170,.09)', 0.7 * strength);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.04 * strength;
+    ctx.fillStyle = '#ffe9bd';
+    ctx.beginPath();
+    ctx.moveTo(-40, 0); ctx.lineTo(240, 0); ctx.lineTo(540, 360); ctx.lineTo(300, 360);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.026 * strength;
+    ctx.beginPath();
+    ctx.moveTo(200, 0); ctx.lineTo(330, 0); ctx.lineTo(620, 360); ctx.lineTo(480, 360);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const bg = ctx.createLinearGradient(0, 220, 0, 360);
+    bg.addColorStop(0, 'rgba(255,190,110,0)');
+    bg.addColorStop(1, 'rgba(255,176,96,' + (0.045 * strength) + ')');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 220, 640, 140);
+    ctx.restore();
+  };
+
+  A.nightOverlay = function (ctx, cam, lights, strength) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(7,12,32,' + (strength == null ? 0.56 : strength) + ')';
+    ctx.fillRect(0, 0, G.W, G.H);
+    ctx.restore();
+    if (lights && lights.length) {
+      for (const l of lights) {
+        const sx = l.x - (cam ? cam.x : 0), sy = l.y - (cam ? cam.y : 0);
+        if (sx < -l.r || sy < -l.r || sx > G.W + l.r || sy > G.H + l.r) continue;
+        A.glow(ctx, sx, sy, l.r, l.color || 'rgba(255,158,70,.5)', l.a == null ? 0.4 : l.a);
+      }
+    }
+  };
+
+  A.warmLight = function (ctx, x, y, r, color, a) {
+    A.glow(ctx, x, y, r, color || 'rgba(255,160,70,.45)', a == null ? 0.35 : a);
+  };
+
+  A.crowd = function (ctx, x, y, n, t, seed) {
+    for (let i = 0; i < n; i++) {
+      const h = G.hash(i, 0, seed || 5);
+      const px = x + (h - 0.5) * 130;
+      const bob = Math.sin((t || 0) * 2 + i) * 1;
+      const ph = 12 + Math.floor(h * 8);
+      ctx.fillStyle = '#1a1410';
+      ctx.fillRect(Math.round(px), Math.round(y - ph + bob), 5, ph);
+      ctx.fillRect(Math.round(px - 1), Math.round(y - ph - 4 + bob), 7, 5);
+      if (i % 9 === 0) {
+        ctx.fillStyle = '#ffd479';
+        ctx.fillRect(Math.round(px - 2), Math.round(y - ph + 2 + bob), 1, 1);
+      }
+    }
+  };
+
+  /* ------------------------------------------------------------
+     mini acropolis for the Athens map
+     ------------------------------------------------------------ */
+  A.miniAcropolis = function (ctx, x, baseY, w, h) {
+    // the rock, darker than the marble so the temples read against it
+    for (let i = 0; i < h; i++) {
+      const t = i / h;
+      const ww = w * (0.7 + t * 0.44) + (G.hash(i, 3, 7) - 0.5) * 6;
+      const col = i % 12 === 0 ? '#4f4837' : (i % 4 === 0 ? '#5f5744' : '#6d6450');
+      r(ctx, x - ww / 2, baseY - i, ww, 1, col);
+      // scrub and shadow on the cliff
+      if (i % 9 === 3) {
+        ctx.save(); ctx.globalAlpha = 0.3; ctx.fillStyle = G.hash(i, 5, 9) > 0.5 ? '#7a8a55' : '#4a4433';
+        for (let xx = x - ww / 2 + 10; xx < x + ww / 2 - 10; xx += 22) {
+          ctx.fillRect(xx + (G.hash(i, xx, 11) * 10) | 0, baseY - i, 6, 2);
+        }
+        ctx.restore();
+      }
+    }
+    // dark silhouette edge and rocky foot
+    r(ctx, x - w * 0.62, baseY, w * 1.24, 5, '#4f4837');
+    ctx.save(); ctx.globalAlpha = 0.45; ctx.fillStyle = '#1d1710';
+    ctx.beginPath(); ctx.ellipse(x, baseY + 5, w * 0.62, 10, 0, 0, G.TAU); ctx.fill();
+    ctx.restore();
+    const top = baseY - h;
+    // retaining wall with merlons along the rim
+    r(ctx, x - w * 0.58, top + 8, w * 1.16, 7, '#a99c7e');
+    r(ctx, x - w * 0.58, top + 8, w * 1.16, 2, '#cfc3a6');
+    for (let xx = x - w * 0.58; xx < x + w * 0.58; xx += 10) {
+      r(ctx, xx, top + 3, 5, 5, '#b3a684');
+      r(ctx, xx, top + 3, 5, 1, '#d2c7ab');
+    }
+    // Parthenon
+    A.drawTemple(ctx, x + 8, top + 2, 78, {
+      columnH: 17, columnW: 4, columns: 6, steps: 2, entH: 5, pedH: 6, name: '',
+    });
+    // Propylaea at the west edge
+    A.drawGate(ctx, x - w * 0.44, top + 8, 44, { wallH: 12, roofH: 7, name: '' });
+    // Erechtheion
+    A.caryatidPorch(ctx, x + w * 0.34, top + 4, 0.34);
+    // theatre on the south slope
+    A.theater(ctx, x + w * 0.32, baseY - 6, 24);
+    // olive trees
+    A.oliveTree(ctx, x - w * 0.5, baseY - 8, 0.5);
+    A.oliveTree(ctx, x + w * 0.5, baseY - 6, 0.45);
   };
 })();
 
@@ -8237,14 +9673,31 @@ input,select{font:inherit}
         this.rotate();
         return;
       }
+      // 把屏幕坐标换算成画布逻辑坐标（520×230），再按“最近的箭头”判定，
+      // 让点击和画面上画出来的 ↑↓←→ 大箭头一一对应，避免点偏或点空白误触。
       const r = this.canvas.getBoundingClientRect();
-      const nx = (e.clientX - r.left) / r.width;
-      const ny = (e.clientY - r.top) / r.height;
-      if (nx > 0.4 && nx < 0.6 && ny > 0.4 && ny < 0.6) return;
-      if (ny < 0.45) this.enInput(0);
-      else if (nx > 0.55) this.enInput(1);
-      else if (ny > 0.55) this.enInput(2);
-      else this.enInput(3);
+      const px = ((e.clientX - r.left) / r.width) * 520;
+      const py = ((e.clientY - r.top) / r.height) * 230;
+      this.enHit(px, py);
+    },
+
+    enHit(px, py) {
+      // 底部回纹卡片只是“显示”当前进度，不作为输入区
+      if (py > 200) return;
+      // 与 drawMeander 里画出来的箭头中心完全一致
+      const pts = [
+        { dir: 0, x: 260, y: 52 },   // ↑
+        { dir: 1, x: 496, y: 120 },  // →
+        { dir: 2, x: 260, y: 194 },  // ↓
+        { dir: 3, x: 24, y: 120 },   // ←
+      ];
+      let bd = null, bdD = 1e9;
+      for (const p of pts) {
+        const d = Math.hypot(px - p.x, py - p.y);
+        if (d < bdD) { bdD = d; bd = p; }
+      }
+      // 只有点在箭头附近才算输入；点在中间石板上则忽略，避免误触
+      if (bd && bdD <= 46) this.enInput(bd.dir);
     },
 
     key(code) {
@@ -8431,14 +9884,22 @@ input,select{font:inherit}
         });
         sx += cardW + gap;
       }
-      // click zones
-      c.strokeStyle = 'rgba(111,163,157,.3)';
-      c.strokeRect(6, 36, 508, 160);
-      G.text(c, '↑', 260, 52, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      G.text(c, '↓', 260, 194, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      G.text(c, '←', 24, 120, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      G.text(c, '→', 496, 120, { size: 13, color: 'rgba(216,178,106,.65)', align: 'center' });
-      C_text(c, '照着回纹方向，依次点击 / 按键', 260, 64, '#8d7c63');
+      // 四个方向点击区：热点圈与箭头一一对应（画在哪，点在哪）
+      const zones = [
+        { d: 0, x: 260, y: 52, ch: '↑' },
+        { d: 1, x: 496, y: 120, ch: '→' },
+        { d: 2, x: 260, y: 194, ch: '↓' },
+        { d: 3, x: 24, y: 120, ch: '←' },
+      ];
+      for (const z of zones) {
+        const current = this.enSeq[this.enIndex] === z.d && !this.done;
+        c.strokeStyle = current ? 'rgba(224,178,94,.95)' : 'rgba(111,163,157,.4)';
+        c.lineWidth = current ? 2.5 : 1.2;
+        c.beginPath(); c.arc(z.x, z.y, 20, 0, G.TAU); c.stroke();
+        c.lineWidth = 1;
+        G.text(c, z.ch, z.x, z.y + 5, { size: 17, color: current ? '#ffdf9e' : 'rgba(216,178,106,.85)', align: 'center', weight: 'bold' });
+      }
+      C_text(c, '照着回纹顺序，点击外圈的 ↑ ↓ ← →', 260, 24, '#8d7c63');
     },
   };
 
@@ -9756,6 +11217,3308 @@ input,select{font:inherit}
 })();
 
 </script>
+<script data-src="js/minigame-greek.js">
+/* ============================================================
+   雅典 · 圣火 — 引雷 · 循光 (sequence / memory game)
+   Replaces the old bellows+aim torch pitch. At night, the
+   priests light three bronze porch lights in a short sequence;
+   the player must repeat it on the same three lamps.
+   Keeps the G.minigameGreek interface used by acropolis.js and the
+   result HUD ids, so the rest of the game is untouched.
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const A = G.artGreek;
+  const $ = G.$;
+
+  const ROUNDS = 6;
+  const LAMPS = 3;                      // three porch lights
+  const PILL = [
+    { x: 300, fy: 150, nameLR: 'keypower' /* left  */ },
+    { x: 360, fy: 150, nameLR: 'keyaim'   /* center */ },
+    { x: 420, fy: 150, nameLR: 'keyflight'/* right  */ },
+  ];
+
+  class SacredFireGame {
+    constructor() {
+      this.active = false;
+      this.finished = false;
+      this.phase = 'ready';
+      this.time = 0;
+      this.round = 0;
+      this.seq = [];            // the sequence the priests light
+      this.playback = [];       // copy being replayed
+      this.slots = [];          // lit slots during playback
+      this.input = [];          // player inputs
+      this.thrones = [1, 2, 3]; // lamp indices used
+      this.score = 0;
+      this.combo = 0;
+      this.maxCombo = 0;
+      this.perfect = 0;
+      this.throwsLeft = ROUNDS;
+      this.hintT = 0;
+      this.pulse = [0, 0, 0];   // per-lamp brightness
+      this.flash = 0;
+      this.messageTimer = null;
+      this.best = 0;
+      this.ripples = [];
+      this.parts = [];
+      this.clickHint = '1 · 2 · 3';
+      this.bgStars = [];
+      for (let i = 0; i < 100; i++) {
+        this.bgStars.push({
+          x: G.hash(i, 1, 9) * 640,
+          y: G.hash(i, 2, 9) * 240,
+          a: 0.2 + G.hash(i, 3, 9) * 0.7,
+          s: G.hash(i, 4, 9) < 0.15 ? 2 : 1,
+          tw: G.hash(i, 5, 9) * 6,
+        });
+      }
+      this.initDOM();
+    }
+
+    initDOM() {
+      const trigger = (e) => {
+        if (!this.active) return;
+        if (e.target.closest('button')) return;
+        if (this.finished) return;
+        e.preventDefault();
+        // tap on the left/centre/right third of the canvas == the three lamps
+        const rect = G.$('#game').getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width;
+        // lamps sit at x 300 / 360 / 420 (midpoints 330 & 390 → thirds)
+        const idx = nx < 330 / 640 ? 0 : nx < 390 / 640 ? 1 : 2;
+        this.pressLamp(idx);
+      };
+      G.$('#game').addEventListener('pointerdown', trigger);
+      G.$('#mg-result').addEventListener('click', (e) => e.stopPropagation());
+      $('#res-retry').addEventListener('click', () => this.retry());
+      $('#res-exit').addEventListener('click', () => this.exit());
+    }
+
+    start(opts) {
+      opts = opts || {};
+      this.callbacks = opts;
+      this.active = true;
+      this.finished = false;
+      this.best = G.save.data.best || 0;
+      this.reset();
+      G.ui.showHud(false);
+      G.ui.prompt(null);
+      G.show($('#mg-hud'));
+      G.hide($('#mg-result'));
+      G.audio.ambient('night');
+      G.audio.sfx('gong');
+      G.fx.clear();
+      this.banner('第 一 巡');
+      this.setHint('看祭司点燃三盏灯 · 记住顺序');
+      this.phase = 'ready';
+      this.prepareSeq();
+      this.startedAt = performance.now();
+      setTimeout(() => {
+        if (this.active && !this.finished && this.phase === 'ready') this.playNext();
+      }, 700);
+    }
+
+    reset() {
+      this.score = 0;
+      this.combo = 0;
+      this.maxCombo = 0;
+      this.perfect = 0;
+      this.round = 0;
+      this.throwsLeft = ROUNDS;
+      this.pulse = [0, 0, 0];
+      this.slots = [];
+      this.phase = 'ready';
+      this.finished = false;
+      this.ripples.length = 0;
+      this.parts.length = 0;
+      this.updateHUD();
+      this.updatePips();
+      this.hideResult();
+      G.show($('#mg-hud'));
+    }
+
+    retry() {
+      this.best = Math.max(this.best, G.save.data.best || 0);
+      this.reset();
+      this.prepareSeq();
+      this.phase = 'ready';
+      this.setHint('祭司重新点灯 · 重复顺序');
+      this.banner('再 来 一 巡');
+      this.playNext();
+      G.audio.sfx('gong');
+    }
+
+    exit() {
+      if (!this.active) return;
+      this.active = false;
+      this.finished = false;
+      this.ripples.length = 0;
+      this.parts.length = 0;
+      G.hide($('#mg-hud'));
+      G.hide($('#mg-result'));
+      G.ui.showHud(true);
+      G.input.clearPressed();
+      if (this.callbacks && this.callbacks.onExit) {
+        this.callbacks.onExit(this.score, { maxCombo: this.maxCombo, perfect: this.perfect });
+      }
+    }
+
+    key(code) {
+      if (!this.active || this.finished) return false;
+      if (code === 'Digit1' || code === 'KeyA' || code === 'ArrowLeft') { this.pressLamp(0); return true; }
+      if (code === 'Digit2' || code === 'KeyS' || code === 'ArrowDown') { this.pressLamp(1); return true; }
+      if (code === 'Digit3' || code === 'KeyD' || code === 'ArrowRight') { this.pressLamp(2); return true; }
+      return false;
+    }
+
+    prepareSeq() {
+      // a fresh random sequence of 3 (at least one repeat so it feels like a pattern)
+      this.seq = [];
+      for (let i = 0; i < 3; i++) this.seq.push(G.randInt(0, LAMPS - 1));
+      if (this.seq[0] === this.seq[1] && this.seq[1] === this.seq[2]) this.seq[2] = (this.seq[1] + 1) % LAMPS;
+    }
+
+    playNext() {
+      this.phase = 'play';
+      this.playback = this.seq.slice();
+      this.slots = [];
+      this.input = [];
+      this.playIdx = 0;
+      this.hintT = 0;
+      this.updatePips();
+      this.banner('记 住 顺 序');
+      this.setHint('<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 或点击灯柱 · 先看祭司怎么点');
+      setTimeout(() => {
+        if (!this.active || this.finished) return;
+        this.replayStep();
+      }, 500);
+    }
+
+    replayStep() {
+      if (!this.active || this.finished) return;
+      const idx = this.playIdx;
+      if (idx >= this.seq.length) {
+        this.startInput();
+        return;
+      }
+      const l = this.seq[idx];
+      this.flashLamp(l, 1);
+      G.audio.sfx('blip');
+      this.updatePips();
+      const next = () => {
+        if (!this.active || this.finished) return;
+        this.flashLamp(l, 0);
+        this.playIdx = idx + 1;
+        this.replayStep();
+      };
+      setTimeout(next, 460);
+    }
+
+    flashLamp(i, on) {
+      this.pulse[i] = on ? 1 : 0.45;
+      if (on) this.addRipple(PILL[i].x, PILL[i].fy);
+    }
+
+    startInput() {
+      this.phase = 'echo';
+      this.input = [];
+      this.banner('轮到你 · 点燃同样的灯');
+      this.setHint('按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>（A/S/D），还原祭司的顺序');
+      this.updatePips();
+    }
+
+    pressLamp(i) {
+      if (!this.active || this.finished) return;
+      if (this.phase !== 'echo') return;
+      this.flashLamp(i, 1);
+      G.audio.sfx('blip');
+      this.input.push(i);
+      this.updatePips();
+      const pos = this.input.length - 1;
+      if (this.input[pos] !== this.seq[pos]) {
+        // mistake: finish round in a forgiving way (no penalty, repeat the round once)
+        this.phase = 'settle';
+        this.throwsLeft--;
+        this.banner('点 错 · 再点一轮');
+        G.audio.sfx('error');
+        G.fx.burst(PILL[i].x, PILL[i].fy - 6, 12, {
+          colors: ['#ff9d3c', '#e05b25'], min: 12, max: 40, lifeMin: 0.3, lifeMax: 0.7,
+        });
+        this.updatePips();
+        this.settleT = 1.3;
+        this.repeatRound();
+        return;
+      }
+      if (this.input.length === this.seq.length) {
+        this.roundComplete();
+      }
+    }
+
+    repeatRound() {
+      const next = () => {
+        if (!this.active || this.finished) return;
+        if (this.throwsLeft <= 0) { this.finish(); return; }
+        this.playNext();
+      };
+      setTimeout(next, this.settleT * 1000);
+    }
+
+    roundComplete() {
+      this.phase = 'settle';
+      const wasPerfect = this.input.every((v, i2) => v === this.seq[i2]);
+      if (wasPerfect) {
+        this.perfect++;
+        this.combo++;
+        this.maxCombo = Math.max(this.maxCombo, this.combo);
+        const gain = 420 + this.combo * 40;
+        this.score += gain;
+        this.banner('循 光 而 过 · +' + gain);
+        G.audio.sfx('cheer');
+        G.fx.burst(345, 220, 26, {
+          colors: ['#ffe9a8', '#ffd479', '#fff3c4'], min: 20, max: 90, lifeMin: 0.4, lifeMax: 1,
+        });
+        this.addRipple(PILL[this.seq[0]].x, PILL[this.seq[0]].fy, 40);
+      } else {
+        this.combo = 0;
+        this.score += 120;
+        this.banner('点了 3 盏 · 稳一点');
+        G.audio.sfx('confirm');
+      }
+      this.throwsLeft--;
+      this.updateHUD();
+      this.updatePips();
+      this.settleT = 1.4;
+      const next = () => {
+        if (!this.active || this.finished) return;
+        if (this.throwsLeft <= 0 || this.round >= ROUNDS) { this.finish(); return; }
+        this.prepareSeq();
+        this.playNext();
+      };
+      setTimeout(next, this.settleT * 1000);
+    }
+
+    finish() {
+      if (this.finished) return;
+      this.finished = true;
+      this.phase = 'over';
+      this.setHint('');
+      const stars = this.perfect >= 5 ? 3 : this.perfect >= 3 ? 2 : this.perfect >= 1 ? 1 : 0;
+      const title = stars === 3 ? '循光入夜' : stars === 2 ? '火种燎原' : stars === 1 ? '一簇微光' : '灯还没接上';
+      const line = stars === 3 ? '三盏灯连成一串火，顺着光一路点到了神庙前。' :
+        stars === 2 ? '几盏灯跟着你亮起来，祭坛前的火苗先立住了一簇。' :
+          stars === 1 ? '有的灯亮了，有的又矮下去。老赫说，火是记性最好的东西。' :
+            '祭司点过的顺序，你一盏都没接住。火还留在灯芯里，等你再来。';
+      const best = Math.max(this.best, this.score);
+      G.save.data.best = best;
+      G.save.data.plays = (G.save.data.plays || 0) + 1;
+      G.save.persist();
+      this.best = best;
+      this.lastResult = { stars, title, line, best };
+      $('#res-title').textContent = title;
+      $('#res-stars').textContent = '★★★☆☆☆'.slice(3 - stars, 6 - stars);
+      $('#res-score').textContent = this.score.toLocaleString('zh-CN');
+      $('#res-combo').textContent = this.maxCombo;
+      $('#res-perfect').textContent = this.perfect;
+      $('#res-best').textContent = best.toLocaleString('zh-CN');
+      $('#res-line').textContent = line;
+      G.show($('#mg-result'));
+      G.hide($('#mg-hud'));
+      G.audio.sfx('gong');
+      if (this.callbacks && this.callbacks.onScore) this.callbacks.onScore(this.score, best);
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          if (!this.active) return;
+          const x = 300 + i * 70, y = 80 + i * 10;
+          for (let k = 0; k < 40; k++) {
+            const a = G.rand(0, G.TAU), sp = G.rand(20, 140);
+            this.addPart({
+              x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+              life: G.rand(0.5, 1.5), size: G.rand(1, 2.2),
+              color: G.pick(['#ffd479', '#ff9d3c', '#fff3c4']), grav: 90, type: 'spark',
+            });
+          }
+          G.audio.sfx('crackle');
+        }, 400 + i * 320);
+      }
+    }
+
+    /* ---------------- HUD ---------------- */
+    setHint(html) { $('#mg-hint').innerHTML = html; }
+    banner(text) {
+      const el = $('#mg-message');
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(this.messageTimer);
+      this.messageTimer = setTimeout(() => el.classList.remove('show'), 760);
+    }
+    updateHUD() {
+      $('#mg-score').textContent = this.score.toLocaleString('zh-CN');
+    }
+    updatePips() {
+      const wrap = $('#mg-pips');
+      if (!wrap) return;
+      // pips = remaining rounds to complete (6)
+      if (wrap.children.length !== ROUNDS) {
+        wrap.innerHTML = '';
+        for (let i = 0; i < ROUNDS; i++) wrap.appendChild(document.createElement('i'));
+      }
+      Array.from(wrap.children).forEach((el, i) => el.classList.toggle('on', i < this.throwsLeft));
+    }
+    hideResult() { G.hide($('#mg-result')); }
+
+    /* ---------------- particles / ripples ---------------- */
+    addPart(p) {
+      if (this.parts.length > 1600) this.parts.splice(0, 200);
+      p.life = p.life || 1; p.max = p.life;
+      p.size = p.size || 1; p.vx = p.vx || 0; p.vy = p.vy || 0;
+      p.grav = p.grav || 0; p.drag = p.drag == null ? 1 : p.drag;
+      this.parts.push(p);
+    }
+    addRipple(x, y, r) {
+      this.ripples.push({ x, y, r: 6, max: r || 90, life: 0.9, maxLife: 0.9 });
+    }
+    updateParts(dt) {
+      for (let i = this.parts.length - 1; i >= 0; i--) {
+        const p = this.parts[i];
+        p.life -= dt;
+        if (p.life <= 0) { this.parts.splice(i, 1); continue; }
+        p.vy += p.grav * dt;
+        p.vx *= Math.pow(p.drag, dt * 60);
+        p.vy *= Math.pow(p.drag, dt * 60);
+        p.x += p.vx * dt; p.y += p.vy * dt;
+      }
+      for (let i = this.ripples.length - 1; i >= 0; i--) {
+        const r = this.ripples[i];
+        r.life -= dt;
+        r.r = G.lerp(r.r, r.max, 1 - Math.exp(-6 * dt));
+        if (r.life <= 0) this.ripples.splice(i, 1);
+      }
+    }
+
+    /* ---------------- update ---------------- */
+    update(dt) {
+      this.time += dt;
+      this.updateParts(dt);
+      this.flash = Math.max(0, this.flash - dt * 2.3);
+      for (let i = 0; i < LAMPS; i++) {
+        this.pulse[i] = Math.max(0, this.pulse[i] - dt * 2.4);
+      }
+      if (this.finished) {
+        if (Math.random() < dt * 2) this.ambientEmber();
+        return;
+      }
+      if (Math.random() < dt * 4) this.ambientEmber();
+    }
+
+    ambientEmber() {
+      this.addPart({
+        x: 110 + G.rand(-20, 20), y: 300 + G.rand(-8, 8),
+        vx: G.rand(-10, 10), vy: G.rand(-40, -12),
+        life: G.rand(0.6, 1.6), size: G.rand(1, 2),
+        color: G.pick(['#ffb347', '#ff7a29', '#ffd479']), grav: -8, type: 'spark',
+      });
+    }
+
+    /* ---------------- draw ---------------- */
+    draw(ctx) {
+      if (!this.active) return;
+      ctx.imageSmoothingEnabled = false;
+      this.drawSky(ctx);
+      this.drawBackdrop(ctx);
+      this.drawLamps(ctx);
+      this.drawGround(ctx);
+      this.drawPriests(ctx);
+      this.drawCrowd(ctx);
+      this.drawPrompt(ctx);
+      this.drawParticles(ctx);
+      this.drawForeground(ctx);
+      if (this.flash > 0.01) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = 'rgba(255,170,80,' + (this.flash * 0.2) + ')';
+        ctx.fillRect(0, 0, 640, 360);
+        ctx.restore();
+      }
+    }
+
+    drawSky(ctx) {
+      const g = ctx.createLinearGradient(0, 0, 0, 300);
+      g.addColorStop(0, '#070d1c');
+      g.addColorStop(0.55, '#131126');
+      g.addColorStop(1, '#2b1a20');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 640, 360);
+      for (const s of this.bgStars) {
+        const tw = 0.55 + 0.45 * Math.sin(this.time * 1.2 + s.tw);
+        ctx.globalAlpha = s.a * tw;
+        ctx.fillStyle = s.s > 1 ? '#ffe9b8' : '#dfe6ff';
+        ctx.fillRect(Math.round(s.x), Math.round(s.y), s.s, s.s);
+      }
+      ctx.globalAlpha = 1;
+      A.glow(ctx, 546, 58, 62, 'rgba(236,215,160,.22)', 0.55);
+      ctx.fillStyle = '#f0e3bf';
+      ctx.beginPath(); ctx.arc(546, 58, 17, 0, G.TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(205,190,150,.55)';
+      ctx.beginPath(); ctx.arc(552, 53, 4, 0, G.TAU); ctx.fill();
+      ctx.beginPath(); ctx.arc(541, 64, 2.5, 0, G.TAU); ctx.fill();
+    }
+
+    drawBackdrop(ctx) {
+      // distant Athens at night
+      ctx.fillStyle = '#0a0c15';
+      ctx.fillRect(0, 214, 640, 64);
+      for (let i = 0; i < 40; i++) {
+        const x = i * 17;
+        const h = 4 + G.hash(i, 5, 95) * 14;
+        ctx.fillStyle = '#0d1018';
+        ctx.fillRect(x, 216 - h, 15, h);
+        if (i % 6 === 0) {
+          ctx.fillStyle = 'rgba(255,206,120,.22)';
+          ctx.fillRect(x + 5, 214 - h, 1, 1);
+        }
+      }
+      // a low hill and the Parthenon silhouette, dark
+      ctx.fillStyle = '#0e1119';
+      ctx.beginPath();
+      ctx.moveTo(120, 250);
+      ctx.quadraticCurveTo(340, 210, 600, 238);
+      ctx.lineTo(640, 258);
+      ctx.lineTo(640, 300);
+      ctx.lineTo(90, 300);
+      ctx.closePath();
+      ctx.fill();
+      // the three pillars sit on that hill, lit as it goes
+    }
+
+    drawLamps(ctx) {
+      const cols = ['#3a6f8f', '#8a2f22', '#4a7d52'];
+      for (let i = 0; i < LAMPS; i++) {
+        const p = PILL[i];
+        const lit = this.pulse[i];
+        const baseY = 214;
+        // small temple top / pillar
+        ctx.fillStyle = '#1a2029';
+        ctx.fillRect(p.x - 16, 214, 32, 4);
+        ctx.fillStyle = '#161b24';
+        ctx.fillRect(p.x - 8, baseY, 16, 16);
+        // bowl
+        ctx.fillStyle = '#2a303c';
+        ctx.beginPath(); ctx.arc(p.x, p.fy, 10, 0, G.TAU); ctx.fill();
+        const b = G.clamp(lit, 0, 1);
+        A.glow(ctx, p.x, p.fy, 44 * (0.5 + b), 'rgba(255,170,60,' + (0.18 + b * 0.3) + ')', 0.6);
+        if (b > 0.05) {
+          A.glow(ctx, p.x, p.fy, 18 + b * 8, 'rgba(255,236,160,.6)', 0.7);
+          ctx.fillStyle = '#fff1c0';
+          ctx.beginPath(); ctx.arc(p.x, p.fy, 5 + b * 2, 0, G.TAU); ctx.fill();
+          ctx.fillStyle = '#ffc861';
+          ctx.beginPath(); ctx.arc(p.x - 2, p.fy - 1, 2.5, 0, G.TAU); ctx.fill();
+        } else {
+          ctx.fillStyle = 'rgba(40,44,58,.8)';
+          ctx.beginPath(); ctx.arc(p.x, p.fy, 8, 0, G.TAU); ctx.fill();
+        }
+        // index number label under each during echo
+        if (this.phase === 'echo') {
+          const on = this.input.length && this.input[this.input.length - 1] === i;
+          G.text(ctx, String(i + 1) + (on ? '▸' : ''), p.x, 246, { size: 8, color: on ? '#ffe9a8' : 'rgba(220,210,180,.6)', align: 'center' });
+        }
+      }
+    }
+
+    drawGround(ctx) {
+      const g = ctx.createLinearGradient(0, 236, 0, 360);
+      g.addColorStop(0, '#2a2430');
+      g.addColorStop(1, '#121016');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 236, 640, 124);
+      ctx.save();
+      ctx.globalAlpha = 0.16;
+      ctx.strokeStyle = '#8f93a2';
+      for (let y = 246; y < 360; y += 14) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(640, y); ctx.stroke();
+      }
+      for (let x = 40; x < 640; x += 56) {
+        ctx.beginPath(); ctx.moveTo(x, 236); ctx.lineTo(x + 20, 360); ctx.stroke();
+      }
+      ctx.restore();
+      // a small low altar at the centre where the player stands
+      ctx.fillStyle = '#34312c';
+      ctx.fillRect(315, 278, 60, 6);
+      ctx.fillStyle = '#3d3a33';
+      ctx.fillRect(322, 272, 46, 8);
+    }
+
+    drawPriests(ctx) {
+      // the player, holding a torch, facing the lamps
+      A.drawActor(ctx, 260, 316, {
+        dir: 'right', frame: 0, moving: false, time: this.time,
+        palette: A.actorPalettes.player, scale: 1.5, accessory: 'torch',
+      });
+      A.drawActor(ctx, 428, 316, {
+        dir: 'left', frame: 0, moving: false, time: this.time + 1,
+        palette: A.actorPalettes.priest, scale: 1.3, accessory: 'torch',
+      });
+      A.drawActor(ctx, 480, 322, {
+        dir: 'right', frame: 0, moving: false, time: this.time + 2,
+        palette: A.actorPalettes.guard, scale: 1.2, accessory: 'spear',
+      });
+    }
+
+    drawCrowd(ctx) {
+      A.crowd(ctx, 380, 344, 18, this.time, 5);
+      A.crowd(ctx, 200, 348, 10, this.time + 1, 8);
+    }
+
+    drawPrompt(ctx) {
+      if (this.phase !== 'echo') return;
+      const p = [[190, 236, '1 · 左'], [310, 244, '2 · 中'], [430, 238, '3 · 右']];
+      for (const [x, y, t] of p) {
+        G.text(ctx, t, x, y, { size: 8, color: 'rgba(240,228,190,.75)', align: 'center' });
+      }
+    }
+
+    drawParticles(ctx) {
+      for (const p of this.parts) {
+        const a = G.clamp(p.life / p.max, 0, 1);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = a;
+        ctx.fillStyle = p.color;
+        const s = Math.max(1, p.size * (0.4 + a * 0.6));
+        ctx.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), s, s);
+        ctx.restore();
+      }
+      ctx.save();
+      for (const rg of this.ripples) {
+        const a = G.clamp(rg.life / rg.maxLife, 0, 1);
+        ctx.globalAlpha = a * 0.6;
+        ctx.strokeStyle = '#ffcf7a';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(rg.x, rg.y, rg.r, 0, G.TAU); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    drawForeground(ctx) {
+      A.crowd(ctx, 120, 360, 6, this.time, 11);
+      A.crowd(ctx, 560, 360, 6, this.time + 2, 12);
+      const vg = ctx.createRadialGradient(340, 170, 150, 340, 180, 390);
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(1, 'rgba(0,0,0,.55)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, 640, 360);
+    }
+  }
+
+  G.minigameGreek = new SacredFireGame();
+})();
+
+</script>
+<script data-src="js/athens.js">
+/* ============================================================
+   雅典 · 圣火 — Athens & the Acropolis slopes
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const A = G.artGreek;
+  const P = A.pal;
+
+  class AthensScene extends G.WorldScene {
+    constructor() {
+      super({
+        id: 'athens', w: 2200, h: 1500, spawn: { x: 1100, y: 1240 },
+        clock: '15:40', ambient: 'city', lookAhead: 40, gradeStrength: 0.5,
+      });
+      this.title = '雅典 · 卫城脚下';
+      this.marker = { x: 1100, y: 846 };
+      this.mapOpen = false;
+      this.build();
+      this.buildGround((c) => this.paintGround(c));
+    }
+
+    onEnter() {
+      G.ui.location('雅典', '卫城脚下');
+      this.refreshObjective();
+      this.clock = '15:40';
+      this.updateHud();
+      G.audio.ambient('city');
+      const flags = G.save.data.flags;
+      if (!flags.introSeen) {
+        flags.introSeen = true;
+        G.save.persist();
+        setTimeout(() => {
+          if (G.scene !== this) return;
+          G.dialog.show([
+            { name: '旅行手账', narrator: true, text: '雅典。泛雅典娜大道从凯拉米克斯一路向北，穿过古市集，最后爬上卫城的山门。' },
+            { name: '旅行手账', narrator: true, text: '你带着一本没写完的手账，和一枚旧铜火种盒。' },
+            { name: '旅行手账', narrator: true, text: '听说入夜之后，帕特农神庙前的祭坛上，要举行一场点圣火的仪式。' },
+            { name: '旅行手账', text: '沿大道一直往北。卫城山门是入口，记得带上证件。' },
+          ]);
+        }, 600);
+      }
+    }
+
+    refreshObjective() {
+      const f = G.save.data.flags;
+      if (f.entered && f.night) this.objective('夜访卫城 · 看一场点圣火');
+      else if (f.entered) this.objective('已在卫城 · 去找主持圣火的匠人');
+      else this.objective('沿泛雅典娜大道向北，到卫城山门入园');
+      this.marker = { x: 1100, y: 846 };
+    }
+
+    /* ============================================================
+       build the world
+       ============================================================ */
+    build() {
+      /* ---------------- the Acropolis rock ---------------- */
+      this.addEntity({
+        x: 1100, y: 822, baseY: 822,
+        draw: (c) => A.miniAcropolis(c, 1100, 822, 470, 300),
+      });
+      this.solid(880, 560, 440, 250);
+      // the Propylaea front
+      this.addBuilding(1100, 830, (c) => {
+        A.drawGate(c, 1100, 830, 236, { wallH: 42, roofH: 22, name: '卫城山门' });
+      });
+      this.solidRect(1100, 830, 246, 20);
+      this.interactables.push({
+        x: 1100, y: 856, r: 54, label: '在卫城山门安检入园',
+        action: () => this.gate(),
+      });
+      this.addInteract({
+        x: 1242, y: 848, r: 30, label: '查看卫城导览牌',
+        action: () => {
+          if (G.unlock) { G.unlock('acropolis'); G.unlock('parthenon'); }
+          G.dialog.show([
+            { name: '导览牌', text: '雅典卫城，希腊语 Akropolis，意为「高处的城邦」。公元前五世纪重建，帕特农神庙、厄瑞克忒翁神庙与山门至今仍立在山顶。' },
+            { name: '导览牌', text: '参观请从西侧山门入园，配合证件核验与随身物品安检。开放时间 08:00—20:00。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Theatre of Dionysus ---------------- */
+      this.addEntity({
+        x: 880, y: 792, baseY: 792,
+        draw: (c) => A.theater(c, 880, 792, 62),
+      });
+      this.solid(830, 770, 100, 24);
+      this.addInteract({
+        x: 880, y: 812, r: 34, label: '看看狄俄尼索斯剧场',
+        action: () => {
+          if (G.unlock) G.unlock('theater');
+          G.dialog.show([
+            { name: '狄俄尼索斯剧场', text: '卫城南坡上的露天剧场，可容一万七千人。悲剧与喜剧都从这里的酒神节里长出来。' },
+            { name: '旅行手账', text: '坐在最上一排，能看见整个雅典铺到海边。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Odeon of Herodes Atticus ---------------- */
+      this.addEntity({
+        x: 1322, y: 790, baseY: 790,
+        draw: (c) => {
+          A.theater(c, 1322, 790, 46);
+          A.r(c, 1300, 726, 44, 34, '#a89c80');
+          A.r(c, 1300, 726, 44, 3, P.marbleHi);
+          for (let i = 0; i < 4; i++) A.r(c, 1304 + i * 11, 732, 4, 22, '#6d6350');
+          A.r(c, 1296, 722, 52, 5, P.terra);
+          A.r(c, 1296, 722, 52, 1, P.terraHi);
+        },
+      });
+      this.solid(1290, 742, 64, 30);
+
+      /* ---------------- Ancient Agora ---------------- */
+      this.addBuilding(650, 992, (c) => {
+        A.stoa(c, 650, 992, 240, { h: 26 });
+      });
+      this.solid(530, 958, 240, 30);
+      this.addInteract({
+        x: 650, y: 1010, r: 40, label: '走进古市集',
+        action: () => {
+          if (G.unlock) G.unlock('agora');
+          G.dialog.show([
+            { name: '古市集', text: '阿塔罗斯柱廊长达一百多米，是雅典人买卖、闲谈、听哲学的地方。苏格拉底常在这一带的柱廊下跟人辩到天黑。' },
+          ]);
+        },
+      });
+      this.addEntity({
+        x: 545, y: 900, baseY: 900,
+        draw: (c) => A.hephaisteion(c, 545, 900, 1),
+      });
+      this.solid(475, 866, 140, 34);
+      this.addInteract({
+        x: 545, y: 920, r: 34, label: '看看赫淮斯托斯神庙',
+        action: () => {
+          if (G.unlock) G.unlock('hephaisteion');
+          G.dialog.show([
+            { name: '赫淮斯托斯神庙', text: '希腊保存得最完整的一座古神庙，供奉火与锻造之神赫淮斯托斯。' },
+            { name: '旅行手账', text: '火神的庙。也许老赫会喜欢这里。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Roman Agora / library ---------------- */
+      this.addBuilding(930, 1060, (c) => {
+        A.stoa(c, 930, 1060, 120, { h: 20 });
+        A.r(c, 890, 1028, 80, 10, P.marble);
+      });
+      this.solid(862, 1034, 136, 24);
+
+      /* ---------------- Plaka ---------------- */
+      this.addBuilding(1270, 1075, (c) => {
+        this.house(c, 1225, 1075, 54, 34, '#e0d6bd');
+        this.house(c, 1290, 1075, 60, 40, '#d8cdb2');
+        this.house(c, 1352, 1075, 48, 30, '#e6dcc4');
+        A.r(c, 1200, 1072, 170, 2, '#8f8267');
+      });
+      this.solid(1195, 1042, 175, 34);
+      this.addInteract({
+        x: 1280, y: 1098, r: 36, label: '走进普拉卡老城',
+        action: () => {
+          if (G.unlock) G.unlock('plaka');
+          G.dialog.show([
+            { name: '普拉卡', text: '卫城北坡下的老街区。白墙、九重葛、窄巷，柠檬树从院墙里探出来。' },
+            { name: '旅行手账', text: '巷子尽头有一家开了很久的铜匠铺。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Temple of Olympian Zeus ---------------- */
+      this.addEntity({
+        x: 1490, y: 1150, baseY: 1150,
+        draw: (c) => A.templeOfZeus(c, 1490, 1150, 1),
+      });
+      this.solid(1420, 1110, 140, 36);
+      this.addInteract({
+        x: 1490, y: 1172, r: 36, label: '看奥林匹亚宙斯神庙',
+        action: () => {
+          if (G.unlock) G.unlock('zeus');
+          G.dialog.show([
+            { name: '奥林匹亚宙斯神庙', text: '曾经有一百零四根科林斯柱，如今只剩十五根立着。倒下的一根，还躺在原地。' },
+          ]);
+        },
+      });
+      // Hadrian's arch
+      this.addEntity({
+        x: 1372, y: 1160, baseY: 1160,
+        draw: (c) => A.arch(c, 1372, 1160, 76, 60, {}),
+      });
+      this.solid(1348, 1104, 10, 58);
+      this.solid(1386, 1104, 10, 58);
+      this.addInteract({
+        x: 1372, y: 1174, r: 26, label: '穿过哈德良拱门',
+        action: () => {
+          if (G.unlock) G.unlock('hadrian');
+          G.audio.sfx('confirm');
+          G.ui.toast('哈德良拱门 · 老城与新城的分界', '', 2200);
+        },
+      });
+
+      /* ---------------- Syntagma ---------------- */
+      this.addBuilding(1580, 1000, (c) => {
+        // parliament facade
+        A.r(c, 1500, 918, 160, 78, '#d8cdb2');
+        A.r(c, 1500, 918, 160, 4, P.marbleHi);
+        for (let i = 0; i < 9; i++) {
+          A.column(c, 1510 + i * 17, 996, 62, 6, {});
+        }
+        A.r(c, 1492, 908, 176, 10, P.marble);
+        A.r(c, 1492, 908, 176, 2, P.marbleHi);
+        A.r(c, 1540, 934, 80, 3, '#c9a557');
+      });
+      this.solid(1490, 908, 180, 90);
+      this.addInteract({
+        x: 1580, y: 1012, r: 36, label: '在宪法广场歇脚',
+        action: () => {
+          if (G.unlock) G.unlock('syntagma');
+          G.dialog.show([
+            { name: '宪法广场', text: '议会大厦前的无名战士纪念碑下，两名穿白色短裙的卫兵每整点换岗。' },
+          ]);
+        },
+      });
+      // fountains
+      for (const fx of [1520, 1640]) {
+        this.addEntity({
+          x: fx, y: 1040, baseY: 1040,
+          draw: (c) => A.well(c, fx, 1040),
+        });
+      }
+
+      /* ---------------- Lycabettus ---------------- */
+      this.addEntity({
+        x: 1820, y: 780, baseY: 780,
+        draw: (c) => {
+          for (let i = 0; i < 90; i++) {
+            const ww = 130 - i * 1.15;
+            A.r(c, 1820 - ww, 780 - i, ww * 2, 1, i % 6 === 0 ? '#7d7c5a' : '#8f8c68');
+          }
+          A.r(c, 1810, 692, 20, 16, '#f0e9d8');
+          A.r(c, 1808, 688, 24, 5, P.terra);
+          A.r(c, 1819, 680, 2, 9, '#8f8267');
+          A.cypress(c, 1786, 742, 0.8);
+          A.cypress(c, 1856, 736, 0.7);
+        },
+      });
+      this.solid(1770, 700, 100, 80);
+      this.addInteract({
+        x: 1820, y: 800, r: 34, label: '爬上吕卡维多斯山',
+        action: () => {
+          if (G.unlock) G.unlock('lycabettus');
+          G.dialog.show([
+            { name: '吕卡维多斯山', text: '雅典最高的点。山下的城市摊开成一片白，远处是比雷埃夫斯港和萨罗尼克湾。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Dipylon / start ---------------- */
+      this.addBuilding(1100, 1390, (c) => {
+        A.arch(c, 1100, 1390, 120, 74, {});
+        A.rubble(c, 1010, 1392, 1.2);
+        A.rubble(c, 1196, 1390, 1.1);
+        A.cypress(c, 930, 1390, 0.9);
+        A.cypress(c, 1270, 1388, 0.85);
+        A.sign(c, 1074, 1388, '迪皮隆门 · 凯拉米克斯', { w: 74, size: 6 });
+      });
+      this.solidRect(1100, 1390, 130, 16);
+      this.addInteract({
+        x: 1100, y: 1404, r: 26, label: '回望迪皮隆门',
+        action: () => {
+          G.dialog.show([
+            { name: '迪皮隆门', text: '古城雅典的西门，也是泛雅典娜节的起点。队伍从城外出发，穿过此门，一路走上卫城。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Piraeus harbour ---------------- */
+      this.addEntity({
+        x: 320, y: 1440, baseY: 1440,
+        draw: (c) => {
+          A.bridge(c, 300, 1428, 60, {});
+          // boats
+          for (const [bx, bw, col] of [[220, 34, '#c9b98f'], [380, 30, '#b8a87e'], [150, 26, '#d5c6a0']]) {
+            A.r(c, bx - bw / 2, 1416, bw, 8, '#4a3a26');
+            A.r(c, bx - bw / 2, 1416, bw, 2, '#8a6a3a');
+            A.r(c, bx - 1, 1396, 2, 22, '#6b5236');
+            A.r(c, bx - 8, 1400, 16, 12, '#efe6d0');
+          }
+          A.flag(c, 430, 1420, this.time, '#3a6f8f');
+        },
+      });
+      this.addInteract({
+        x: 320, y: 1424, r: 44, label: '走到比雷埃夫斯港',
+        action: () => {
+          if (G.unlock) G.unlock('piraeus');
+          G.dialog.show([
+            { name: '比雷埃夫斯港', text: '雅典的港口，从这里能望见萨罗尼克湾。古时候，橄榄油和陶器从这里运往整个地中海。' },
+          ]);
+        },
+      });
+      // boat to Cape Sounion, available after the sacred fire
+      this.addInteract({
+        x: 320, y: 1456, r: 30, label: G.save.flag('finished') ? '乘船 · 去苏尼翁角' : '码头工人 · （隐约听说天黑后有船可以去最南的海岬）',
+        action: () => this.boat(),
+      });
+      this.addEntity({
+        x: 210, y: 1464, baseY: 1464,
+        draw: (c) => {
+          A.r(c, 178, 1452, 56, 8, '#4a3a26');
+          A.r(c, 178, 1452, 56, 2, '#8a6a3a');
+          A.r(c, 200, 1436, 2, 20, '#6b5236');
+          A.r(c, 192, 1440, 14, 10, '#efe6d0');
+        },
+      });
+
+      /* ---------------- olive grove ---------------- */
+      const grove = [[520, 1160], [590, 1108], [660, 1176], [730, 1120], [470, 1240], [640, 1258]];
+      for (const [gx, gy] of grove) {
+        this.addEntity({
+          x: gx, y: gy, baseY: gy,
+          draw: (c) => A.oliveTree(c, gx, gy, 1, { pot: false }),
+        });
+      }
+      this.addInteract({
+        x: 600, y: 1180, r: 40, label: '在橄榄园 · 采收橄榄',
+        action: () => this.oliveGrove(),
+      });
+
+      /* ---------------- Monastiraki market ---------------- */
+      this.addBuilding(1010, 1120, (c) => {
+        A.r(c, 940, 1092, 130, 26, '#d8cdb2');
+        A.r(c, 938, 1086, 134, 8, P.terra);
+        A.r(c, 940, 1092, 130, 2, P.terraHi);
+        for (let i = 0; i < 4; i++) A.r(c, 950 + i * 32, 1096, 22, 18, '#a89c80');
+        // awnings
+        for (const [ax, col] of [[956, '#a8392c'], [1026, '#3a6f8f']]) {
+          A.r(c, ax, 1064, 44, 8, col);
+          A.r(c, ax, 1064, 44, 2, '#e8d9b6');
+          A.r(c, ax + 2, 1072, 2, 20, '#6b5236');
+          A.r(c, ax + 40, 1072, 2, 20, '#6b5236');
+        }
+      });
+      this.solid(936, 1060, 140, 34);
+      this.addInteract({
+        x: 1010, y: 1136, r: 34, label: '逛蒙纳斯提拉奇市集',
+        action: () => {
+          if (G.unlock) G.unlock('monastiraki');
+          this.marketTrade();
+        },
+      });
+
+      /* ---------------- street props ---------------- */
+      for (const [lx, ly] of [[1040, 940], [1160, 1000], [980, 1210], [1200, 1150], [1440, 1000]]) {
+        this.addEntity({
+          x: lx, y: ly, baseY: ly,
+          draw: (c) => A.lamp(c, lx, ly, false),
+        });
+      }
+      this.addEntity({
+        x: 900, y: 1100, baseY: 1100,
+        draw: (c) => A.sign(c, 900, 1100, '泛雅典娜大道', { w: 68, size: 6 }),
+      });
+
+      /* ---------------- roadside planting & ruins ---------------- */
+      // cypresses lining the Panathenaic Way
+      for (const [cx, cy] of [[1006, 960], [1006, 1080], [1006, 1220], [1158, 940], [1158, 1060], [1158, 1190], [1158, 1330], [1006, 1350]]) {
+        this.addEntity({ x: cx, y: cy, baseY: cy, draw: (c) => A.cypress(c, cx, cy, 1.1) });
+        this.solid(cx - 5, cy - 6, 10, 8);
+      }
+      // olive trees dotted along the route
+      for (const [ox, oy, os] of [[960, 1150, 0.9], [1200, 1130, 0.85], [700, 1080, 1], [860, 1200, 0.8], [1420, 980, 0.9], [560, 900, 0.85]]) {
+        this.addEntity({ x: ox, y: oy, baseY: oy, draw: (c) => A.oliveTree(c, ox, oy, os, {}) });
+        this.solid(ox - 8, oy - 4, 16, 6);
+      }
+      // laurel bushes at the corners
+      for (const [bx, by] of [[995, 1035], [1168, 1035], [1060, 1400], [1330, 1090], [520, 1085], [880, 1060]]) {
+        this.addEntity({ x: bx, y: by, baseY: by, draw: (c) => A.bush(c, bx, by, 1) });
+      }
+      // fallen column drums and rubble
+      for (const [dx, dy, dl] of [[700, 1050, 26], [770, 1010, 18], [1420, 1220, 24], [600, 980, 20], [1340, 1210, 16]]) {
+        this.addEntity({ x: dx, y: dy, baseY: dy, draw: (c) => A.columnDrum(c, dx, dy, dl, { s: 1 }) });
+      }
+      this.addEntity({ x: 470, y: 1030, baseY: 1030, draw: (c) => A.rubble(c, 470, 1030, 1.6) });
+      this.addEntity({ x: 1560, y: 1120, baseY: 1120, draw: (c) => A.rubble(c, 1560, 1120, 1.4) });
+      // benches and lamps
+      for (const [bx, by] of [[980, 890], [1220, 890], [980, 1010], [1230, 1250]]) {
+        this.addEntity({ x: bx, y: by, baseY: by, draw: (c) => A.bench(c, bx, by) });
+      }
+      for (const [lx, ly] of [[1000, 1120], [1180, 980], [900, 1180], [1300, 1000], [1560, 1140]]) {
+        this.addEntity({ x: lx, y: ly, baseY: ly, draw: (c) => A.lamp(c, lx, ly, false) });
+      }
+      // amphora clusters at the market
+      for (const [ax, ay, as] of [[960, 1110, 0.9], [978, 1114, 0.8], [1120, 1100, 0.9], [1138, 1106, 0.75]]) {
+        this.addEntity({ x: ax, y: ay, baseY: ay, draw: (c) => A.amphora(c, ax, ay, { s: as, color: as > 0.85 ? '#a8503a' : '#8a3b2c' }) });
+      }
+      // a small public well in Plaka
+      this.addEntity({ x: 1360, y: 1140, baseY: 1140, draw: (c) => A.well(c, 1360, 1140) });
+      this.addInteract({
+        x: 1360, y: 1148, r: 26, label: '在井边打水',
+        action: () => G.ui.toast('井水很凉，绳子上还挂着一只旧铜桶', '', 2200),
+      });
+
+      /* ---------------- photo spots (travel-journal camera) ---------------- */
+      this.photoSpot('parthenon', 1290, 886, '在城南台地，给帕特农来一张留影');
+      this.photoSpot('piraeus', 400, 1424, '给比雷埃夫斯港的海来一张留影');
+      this.photoSpot('lycabettus', 1820, 820, '在吕卡维多斯山顶，俯拍整个雅典');
+
+      /* ---------------- NPCs ---------------- */
+      this.addNPC({
+        x: 1006, y: 900, name: '导游 索菲娅', palette: A.actorPalettes.guide,
+        wander: 0, lines: [
+          '卫城就在上面。今天是好天气，大理石会被晒得发亮。',
+          '沿这条路一直走，山门那儿要过安检。',
+        ],
+        onTalk: () => { if (G.unlock) G.unlock('acropolis'); },
+      });
+      this.addNPC({
+        x: 1052, y: 1128, name: '卖橄榄的摊主', palette: A.actorPalettes.vendor,
+        wander: 0, lines: [
+          '卡拉马塔橄榄，尝一颗？配面包正好。',
+          '点圣火的仪式在帕特农前面。你来得正是时候。',
+        ],
+      });
+      this.addNPC({
+        x: 1546, y: 1036, name: '卫兵', palette: A.actorPalettes.guard,
+        wander: 0, lines: [
+          '（他一动不动，只有红色帽缨在风里晃。）',
+        ],
+      });
+      this.addNPC({
+        x: 1330, y: 1180, name: '游客', palette: A.actorPalettes.tourist2,
+        wander: 1, radius: 26, lines: [
+          '这些柱子高得不讲道理。',
+          '听说今晚这里会点圣火，我得留到天黑。',
+        ],
+      });
+      this.addNPC({
+        x: 780, y: 1080, name: '放羊的孩子', palette: A.actorPalettes.child,
+        wander: 1, radius: 30, lines: [
+          '我的羊跑到橄榄园里去了。',
+          '上面的石头房子，是给女神住的。',
+        ],
+      });
+
+      /* ---------------- a few animals ---------------- */
+      this.addEntity({
+        x: 700, y: 1030, baseY: 1030,
+        draw: (c) => A.goat(c, 700, 1030, this.time),
+      });
+      this.addEntity({
+        x: 760, y: 1018, baseY: 1018,
+        draw: (c) => A.goat(c, 760, 1018, this.time + 1),
+      });
+      this.addEntity({
+        x: 1210, y: 980, baseY: 980,
+        draw: (c) => A.cat(c, 1210, 980, this.time, { color: '#c9bfa8' }),
+      });
+    }
+
+    house(c, x, base, w, h, col) {
+      A.shadow(c, x, base, w + 4, 2, 0.2);
+      A.r(c, x - w / 2, base - h, w, h, col);
+      // side shading and upper highlight
+      A.r(c, x + w / 2 - 6, base - h, 6, h, 'rgba(90,78,58,.22)');
+      A.r(c, x - w / 2, base - h, w, 2, '#f0e9d8');
+      A.r(c, x - w / 2, base - 3, w, 3, '#8f8267');
+      // door with a step
+      A.r(c, x - 5, base - 14, 10, 12, '#6b5236');
+      A.r(c, x - 4, base - 13, 8, 10, '#8a6a3a');
+      A.r(c, x - 6, base - 4, 12, 2, '#a99c7e');
+      A.r(c, x - 1, base - 9, 2, 2, '#c9a557');
+      // windows with shutters
+      for (const wx of [x - w / 2 + 7, x + w / 2 - 15]) {
+        A.r(c, wx, base - h + 7, 8, 7, '#3a4a56');
+        A.r(c, wx + 1, base - h + 8, 6, 5, '#5b7f92');
+        A.r(c, wx - 2, base - h + 7, 2, 7, '#7d3a28');
+        A.r(c, wx + 8, base - h + 7, 2, 7, '#7d3a28');
+      }
+      // balcony on taller houses
+      if (h >= 36) {
+        A.r(c, x - w / 2 + 4, base - h + 16, w - 8, 2, '#6b5236');
+        for (let i = 0; i < 6; i++) A.r(c, x - w / 2 + 6 + i * (w - 12) / 5, base - h + 12, 1, 4, '#8a6a3a');
+      }
+      // tiled roof
+      for (let i = 0; i < 9; i++) {
+        const hw = (w + 10) / 2 * (1 - i * 0.06);
+        A.r(c, x - hw, base - h - 1 - i, hw * 2, 1, i % 2 ? P.terra : P.terraHi);
+      }
+      A.r(c, x - (w + 10) / 2, base - h - 1, w + 10, 2, P.terraDark);
+      // chimney
+      A.r(c, x + w / 2 - 12, base - h - 12, 4, 6, '#a8503a');
+      A.r(c, x + w / 2 - 13, base - h - 13, 6, 2, '#7d382a');
+      // bougainvillea spilling over one wall
+      if (G.hash(x, base, 5) > 0.45) {
+        A.r(c, x - w / 2 - 1, base - h + 2, 8, 9, '#8a3b2c');
+        A.r(c, x - w / 2 + 1, base - h + 3, 5, 3, '#c45a8a');
+        A.r(c, x - w / 2 + 4, base - h + 6, 4, 3, '#d9739f');
+      }
+    }
+
+    /* ============================================================
+       ground
+       ============================================================ */
+    paintGround(c) {
+      // dry attican earth
+      c.fillStyle = '#948a63';
+      c.fillRect(0, 0, this.w, this.h);
+      // broad tonal patches so the plain never reads as flat
+      for (let gy = 0; gy < this.h; gy += 48) {
+        for (let gx = 0; gx < this.w; gx += 48) {
+          const n = G.hash(gx, gy, 41);
+          c.save();
+          c.globalAlpha = 0.06 + n * 0.08;
+          c.fillStyle = n > 0.5 ? '#b8ac82' : '#6f6746';
+          c.beginPath();
+          c.ellipse(gx + G.hash(gx, gy, 42) * 48, gy + G.hash(gx, gy, 43) * 48,
+            30 + n * 34, 18 + n * 22, 0, 0, Math.PI * 2);
+          c.fill();
+          c.restore();
+        }
+      }
+      // olive-green meadows, layered with darker rims and leaf texture
+      const grass = [[120, 980, 460, 320], [720, 1180, 380, 240], [1560, 1060, 380, 260], [1740, 560, 300, 220], [240, 250, 520, 300], [1320, 260, 420, 260]];
+      for (const [gx, gy, gw, gh] of grass) {
+        const cx = gx + gw / 2, cy = gy + gh / 2;
+        c.save();
+        c.globalAlpha = 0.5;
+        c.fillStyle = '#7f8b58';
+        c.beginPath(); c.ellipse(cx, cy, gw / 2, gh / 2, 0, 0, Math.PI * 2); c.fill();
+        c.globalAlpha = 0.45;
+        c.fillStyle = '#6a7749';
+        c.beginPath(); c.ellipse(cx - gw * 0.1, cy + gh * 0.08, gw * 0.34, gh * 0.34, 0, 0, Math.PI * 2); c.fill();
+        c.globalAlpha = 0.4;
+        c.fillStyle = '#93a267';
+        c.beginPath(); c.ellipse(cx + gw * 0.16, cy - gh * 0.14, gw * 0.26, gh * 0.24, 0, 0, Math.PI * 2); c.fill();
+        c.restore();
+        // leaf flecks
+        c.save();
+        c.globalAlpha = 0.32;
+        c.fillStyle = '#5c6a3e';
+        for (let i = 0; i < 90; i++) {
+          const fx = gx + G.hash(i, 1, 11) * gw;
+          const fy = gy + G.hash(i, 2, 12) * gh;
+          if (Math.hypot(fx - cx, fy - cy) > Math.min(gw, gh) * 0.5) continue;
+          c.fillRect(fx, fy, 2, 1);
+          if (i % 4 === 0) { c.fillStyle = '#a8b878'; c.fillRect(fx + 2, fy - 1, 1, 2); c.fillStyle = '#5c6a3e'; }
+        }
+        c.restore();
+      }
+      // scattered dry bushes and stones across the plain
+      for (let i = 0; i < 120; i++) {
+        const x = G.hash(i, 1, 71) * this.w;
+        const y = G.hash(i, 2, 72) * this.h;
+        c.save();
+        c.globalAlpha = 0.5;
+        if (G.hash(i, 3, 73) > 0.55) {
+          c.fillStyle = '#776f4c';
+          c.beginPath(); c.ellipse(x, y, 5, 3, 0, 0, Math.PI * 2); c.fill();
+        } else {
+          c.fillStyle = '#a89c74';
+          c.fillRect(x, y, 2, 1);
+        }
+        c.restore();
+      }
+
+      // the Saronic gulf along the south-west
+      c.fillStyle = '#2b5870';
+      c.beginPath();
+      c.moveTo(0, 1408);
+      c.quadraticCurveTo(260, 1386, 520, 1432);
+      c.lineTo(520, 1500);
+      c.lineTo(0, 1500);
+      c.closePath();
+      c.fill();
+      // wet sand and surf
+      c.save();
+      c.globalAlpha = 0.7;
+      c.fillStyle = '#c9b98f';
+      c.beginPath();
+      c.moveTo(0, 1396);
+      c.quadraticCurveTo(260, 1374, 520, 1420);
+      c.lineTo(520, 1440);
+      c.quadraticCurveTo(260, 1398, 0, 1420);
+      c.closePath();
+      c.fill();
+      c.restore();
+      A.water(c, 0, 1400, 540, 100, 0, 3);
+      c.save();
+      c.globalAlpha = 0.6;
+      c.fillStyle = '#d8e6de';
+      for (let x = 8; x < 520; x += 26) c.fillRect(x, 1416 + Math.round(Math.sin(x) * 2), 12, 1);
+      c.restore();
+
+      // Panathenaic Way (north-south)
+      this.road(c, 1040, 470, 1120, 1410, '#cfc3a6', '#b8ab8c');
+      // cross street: Ermou / the market road
+      this.road(c, 560, 1000, 1500, 1070, '#cbbf9f', '#b3a684');
+      // Acropolis ascent
+      this.road(c, 1050, 800, 1150, 1010, '#d8cdb2', '#c2b693');
+      // Plaka lanes
+      this.road(c, 1180, 1040, 1600, 1090, '#cec2a2', '#b9ac8a');
+      // a diagonal lane to the theatre
+      this.road(c, 900, 820, 1040, 1000, '#c7ba99', '#b0a381');
+
+      // paved plaza at the Propylaea
+      A.paving(c, 980, 800, 240, 60, '#cfc3a6', '#e0d6bb', 7, 10);
+      // Agora square
+      A.paving(c, 520, 1000, 260, 70, '#c7bb9a', '#d8cdb0', 11, 10);
+      // Syntagma square
+      A.paving(c, 1470, 1010, 230, 90, '#c9bd9c', '#dcd2b5', 13, 10);
+      // Olympieion terrace
+      A.paving(c, 1400, 1120, 190, 60, '#c3b795', '#d6cbaa', 17, 10);
+      // Monastiraki square
+      A.paving(c, 930, 1090, 170, 80, '#c5b998', '#d9cfb2', 19, 10);
+
+      // grassy hill for Lycabettus base
+      c.save();
+      c.globalAlpha = 0.55;
+      c.fillStyle = '#6f7d51';
+      c.beginPath();
+      c.ellipse(1820, 792, 120, 70, 0, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
+
+      // olive grove soil
+      c.save();
+      c.globalAlpha = 0.5;
+      for (const [gx, gy] of [[520, 1160], [590, 1108], [660, 1176], [730, 1120], [470, 1240], [640, 1258]]) {
+        c.fillStyle = '#7a6a4a';
+        c.fillRect(gx - 14, gy + 2, 28, 6);
+        c.fillStyle = 'rgba(58,48,30,.35)';
+        c.fillRect(gx - 10, gy + 6, 20, 2);
+      }
+      c.restore();
+
+      // fountain water at Syntagma
+      A.water(c, 1508, 1026, 24, 16, 0, 1);
+      A.water(c, 1628, 1026, 24, 16, 0, 2);
+
+      // unify the ground with a slightly deeper tone so marble reads against it
+      c.save();
+      c.globalAlpha = 0.1;
+      c.fillStyle = '#40361f';
+      c.fillRect(0, 0, this.w, this.h);
+      c.restore();
+    }
+
+    road(c, x, y, w, h, base, edge) {
+      const ww = w - x, hh = h - y;
+      c.fillStyle = edge || '#b0a381';
+      c.fillRect(x - 1, y - 1, ww + 2, hh + 2);
+      c.fillStyle = base;
+      c.fillRect(x, y, ww, hh);
+      // worn centre line
+      c.save();
+      c.globalAlpha = 0.22;
+      c.fillStyle = '#e6d9b8';
+      c.fillRect(x + ww * 0.34, y + (hh > 60 ? hh * 0.3 : 2), ww * 0.32, hh > 60 ? hh * 0.4 : Math.max(1, hh - 4));
+      c.restore();
+      // slab joints
+      c.save();
+      c.globalAlpha = 0.2;
+      c.fillStyle = '#5f5540';
+      for (let yy = y + 7; yy < h; yy += 14) c.fillRect(x, yy, ww, 1);
+      for (let xx = x + 20; xx < w; xx += 20) c.fillRect(xx, y, 1, hh);
+      c.restore();
+      // darker kerbs
+      c.save();
+      c.globalAlpha = 0.32;
+      c.fillStyle = '#7d7050';
+      c.fillRect(x, y, 2, hh);
+      c.fillRect(x + ww - 2, y, 2, hh);
+      c.restore();
+    }
+
+    drawGroundExtras(ctx) {
+      // low terrace wall along the south of the rock
+      for (let x = 900; x < 1300; x += 14) {
+        A.r(ctx, x, 812, 13, 6, '#b6aa8d');
+        A.r(ctx, x, 812, 13, 1, '#d2c7ab');
+        A.r(ctx, x, 817, 13, 1, '#8f8267');
+      }
+      // field walls along the roadsides
+      for (const [wx, wy, len] of [[478, 1044, 150], [900, 930, 90], [1180, 1210, 120]]) {
+        A.wallH(ctx, wx, wx + len, wy, 9, { color: '#b3a684' });
+      }
+      // tall dry grass tufts by the wayside
+      ctx.save();
+      for (let i = 0; i < 40; i++) {
+        const x = 200 + G.hash(i, 4, 81) * 1800;
+        const y = 560 + G.hash(i, 5, 82) * 820;
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = G.hash(i, 6, 83) > 0.5 ? '#8f9a63' : '#a8b078';
+        ctx.fillRect(x, y, 1, 3);
+        ctx.fillRect(x + 1, y - 1, 1, 3);
+        ctx.fillRect(x - 1, y, 1, 2);
+      }
+      ctx.restore();
+      // marble chips near the ruin fields
+      for (const [rx, ry] of [[455, 892], [1440, 1180], [700, 950]]) {
+        A.rubble(ctx, rx, ry, 1.2);
+      }
+    }
+
+
+    /* ============================================================
+       interactions / ambient
+       ============================================================ */
+    toggleMap(force) {
+      this.mapOpen = force == null ? !this.mapOpen : !!force;
+      G.audio.sfx('page');
+      const hud = G.$('#hud');
+      if (hud) hud.classList.toggle('map-open', this.mapOpen);
+      if (this.mapOpen) {
+        this.player.moving = false;
+        G.ui.prompt(null);
+      } else {
+        G.input.clearPressed();
+      }
+    }
+
+    gate() {
+      if (G.save.flag('entered')) {
+        G.dialog.show([
+          { name: '山门管理员', text: '您已经入园了。帕特农神庙前今晚有点圣火的仪式。' },
+        ]);
+        return;
+      }
+      G.dialog.show([
+        { name: '卫城山门 · 管理员', text: '前方是卫城。请出示证件，随身物品过一下安检。' },
+        { name: '旅行手账', text: '过了这道门，就是女神住的山顶。' },
+      ], () => {
+        if (G.security) G.security.start();
+      });
+    }
+
+    /* ============================================================
+       橄榄油 · 小经济
+       在橄榄园采收橄榄 → 榨成橄榄油；到蒙纳斯提拉奇市集，用油
+       向摊主换小物件。油是一种轻量的“货币”，也让探索多一个
+       理由。
+       ============================================================ */
+    oliveGrove() {
+      const has = G.save.data.oil || 0;
+      if (!G.save.flag('olive')) {
+        G.save.flag('olive', true);
+        G.save.addOil(1);
+        if (G.unlock) G.unlock('olive');
+        G.audio.sfx('pickup');
+        G.ui.toast('橄榄油 +1 · 先认识这座城市最老的一棵树', 'good', 2600);
+        G.dialog.show([
+          { name: '橄榄园', text: '雅典娜把橄榄树送给这座城市。银灰的叶子在风里翻过来，像一片安静的海。' },
+          { name: '旅行手账', text: '树下的落果很多。捡起来，碾一碾，就是最旧的一种油。' },
+        ]);
+        return;
+      }
+      const cap = 8;
+      if (has >= cap) {
+        G.dialog.show([
+          { name: '橄榄园', text: '橄榄桶满了。油这种东西，攒得再多，也还是要舍得拿出来用。' },
+        ]);
+        return;
+      }
+      G.choice.show([
+        { text: '采收一篮 · 榨成新油' },
+        { text: '只是坐一会儿，听风穿过银灰的叶子' },
+        { text: '摸一摸那棵最老的树' },
+      ], {
+        title: '橄榄园 · 要去做什么？',
+        onPick: (i) => {
+          if (i === 0) {
+            G.audio.sfx('pickup');
+            G.save.addOil(1);
+            G.ui.toast('橄榄油 +1（现有 ' + G.save.data.oil + '） · 可以拿去市集换东西', 'good', 2800);
+            G.dialog.show([
+              { name: '旅行手账', text: '一篮橄榄，石碾子一压，就流出清亮的油。装进小陶瓶，收进行囊。' },
+            ]);
+          } else if (i === 1) {
+            G.dialog.show([
+              { name: '橄榄园', text: '风把一整片树的叶子翻成银白色。远处有人在唱一支很老的歌。' },
+            ]);
+          } else {
+            G.dialog.show([
+              { name: '橄榄园', text: '那棵老树的树皮裂成一格一格的，像一张旧地图。两百年前它就在这里的说法，没人反驳。' },
+            ]);
+          }
+        },
+      });
+    }
+
+    /* boat in the harbor — a quiet spot after the festival */
+    boat() {
+      if (!G.save.flag('finished')) {
+        G.dialog.show([
+          { name: '码头工人', text: '要去最南边的海岬？那得等入夜后、圣火点过才开船。你先去卫城看看热闹吧。' },
+        ]);
+        return;
+      }
+      G.dialog.show([
+        { name: '码头工人', text: '圣火点过了，今天的活儿也完了。往海上看，比雷埃夫斯的船一盏一盏地亮起来。' },
+        { name: '旅行手账', text: '风从萨罗尼克湾吹过来，带着咸味。这座城，今晚很安静。' },
+      ]);
+    }
+
+    /* generic photo interaction: a "viewpoint" spot */
+    photoSpot(id, x, y, label) {
+      const spec = (G.photo && G.photo.spec(id)) || {};
+      this.addEntity({
+        x, y: y - 6, baseY: y - 6,
+        draw: (c) => {
+          // a little viewfinder stand
+          A.r(c, x - 3, y - 2, 6, 4, P.bronzeDark);
+          A.r(c, x - 7, y - 8, 14, 6, P.marbleMid);
+          A.r(c, x - 6, y - 7, 12, 1, P.marbleHi);
+        },
+      });
+      this.addInteract({
+        x, y, r: 30, label,
+        action: () => {
+          if (!G.save.hasPhoto(id)) {
+            G.dialog.show([
+              { name: '旅行手账', text: '这个机位，手账早就想拍了。' },
+            ], () => G.photo.snap(id));
+          } else {
+            G.dialog.show([
+              { name: '旅行手账', text: (spec.blurb || '已经留过影了。同一道光，再拍也是新的。') },
+            ]);
+          }
+        },
+      });
+    }
+
+    /* the market trader where oil is spent */
+    marketTrade() {
+      const oil = G.save.data.oil || 0;
+      if (oil <= 0) {
+        G.dialog.show([
+          { name: '摊主', text: '没有油，就没有话头。城西那片橄榄园，去捡一篮来吧。' },
+        ]);
+        return;
+      }
+      const makeRow = (obj) => {
+        const bought = G.save.flag(obj.flag);
+        return { obj, bought, text: obj.label + (bought ? ' · 已有' : ' · ' + obj.cost + ' 瓶油') };
+      };
+      const rows = [
+        makeRow({ flag: 'oilLamp', cost: 1, label: '一盏小铜油灯 · 照亮家里窗台', give: 'oilLamp' }),
+        makeRow({ flag: 'oilAmphora', cost: 2, label: '一只有纹饰的油罐 · 手账会记下一页', give: 'oilAmphora' }),
+        makeRow({ flag: 'oilWreath', cost: 3, label: '一枚橄榄枝环 · 挂在院门寓意平安', give: 'oilWreath' }),
+      ];
+      G.choice.show(rows.map((r) => {
+        return { text: r.text + (r.bought ? '（已换）' : '') };
+      }).concat([{ text: '先不换了 · 再说' }]), {
+        title: '蒙纳斯提拉奇 · 一筐油能换些什么？',
+        onPick: (i) => {
+          if (i === rows.length) return;
+          const r = rows[i];
+          if (r.bought) {
+            G.dialog.show([{ name: '摊主', text: '这份早换给你了，拿好别弄丢。' }]);
+            return;
+          }
+          const cost = r.obj.cost;
+          if (!G.save.spendOil(cost)) {
+            G.dialog.show([{ name: '摊主', text: '油不够。还差 ' + (cost - G.save.data.oil) + ' 瓶。' }]);
+            return;
+          }
+          G.save.flag(r.obj.give, true);
+          G.audio.sfx('confirm');
+          G.ui.toast('换来「' + r.obj.label.split(' · ')[0] + '」 · 剩 ' + G.save.data.oil + ' 瓶油', 'good', 2800);
+          G.dialog.show([
+            { name: '摊主', text: '油是好东西。这物件你收好，是亚特兰提斯老手艺，别处买不着。' },
+            { name: '旅行手账', text: '一坛油换回一件旧物件。这城里的买卖，闻起来都是橄榄的清香。' },
+          ]);
+        },
+      });
+    }
+
+    update(dt) {
+      if (G.input.wasPressed('KeyM') && !G.isWorldPaused()) {
+        this.toggleMap();
+        G.input.clearPressed();
+      }
+      if (this.mapOpen) {
+        this.time += dt;
+        this.player.moving = false;
+        G.fx.update(dt);
+        this.updateAmbient(dt);
+        return;
+      }
+      super.update(dt);
+    }
+
+    updateAmbient(dt) {
+      // wind-blown dust
+      if (Math.random() < dt * 1.9) {
+        const x = this.cam.x + G.rand(-40, G.W + 40);
+        const y = this.cam.y + G.rand(0, G.H);
+        G.fx.add({
+          x, y, vx: G.rand(4, 12), vy: G.rand(-3, 3),
+          life: G.rand(1.4, 2.8), size: 1, color: 'rgba(240,226,190,.32)',
+          grav: 0, glow: false,
+        });
+      }
+      // seagulls over the harbour
+      if (Math.random() < dt * 1.2) {
+        G.fx.add({
+          x: 240 + G.rand(-40, 220), y: 1320 + G.rand(-30, 20),
+          vx: G.rand(4, 10), vy: G.rand(-6, 2),
+          life: G.rand(1.4, 2.6), size: 1, color: 'rgba(240,240,232,.8)',
+          grav: 0, glow: false,
+        });
+      }
+    }
+
+    /* ============================================================
+       parchment map
+       ============================================================ */
+    drawMap(ctx) {
+      const mx = 96, my = 34, mw = 450, mh = 296;
+      const X = (wx) => mx + (wx / this.w) * mw;
+      const Y = (wy) => my + (wy / this.h) * mh;
+      ctx.save();
+      ctx.fillStyle = 'rgba(10,8,6,.86)';
+      ctx.fillRect(0, 0, 640, 360);
+      // parchment
+      ctx.fillStyle = '#e9dcbc';
+      ctx.fillRect(mx - 14, my - 22, mw + 28, mh + 44);
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      for (let i = 0; i < 180; i++) {
+        const px = mx - 10 + G.hash(i, 1, 201) * (mw + 20);
+        const py = my - 18 + G.hash(i, 2, 202) * (mh + 36);
+        ctx.fillStyle = G.hash(i, 3, 203) > 0.5 ? '#a68b5f' : '#fff5dd';
+        ctx.fillRect(px, py, 1, 1);
+      }
+      ctx.restore();
+      ctx.strokeStyle = '#5f4529'; ctx.lineWidth = 2;
+      ctx.strokeRect(mx - 14, my - 22, mw + 28, mh + 44);
+      ctx.strokeStyle = '#b08a55'; ctx.lineWidth = 1;
+      ctx.strokeRect(mx - 9.5, my - 17.5, mw + 19, mh + 35);
+      G.text(ctx, '雅典 · 卫城地图', mx - 2, my - 7, { size: 11, color: '#3d2d1c', weight: 'bold' });
+      G.text(ctx, 'M 关闭', mx + mw - 32, my - 7, { size: 7, color: '#7d684c' });
+      // watermark
+      ctx.save();
+      ctx.globalAlpha = 0.05;
+      G.text(ctx, '雅', mx + mw / 2, my + mh / 2 + 40, { size: 128, color: '#6b2e22', align: 'center' });
+      ctx.restore();
+
+      // ---- the Saronic gulf ----
+      ctx.fillStyle = '#bcd2d2';
+      ctx.beginPath();
+      ctx.moveTo(X(0), Y(1412));
+      ctx.quadraticCurveTo(X(260), Y(1388), X(520), Y(1436));
+      ctx.lineTo(X(520), Y(this.h));
+      ctx.lineTo(X(0), Y(this.h));
+      ctx.closePath();
+      ctx.fill();
+      ctx.save();
+      ctx.strokeStyle = 'rgba(70,120,140,.5)'; ctx.lineWidth = 1;
+      for (let wx = 30; wx < 500; wx += 34) {
+        const wy = 1436 + (wx % 68 === 0 ? 6 : 0);
+        ctx.beginPath();
+        ctx.moveTo(X(wx), Y(wy));
+        ctx.quadraticCurveTo(X(wx + 8), Y(wy - 3), X(wx + 16), Y(wy));
+        ctx.stroke();
+      }
+      ctx.restore();
+      G.text(ctx, '萨罗尼克湾', X(180), Y(1470), { size: 6, color: '#40646e', align: 'center' });
+
+      // ---- districts and groves ----
+      ctx.fillStyle = 'rgba(140,110,70,.12)';
+      ctx.fillRect(X(1140), Y(940), X(1720) - X(1140), Y(1300) - Y(940));
+      ctx.fillStyle = 'rgba(110,130,85,.2)';
+      ctx.beginPath();
+      ctx.ellipse(X(360), Y(1120), X(240) - X(0), Y(190) - Y(0), 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(X(1840), Y(700), X(200) - X(0), Y(150) - Y(0), 0, 0, Math.PI * 2); ctx.fill();
+      // olive tree symbols in the grove
+      ctx.fillStyle = '#5d6b3e';
+      for (const [ox, oy] of [[520, 1160], [590, 1108], [660, 1176], [730, 1120], [470, 1240], [640, 1258]]) {
+        ctx.beginPath(); ctx.arc(X(ox), Y(oy), 3, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // ---- roads: ink outline then pale ribbon ----
+      function ribbon(x1, y1, x2, y2, w) {
+        ctx.strokeStyle = 'rgba(90,70,42,.55)'; ctx.lineWidth = (w || 6) + 2;
+        ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+        ctx.strokeStyle = '#efe4c6'; ctx.lineWidth = w || 6;
+        ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+      }
+      ribbon(1080, 1420, 1080, 820, 7);
+      ribbon(540, 1035, 1520, 1035, 5);
+      ribbon(1080, 1010, 1440, 1150, 4);
+      ribbon(1260, 1060, 1660, 1060, 4);
+      ribbon(900, 830, 1040, 1010, 4);
+
+      // ---- the Acropolis rock ----
+      ctx.fillStyle = '#d8c9a3';
+      ctx.beginPath();
+      ctx.ellipse(X(1100), Y(770), X(250) - X(0), Y(128) - Y(0), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#8a7550'; ctx.lineWidth = 1;
+      ctx.stroke();
+      // contour hatching
+      ctx.save();
+      ctx.strokeStyle = 'rgba(122,100,64,.45)';
+      for (let r = 0.35; r < 1; r += 0.2) {
+        ctx.beginPath();
+        ctx.ellipse(X(1100), Y(770), (X(250) - X(0)) * r, (Y(128) - Y(0)) * r, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+      // the Parthenon glyph
+      ctx.fillStyle = '#8a3b2c';
+      ctx.fillRect(X(1100) - 7, Y(742) - 4, 14, 8);
+      ctx.fillStyle = '#f0e2c0';
+      for (let i = 0; i < 5; i++) ctx.fillRect(X(1100) - 6 + i * 3, Y(742) - 3, 1, 5);
+      // the Propylaea glyph
+      ctx.fillStyle = '#8a7550';
+      ctx.fillRect(X(1090) - 5, Y(818) - 3, 10, 5);
+
+      // ---- landmark labels, staggered ----
+      const label = (wx, wy, text, dx, dy, hot) => {
+        const px = X(wx), py = Y(wy);
+        if (hot) {
+          ctx.strokeStyle = '#8a2f22'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(px, py, 6 + Math.sin(this.time * 3) * 1.5, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.fillStyle = hot ? '#8a2f22' : '#4a3a26';
+        ctx.beginPath(); ctx.arc(px, py, hot ? 3.2 : 2, 0, Math.PI * 2); ctx.fill();
+        G.text(ctx, text, px + dx, py + dy, {
+          size: 6.4, color: '#3d2d1c', outline: 'rgba(238,226,196,.85)', outlineWidth: 2.4,
+        });
+      };
+      label(1100, 742, '帕特农', -58, 2);
+      label(1090, 818, '山门', 18, 10, true);
+      label(880, 792, '剧场', -26, 12);
+      label(650, 1010, '古市集', -34, 2);
+      label(545, 920, '火神庙', -34, 2);
+      label(1280, 1098, '普拉卡', 10, 12);
+      label(1490, 1172, '宙斯庙', 10, 10);
+      label(1372, 1160, '拱门', -24, -6);
+      label(1580, 1012, '宪法广场', -50, -6);
+      label(1820, 800, '吕卡维多斯', 10, 2);
+      label(320, 1424, '比雷埃夫斯', 10, -6);
+      label(1010, 1120, '市集', -22, 14);
+      label(1100, 1404, '迪皮隆门', 10, 12);
+      label(760, 1300, '卫城大道', -60, 2);
+
+      // ---- you are here ----
+      const px = X(this.player.x), py = Y(this.player.y);
+      let chipX = px + 6, chipY = py + 4;
+      if (chipX > mx + mw - 40) chipX = px - 36;
+      if (chipY > my + mh - 12) chipY = py - 14;
+      ctx.fillStyle = 'rgba(238,226,196,.92)';
+      ctx.fillRect(chipX, chipY, 32, 9);
+      ctx.fillStyle = '#b03a26';
+      ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#b03a26'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.stroke();
+      G.text(ctx, '你在这里', chipX + 2, chipY + 7, { size: 6, color: '#7d2f22' });
+
+      // ---- compass and scale ----
+      const cxp = mx + mw - 26, cyp = my + mh - 30;
+      ctx.save();
+      ctx.strokeStyle = '#7d684c'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cxp, cyp, 12, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cxp, cyp - 12); ctx.lineTo(cxp + 3, cyp + 1); ctx.lineTo(cxp, cyp - 3);
+      ctx.lineTo(cxp - 3, cyp + 1); ctx.closePath();
+      ctx.fillStyle = '#8a3b2c'; ctx.fill();
+      G.text(ctx, 'N', cxp, cyp - 15, { size: 6, color: '#5f4529', align: 'center', weight: 'bold' });
+      ctx.restore();
+      // scale bar
+      ctx.fillStyle = '#5f4529';
+      ctx.fillRect(mx + 10, my + mh - 24, 40, 2);
+      ctx.fillRect(mx + 10, my + mh - 27, 2, 6);
+      ctx.fillRect(mx + 48, my + mh - 27, 2, 6);
+      G.text(ctx, '500 米', mx + 16, my + mh - 16, { size: 6, color: '#6b5636' });
+
+      // ---- footer ----
+      G.text(ctx, '泛雅典娜大道 · 北行至卫城', mx + 8, my + mh + 15, { size: 7, color: '#6b5636' });
+      G.text(ctx, '卫城 · 雅典', mx + mw - 56, my + mh + 15, { size: 7, color: '#6b5636' });
+      ctx.restore();
+    }
+
+    drawScreen(ctx) {
+      if (this.mapOpen) { this.drawMap(ctx); return; }
+      const g = ctx.createRadialGradient(320, 175, 150, 320, 180, 380);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, 'rgba(8,5,3,.3)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 640, 360);
+    }
+  }
+
+  G.AthensScene = AthensScene;
+})();
+
+</script>
+<script data-src="js/acropolis.js">
+/* ============================================================
+   雅典 · 圣火 — the Acropolis
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const A = G.artGreek;
+  const P = A.pal;
+
+  const ITEMS = {
+    olive: { name: '橄榄木柴', x: 512, y: 980, desc: '卫城圣橄榄树修下的枝干，木质紧密，烧起来是清甜的香。' },
+    resin: { name: '松脂火绒', x: 1148, y: 348, desc: '北坡松林里收的松脂，指尖一捻就粘，见火就着。' },
+    brazier: { name: '青铜火盆', x: 1010, y: 1434, desc: '铜匠铺里打好的三足火盆，盆沿还留着一道新锉的亮边。' },
+  };
+
+  class AcropolisScene extends G.WorldScene {
+    constructor() {
+      super({
+        id: 'acropolis', w: 1500, h: 1620, spawn: { x: 750, y: 1300 },
+        clock: '16:20', ambient: 'palace', lookAhead: 52, gradeStrength: 0.45,
+      });
+      this.title = '卫城';
+      this.marker = { x: 750, y: 620 };
+      this.mapOpen = false;
+      this.night = false;
+      this.nightStrength = 0.5;
+      this.build();
+      this.buildGround((c) => this.paintGround(c));
+      this.refreshNight();
+    }
+
+    /* ============================================================
+       build
+       ============================================================ */
+    build() {
+      /* ---------------- the rock rim ---------------- */
+      this.solid(150, 96, 14, 1440);
+      this.solid(1336, 96, 14, 1440);
+      this.solid(150, 96, 1200, 14);
+      this.solid(150, 1536, 1200, 14);
+
+      /* ---------------- Propylaea (south entrance) ---------------- */
+      this.addEntity({
+        x: 750, y: 1500, baseY: 1500,
+        draw: (c) => {
+          A.drawGate(c, 750, 1500, 300, { wallH: 50, roofH: 26, name: '卫城山门' });
+          A.wallV(c, 292, 1430, 1500, 12, { color: P.marbleMid });
+          A.wallV(c, 1196, 1430, 1500, 12, { color: P.marbleMid });
+        },
+      });
+      this.solid(590, 1478, 140, 24);
+      this.solid(760, 1478, 140, 24);
+      this.addInteract({
+        x: 750, y: 1462, r: 40, label: '回望卫城山门',
+        action: () => {
+          if (G.unlock) G.unlock('propylaea');
+          G.dialog.show([
+            { name: '卫城山门', text: '山门建在西坡的陡处，中间是宽大的门廊，两侧各有一座翼廊。走进这道门，才算真正上了卫城。' },
+            { name: '旅行手账', text: '石块被两千五百年的脚磨得发亮。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Nike temple ---------------- */
+      this.addBuilding(980, 1420, (c) => {
+        A.drawTemple(c, 980, 1420, 74, { columnH: 20, columnW: 5, columns: 4, steps: 2, entH: 7, pedH: 8, name: '' });
+      });
+      this.solid(940, 1388, 80, 22);
+      this.addInteract({
+        x: 980, y: 1438, r: 30, label: '看看胜利女神庙',
+        action: () => {
+          if (G.unlock) G.unlock('nike');
+          G.dialog.show([
+            { name: '雅典娜·尼刻神庙', text: '供奉胜利女神尼刻的小神庙，立在山门南翼的堡台上。从前这里也有一座无翼的尼刻像，好让胜利永远留在雅典。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Parthenon ---------------- */
+      this.addBuilding(750, 900, (c) => {
+        A.drawTemple(c, 750, 900, 470, {
+          columnH: 74, columnW: 8, columns: 8, steps: 3, entH: 15, pedH: 20, name: 'ΠΑΡΘΕΝΩΝ',
+        });
+      });
+      this.solid(560, 862, 380, 40);
+      this.addInteract({
+        x: 750, y: 918, r: 44, label: '仰看帕特农神庙',
+        action: () => {
+          if (G.unlock) G.unlock('parthenon');
+          G.dialog.show([
+            { name: '帕特农神庙', text: '雅典娜的居所，公元前 447 年起建。八根柱子迎向东升的太阳，山花里刻着她的诞生。' },
+            { name: '帕特农神庙', text: '整座神庙没有一根绝对的直线——每一块石头都微微向内收，让眼睛看见的才是「直」。' },
+            { name: '旅行手账', text: '柱子上的凹槽，像被风梳过。' },
+          ]);
+        },
+      });
+      this.solid(556, 900, 388, 6);
+      // east front steps are open; west back too
+
+      /* ---------------- Erechtheion ---------------- */
+      this.addBuilding(1090, 800, (c) => {
+        A.drawTemple(c, 1090, 800, 190, {
+          columnH: 34, columnW: 6, columns: 5, steps: 2, entH: 10, pedH: 12, name: '',
+        });
+        A.caryatidPorch(c, 1000, 830, 1);
+      });
+      this.solid(990, 760, 210, 30);
+      this.addInteract({
+        x: 1090, y: 820, r: 40, label: '走向厄瑞克忒翁神庙',
+        action: () => {
+          if (G.unlock) G.unlock('erechtheion');
+          G.dialog.show([
+            { name: '厄瑞克忒翁神庙', text: '传说这里是雅典娜与波塞冬争当城市守护神的地方。南廊的六位少女雕像，用头顶着屋檐。' },
+            { name: '旅行手账', text: '她们站得很直，可是风吹过的时候，好像连石头都在呼吸。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Sacred olive tree ---------------- */
+      this.addEntity({
+        x: 512, y: 990, baseY: 990,
+        draw: (c) => A.oliveTree(c, 512, 990, 1.15, { pot: false }),
+      });
+      this.solid(500, 980, 26, 12);
+      this.addInteract({
+        x: 512, y: 976, r: 40, label: '圣橄榄树下',
+        action: () => this.oliveTree(),
+      });
+
+      /* ---------------- Athena Promachos ---------------- */
+      this.addEntity({
+        x: 750, y: 1150, baseY: 1150,
+        draw: (c) => A.athenaStatue(c, 750, 1150, 1.3, this.time),
+      });
+      this.solid(736, 1134, 28, 16);
+      this.addInteract({
+        x: 750, y: 1136, r: 34, label: '走到雅典娜神像前',
+        action: () => {
+          if (G.unlock) G.unlock('promachos');
+          G.dialog.show([
+            { name: '雅典娜·普罗马霍斯', text: '「先锋雅典娜」的巨型铜像，从前站在卫城正中，盾与长矛在阳光下能远远望见。' },
+          ]);
+        },
+      });
+
+      /* ---------------- Altar of Athena & 老赫 ---------------- */
+      this.addEntity({
+        x: 750, y: 520, baseY: 520,
+        draw: (c) => A.altar(c, 750, 520, this.night, this.time),
+      });
+      this.solid(734, 512, 32, 16);
+      this.addInteract({
+        x: 750, y: 500, r: 34, label: '看看雅典娜祭坛',
+        action: () => {
+          if (G.unlock) G.unlock('altar');
+          G.dialog.show([
+            { name: '雅典娜祭坛', text: '卫城北缘的祭坛，正对着帕特农神庙的西山墙。泛雅典娜节的火，就是从这里点起来的。' },
+          ]);
+        },
+      });
+      this.addNPC({
+        x: 812, y: 560, name: '匠人 老赫', palette: A.actorPalettes.priest,
+        accessory: 'torch', radius: 30, quest: () => !G.save.flag('finished'),
+        getLines: () => this.hepLines(),
+        onTalk: () => this.onHepTalk(),
+      });
+
+      /* ---------------- museum ---------------- */
+      this.addBuilding(330, 1240, (c) => {
+        A.stoa(c, 330, 1240, 200, { h: 28 });
+        A.sign(c, 330, 1214, '卫城博物馆', { w: 70, size: 6 });
+      });
+      this.solid(236, 1206, 200, 28);
+      this.addInteract({
+        x: 330, y: 1258, r: 34, label: '走进卫城博物馆',
+        action: () => {
+          if (G.unlock) G.unlock('museum');
+          G.dialog.show([
+            { name: '卫城博物馆', text: '玻璃地板下是两千年前的街区地基，头顶是同样尺寸的帕特农柱廊。真品与复制品隔着玻璃对望。' },
+          ]);
+        },
+      });
+
+      /* ---------------- west sanctuary & north terrace ---------------- */
+      // the Brauronion — a stoa along the west side
+      this.addBuilding(330, 900, (c) => {
+        A.stoa(c, 330, 900, 250, { h: 30 });
+      });
+      this.solid(208, 866, 250, 32);
+      this.addInteract({
+        x: 330, y: 918, r: 36, label: '走进西侧的神域',
+        action: () => {
+          if (G.unlock) G.unlock('museum');
+          G.dialog.show([
+            { name: '西侧神域', text: '一排柱廊贴着山岩，里面供着阿耳忒弥斯的神像。风穿过柱子，声音像退潮。' },
+          ]);
+        },
+      });
+      // a small shrine on the north terrace
+      this.addBuilding(420, 470, (c) => {
+        A.drawTemple(c, 420, 470, 96, {
+          columnH: 22, columnW: 5, columns: 4, steps: 2, entH: 7, pedH: 8, name: '',
+        });
+      });
+      this.solid(376, 440, 88, 24);
+      this.addInteract({
+        x: 420, y: 488, r: 30, label: '在北台的小神庙前停留',
+        action: () => {
+          G.dialog.show([
+            { name: '北台小神庙', text: '这里原是宙斯·波利欧斯的小圣所。从台边望下去，普拉卡的屋顶一直铺到山脚。' },
+          ]);
+        },
+      });
+      // north parapet and tripods
+      this.addEntity({
+        x: 900, y: 300, baseY: 300,
+        draw: (c) => {
+          for (let x = 700; x < 1100; x += 14) {
+            A.r(c, x, 296, 13, 6, '#c3b897');
+            A.r(c, x, 296, 13, 1, '#ddd3b5');
+            A.r(c, x, 301, 13, 1, '#8f8267');
+          }
+        },
+      });
+      this.addEntity({ x: 1080, y: 470, baseY: 470, draw: (c) => A.tripod(c, 1080, 470) });
+      this.addEntity({ x: 560, y: 430, baseY: 430, draw: (c) => A.tripod(c, 560, 430) });
+      this.addEntity({ x: 900, y: 400, baseY: 400, draw: (c) => A.oliveTree(c, 900, 400, 0.8, {}) });
+      this.addEntity({ x: 640, y: 380, baseY: 380, draw: (c) => A.oliveTree(c, 640, 380, 0.75, {}) });
+      this.addEntity({ x: 1240, y: 460, baseY: 460, draw: (c) => A.oliveTree(c, 1240, 460, 0.8, {}) });
+      for (const [bx, by] of [[560, 560], [940, 560], [480, 700], [1020, 700]]) {
+        this.addEntity({ x: bx, y: by, baseY: by, draw: (c) => A.bush(c, bx, by, 0.9) });
+      }
+
+      /* ---------------- bronze workshop ---------------- */
+      this.addBuilding(1010, 1450, (c) => {
+        A.r(c, 950, 1416, 120, 32, '#b3a68a');
+        A.r(c, 948, 1410, 124, 8, P.terra);
+        A.r(c, 948, 1410, 124, 2, P.terraHi);
+        for (let i = 0; i < 5; i++) A.column(c, 962 + i * 24, 1450, 32, 5, {});
+        // forge glow
+        A.r(c, 992, 1420, 24, 18, '#4a3428');
+        A.r(c, 996, 1424, 16, 10, '#a8522c');
+        A.r(c, 1000, 1426, 8, 6, '#ffb347');
+        A.glow(c, 1004, 1428, 28, 'rgba(255,168,70,.35)', 0.5);
+      });
+      this.solid(944, 1412, 132, 30);
+      this.addInteract({
+        x: 1010, y: 1470, r: 36, label: '铜匠铺 · 取火盆',
+        action: () => this.takeBrazier(),
+      });
+
+      /* ---------------- belvedere ---------------- */
+      this.addEntity({
+        x: 1200, y: 1140, baseY: 1140,
+        draw: (c) => {
+          for (let x = 1150; x < 1250; x += 12) {
+            A.r(c, x, 1136, 11, 8, P.marble);
+            A.r(c, x, 1136, 11, 1, P.marbleHi);
+          }
+        },
+      });
+      this.addInteract({
+        x: 1200, y: 1156, r: 34, label: '在西观景台远眺',
+        action: () => {
+          if (G.unlock) G.unlock('belvedere');
+          G.dialog.show([
+            { name: '卫城观景台', text: '脚下是普拉卡的白房子，再远处是吕卡维多斯山，最远处那一点蓝是比雷埃夫斯港。' },
+            { name: '旅行手账', text: '风从萨罗尼克湾一路吹上来，带着盐味。' },
+          ]);
+        },
+      });
+
+      /* ---------------- pines for resin ---------------- */
+      for (const [px, py] of [[1080, 340], [1120, 300], [1160, 380], [1200, 320], [1240, 400]]) {
+        this.addEntity({
+          x: px, y: py, baseY: py,
+          draw: (c) => A.pine(c, px, py, 1.2),
+        });
+      }
+      this.addEntity({
+        x: 1150, y: 352, baseY: 352,
+        draw: (c) => this.resinDraw(c),
+      });
+      this.addInteract({
+        x: 1148, y: 352, r: 34, label: '收集松脂',
+        action: () => this.takeResin(),
+      });
+
+      /* ---------------- braziers, ruins and greenery ---------------- */
+      // standing braziers that light after dark
+      for (const [bx, by] of [[700, 1244], [800, 1244], [700, 724], [800, 724], [700, 1180], [800, 1180]]) {
+        this.addEntity({
+          x: bx, y: by, baseY: by,
+          draw: (c) => A.brazier(c, bx, by, this.night, this.time),
+        });
+        this.solid(bx - 7, by - 5, 14, 5);
+        this.addInteract({
+          x: bx, y: by - 12, r: 22, label: '看看火盆',
+          action: () => G.dialog.show([
+            { name: '青铜火盆', text: this.night ? '火苗被风扯成一条斜线，映着脚下的石板。' : '火盆里堆着干透的松针，等着夜里点火。' },
+          ]),
+        });
+      }
+      // fallen drums and rubble along the sides
+      for (const [dx, dy, dl] of [[620, 1120, 26], [860, 1040, 20], [560, 840, 24], [920, 760, 18], [640, 580, 20], [880, 560, 22]]) {
+        this.addEntity({ x: dx, y: dy, baseY: dy, draw: (c) => A.columnDrum(c, dx, dy, dl, { s: 1 }) });
+      }
+      this.addEntity({ x: 420, y: 900, baseY: 900, draw: (c) => A.rubble(c, 420, 900, 1.6) });
+      this.addEntity({ x: 1180, y: 620, baseY: 620, draw: (c) => A.rubble(c, 1180, 620, 1.4) });
+      this.addEntity({ x: 960, y: 1310, baseY: 1310, draw: (c) => A.rubble(c, 960, 1310, 1.2) });
+      // laurel bushes and sacred trees
+      for (const [bx, by, bs] of [[600, 1180, 1], [900, 1180, 1], [600, 960, 1.1], [900, 960, 1.1], [430, 1180, 0.9], [1080, 1080, 0.9], [400, 760, 0.9], [1120, 620, 0.85]]) {
+        this.addEntity({ x: bx, y: by, baseY: by, draw: (c) => A.bush(c, bx, by, bs) });
+      }
+      this.addEntity({ x: 400, y: 1080, baseY: 1080, draw: (c) => A.oliveTree(c, 400, 1080, 0.9, {}) });
+      this.addEntity({ x: 1260, y: 980, baseY: 980, draw: (c) => A.oliveTree(c, 1260, 980, 0.9, {}) });
+      // inscribed steles
+      for (const [sx, sy, txt] of [[600, 1320, '卫城大道'], [1090, 1120, '帕特农'], [760, 470, '雅典娜祭坛']]) {
+        this.addEntity({ x: sx, y: sy, baseY: sy, draw: (c) => A.sign(c, sx, sy, txt, { w: 54, size: 6 }) });
+      }
+      // tripods and a stray goat
+      this.addEntity({ x: 940, y: 1180, baseY: 1180, draw: (c) => A.tripod(c, 940, 1180) });
+      this.addEntity({ x: 1220, y: 1300, baseY: 1300, draw: (c) => A.goat(c, 1220, 1300, this.time) });
+
+      /* ---------------- laurel & props ---------------- */
+      for (const [lx, ly] of [[420, 1150], [1080, 1250], [880, 700], [400, 700], [1180, 900]]) {
+        this.addEntity({
+          x: lx, y: ly, baseY: ly,
+          draw: (c) => A.laurel(c, lx, ly, 14),
+        });
+      }
+      // stone benches
+      for (const [bx, by] of [[660, 1250], [840, 1250], [600, 700], [900, 700]]) {
+        this.addEntity({ x: bx, y: by, baseY: by, draw: (c) => A.bench(c, bx, by) });
+      }
+      // fallen drums around the Parthenon
+      this.addEntity({
+        x: 980, y: 960, baseY: 960,
+        draw: (c) => {
+          A.r(c, 966, 952, 28, 12, P.marbleMid);
+          A.r(c, 966, 952, 28, 3, P.marble);
+          A.r(c, 980, 948, 2, 4, P.marbleDark);
+        },
+      });
+
+      /* ---------------- the sundial (daytime calibration puzzle) ---------------- */
+      this.addEntity({
+        x: 1080, y: 600, baseY: 600,
+        draw: (c) => this.drawSundialPedestal(c, 1080, 600),
+      });
+      this.solid(1052, 586, 56, 20);
+      this.addInteract({
+        x: 1080, y: 612, r: 34, label: '校一校石制的日晷',
+        action: () => this.doPuzzle(),
+      });
+
+      /* ---------------- photo spots (travel-journal camera) ---------------- */
+      this.photoSpot('erechtheion', 1000, 764);
+      this.photoSpot('altar', 750, 486);
+
+      /* ---------------- a guide and tourists ---------------- */
+      this.addNPC({
+        x: 860, y: 1280, name: '讲解员 伊莲娜', palette: A.actorPalettes.guide,
+        wander: 0, lines: [
+          '帕特农的西面是山门，东面是日出。整座卫城，是照着太阳的方向摆的。',
+          '入夜后别急着走，北边的祭坛会点圣火。',
+        ],
+      });
+      this.addNPC({
+        x: 620, y: 860, name: '游客', palette: A.actorPalettes.tourist,
+        wander: 1, radius: 26, lines: ['这些柱子比照片上要细，也更近。'],
+      });
+      this.addNPC({
+        x: 1180, y: 1000, name: '写生的画家', palette: A.actorPalettes.auntie,
+        wander: 0, lines: [
+          '我画了二十年卫城，还是画不好这道光。',
+          '你看柱子上的凹槽，一面亮一面暗，整排就有了呼吸。',
+        ],
+      });
+      this.addEntity({
+        x: 700, y: 1080, baseY: 1080,
+        draw: (c) => A.cat(c, 700, 1080, this.time, { color: '#d8cbb2' }),
+      });
+      this.addInteract({
+        x: 700, y: 1086, r: 26, label: '摸摸卫城的猫',
+        action: () => {
+          if (G.unlock) G.unlock('cat');
+          G.audio.sfx('pickup');
+          G.dialog.show([
+            { name: '卫城的猫', text: '（它眯起眼睛，在滚烫的石头上翻了个身。）' },
+            { name: '旅行手账', text: '卫城的猫，大概是这山顶上最从容的居民。' },
+          ]);
+        },
+      });
+    }
+
+    resinDraw(c) {
+      // a resin-soaked cloth and a small clay pot
+      A.r(c, 1140, 344, 18, 8, '#d9c9a4');
+      A.r(c, 1142, 341, 14, 4, '#b98a3c');
+      A.r(c, 1146, 340, 6, 2, '#e8c877');
+      A.r(c, 1160, 342, 7, 8, '#a8623c');
+      A.r(c, 1161, 340, 5, 3, '#c9875a');
+      A.glow(c, 1150, 344, 12, 'rgba(255,220,150,.18)', 0.4);
+    }
+
+    /* ============================================================
+       lifecycle
+       ============================================================ */
+    onEnter() {
+      G.ui.location('卫城', '帕特农高地');
+      this.night = G.save.flag('night') || G.save.flag('finished');
+      this.refreshNight();
+      this.clock = this.night ? '19:40' : '16:20';
+      this.updateHud();
+      this.refreshObjective();
+      G.audio.ambient(this.night ? 'night' : 'palace');
+      if (!G.save.flag('acropolisIntroSeen')) {
+        G.save.data.flags.acropolisIntroSeen = true;
+        G.save.persist();
+        setTimeout(() => {
+          if (G.scene !== this || this.night) return;
+          G.dialog.show([
+            { name: '旅行手账', narrator: true, text: '安检通过。石阶在脚下变陡，风也大了起来。' },
+            { name: '旅行手账', narrator: true, text: '帕特农的八根柱子先露出头，然后才是整座山花。' },
+            { name: '旅行手账', text: '往北走，祭坛旁边有个打铜的老人。听说今晚的圣火由他主持。' },
+          ]);
+        }, 700);
+      }
+    }
+
+    updateHud() {
+      const d = G.dateInfo(new Date());
+      G.ui.clock(this.clock, d.cn + (this.night ? ' · 夜' : ' · 晴'));
+    }
+
+    collectedCount() {
+      return ['olive', 'resin', 'brazier'].filter((k) => G.save.flag(k)).length;
+    }
+
+    refreshObjective() {
+      const f = G.save.data.flags;
+      if (f.finished) this.objective('圣火已点燃 · 夜里的卫城，可以再点一次');
+      else if (this.night) this.objective('到祭坛去，点亮今夜的圣火');
+      else if (this.collectedCount() >= 3) this.objective('材料齐了 · 回祭坛交给老赫');
+      else if (f.metHephaistos) this.objective('替老赫寻找材料 (' + this.collectedCount() + '/3)');
+      else this.objective('沿卫城大道向北，去祭坛找点火的匠人');
+      this.updateMarker();
+    }
+
+    /* ============================================================
+       quest
+       ============================================================ */
+    hepLines() {
+      const f = G.save.data.flags;
+      if (f.finished) return [
+        { name: '老赫', text: '圣火这种东西，灭了还能点，人散了就聚不回来了。' },
+        { name: '老赫', text: '想再点一次？火盆还是热的。' },
+      ];
+      if (this.night) return [
+        { name: '老赫', text: '站远些。第一簇火，敬这山上的风。' },
+        { name: '老赫', text: '看好了——火要朝神庙那边递，才算数。' },
+      ];
+      if (this.collectedCount() >= 3) return [
+        { name: '老赫', text: '橄榄木、松脂、青铜盆，齐了。' },
+        { name: '老赫', text: '日头还高。圣火要等天黑，你在这山上再转转，我去整理火种。' },
+        { name: '旅行手账', text: '（风从坡下吹上来，大理石的影子一点点变长。）' },
+      ];
+      if (f.metHephaistos) {
+        const left = ['olive', 'resin', 'brazier'].filter((k) => !f[k]).map((k) => ITEMS[k].name);
+        return [
+          { name: '老赫', text: '还差 ' + left.join('、') + '。' },
+          { name: '老赫', text: '橄榄木在圣树下，松脂在北坡的松林里，火盆在西边的铜匠铺。' },
+        ];
+      }
+      return [
+        { name: '老赫', text: '你是来看点圣火的吧？我姓赫，在这山上打了半辈子铜。' },
+        { name: '老赫', text: '圣火要三样东西：耐烧的橄榄木、见火就着的松脂、还有一只不漏的青铜火盆。' },
+        { name: '老赫', text: '帮我把三样找齐：圣橄榄树下的木柴、北坡松林的松脂、西边铜匠铺的火盆。' },
+        { name: '旅行手账', text: '好。等材料齐了，就能看一场真正的圣火。' },
+      ];
+    }
+
+    onHepTalk() {
+      const f = G.save.data.flags;
+      if (f.finished) {
+        if (this.night) this.startMinigame();
+        return;
+      }
+      if (this.night) {
+        this.startMinigame();
+        return;
+      }
+      if (!f.metHephaistos) {
+        G.save.flag('metHephaistos', true);
+        this.refreshObjective();
+        G.ui.toast('新任务 · 寻找三样材料', 'good', 2800);
+      } else if (this.collectedCount() >= 3 && !f.night) {
+        this.chooseHowToLight();
+      }
+    }
+
+    collectItem(key) {
+      if (G.save.flag(key)) return;
+      G.save.flag(key, true);
+      G.audio.sfx('pickup');
+      G.ui.toast('获得「' + ITEMS[key].name + '」 · ' + ITEMS[key].desc, 'good', 3000);
+      G.fx.burst(ITEMS[key].x, ITEMS[key].y - 10, 18, {
+        colors: ['#ffd479', '#ffb347', '#f3e3b5'], min: 10, max: 40,
+        lifeMin: 0.3, lifeMax: 0.8, grav: -10, sizeMax: 2,
+      });
+      this.refreshObjective();
+      if (this.collectedCount() >= 3) {
+        setTimeout(() => G.ui.toast('材料齐了 · 回祭坛找老赫', 'good', 3200), 500);
+      }
+    }
+
+    oliveTree() {
+      if (G.save.flag('olive')) {
+        G.dialog.show([{ name: '圣橄榄树', text: '（树皮上有一道旧伤，摸上去像一条干涸的河。）' }]);
+        return;
+      }
+      if (!G.save.flag('metHephaistos')) {
+        G.dialog.show([{ name: '圣橄榄树', text: '橄榄树是雅典娜送给这座城的礼物。树下堆着几根修下来的旧枝。' }]);
+        return;
+      }
+      this.collectItem('olive');
+    }
+
+    takeResin() {
+      if (G.save.flag('resin')) return;
+      if (!G.save.flag('metHephaistos')) {
+        G.dialog.show([{ name: '松脂', text: '松林里凝着琥珀色的松脂，一捻就粘手。也许有人用得上。' }]);
+        return;
+      }
+      this.collectItem('resin');
+    }
+
+    takeBrazier() {
+      if (G.save.flag('brazier')) {
+        G.dialog.show([{ name: '铜匠铺', text: '炉火还温着。铜匠已经收工，台面上只剩几只没打完的柄。' }]);
+        return;
+      }
+      if (!G.save.flag('metHephaistos')) {
+        G.dialog.show([{ name: '铜匠铺', text: '墙边立着一只打出雏形的青铜火盆，盆口还没来得及锉边。' }]);
+        return;
+      }
+      this.collectItem('brazier');
+    }
+
+    /* ============================================================
+       抉择 · how to light the sacred fire (branch-driven ending)
+       ============================================================ */
+    chooseHowToLight() {
+      if (G.save.flag('night') || this._choosing) return;
+      this._choosing = true;
+      G.choice.show([
+        { text: '把橄榄木炭、松脂、火盆都交给老赫，请他主持' },
+        { text: '坚持由你自己亲手点这一炉' },
+        { text: '只留一半材料，把另一半留给下一队远来的人（来得晚）' },
+      ], {
+        title: '材料齐了 · 这一炉圣火，你想怎么点？',
+        onPick: (i) => {
+          this._choosing = false;
+          if (i === 0) G.save.addFlavor('help');
+          else if (i === 1) G.save.addFlavor('hand');
+          else G.save.addFlavor('last');
+          G.save.persist();
+          this.beginNight();
+        },
+      });
+    }
+
+    beginNight() {
+      if (this._nighting) return;
+      this._nighting = true;
+      G.audio.sfx('gong');
+      G.cinema.play([
+        { text: '日 落', sub: 'SUNSET OVER THE ACROPOLIS', ms: 1800 },
+        { text: '入 夜', sub: 'THE SACRED FIRE IS COMING', ms: 2100 },
+      ], () => {
+        this.night = true;
+        G.save.flag('night', true);
+        this.clock = '19:40';
+        this.updateHud();
+        this.refreshNight();
+        this.refreshObjective();
+        this.updateMarker();
+        this.nightStrength = 0.5;
+        G.audio.ambient('night');
+        G.audio.sfx('crackle');
+        G.save.persist();
+        G.ui.toast('入夜了 · 祭坛前的火盆亮了起来', 'good', 3200);
+        setTimeout(() => {
+          if (G.scene !== this) return;
+          G.dialog.show([
+            { name: '老赫', text: '火种收好了，火盆也架上了。' },
+            { name: '老赫', text: '过来，我教你点第一簇。' },
+          ], () => this.startMinigame());
+        }, 900);
+      });
+    }
+
+    startMinigame() {
+      if (!G.minigameGreek) return;
+      G.minigameGreek.start({
+        onScore: (score, best) => {
+          G.save.data.best = Math.max(G.save.data.best, best);
+          G.save.persist();
+        },
+        onExit: (score, stats) => {
+          if (!G.save.flag('finished')) {
+            G.save.flag('finished', true);
+            G.save.flag('night', true);
+            if (G.unlock) G.unlock('sacredfire');
+            G.save.persist();
+            this.refreshObjective();
+            this.updateMarker();
+            setTimeout(() => {
+              if (G.scene !== this) return;
+              G.cinema.play([
+                { text: '圣 火 长 明', sub: 'A NIGHT TO REMEMBER', ms: 2000 },
+                { text: '旅 程 完 成', sub: 'THANKS FOR CLIMBING THE HILL', ms: 2000 },
+              ], () => {
+                const flavors = G.save.data.flavor || [];
+                const tail = flavors.includes('last') ? [
+                  { name: '老赫', text: '你留了一半材料。后面的队伍脚步近了，火种还在，不愁接不上。' },
+                  { name: '旅行手账', text: '火熄了可以再点，人散了却要重新聚。这一半，是留给明天走回来的。' },
+                ] : flavors.includes('hand') ? [
+                  { name: '老赫', text: '这一炉，是你亲手点的。风把火苗压弯，又让它立起来，像你的手一样稳。' },
+                  { name: '旅行手账', text: '亲手点起来的火，会记得那份重量。' },
+                ] : [
+                  { name: '老赫', text: '橄榄木、松脂、青铜盆，各归其位。老赫这一炉，敬的是山下整座城。' },
+                  { name: '旅行手账', text: '让懂火的人去点，火会烧得更久一些。' },
+                ];
+                G.dialog.show([
+                  { name: '老赫', text: '火苗立起来的时候，整座山都安静了一下。' },
+                  { name: '老赫', text: '这火传了两千五百年，靠的就是有人愿意把手伸过去。' },
+                  { name: '旅行手账', text: '今晚的风很轻。大理石的柱子、金红的火、还有山下的一整片灯，都留在了手账的最后一页。' },
+                ].concat(tail));
+              });
+            }, 700);
+          }
+          G.audio.ambient('night');
+          this.refreshObjective();
+          this.updateMarker();
+        },
+      });
+    }
+
+    /* ============================================================
+       night setup
+       ============================================================ */
+    refreshNight() {
+      this.lights = [];
+      if (!this.night) return;
+      const lampSpots = [
+        [660, 1250], [840, 1250], [660, 1050], [840, 1050],
+        [660, 900], [840, 900], [660, 760], [840, 760],
+        [660, 620], [840, 620], [560, 1450], [940, 1450],
+        [330, 1240], [1010, 1450], [1200, 1140], [512, 990],
+      ];
+      for (const [x, y] of lampSpots) {
+        this.addLight(x, y - 14, 24, 'rgba(255,168,80,.62)', 0.6);
+      }
+      // altar + temple
+      this.addLight(750, 500, 96, 'rgba(255,150,60,.5)', 0.5);
+      this.addLight(750, 900, 150, 'rgba(255,160,90,.2)', 0.26);
+      this.addLight(750, 1470, 46, 'rgba(255,150,70,.4)', 0.36);
+      this.addLight(1090, 800, 70, 'rgba(255,160,80,.24)', 0.3);
+      this.addLight(1148, 348, 30, 'rgba(255,180,90,.24)', 0.3);
+    }
+
+    /* ============================================================
+       sundial daytime puzzle + photo spots
+       ============================================================ */
+    drawSundialPedestal(c, x, baseY) {
+      A.r(c, x - 22, baseY - 26, 44, 30, P.marbleMid);
+      A.r(c, x - 22, baseY - 26, 44, 2, P.marbleHi);
+      A.r(c, x - 26, baseY - 4, 52, 8, P.marble);
+      A.r(c, x - 26, baseY - 4, 52, 2, P.marbleHi);
+      // bronze disc + gnomon
+      A.r(c, x - 2, baseY - 46, 3, 22, P.bronze);
+      A.r(c, x - 3, baseY - 47, 5, 3, P.bronzeHi);
+      c.fillStyle = '#c9b887';
+      c.beginPath(); c.ellipse(x, baseY - 18, 12, 12, 0.35, 0, G.TAU); c.fill();
+      c.strokeStyle = P.bronzeDark; c.lineWidth = 1;
+      c.beginPath(); c.ellipse(x, baseY - 18, 12, 12, 0.35, 0, G.TAU); c.stroke();
+    }
+
+    doPuzzle() {
+      if (G.save.flag('night')) {
+        G.dialog.show([{ name: '日晷', text: '夜里没有日影，石盘的刻度都睡了。白天再来校。' }]);
+        return;
+      }
+      G.dialog.show([
+        { name: '日晷', text: '一块刻着时辰的石盘。日头高时，影子短；日头低时，影子长。' },
+        { name: '日晷', text: '把表针对准石盘上刻的时辰，就能替城里的工匠校好一整个上午。' },
+      ], () => {
+        if (G.scene !== this) return;
+        if (G.unlock) G.unlock('sundial');
+        G.sundial.start({
+          title: '校 日 · 卫城',
+          hint: '左 / 右 转动表针 · 让影子对准金环 · 空格 锁定',
+          onExit: () => { if (G.scene === this) G.ui.showHud(true); },
+        });
+      });
+    }
+
+    /* generic photo interaction: a "viewpoint" spot */
+    photoSpot(id, x, y) {
+      const spec = (G.photo && G.photo.spec(id)) || {};
+      this.addEntity({
+        x, y: y - 6, baseY: y - 6,
+        draw: (c) => {
+          A.r(c, x - 3, y - 2, 6, 4, P.bronzeDark);
+          A.r(c, x - 7, y - 8, 14, 6, P.marbleMid);
+          A.r(c, x - 6, y - 7, 12, 1, P.marbleHi);
+        },
+      });
+      this.addInteract({
+        x, y, r: 30, label: '给「' + (spec.title || id) + '」留一张影',
+        action: () => {
+          if (!G.save.hasPhoto(id)) {
+            G.dialog.show([
+              { name: '旅行手账', text: '这个机位，手账早就想拍了。' },
+            ], () => G.photo.snap(id));
+          } else {
+            G.dialog.show([
+              { name: '旅行手账', text: (spec.blurb || '已经留过影了。同一道光，再拍也是新的。') },
+            ]);
+          }
+        },
+      });
+    }
+
+    toggleMap(force) {
+      this.mapOpen = force == null ? !this.mapOpen : !!force;
+      G.audio.sfx('page');
+      const hud = G.$('#hud');
+      if (hud) hud.classList.toggle('map-open', this.mapOpen);
+      if (this.mapOpen) { this.player.moving = false; G.ui.prompt(null); }
+      else G.input.clearPressed();
+    }
+
+    update(dt) {
+      if (G.input.wasPressed('KeyM') && !G.isWorldPaused()) {
+        this.toggleMap();
+        G.input.clearPressed();
+      }
+      if (this.mapOpen) {
+        this.time += dt;
+        this.player.moving = false;
+        G.fx.update(dt);
+        this.updateAmbient(dt);
+        return;
+      }
+      super.update(dt);
+    }
+
+    updateMarker() {
+      const f = G.save.data.flags;
+      if (f.finished) { this.marker = null; return; }
+      if (!f.metHephaistos || this.collectedCount() >= 3 || this.night) {
+        this.marker = { x: 750, y: 640 };
+        return;
+      }
+      let best = null, bd = Infinity;
+      for (const key of ['olive', 'resin', 'brazier']) {
+        if (f[key]) continue;
+        const it = ITEMS[key];
+        const d = Math.hypot(it.x - this.player.x, it.y - this.player.y);
+        if (d < bd) { bd = d; best = it; }
+      }
+      this.marker = best ? { x: best.x, y: best.y } : null;
+    }
+
+    /* ============================================================
+       ground
+       ============================================================ */
+    paintGround(c) {
+      // the limestone plateau
+      c.fillStyle = '#b7ab8a';
+      c.fillRect(0, 0, this.w, this.h);
+      A.paving(c, 166, 108, 1168, 1424, '#bdb08f', '#cabda0', 4, 20);
+      // deep joints so the slabs read
+      c.save();
+      c.globalAlpha = 0.22;
+      c.fillStyle = '#7d7157';
+      for (let y = 108; y < 1532; y += 20) c.fillRect(166, y, 1168, 1);
+      for (let x = 166; x < 1334; x += 20) c.fillRect(x, 108, 1, 1424);
+      c.restore();
+
+      // weathered colour washes
+      for (let i = 0; i < 40; i++) {
+        const x = 180 + G.hash(i, 11, 61) * 1140;
+        const y = 120 + G.hash(i, 12, 62) * 1400;
+        const w = 70 + G.hash(i, 13, 63) * 210;
+        const h = 40 + G.hash(i, 14, 64) * 140;
+        const warm = G.hash(i, 15, 65) > 0.5;
+        c.fillStyle = warm ? 'rgba(248,232,196,.1)' : 'rgba(78,68,50,.09)';
+        c.beginPath(); c.ellipse(x, y, w / 2, h / 2, 0, 0, G.TAU); c.fill();
+      }
+      // moss and dust in the joints
+      c.save();
+      c.globalAlpha = 0.4;
+      c.fillStyle = '#7a7c50';
+      for (let i = 0; i < 260; i++) {
+        const x = 168 + G.hash(i, 21, 71) * 1162;
+        const y = 110 + G.hash(i, 22, 72) * 1420;
+        c.fillRect(x, y, 3, 1);
+      }
+      c.restore();
+
+      // the processional way, north to the altar
+      c.fillStyle = 'rgba(90,80,58,.5)';
+      c.fillRect(664, 300, 172, 1200);
+      A.paving(c, 668, 300, 164, 1200, '#ddd2b2', '#cec1a1', 7, 18);
+      c.fillStyle = 'rgba(110,100,76,.55)';
+      c.fillRect(668, 300, 2, 1200);
+      c.fillRect(830, 300, 2, 1200);
+      c.fillStyle = 'rgba(246,240,220,.5)';
+      c.fillRect(671, 300, 1, 1200);
+      c.fillRect(828, 300, 1, 1200);
+      // carved central slab
+      c.fillStyle = '#e7dbba';
+      c.fillRect(736, 300, 28, 1200);
+      c.fillStyle = 'rgba(151,130,94,.5)';
+      c.fillRect(736, 300, 1, 1200);
+      c.fillRect(763, 300, 1, 1200);
+      // cross joints on the way
+      c.save();
+      c.globalAlpha = 0.18;
+      c.fillStyle = '#6f6449';
+      for (let y = 312; y < 1500; y += 22) c.fillRect(668, y, 164, 1);
+      c.restore();
+
+      // the monumental stair down to the Propylaea
+      for (let i = 0; i < 6; i++) {
+        const sw = 260 - i * 12;
+        c.fillStyle = i % 2 ? '#cfc2a2' : '#e0d5b6';
+        c.fillRect(750 - sw / 2, 1432 + i * 8, sw, 8);
+        c.fillStyle = 'rgba(100,88,64,.35)';
+        c.fillRect(750 - sw / 2, 1432 + i * 8, sw, 1);
+      }
+
+      // open earth around the sacred tree and the pines
+      c.save();
+      c.globalAlpha = 0.6;
+      c.fillStyle = '#8a8a60';
+      c.beginPath(); c.ellipse(512, 1000, 96, 58, 0, 0, G.TAU); c.fill();
+      c.fillStyle = '#6f7b52';
+      c.beginPath(); c.ellipse(1144, 350, 128, 68, 0, 0, G.TAU); c.fill();
+      c.restore();
+
+      // worn dirt paths to the workshop, museum, belvedere
+      c.save();
+      c.globalAlpha = 0.55;
+      c.fillStyle = '#c3b491';
+      c.fillRect(940, 1430, 80, 28);
+      c.fillRect(300, 1240, 60, 16);
+      c.fillRect(1140, 1140, 70, 16);
+      c.fillRect(600, 760, 60, 16);
+      c.restore();
+
+      // the rim: a band of rough rock just inside the walls
+      c.fillStyle = 'rgba(110,96,70,.45)';
+      for (let x = 164; x < 1336; x += 12) {
+        const hh = 6 + G.hash(x, 1, 11) * 8;
+        c.fillRect(x, 110, 11, hh);
+        c.fillRect(x, 1536 - hh, 11, hh);
+      }
+      for (let y = 110; y < 1536; y += 12) {
+        const ww = 6 + G.hash(y, 2, 12) * 8;
+        c.fillRect(164, y, ww, 11);
+        c.fillRect(1336 - ww, y, ww, 11);
+      }
+      // grass tufts along the edges and in the gaps
+      c.save();
+      c.globalAlpha = 0.55;
+      for (let i = 0; i < 110; i++) {
+        const x = 170 + G.hash(i, 3, 21) * 1160;
+        const y = G.hash(i, 4, 22) > 0.5 ? 120 + G.hash(i, 5, 23) * 46 : 1466 + G.hash(i, 6, 24) * 56;
+        c.fillStyle = G.hash(i, 7, 25) > 0.5 ? '#6d7c4e' : '#87945c';
+        c.fillRect(x, y, 2, 1);
+        c.fillRect(x + 3, y - 1, 1, 2);
+      }
+      c.restore();
+      // loose marble rubble along the west side
+      c.save();
+      c.globalAlpha = 0.5;
+      for (let i = 0; i < 26; i++) {
+        const x = 180 + G.hash(i, 31, 81) * 150;
+        const y = 700 + G.hash(i, 32, 82) * 700;
+        c.fillStyle = G.hash(i, 33, 83) > 0.5 ? '#cfc3a6' : '#a99c7e';
+        c.fillRect(x, y, 3, 2);
+      }
+      c.restore();
+
+      // deepen the plateau so the temples and statues stand out
+      c.save();
+      c.globalAlpha = 0.09;
+      c.fillStyle = '#3e3520';
+      c.fillRect(0, 0, this.w, this.h);
+      c.restore();
+    }
+
+    drawGroundExtras(ctx) {
+      // the cliff face along the south and east
+      for (let x = 168; x < 1332; x += 16) {
+        const hh = 6 + G.hash(x, 7, 31) * 12;
+        A.r(ctx, x, 1536 - hh, 15, hh, '#9c8f70');
+        A.r(ctx, x, 1536 - hh, 15, 1, '#c8bb9b');
+        A.r(ctx, x, 1536 - 2, 15, 2, '#7d7157');
+      }
+      for (let y = 112; y < 1536; y += 16) {
+        const ww = 6 + G.hash(y, 8, 32) * 10;
+        A.r(ctx, 1336 - ww, y, ww, 15, '#9c8f70');
+        A.r(ctx, 1336 - ww, y, 1, 15, '#c8bb9b');
+      }
+      // a low parapet along the west edge
+      for (let y = 640; y < 1160; y += 14) {
+        A.r(ctx, 172, y, 10, 13, '#c3b897');
+        A.r(ctx, 172, y, 10, 1, '#ddd3b5');
+        A.r(ctx, 172, y + 12, 10, 1, '#8f8267');
+      }
+    }
+
+
+    updateAmbient(dt) {
+      // dust in the slanting light
+      if (Math.random() < dt * 3.6) {
+        G.fx.add({
+          x: this.cam.x + G.rand(-40, G.W + 40), y: this.cam.y + G.rand(0, G.H),
+          vx: G.rand(-3, 5), vy: G.rand(-3, 2),
+          life: G.rand(1.8, 3.4), size: 1,
+          color: G.pick(['rgba(246,228,190,.4)', 'rgba(255,238,206,.3)']),
+          grav: -1, glow: false,
+        });
+      }
+      // embers from the altar after nightfall
+      if (this.night && Math.random() < dt * 8) {
+        G.fx.add({
+          x: 750 + G.rand(-8, 8), y: 506 + G.rand(-4, 2),
+          vx: G.rand(-8, 8), vy: G.rand(-26, -10),
+          life: G.rand(0.8, 1.8), size: G.rand(1, 2),
+          color: G.pick(['#ffd479', '#ff9d3c', '#fff3c4']),
+          grav: -6, glow: true,
+        });
+      }
+      // seagulls high above
+      if (Math.random() < dt * 0.5) {
+        G.fx.add({
+          x: this.cam.x + G.rand(0, G.W), y: this.cam.y + G.rand(20, 120),
+          vx: G.rand(6, 14), vy: G.rand(-2, 2),
+          life: G.rand(1.6, 2.8), size: 1, color: 'rgba(246,244,236,.75)',
+          grav: 0, glow: false,
+        });
+      }
+    }
+
+    /* ============================================================
+       guide map
+       ============================================================ */
+    drawMap(ctx) {
+      const mx = 100, my = 30, mw = 440, mh = 300;
+      const X = (wx) => mx + (wx / this.w) * mw;
+      const Y = (wy) => my + (wy / this.h) * mh;
+      ctx.save();
+      ctx.fillStyle = 'rgba(10,8,6,.84)';
+      ctx.fillRect(0, 0, 640, 360);
+      ctx.fillStyle = '#ecdfc0';
+      ctx.fillRect(mx - 14, my - 22, mw + 28, mh + 44);
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      for (let i = 0; i < 170; i++) {
+        const px = mx - 10 + G.hash(i, 1, 201) * (mw + 20);
+        const py = my - 18 + G.hash(i, 2, 202) * (mh + 36);
+        ctx.fillStyle = G.hash(i, 3, 203) > 0.5 ? '#a68b5f' : '#fff5dd';
+        ctx.fillRect(px, py, 1, 1);
+      }
+      ctx.restore();
+      ctx.strokeStyle = '#5f4529'; ctx.lineWidth = 2;
+      ctx.strokeRect(mx - 14, my - 22, mw + 28, mh + 44);
+      ctx.strokeStyle = '#b08a55'; ctx.lineWidth = 1;
+      ctx.strokeRect(mx - 9.5, my - 17.5, mw + 19, mh + 35);
+      G.text(ctx, '卫城导览图', mx - 2, my - 7, { size: 11, color: '#3d2d1c', weight: 'bold' });
+      G.text(ctx, 'M 关闭', mx + mw - 32, my - 7, { size: 7, color: '#7d684c' });
+      // the plateau
+      ctx.save();
+      ctx.beginPath();
+      const px0 = X(164), py0 = Y(110), px1 = X(1336), py1 = Y(1536);
+      ctx.moveTo(px0 + 6, py0);
+      for (let x = px0; x < px1; x += 30) ctx.lineTo(x, py0 + (G.hash(x, 1, 3) * 4 - 2));
+      ctx.lineTo(px1, py0 + 4);
+      for (let y = py0; y < py1; y += 30) ctx.lineTo(px1 - (G.hash(y, 2, 4) * 4), y);
+      ctx.lineTo(px1 - 4, py1);
+      for (let x = px1; x > px0; x -= 30) ctx.lineTo(x, py1 - (G.hash(x, 3, 5) * 4));
+      ctx.lineTo(px0, py1 - 4);
+      for (let y = py1; y > py0; y -= 30) ctx.lineTo(px0 + (G.hash(y, 4, 6) * 4), y);
+      ctx.closePath();
+      ctx.fillStyle = '#e7d9b6';
+      ctx.fill();
+      ctx.strokeStyle = '#8a7550'; ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // cliff hatching along the rim
+      ctx.clip();
+      ctx.strokeStyle = 'rgba(140,116,76,.3)'; ctx.lineWidth = 1;
+      for (let i = 0; i < 90; i++) {
+        const hx = px0 + G.hash(i, 5, 7) * (px1 - px0);
+        const hy = py0 + G.hash(i, 6, 8) * (py1 - py0);
+        ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx + 5, hy + 3); ctx.stroke();
+      }
+      ctx.restore();
+
+      // processional way
+      ctx.strokeStyle = 'rgba(90,70,42,.55)'; ctx.lineWidth = 12;
+      ctx.beginPath(); ctx.moveTo(X(750), Y(1480)); ctx.lineTo(X(750), Y(320)); ctx.stroke();
+      ctx.strokeStyle = '#f4ead2'; ctx.lineWidth = 9;
+      ctx.beginPath(); ctx.moveTo(X(750), Y(1480)); ctx.lineTo(X(750), Y(320)); ctx.stroke();
+      ctx.strokeStyle = 'rgba(120,96,60,.45)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(X(750), Y(1480)); ctx.lineTo(X(750), Y(320)); ctx.stroke();
+
+      const footprint = (x, baseY, w, label) => {
+        const lx = X(x - w / 2), rx = X(x + w / 2), by = Y(baseY);
+        ctx.fillStyle = '#cabc99';
+        ctx.fillRect(lx, by - 9, rx - lx, 8);
+        ctx.strokeStyle = 'rgba(122,100,64,.5)'; ctx.lineWidth = 1;
+        ctx.strokeRect(lx + 0.5, by - 8.5, rx - lx - 1, 7);
+        ctx.fillStyle = '#8a3b2c';
+        ctx.fillRect(lx, by - 11, rx - lx, 3);
+        // column ticks
+        ctx.fillStyle = 'rgba(122,100,64,.55)';
+        const n = Math.max(2, Math.round((rx - lx) / 6));
+        for (let i = 1; i < n; i++) ctx.fillRect(lx + (rx - lx) * i / n, by - 8, 1, 6);
+        void label;
+      };
+      footprint(750, 900, 470, '帕特农');
+      footprint(1090, 800, 190, '厄瑞克忒翁');
+      footprint(980, 1420, 74, '尼刻庙');
+      footprint(330, 1240, 200, '博物馆');
+      footprint(1010, 1450, 120, '铜匠铺');
+      footprint(330, 900, 250, '西侧神域');
+
+      const label = (wx, wy, text, dx, dy, hot) => {
+        const px = X(wx), py = Y(wy);
+        if (hot) {
+          ctx.strokeStyle = '#8a2f22'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(px, py, 6 + Math.sin(this.time * 3) * 1.5, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.fillStyle = hot ? '#8a2f22' : '#4a3a26';
+        ctx.beginPath(); ctx.arc(px, py, hot ? 3.2 : 2, 0, Math.PI * 2); ctx.fill();
+        G.text(ctx, text, px + dx, py + dy, {
+          size: 6.4, color: '#3d2d1c', outline: 'rgba(240,230,204,.85)', outlineWidth: 2.4,
+        });
+      };
+      label(750, 900, '帕特农', 16, 18);
+      label(1090, 800, '厄瑞克忒翁', 8, -4);
+      label(750, 520, '祭坛', 10, -2, true);
+      label(980, 1420, '尼刻庙', -40, -8);
+      label(750, 1470, '山门', -30, -8, true);
+      label(512, 990, '圣橄榄', -36, 2);
+      label(1010, 1450, '铜匠铺', 8, 16);
+      label(330, 1240, '博物馆', -34, -6);
+      label(330, 900, '西侧神域', -42, -8);
+      label(1200, 1140, '观景台', 8, 2);
+      label(1148, 348, '松林', 8, 2);
+      label(812, 560, '老赫', 10, 12);
+
+      // you are here
+      const px = X(this.player.x), py = Y(this.player.y);
+      let chipX = px + 6, chipY = py + 4;
+      if (chipX > mx + mw - 40) chipX = px - 36;
+      if (chipY > my + mh - 12) chipY = py - 14;
+      ctx.fillStyle = 'rgba(240,230,204,.92)';
+      ctx.fillRect(chipX, chipY, 32, 9);
+      ctx.fillStyle = '#b03a26';
+      ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#b03a26'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.stroke();
+      G.text(ctx, '你在这里', chipX + 2, chipY + 7, { size: 6, color: '#7d2f22' });
+
+      // compass
+      const cxp = mx + mw - 26, cyp = my + mh - 32;
+      ctx.save();
+      ctx.strokeStyle = '#7d684c'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cxp, cyp, 11, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cxp, cyp - 11); ctx.lineTo(cxp + 3, cyp + 1); ctx.lineTo(cxp, cyp - 3);
+      ctx.lineTo(cxp - 3, cyp + 1); ctx.closePath();
+      ctx.fillStyle = '#8a3b2c'; ctx.fill();
+      G.text(ctx, 'N', cxp, cyp - 14, { size: 6, color: '#5f4529', align: 'center', weight: 'bold' });
+      ctx.restore();
+
+      G.text(ctx, '卫城 · 帕特农高地', mx + 8, my + mh + 15, { size: 7, color: '#6b5636' });
+      G.text(ctx, '沿着大道向北 · 祭坛点火', mx + mw - 118, my + mh + 15, { size: 7, color: '#6b5636' });
+      ctx.restore();
+    }
+
+    drawScreen(ctx) {
+      if (this.mapOpen) { this.drawMap(ctx); return; }
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const [wx, spread] of [[300, 40], [1150, 34]]) {
+        const sx = wx - this.cam.x;
+        const sy = 120 - this.cam.y;
+        ctx.globalAlpha = 0.045;
+        ctx.fillStyle = '#ffe6b4';
+        ctx.beginPath();
+        ctx.moveTo(sx - 46, sy);
+        ctx.lineTo(sx + 46, sy);
+        ctx.lineTo(sx + 96 + spread, sy + 320);
+        ctx.lineTo(sx - 96 - spread, sy + 320);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+      const g = ctx.createRadialGradient(320, 175, 150, 320, 180, 380);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, 'rgba(8,5,3,.3)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 640, 360);
+    }
+  }
+
+  G.AcropolisScene = AcropolisScene;
+})();
+
+</script>
+<script data-src="js/puzzle.js">
+/* ============================================================
+   雅典 · 圣火 — 白昼日晷谜题 + 拍立得相机
+   A daytime "align the sundial shadow" puzzle and the photo
+   flash used by the travel-journal camera. Both are drawn on
+   the main canvas and driven from the frame loop.
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  const A = G.artGreek;
+  const $ = G.$;
+
+  /* ============================================================
+     嗖——拍立得 : 快门闪光 + 一张照片
+     G.photo.snap() 记录一张到手账，并播放闪光、快门声。
+     G.photo.count() 已拍数量。
+     ============================================================ */
+  let flashT = 0;
+  let flashW = 0;
+  const PHOTO_SPOTS = {
+    athens: {
+      id: 'athens', title: '泛雅典娜大道', blurb: '街道向南铺开，卫城像个白帽子压在城的北面。',
+      main: '雅', palTop: '#9fae6d', palBot: '#c9bc94',
+    },
+    piraeus: {
+      id: 'piraeus', title: '比雷埃夫斯港', blurb: '船在风里轻轻晃，浪尖上有几点银白的光。',
+      main: '比', palTop: '#7fb0c8', palBot: '#c9bc94',
+    },
+    lycabettus: {
+      id: 'lycabettus', title: '吕卡维多斯山顶', blurb: '整个白色城市摊在脚下，一直漫到萨罗尼克湾。',
+      main: '吕', palTop: '#9fae6d', palBot: '#8d7c60',
+    },
+    plaka: {
+      id: 'plaka', title: '普拉卡巷口', blurb: '白墙、九重葛、窄巷，柠檬树从院墙里探出枝头。',
+      main: '普', palTop: '#c48a9a', palBot: '#e6dcc4',
+    },
+    parthenon: {
+      id: 'parthenon', title: '帕特农门前', blurb: '八根柱子立成一片，山花里刻着雅典娜的诞生。',
+      main: '帕', palTop: '#e5dcc6', palBot: '#8d7c60',
+    },
+    erechtheion: {
+      id: 'erechtheion', title: '少女柱长廊', blurb: '六位少女用头顶着屋檐，雨落下来时她们先接着。',
+      main: '厄', palTop: '#e5dcc6', palBot: '#8d7c60',
+    },
+    altar: {
+      id: 'altar', title: '雅典娜祭坛', blurb: '北缘的祭坛，正对着帕特农的西山墙。圣火就是从这里点起来的。',
+      main: '祭', palTop: '#3a6f8f', palBot: '#8d7c60',
+    },
+    sounion: {
+      id: 'sounion', title: '苏尼翁角峭壁', blurb: '波塞冬神庙立在崖边，海在天际线上烧成一片金红。',
+      main: '波', palTop: '#e08a4c', palBot: '#7b5d40',
+    },
+    home: {
+      id: 'home', title: '自家庭院', blurb: '马赛克海豚在夕阳里发亮，猫趴在它旁边打盹。',
+      main: '家', palTop: '#3a6f8f', palBot: '#d9cfb8',
+    },
+  };
+  G.photo = {
+    spots: PHOTO_SPOTS,
+    spec(id) {
+      return PHOTO_SPOTS[id] || null;
+    },
+    snap(id) {
+      if (G.save.hasPhoto(id)) return false;
+      G.save.addPhoto(id);
+      flashW = 1;
+      flashT = 0.5;
+      G.audio.sfx('pickup');
+      G.audio.noise && G.audio.noise(0.08, 0.1, 3600, 1.6);
+      const spec = PHOTO_SPOTS[id] || { title: '相片', blurb: '一封陌生而明亮的时刻。' };
+      G.ui.toast('咔嚓 · 手账藏品 +1「' + spec.title + '」', 'good', 2800);
+      G.fx.burst(320, 180, 14, {
+        colors: ['rgba(255,255,255,.8)', 'rgba(255,232,180,.7)'], min: 40, max: 90,
+        lifeMin: 0.2, lifeMax: 0.5, sizeMin: 1, sizeMax: 2, flat: true, screen: true,
+      });
+      return true;
+    },
+    unlockedCount() {
+      return G.save.data.photos.length;
+    },
+    all() {
+      return G.save.data.photos;
+    },
+    tick(dt) {
+      if (flashT > 0) flashT -= dt;
+      if (flashW > 0.02) flashW = Math.max(0, flashW - dt * 5);
+    },
+    draw(ctx) {
+      if (flashW <= 0.02) return;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = Math.min(1, flashW);
+      ctx.fillStyle = '#fffbe8';
+      ctx.fillRect(0, 0, G.W, G.H);
+      ctx.restore();
+      // a stark white frame, like a fresh polaroid
+      if (flashW > 0.5) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,.8)';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(24, 18, G.W - 48, G.H - 36);
+        ctx.restore();
+      }
+    },
+  };
+
+  /* ============================================================
+     日晷 · align the shadow to the carved hour groove
+     G.sundial — a daytime skill puzzle. Rotate the dial hand
+     (左/右) so its shadow lies on the highlighted groove, then
+     press 空格/E. Six rounds; closeness scores.
+     ============================================================ */
+  const ROUNDS = 6;
+  const GROOVE_ANGLES = [-0.9, -0.45, 0, 0.45, 0.9]; // relative to noon
+  const TOL = 0.5;
+  const IDEAL = 0.34;
+
+  class SundialGame {
+    constructor() {
+      this.active = false;
+      this.finished = false;
+      this.phase = 'ready';
+      this.t = 0;
+      this.round = 0;
+      this.score = 0;
+      this.combo = 0;
+      this.maxCombo = 0;
+      this.perfect = 0;
+      this.best = 0;
+      this.angle = 0;
+      this.target = 0;
+      this.msgTimer = null;
+      this.settle = 0;
+      this.parts = [];
+      this.bannerTimer = null;
+      this.initDOM();
+    }
+
+    initDOM() {
+      $('#pd-enter').addEventListener('click', () => this.action());
+      $('#pd-retry').addEventListener('click', () => this.retry());
+      $('#pd-exit').addEventListener('click', () => this.exit());
+      G.$('#puzzle').addEventListener('click', (e) => { if (e.target.id === 'puzzle') G.audio.sfx('error'); });
+    }
+
+    start(opts) {
+      opts = opts || {};
+      this.callbacks = opts;
+      this.active = true;
+      this.finished = false;
+      this.phase = 'ready';
+      this.round = 0;
+      this.score = 0;
+      this.combo = 0;
+      this.maxCombo = 0;
+      this.perfect = 0;
+      this.best = G.save.data.obeliskBest || 0;
+      this.t = 0;
+      this.settle = 0;
+      this.parts.length = 0;
+      if (opts.title) G.$('#pd-ask').textContent = opts.title;
+      G.ui.showHud(false);
+      G.ui.prompt(null);
+      G.show($('#puzzle'));
+      G.hide($('#pd-result'));
+      G.overlayDepth++;
+      G.fx.clear();
+      G.audio.ambient('palace');
+      G.audio.sfx('gong');
+      if (opts.hint) this.setHint(opts.hint);
+      else this.setHint('左 / 右 转动表针 · 空格 锁定');
+      setTimeout(() => {
+        if (!this.active) return;
+        this.nextRound();
+      }, 100);
+    }
+
+    action() {
+      if (!this.active || this.finished) return;
+      if (this.phase === 'aim') this.lockAngle();
+    }
+
+    key(code) {
+      if (!this.active) return false;
+      if (this.contextMenu) { if (code === 'Escape') { this.exit(); return true; } return false; }
+      if (code === 'Space' || code === 'Enter' || code === 'KeyE' || code === 'ArrowUp') {
+        if (this.phase === 'aim') { this.action(); return true; }
+      }
+      if (this.phase === 'aim') {
+        if (code === 'ArrowLeft' || code === 'KeyA') this.angle -= 1.9 * 0.32;
+        else if (code === 'ArrowRight' || code === 'KeyD') this.angle += 1.9 * 0.32;
+        this.angle = ((this.angle + Math.PI) % (Math.PI * 2)) - Math.PI;
+      }
+      return true;
+    }
+
+    nextRound() {
+      this.round++;
+      if (this.round > ROUNDS) { this.finish(); return; }
+      this.phase = 'aim';
+      // pick a groove not immediately matching where the player starts moving from
+      const i = G.randInt(0, GROOVE_ANGLES.length - 1);
+      this.target = GROOVE_ANGLES[i];
+      // start the hand at a deliberately wrong angle
+      let start = this.target + G.rand(-2.2, 2.2);
+      if (Math.abs(start - this.target) < 0.4) start += 1.4;
+      this.angle = ((start + Math.PI) % (Math.PI * 2)) - Math.PI;
+      G.show($('#pd-enter'));
+      this.setHint('圆 · 滑动表针，让影子落在金环里 · 第 ' + this.round + ' / ' + ROUNDS + ' 环');
+      G.audio.sfx('blip');
+    }
+
+    lockAngle() {
+      const diff = Math.abs(this.angle - this.target);
+      const wdiff = Math.min(diff, Math.PI * 2 - diff);
+      const score = G.clamp(1 - wdiff / TOL, 0, 1);
+      const perfect = wdiff <= IDEAL;
+      if (perfect) this.perfect++;
+      const hit = score > 0.2;
+      if (hit) { this.combo++; this.maxCombo = Math.max(this.maxCombo, this.combo); }
+      else this.combo = 0;
+      const base = 150 + score * 460;
+      const mult = 1 + Math.min(this.combo, 5) * 0.12;
+      const gain = Math.round(base * mult);
+      this.score += gain;
+      this.comboNow = this.combo;
+      this.lastScore = gain;
+      this.settle = 1.1;
+      this.ringR = 0;
+      this.ringT = 0;
+      this.hitAngle = this.angle;
+      this.lastPerfect = perfect;
+      this.lastHit = hit;
+      G.audio.sfx(perfect ? 'cheer' : hit ? 'confirm' : 'error');
+      if (perfect) this.banner('影 到 · 完美');
+      else if (score > 0.66) this.banner('接得稳');
+      else if (hit) this.banner('偏了一点');
+      else this.banner('脱 靶');
+      G.hide($('#pd-enter'));
+      this.phase = 'settle';
+      $('#pd-score').textContent = this.score.toLocaleString('zh-CN');
+    }
+
+    finish() {
+      if (this.finished) return;
+      this.finished = true;
+      this.phase = 'over';
+      const stars = this.score >= 5200 ? 3 : this.score >= 3200 ? 2 : this.score >= 1500 ? 1 : 0;
+      const title = stars === 3 ? '日影正中' : stars === 2 ? '守着好时辰' : stars === 1 ? '漏了一两环' : '影子飘走了';
+      const line = stars === 3 ? '整个上午的表针，都被你一根根送回了刻度上。' :
+        stars === 2 ? '石头上的影子终于立住了，能对上墙根那道光。' :
+          stars === 1 ? '有几环还是滑过去了，再练练，手会稳。' :
+            '影子一次都没站住。老赫说，看日影要像看火，眼睛和手要慢慢来。';
+      const best = Math.max(this.best, this.score);
+      G.save.data.obeliskBest = best;
+      G.save.persist();
+      this.best = best;
+      $('#pd-res-title').textContent = title;
+      $('#pd-res-stars').textContent = '★★★☆☆☆'.slice(3 - stars, 6 - stars);
+      $('#pd-res-score').textContent = this.score.toLocaleString('zh-CN');
+      $('#pd-res-perfect').textContent = this.perfect;
+      $('#pd-res-combo').textContent = this.maxCombo;
+      $('#pd-res-best').textContent = best.toLocaleString('zh-CN');
+      $('#pd-res-line').textContent = line;
+      G.show($('#pd-result'));
+      if (this.callbacks && this.callbacks.onScore) this.callbacks.onScore(this.score, best);
+      if (this.callbacks && this.callbacks.onComplete) {
+        setTimeout(() => { if (this.callbacks && this.callbacks.onComplete) this.callbacks.onComplete(best); }, 900);
+      }
+      G.audio.sfx('gong');
+    }
+
+    retry() {
+      this.best = Math.max(this.best, G.save.data.obeliskBest || 0);
+      this.active = true;
+      this.finished = false;
+      this.round = 0;
+      this.score = 0;
+      this.combo = 0; this.maxCombo = 0; this.perfect = 0;
+      G.hide($('#pd-result'));
+      setTimeout(() => { if (this.active) this.nextRound(); }, 80);
+      this.setHint('日影重来 · 再校一轮');
+    }
+
+    exit() {
+      if (!this.active) return;
+      this.active = false;
+      this.finished = false;
+      G.hide($('#puzzle'));
+      G.hide($('#pd-result'));
+      G.overlayDepth = Math.max(0, G.overlayDepth - 1);
+      G.input.clearPressed();
+      G.ui.showHud(true);
+      if (this.callbacks && this.callbacks.onExit) this.callbacks.onExit(this.score);
+    }
+
+    setHint(html) {
+      const el = $('#pd-hint');
+      if (el) el.innerHTML = html;
+    }
+    banner(text) {
+      const el = $('#pd-msg');
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(this.bannerTimer);
+      this.bannerTimer = setTimeout(() => el.classList.remove('show'), 720);
+    }
+
+    update(dt) {
+      this.t += dt;
+      G.photo.tick(dt);
+      this.updateParts(dt);
+      if (this.phase === 'settle') {
+        this.settle -= dt;
+        this.ringT += dt / 0.4;
+        this.ringR = G.clamp(this.ringT, 0, 1);
+        if (this.settle <= 0) { this.nextRound(); return; }
+      }
+      return this;
+    }
+
+    updateParts(dt) {
+      for (let i = this.parts.length - 1; i >= 0; i--) {
+        const p = this.parts[i];
+        p.life -= dt;
+        if (p.life <= 0) { this.parts.splice(i, 1); continue; }
+        p.vy += p.grav * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+      }
+    }
+
+    draw(ctx) {
+      if (!this.active) return;
+      ctx.imageSmoothingEnabled = false;
+      // day sky
+      const g = ctx.createLinearGradient(0, 0, 0, 360);
+      g.addColorStop(0, '#bfe2e6');
+      g.addColorStop(0.55, '#f2e6c6');
+      g.addColorStop(1, '#e6c58f');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 640, 360);
+
+      // sun
+      A.glow(ctx, 500, 86, 70, 'rgba(255,220,140,.5)', 0.7);
+      ctx.fillStyle = '#ffe9a8';
+      ctx.beginPath(); ctx.arc(500, 86, 26, 0, G.TAU); ctx.fill();
+      ctx.fillStyle = 'rgba(255,240,190,.9)';
+      ctx.beginPath(); ctx.arc(494, 82, 9, 0, G.TAU); ctx.fill();
+
+      // a distant pale city along the horizon
+      ctx.fillStyle = 'rgba(220,200,160,.55)';
+      for (let i = 0; i < 26; i++) {
+        const x = i * 27 - 20;
+        const h = 10 + G.hash(i, 1, 7) * 20;
+        ctx.fillRect(x, 246 - h, 22, h);
+      }
+      ctx.fillStyle = 'rgba(240,224,184,.5)';
+      ctx.fillRect(0, 246, 640, 2);
+
+      // ground / courtyard
+      const gg = ctx.createLinearGradient(0, 250, 0, 360);
+      gg.addColorStop(0, '#d6c9a6'); gg.addColorStop(1, '#b8a97f');
+      ctx.fillStyle = gg;
+      ctx.fillRect(0, 250, 640, 110);
+
+      // the sundial on its pedestal
+      const cx = 320, cy = 260, R = 78;
+      ctx.fillStyle = '#8a7a58';
+      ctx.fillRect(cx - 60, cy + R - 6, 120, 16);
+      ctx.fillStyle = '#ca3f2a';
+      ctx.fillRect(cx - 40, cy + R + 2, 80, 28);
+      ctx.fillStyle = 'rgba(90,70,42,.3)';
+      ctx.fillRect(cx - 40, cy + R + 22, 80, 6);
+
+      // stone dial face (mild matte)
+      ctx.fillStyle = 'rgba(26,20,14,.28)';
+      ctx.beginPath(); ctx.arc(cx + 2, cy + 2, R, 0, G.TAU); ctx.fill();
+      const dg = ctx.createRadialGradient(cx, cy, 10, cx, cy, R);
+      dg.addColorStop(0, '#efe5c6'); dg.addColorStop(1, '#d3c195');
+      ctx.fillStyle = dg;
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, G.TAU); ctx.fill();
+      ctx.strokeStyle = '#6e5b36'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, G.TAU); ctx.stroke();
+
+      // carved hour grooves
+      for (const a of GROOVE_ANGLES) {
+        const ang = -Math.PI / 2 + a;
+        const x1 = cx + Math.cos(ang) * (R - 12);
+        const y1 = cy + Math.sin(ang) * (R - 12);
+        const x2 = cx + Math.cos(ang) * (R - 5);
+        const y2 = cy + Math.sin(ang) * (R - 5);
+        const isTarget = this.phase === 'aim' && Math.abs(a - this.target) < 0.001;
+        ctx.strokeStyle = isTarget ? '#8a2f22' : 'rgba(110,91,54,.55)';
+        ctx.lineWidth = isTarget ? 3 : 2;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        if (isTarget) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255,214,120,.85)';
+          ctx.lineWidth = 1;
+          const pulse = 1 + Math.sin(this.t * 5) * 0.1;
+          ctx.beginPath(); ctx.arc(cx + Math.cos(ang) * (R - 9), cy + Math.sin(ang) * (R - 9), 8 * pulse, 0, G.TAU); ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      // the gnomon (bronze) pointing up (north) + shadow hand opposite
+      ctx.strokeStyle = '#8a6a34'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy - R + 8); ctx.stroke();
+      // shadow wedge cast by the hour hand
+      const sa = -Math.PI / 2 + this.angle;
+      const hx = cx + Math.cos(sa) * (R - 20);
+      const hy = cy + Math.sin(sa) * (R - 20);
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = '#3a3224';
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(hx, hy); ctx.stroke();
+      ctx.restore();
+      // hour hand tip
+      ctx.fillStyle = '#b3442c';
+      ctx.beginPath(); ctx.arc(hx, hy, 4, 0, G.TAU); ctx.fill();
+
+      // settle feedback
+      if (this.phase === 'settle') {
+        const hx2 = cx + Math.cos(-Math.PI / 2 + this.hitAngle) * (R - 20);
+        const hy2 = cy + Math.sin(-Math.PI / 2 + this.hitAngle) * (R - 20);
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - this.ringT);
+        ctx.strokeStyle = this.lastPerfect ? '#ffe9a8' : this.lastHit ? '#ffd479' : '#e05b25';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(hx2, hy2, 6 + this.ringR * 22, 0, G.TAU); ctx.stroke();
+        ctx.restore();
+      }
+
+      this.drawParts(ctx);
+
+      // vignette
+      const vg = ctx.createRadialGradient(320, 180, 160, 320, 180, 380);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(40,25,8,.3)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, 640, 360);
+    }
+
+    drawParts(ctx) {
+      for (const p of this.parts) {
+        const a = G.clamp(p.life / p.max, 0, 1);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = a;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+        ctx.restore();
+      }
+    }
+
+    addSpark(x, y, n) {
+      for (let i = 0; i < (n || 10); i++) {
+        const a = G.rand(0, G.TAU), s = G.rand(10, 60);
+        this.parts.push({
+          x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 20,
+          life: G.rand(0.4, 0.9), max: 0.9, size: G.rand(1, 2),
+          color: G.pick(['#ffe9a8', '#ffd479', '#fff3c4']), grav: 40,
+        });
+      }
+    }
+  }
+
+  G.sundial = new SundialGame();
+  G.SundialGame = SundialGame;
+})();
+
+</script>
 <script data-src="js/main.js">
 /* ============================================================
    紫禁城 · 铁火 — boot, title, scenes, UI glue
@@ -10153,13 +14916,35 @@ input,select{font:inherit}
     }, 430);
   };
 
+  G.enterAthens = function (spawn) {
+    G.titleActive = false;
+    G.hide($('#title'));
+    const hud = $('#hud');
+    if (hud) hud.classList.remove('map-open');
+    G.ui.showHud(true);
+    G.ui.setHomeButton(false);
+    if (!G.athensScene) G.athensScene = new G.AthensScene();
+    G.setScene(G.athensScene, { spawn: spawn || { x: 1100, y: 1240 } });
+  };
+
+  G.enterAcropolis = function (spawn) {
+    G.titleActive = false;
+    G.hide($('#title'));
+    const hud = $('#hud');
+    if (hud) hud.classList.remove('map-open');
+    G.ui.showHud(true);
+    G.ui.setHomeButton(false);
+    if (!G.acropolisScene) G.acropolisScene = new G.AcropolisScene();
+    G.setScene(G.acropolisScene, { spawn: spawn || { x: 750, y: 1300 } });
+  };
+
   /* ============================================================
      home hall
      ============================================================ */
   G.homeReturn = null;
   G.goHome = function () {
     if (!G.scene || G.scene.id === 'home' || G.fade.busy) return;
-    if (G.dialog.active || G.security.active || G.cinema.active || (G.minigame && G.minigame.active) || G.scene.mapOpen) return;
+    if (G.dialog.active || G.security.active || G.cinema.active || (G.minigame && G.minigame.active) || (G.minigameGreek && G.minigameGreek.active) || G.scene.mapOpen) return;
     const sc = G.scene;
     G.homeReturn = { scene: sc, x: sc.player.x, y: sc.player.y, dir: sc.player.dir };
     G.fade.to(() => {
@@ -10297,11 +15082,26 @@ input,select{font:inherit}
       if (code === 'Escape' || code === 'KeyJ') codex.close();
       return;
     }
+    if (G.choice && G.choice.active) {
+      if (code === 'Escape') { G.choice.close(); return; }
+      if (code === 'ArrowUp' || code === 'KeyW') { G.choice.move(-1); return; }
+      if (code === 'ArrowDown' || code === 'KeyS') { G.choice.move(1); return; }
+      if (code === 'KeyE' || code === 'Space' || code === 'Enter') { G.choice.pick(); return; }
+      return;
+    }
+    if (G.sundial && G.sundial.active) {
+      G.sundial.key(code);
+      return;
+    }
     if (G.dialog.active) {
       if (code === 'KeyE' || code === 'Space' || code === 'Enter') G.dialog.advance();
       return;
     }
     if (G.cinema.active) return;
+    if (G.minigameGreek && G.minigameGreek.active) {
+      G.minigameGreek.key(code);
+      return;
+    }
     if (G.minigame && G.minigame.active) {
       G.minigame.key(code);
       return;
@@ -10335,6 +15135,7 @@ input,select{font:inherit}
     if (G.archiveGame) G.archiveGame.init();
     if (G.difficulty) G.difficulty.init();
     if (G.sourceQuiz) G.sourceQuiz.init();
+    if (G.choice) G.choice.init();
     G.fade.init();
     G.input.init();
     G.initTouch();
@@ -10346,6 +15147,7 @@ input,select{font:inherit}
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
     $('#btn-fusion').addEventListener('click', () => G.enterFusion());
+    $('#btn-athens').addEventListener('click', () => G.enterAthens());
     // tapping / clicking the map canvas closes the map (touch-friendly)
     $('#game').addEventListener('pointerdown', () => {
       if (G.scene && G.scene.mapOpen) {
@@ -10558,6 +15360,9 @@ input,select{font:inherit}
         titleT += dt;
         titleArt.t = titleT;
         titleArt.draw(ctx);
+      } else if (G.minigameGreek && G.minigameGreek.active) {
+        G.minigameGreek.update(dt);
+        G.minigameGreek.draw(ctx);
       } else if (G.minigame && G.minigame.active) {
         G.minigame.update(dt);
         G.minigame.draw(ctx);
