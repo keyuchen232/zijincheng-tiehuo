@@ -168,7 +168,7 @@
       G.audio.ambient('palace');
       G.audio.sfx('gong');
       if (opts.hint) this.setHint(opts.hint);
-      else this.setHint('左 / 右 转动表针 · 空格 锁定');
+      else this.setHint('按住 ← / → 转动表针 · 空格 锁定');
       setTimeout(() => {
         if (!this.active) return;
         this.nextRound();
@@ -183,14 +183,11 @@
     key(code) {
       if (!this.active) return false;
       if (this.contextMenu) { if (code === 'Escape') { this.exit(); return true; } return false; }
+      if (code === 'Escape') { this.exit(); return true; }
       if (code === 'Space' || code === 'Enter' || code === 'KeyE' || code === 'ArrowUp') {
         if (this.phase === 'aim') { this.action(); return true; }
       }
-      if (this.phase === 'aim') {
-        if (code === 'ArrowLeft' || code === 'KeyA') this.angle -= 1.9 * 0.32;
-        else if (code === 'ArrowRight' || code === 'KeyD') this.angle += 1.9 * 0.32;
-        this.angle = ((this.angle + Math.PI) % (Math.PI * 2)) - Math.PI;
-      }
+      // 方向键的持续转动在 update() 里按按住状态处理；这里只吃锁定键
       return true;
     }
 
@@ -206,7 +203,7 @@
       if (Math.abs(start - this.target) < 0.4) start += 1.4;
       this.angle = ((start + Math.PI) % (Math.PI * 2)) - Math.PI;
       G.show($('#pd-enter'));
-      this.setHint('圆 · 滑动表针，让影子落在金环里 · 第 ' + this.round + ' / ' + ROUNDS + ' 环');
+      this.setHint('按住 ← / → 转动表针，让影子落进金环 · 第 ' + this.round + ' / ' + ROUNDS + ' 环');
       G.audio.sfx('blip');
     }
 
@@ -310,6 +307,16 @@
       this.t += dt;
       G.photo.tick(dt);
       this.updateParts(dt);
+      // 按住 ←/→ 平滑转动表针（放开即停），单次按键只走一小步
+      if (this.phase === 'aim') {
+        let dir = 0;
+        if (G.input.isDown('ArrowLeft', 'KeyA')) dir -= 1;
+        if (G.input.isDown('ArrowRight', 'KeyD')) dir += 1;
+        if (dir) {
+          this.angle += dir * 1.75 * Math.min(dt, 0.05);
+          this.angle = ((this.angle + Math.PI) % (Math.PI * 2)) - Math.PI;
+        }
+      }
       if (this.phase === 'settle') {
         this.settle -= dt;
         this.ringT += dt / 0.4;

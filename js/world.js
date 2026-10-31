@@ -33,6 +33,8 @@
       this.focusEntity = null;
       this.lookAhead = opts.lookAhead == null ? 42 : opts.lookAhead;
       this.dayGrade = opts.dayGrade !== false;
+      // 画面调色强度：之前只存在于各场景的构造参数里，基类没有接住，导致永远按 1.0 满强度叠加
+      this.gradeStrength = opts.gradeStrength;
     }
 
     /* ---------- setup helpers ---------- */
@@ -308,9 +310,18 @@
         draw: (c) => this.drawPlayer(c),
       });
       list.sort((a, b) => (a.baseY - b.baseY) || ((a.x || 0) - (b.x || 0)));
+      // 视口裁剪：宫殿精灵比锚点高得多（午门约 540px），墙/灯还可能在锚点下方，
+      // 所以留足纵向余量；实体也可以自带 bounds（x0/y0/x1/y1）做精确裁剪。
+      const padTop = 760, padBottom = 620, padX = 480;
       for (const e of list) {
-        if (e.baseY < cam.y - 240 || e.baseY > cam.y + G.H + 180) continue;
-        if (e.x != null && e.x < cam.x - 260 || e.x > cam.x + G.W + 260) continue;
+        if (e.bounds) {
+          const b = e.bounds;
+          if (b.y1 < cam.y - 60 || b.y0 > cam.y + G.H + 60) continue;
+          if (b.x1 < cam.x - 60 || b.x0 > cam.x + G.W + 60) continue;
+        } else {
+          if (e.baseY < cam.y - padTop || e.baseY > cam.y + G.H + padBottom) continue;
+          if (e.x != null && (e.x < cam.x - padX || e.x > cam.x + G.W + padX)) continue;
+        }
         e.draw(ctx);
       }
       this.drawForeground(ctx);
@@ -318,6 +329,8 @@
       G.fx.draw(ctx, cam);
       if (this.night) G.art.nightOverlay(ctx, cam, this.lights, this.nightStrength == null ? 0.5 : this.nightStrength);
       else if (this.dayGrade) G.art.dayGrade(ctx, this.time, this.gradeStrength);
+      // 屏幕级颗粒：烘焙一次、每帧一次 drawImage，给平涂区域一层手作质感
+      if (G.art.grainTexture) G.art.grainTexture(ctx);
       this.drawScreen(ctx);
       if (!this.mapOpen) this.drawMarkers(ctx);
     }

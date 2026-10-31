@@ -552,7 +552,9 @@
        抉择 · how to light the sacred fire (branch-driven ending)
        ============================================================ */
     chooseHowToLight() {
-      if (G.save.flag('night') || this._choosing) return;
+      if (G.save.flag('night')) return;
+      // 只有“正在选”时才拦；上次用 Esc 取消留下的旧标记会自动失效，避免老赫永久没反应
+      if (this._choosing && G.choice.active) return;
       this._choosing = true;
       G.choice.show([
         { text: '把橄榄木炭、松脂、火盆都交给老赫，请他主持' },
@@ -560,6 +562,7 @@
         { text: '只留一半材料，把另一半留给下一队远来的人（来得晚）' },
       ], {
         title: '材料齐了 · 这一炉圣火，你想怎么点？',
+        onClose: () => { this._choosing = false; },
         onPick: (i) => {
           this._choosing = false;
           if (i === 0) G.save.addFlavor('help');
@@ -701,7 +704,7 @@
         if (G.unlock) G.unlock('sundial');
         G.sundial.start({
           title: '校 日 · 卫城',
-          hint: '左 / 右 转动表针 · 让影子对准金环 · 空格 锁定',
+          hint: '按住 ← / → 转动表针 · 让影子对准金环 · 空格 锁定',
           onExit: () => { if (G.scene === this) G.ui.showHud(true); },
         });
       });

@@ -629,7 +629,85 @@ body.title-mode #stage{visibility:hidden}
 #artdemo iframe{flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;display:block;background:#05080f}
 #artdemo .artdemo-loading{position:absolute;inset:42px 0 0 0;display:grid;place-items:center;background:#05080f;color:#8fa8a2;font-size:14px;letter-spacing:.14em;pointer-events:none}
 #artdemo .artdemo-loading.hidden{display:none}
-@media(max-width:640px){#artdemo .artdemo-bar{height:36px;padding:0 .6em}#artdemo .artdemo-title{font-size:11px}#artdemo .artdemo-actions a{display:none}}
+@media(max-width:640px){#artdemo .artdemo-bar{height:36px;padding:0 .6em}#artdemo .artdemo-title{font-size:11px}#artdemo .artdemo-actions a{display:none}}/* ============================================================
+   守境人 · 考据台（AI 对话）
+   ============================================================ */
+.ai-panel{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:2.4em 1.2em}
+.ai-panel.hidden{display:none}
+.ai-panel::before{content:'';position:absolute;inset:0;background:rgba(6,5,4,.62)}
+.ai-card{position:relative;z-index:1;width:min(680px,100%);max-height:82vh;display:flex;flex-direction:column;gap:.7em;
+  padding:1.1em 1.2em 1em;background:linear-gradient(180deg,#211a13,#171110);border:1px solid var(--line);
+  box-shadow:0 18px 60px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.45);color:var(--cream)}
+.ai-head{display:flex;align-items:center;gap:.55em}
+.ai-seal{display:inline-grid;place-items:center;width:1.7em;height:1.7em;background:var(--red);color:#f7e3c8;
+  font-family:var(--serif,Georgia,serif);border-radius:2px;box-shadow:inset 0 0 0 1px rgba(255,220,170,.35)}
+.ai-title{font-family:var(--serif,Georgia,serif);letter-spacing:.08em;font-size:1.05em;color:var(--gold-hi)}
+.ai-mode{margin-left:auto;font-size:.68em;color:var(--muted);letter-spacing:.08em;padding:.25em .6em;border:1px solid #4b3a24;border-radius:2px}
+.ai-mode.online{color:var(--teal);border-color:var(--teal-dim)}
+.ai-close{border:1px solid #5a4529;background:#241b14;color:var(--gold);font-size:.72em;padding:.4em .8em;cursor:pointer;border-radius:2px}
+.ai-close:hover{border-color:var(--gold);color:var(--gold-hi)}
+.ai-place{margin:0;font-size:.74em;color:var(--muted);border-bottom:1px dashed #3c2f20;padding-bottom:.55em}
+.ai-chips{display:flex;flex-wrap:wrap;gap:.45em}
+.ai-chip{border:1px solid #4d3a22;background:#1f1912;color:#d9c9a6;font-size:.74em;padding:.38em .65em;cursor:pointer;border-radius:2px;text-align:left}
+.ai-chip:hover{border-color:var(--gold-dim);color:var(--gold-hi)}
+.ai-input{display:flex;gap:.5em;align-items:stretch}
+.ai-input textarea{flex:1;resize:none;background:#120e0b;border:1px solid #4d3a22;color:var(--cream);font:inherit;font-size:.86em;
+  line-height:1.7;padding:.6em .7em;border-radius:2px;outline:none}
+.ai-input textarea:focus{border-color:var(--gold-dim);box-shadow:0 0 0 1px rgba(216,178,106,.2)}
+.ai-input button{border:1px solid #6d5326;background:linear-gradient(180deg,#c9a25c,#a0793d);color:#1c130b;font-size:.9em;
+  padding:0 1.15em;cursor:pointer;border-radius:2px;font-weight:700;letter-spacing:.1em}
+.ai-input button:hover{filter:brightness(1.08)}
+.ai-log{flex:1;min-height:5em;overflow:auto;display:flex;flex-direction:column;gap:.5em;padding-right:.2em}
+.ai-bubble{display:flex;gap:.55em;font-size:.84em;line-height:1.75}
+.ai-bubble .ai-who{flex:0 0 auto;font-size:.82em;color:var(--gold-dim);padding-top:.15em}
+.ai-bubble p{margin:0;white-space:pre-wrap;word-break:break-word}
+.ai-bubble-q .ai-who{color:var(--muted)}
+.ai-bubble-q p{color:#cfc0a4}
+.ai-bubble-a p{color:var(--cream)}
+.ai-thinking p{color:var(--muted);font-style:italic}
+.ai-notice{margin:0;font-size:.72em;color:var(--muted);padding-left:2.2em}
+.ai-sources{display:flex;flex-direction:column;gap:.35em;padding-left:2.2em}
+.ai-source{border:1px solid #3f3020;background:#191410;border-radius:2px}
+.ai-source summary{cursor:pointer;font-size:.74em;color:var(--gold);padding:.4em .6em;list-style:none}
+.ai-source summary::-webkit-details-marker{display:none}
+.ai-source summary:before{content:'◆ ';color:var(--gold-dim);font-size:.8em}
+.ai-source p{margin:.35em .6em;font-size:.74em;line-height:1.7;color:#d8c9ad}
+.ai-source .ai-src-src{color:var(--muted);font-size:.7em}
+.ai-source a{margin:0 .6em .5em;display:inline-block;font-size:.7em;color:var(--teal)}
+.ai-note{margin:0;font-size:.68em;color:#8c7d66;letter-spacing:.04em}
+@media(max-width:640px){.ai-panel{padding:1em .6em}.ai-card{padding:.85em}.ai-bubble{font-size:.8em}}
+.ai-count{margin-left:.5em;font-size:.68em;color:var(--gold-dim);letter-spacing:.08em;padding:.25em .5em;border:1px solid #3f3020;border-radius:2px;align-self:center}
+
+/* 考据问答（考考我） */
+.ai-quiz{display:flex;flex-direction:column;gap:.55em}
+.ai-quiz.hidden{display:none}
+.ai-quiz-q{margin:0;font-size:.92em;line-height:1.7;color:#f4e7c9;border-left:2px solid var(--gold-dim);padding-left:.6em}
+.ai-quiz-opts{display:flex;flex-direction:column;gap:.45em}
+.ai-quiz-opt{text-align:left;border:1px solid #4d3a22;background:#1c1610;color:#e3d3b3;font-size:.82em;padding:.5em .7em;cursor:pointer;border-radius:2px;font:inherit}
+.ai-quiz-opt:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold-hi);background:#221a11}
+.ai-quiz-opt:disabled{cursor:default;opacity:.92}
+.ai-quiz-opt.is-right{border-color:#6f9a5f;background:#16241a;color:#cdf0bd}
+.ai-quiz-opt.is-wrong{border-color:#b0503c;background:#2a1512;color:#f1b3a1}
+.ai-quiz-hint{margin:0;font-size:.7em;color:var(--muted)}
+.ai-quiz-acts{display:flex;gap:.5em;flex-wrap:wrap}
+.ai-quiz-btn{border:1px solid #5a4529;background:#241b14;color:var(--gold);font-size:.74em;padding:.42em .8em;cursor:pointer;border-radius:2px;font:inherit}
+.ai-quiz-btn:hover{border-color:var(--gold);color:var(--gold-hi)}
+.ai-quiz-back{margin-left:auto}
+.ai-quiz-result{margin:0;font-size:.8em;line-height:1.7}
+.ai-quiz-result.ok{color:#9dd48a}
+.ai-quiz-result.bad{color:#e8a586}
+.ai-chip-quiz{border-color:#8a6b2f;color:#ffd98a;background:#2a2013}
+
+/* 万象灵境：把俯视画面斜过来，做出“平面上的立体模型”观感 */
+#stage.diorama{perspective:1500px;perspective-origin:50% 42%}
+#stage.diorama #game{transform:rotateX(16deg) scale(1.08);transform-origin:50% 58%;transition:transform .45s ease}
+#stage.diorama::after{box-shadow:inset 0 0 70px rgba(0,0,0,.3),inset 0 -40px 60px rgba(0,0,0,.25)}
+/* 小屏收一点角度，避免上下被裁 */
+@media (max-width:640px){
+  #stage.diorama{perspective:1100px}
+  #stage.diorama #game{transform:rotateX(11deg) scale(1.05)}
+}
+
 </style>
 </head>
 <body>
@@ -665,6 +743,7 @@ body.title-mode #stage{visibility:hidden}
           <small id="daylabel">10月29日 · 晴</small>
         </div>
         <button class="icon-btn home-btn" id="btn-home" title="回家（H）" aria-label="回家">家</button>
+        <button class="icon-btn" id="btn-ask" title="问守境人（T）" aria-label="问守境人">问</button>
         <button class="icon-btn" id="btn-codex" title="图鉴（J）" aria-label="图鉴">册</button>
         <button class="icon-btn" id="btn-sound" title="声音" aria-label="声音">♪</button>
         <button class="icon-btn" id="btn-menu" title="菜单（Esc）" aria-label="菜单">≡</button>
@@ -761,7 +840,7 @@ body.title-mode #stage{visibility:hidden}
   </div>
   <div class="title-foot">
     <span>共创引擎团队出品 · 文化赛道</span>
-    <span class="title-keys">WASD / 方向键移动 &nbsp;·&nbsp; E 互动 &nbsp;·&nbsp; H 回家 &nbsp;·&nbsp; M 地图</span>
+    <span class="title-keys">WASD / 方向键移动 &nbsp;·&nbsp; E 互动 &nbsp;·&nbsp; T 问守境人 &nbsp;·&nbsp; H 回家 &nbsp;·&nbsp; M 地图</span>
   </div>
   <div class="title-seal" aria-hidden="true"><b>境</b><i>万象灵境</i></div>
   <div class="title-corner tl"></div><div class="title-corner tr"></div>
@@ -855,6 +934,7 @@ body.title-mode #stage{visibility:hidden}
     <p>红墙外风声正紧，铁花还要再等一会儿。</p>
     <div class="menu-actions">
       <button class="btn btn-primary" id="menu-resume"><span>继续旅程</span></button>
+      <button class="btn" id="menu-ask"><span>问守境人 · 考据</span></button>
       <button class="btn" id="menu-sound"><span>声音：开</span></button>
       <button class="btn" id="menu-reset"><span>重新开始</span></button>
       <button class="btn" id="menu-artdemo"><span>同境异笔 · 插件</span></button>
@@ -1017,7 +1097,10 @@ body.title-mode #stage{visibility:hidden}
     anyPressedAt: 0,
     init() {
       window.addEventListener('keydown', (e) => {
-        if (relevant.has(e.code)) e.preventDefault();
+        const t = e.target;
+        const typing = !!(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable));
+        if (!typing && relevant.has(e.code)) e.preventDefault();
+        if (typing) return; // 输入框里打字不触发游戏热键
         if (e.repeat) return;
         this.down[e.code] = true;
         this.pressed[e.code] = true;
@@ -1066,6 +1149,7 @@ body.title-mode #stage{visibility:hidden}
         night: false, finished: false,
       },
       codex: [],
+      flavors: [],
       best: 0,
       plays: 0,
       sound: true,
@@ -1114,6 +1198,12 @@ body.title-mode #stage{visibility:hidden}
     addCodex(id) {
       if (!this.data.codex.includes(id)) { this.data.codex.push(id); this.persist(); return true; }
       return false;
+    },
+    // 结局/抉择记录（卫城圣火的三条处理方式等）；旧存档没有 flavors 字段时补上
+    addFlavor(k) {
+      if (!Array.isArray(this.data.flavors)) this.data.flavors = [];
+      if (!this.data.flavors.includes(k)) { this.data.flavors.push(k); this.persist(); }
+      return k;
     },
   };
 
@@ -1308,20 +1398,29 @@ body.title-mode #stage{visibility:hidden}
     optionEls: [],
     init() {
       this.el = G.$('#choice');
-      this.optionEls = G.$$('#choice .choice-opt');
-      this.optionEls.forEach((o) => {
-        o.addEventListener('mouseenter', () => {
-          o.classList.add('hover');
-          this.optionEls.forEach((x) => x.classList.remove('sel'));
-          o.classList.add('sel');
-        });
-        o.addEventListener('click', () => this.pick(parseInt(o.dataset.i, 10)));
+      // 选项是 show() 时动态生成的，必须在容器上做事件委托，否则用鼠标点选项没有任何反应
+      const body = G.$('#choice-body') || this.el;
+      body.addEventListener('click', (e) => {
+        const opt = e.target && e.target.closest ? e.target.closest('.choice-opt') : null;
+        if (!opt) return;
+        e.preventDefault();
+        this.pick(parseInt(opt.dataset.i, 10));
+      });
+      body.addEventListener('mouseover', (e) => {
+        const opt = e.target && e.target.closest ? e.target.closest('.choice-opt') : null;
+        if (!opt) return;
+        const idx = parseInt(opt.dataset.i, 10);
+        if (idx === this._hover) return;
+        this._hover = idx;
+        const els = G.$$('#choice .choice-opt');
+        els.forEach((x, i) => x.classList.toggle('sel', i === idx));
       });
       G.$('#choice').addEventListener('click', (e) => { if (e.target.id === 'choice') G.audio.sfx('error'); });
     },
     show(lines, opts) {
       lines = lines || [];
       this.onPick = (opts && opts.onPick) || null;
+      this.onClose = (opts && opts.onClose) || null;
       const askEl = G.$('#choice-ask');
       askEl.innerHTML = (opts && opts.title) || '你偏要向哪个方向走？';
       G.$('#choice-body').innerHTML = '';
@@ -1358,6 +1457,7 @@ body.title-mode #stage{visibility:hidden}
       if (idx < 0 || idx >= n) return;
       const cb = this.onPick;
       G.audio.sfx('confirm');
+      this._picked = true;
       this.close();
       if (cb) setTimeout(() => cb(idx), 30);
     },
@@ -1365,10 +1465,15 @@ body.title-mode #stage{visibility:hidden}
       if (!this.active) return;
       this.active = false;
       this.choiceWaiting = false;
+      const cb = this.onPick;
+      const onClose = this.onClose;
       this.onPick = null;
+      this.onClose = null;
       G.hide(this.el);
       G.overlayDepth = Math.max(0, G.overlayDepth - 1);
       G.input.clearPressed();
+      if (onClose && !this._picked) onClose();
+      this._picked = false;
     },
   };
 
@@ -1766,39 +1871,74 @@ body.title-mode #stage{visibility:hidden}
   A.paving = function (ctx, x, y, w, h, base, alt, seed, tile) {
     tile = tile || 12;
     r(ctx, x, y, w, h, base);
+    // 真实石砖：错缝铺装（像砖墙一样隔行错开半块），砖面只有轻微色差
+    const colW = Math.max(6, Math.round(tile * 1.15));
+    const rowH = Math.max(4, Math.round(tile * 0.62));
     ctx.save();
-    // large slabs read as stone rather than a checkerboard
-    const slab = tile * 3;
-    for (let yy = 0; yy < h; yy += slab) {
-      for (let xx = 0; xx < w; xx += slab) {
-        const n = G.hash(x + xx, y + yy, (seed || 3) + 5);
-        ctx.globalAlpha = 0.05 + n * 0.05;
-        ctx.fillStyle = n < 0.5 ? alt : '#e8ddc4';
-        ctx.fillRect(x + xx, y + yy, Math.min(slab, w - xx), Math.min(slab, h - yy));
+    let row = 0;
+    for (let yy = 0; yy < h; yy += rowH, row++) {
+      const off = (row % 2) ? Math.round(colW / 2) : 0;
+      for (let xx = -off; xx < w; xx += colW) {
+        const cw0 = Math.min(colW, w - xx), ch0 = Math.min(rowH, h - yy);
+        if (cw0 <= 0 || ch0 <= 0) continue;
+        const n = G.hash(x + ((xx + off) % colW), y + yy, (seed || 3) + 5);
+        ctx.globalAlpha = 0.025 + n * 0.045;
+        ctx.fillStyle = n < 0.5 ? alt : (n > 0.86 ? '#efe6d1' : '#ddd2b8');
+        ctx.fillRect(x + xx, y + yy, cw0, ch0);
       }
     }
-    ctx.globalAlpha = 0.12;
-    for (let yy = 0; yy < h; yy += tile) {
-      for (let xx = 0; xx < w; xx += tile) {
-        const n = G.hash(x + xx, y + yy, seed || 3);
-        if (n < 0.16) {
-          ctx.fillStyle = alt;
-          ctx.fillRect(x + xx + 1, y + yy + 1, tile - 1, tile - 1);
-        } else if (n > 0.86) {
-          ctx.fillStyle = '#efe6d1';
-          ctx.fillRect(x + xx + 1, y + yy + 1, tile - 1, 1);
-        }
+    // 砖缝：隔行错缝，只留一道很浅的暗线，别让地面变成网格纸
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = '#16110c';
+    for (let yy = rowH; yy < h; yy += rowH) ctx.fillRect(x, y + yy - 1, w, 1);
+    row = 0;
+    for (let yy = 0; yy < h; yy += rowH, row++) {
+      const off = (row % 2) ? Math.round(colW / 2) : 0;
+      const y1 = Math.min(y + yy + rowH, y + h);
+      for (let xx = -off; xx < w; xx += colW) {
+        const lx = x + xx;
+        if (lx <= x || lx >= x + w - 1) continue;
+        ctx.fillRect(lx, y + yy, 1, y1 - (y + yy));
+      }
+    }
+    // 砖块之间的高差：只在每块砖的下缘留一抹很轻的压影
+    ctx.globalAlpha = 0.035;
+    ctx.fillStyle = '#141008';
+    row = 0;
+    for (let yy = 0; yy < h; yy += rowH, row++) {
+      const off = (row % 2) ? Math.round(colW / 2) : 0;
+      for (let xx = -off; xx < w; xx += colW) {
+        const sw = Math.min(colW, w - xx) - 2;
+        if (sw > 2) ctx.fillRect(x + xx + 1, y + yy + rowH - 1, sw, 1);
       }
     }
     ctx.restore();
+    // 岁月痕迹：极淡的苔痕与尘渍，不抢砖色
     ctx.save();
-    ctx.globalAlpha = 0.09;
-    ctx.fillStyle = '#16110c';
-    for (let yy = 0; yy < h; yy += tile) ctx.fillRect(x, y + yy, w, 1);
-    for (let xx = 0; xx < w; xx += tile) ctx.fillRect(x + xx, y, 1, h);
-    ctx.globalAlpha = 0.12;
-    for (let yy = 0; yy < h; yy += slab) ctx.fillRect(x, y + yy, w, 1);
-    for (let xx = 0; xx < w; xx += slab) ctx.fillRect(x + xx, y, 1, h);
+    for (let yy = 0; yy < h; yy += tile) {
+      for (let xx = 0; xx < w; xx += tile) {
+        const n = G.hash(x + xx, y + yy, (seed || 3) + 29);
+        if (n < 0.045) {
+          ctx.globalAlpha = 0.05;
+          ctx.fillStyle = '#5d6b4a';
+          ctx.fillRect(x + xx + 2 + (n * 40 | 0) % (tile - 5), y + yy + 2 + (n * 90 | 0) % (tile - 5), 2, 1);
+        } else if (n > 0.965) {
+          ctx.globalAlpha = 0.05;
+          ctx.fillStyle = '#f2ead9';
+          ctx.fillRect(x + xx + 1, y + yy + 1, 1, 1);
+        }
+      }
+    }
+    // 区域边缘：上缘一线反光，下缘一道压影（比之前轻一半）
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = '#f6eed7';
+    ctx.fillRect(x, y, w, 1);
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = '#141008';
+    ctx.fillRect(x, y + h - 1, w, 1);
+    ctx.globalAlpha = 0.04;
+    ctx.fillRect(x, y, 1, h);
+    ctx.fillRect(x + w - 1, y, 1, h);
     ctx.restore();
   };
 
@@ -1812,6 +1952,48 @@ body.title-mode #stage{visibility:hidden}
     ctx.globalAlpha = alpha == null ? 0.4 : alpha;
     ctx.fillStyle = g;
     ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    ctx.restore();
+  };
+
+  /* 屏幕级颗粒：一层烘焙的抖动噪点，打散大面积平涂，画面不再像一张纸。 */
+  let grainCv = null;
+  A.grainTexture = function (ctx) {
+    if (!grainCv) {
+      grainCv = document.createElement('canvas');
+      grainCv.width = G.W; grainCv.height = G.H;
+      const g = grainCv.getContext('2d');
+      for (let yy = 0; yy < G.H; yy++) {
+        for (let xx = 0; xx < G.W; xx++) {
+          const h = G.hash(xx, yy, 91);
+          if (h < 0.15) { g.fillStyle = 'rgba(255,235,198,0.16)'; g.fillRect(xx, yy, 1, 1); }
+          else if (h > 0.915) { g.fillStyle = 'rgba(15,10,6,0.14)'; g.fillRect(xx, yy, 1, 1); }
+        }
+      }
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.globalAlpha = 0.38;
+    ctx.drawImage(grainCv, 0, 0);
+    ctx.restore();
+  };
+
+  /* 屏幕级暗角：四角收拢，视线集中到画面中心。 */
+  let vigCv = null;
+  A.vignette = function (ctx, strength) {
+    if (!vigCv) {
+      vigCv = document.createElement('canvas');
+      vigCv.width = G.W; vigCv.height = G.H;
+      const g = vigCv.getContext('2d');
+      const rg = g.createRadialGradient(G.W * 0.5, G.H * 0.52, G.H * 0.4, G.W * 0.5, G.H * 0.52, G.W * 0.74);
+      rg.addColorStop(0, 'rgba(0,0,0,0)');
+      rg.addColorStop(0.7, 'rgba(12,8,4,0.1)');
+      rg.addColorStop(1, 'rgba(10,7,4,0.5)');
+      g.fillStyle = rg;
+      g.fillRect(0, 0, G.W, G.H);
+    }
+    ctx.save();
+    ctx.globalAlpha = strength == null ? 0.5 : strength;
+    ctx.drawImage(vigCv, 0, 0);
     ctx.restore();
   };
 
@@ -2004,27 +2186,47 @@ body.title-mode #stage{visibility:hidden}
     const cB = pal.roofB || A.pal.roofB;
     const cC = pal.roofC || A.pal.roofC;
     const cEdge = pal.roofEdge || A.pal.roofEdge;
-    // under-eave shadow
+    // 檐下投影：落在墙身上，把屋盖和墙分开
     c.fillStyle = 'rgba(20,10,5,.35)';
     c.fillRect(cx - halfW, baseY, halfW * 2, 2);
+    // 中式屋顶：屋脊在上、最窄；檐口在下、最宽。逐行向下加宽。
     const rows = [];
     for (let i = 0; i < h; i++) {
       const t = i / Math.max(1, h - 1);
-      const half = Math.round(halfW * (1 - 0.62 * Math.pow(t, 0.78)));
+      const half = Math.round(halfW * (0.34 + 0.66 * Math.pow(t, 0.82)));
       const y = baseY - h + i;
       rows.push([half, y]);
-      c.fillStyle = i < 2 ? cEdge : (i % 5 === 0 ? cC : (i % 5 === 2 ? cB : cA));
+      const shade = i < 2 ? cEdge : (i % 5 === 0 ? cC : (i % 5 === 2 ? cB : cA));
+      c.fillStyle = shade;
       c.fillRect(cx - half, y, half * 2, 1);
+      // 屋脊一线受光、檐口压暗，坡面有上窄下宽的弧
+      if (i === 2 && h > 5) {
+        c.fillStyle = 'rgba(255,232,176,.5)';
+        c.fillRect(cx - half + 2, y, half * 2 - 4, 1);
+      }
+      if (i === h - 3 && h > 6) {
+        c.fillStyle = 'rgba(48,22,8,.3)';
+        c.fillRect(cx - half, y, half * 2, 1);
+      }
     }
-    // tile ribs and glaze highlights
+    // 瓦垄：暗缝 + 受光瓦背成对出现
     c.save();
-    c.globalAlpha = 0.28;
+    c.globalAlpha = 0.32;
     for (let i = 2; i < h; i++) {
       const half = rows[i][0], y = rows[i][1];
-      for (let xx = -half + ((i % 2) ? 3 : 0); xx < half; xx += 5) {
-        c.fillStyle = (i % 5 === 0) ? '#6b3c1c' : '#7d4a20';
+      for (let xx = -half + ((i % 2) ? 3 : 0); xx < half - 1; xx += 4) {
+        c.fillStyle = (i % 5 === 0) ? '#5e3216' : '#733f19';
         c.fillRect(cx + xx, y, 1, 1);
+        c.fillStyle = '#c98a3f';
+        c.fillRect(cx + xx + 1, y, 1, 1);
       }
+    }
+    // 右上受光面的金瓦反光
+    c.globalAlpha = 0.2;
+    c.fillStyle = '#ffe7b0';
+    for (let i = 3; i < h; i += 5) {
+      const half = rows[i][0], y = rows[i][1];
+      c.fillRect(cx + Math.round(half * 0.42), y, Math.max(2, Math.round(half * 0.4)), 1);
     }
     c.globalAlpha = 0.18;
     for (let i = 4; i < h; i += 4) {
@@ -2033,8 +2235,12 @@ body.title-mode #stage{visibility:hidden}
       c.fillRect(cx - half + 3, y, half * 2 - 6, 1);
     }
     c.restore();
+    // 檐口瓦当：檐口最宽，一排小瓦口压在最下面
+    const eaveHalf = rows[h - 1][0];
+    c.fillStyle = cEdge;
+    for (let xx = -eaveHalf + 1; xx < eaveHalf; xx += 3) c.fillRect(cx + xx, baseY - 1, 1, 1);
     // eaves and upturned tips
-    const w0 = rows[0][0];
+    const w0 = eaveHalf;
     c.fillStyle = cEdge;
     c.fillRect(cx - w0, baseY - 2, w0 * 2, 2);
     c.fillRect(cx - w0 - 3, baseY - 4, 3, 2);
@@ -2043,15 +2249,15 @@ body.title-mode #stage{visibility:hidden}
     c.fillRect(cx + w0 + 3, baseY - 6, 2, 2);
     c.fillStyle = A.pal.goldDark;
     c.fillRect(cx - w0, baseY - 3, w0 * 2, 1);
+    // 檐口内侧的一线反光与檐下压影
     c.fillStyle = 'rgba(255,236,180,.35)';
-    c.fillRect(cx - w0 + 2, baseY - h + 3, w0 * 2 - 4, 1);
-    // inner eave line and soft shadow
+    c.fillRect(cx - w0 + 2, baseY - 5, w0 * 2 - 4, 1);
     c.fillStyle = 'rgba(255,220,150,.18)';
-    c.fillRect(cx - w0 + 6, baseY - 5, w0 * 2 - 12, 1);
+    c.fillRect(cx - w0 + 6, baseY - 6, w0 * 2 - 12, 1);
     c.fillStyle = 'rgba(30,14,7,.28)';
     c.fillRect(cx - w0, baseY + 2, w0 * 2, 2);
-    // ridge
-    const topHalf = rows[h - 1][0];
+    // 屋脊：在最上面、最窄处
+    const topHalf = rows[0][0];
     c.fillStyle = A.pal.roofRidge;
     c.fillRect(cx - Math.max(4, topHalf), baseY - h - 1, Math.max(8, topHalf * 2), 2);
     c.fillStyle = A.pal.roofGold;
@@ -2086,23 +2292,36 @@ body.title-mode #stage{visibility:hidden}
     const top = baseY - wallH;
     r(c, x, top, w, wallH, A.pal.wallDark);
     r(c, x, top + 1, w, wallH - 4, A.pal.wall);
-    // brick texture
+    // brick texture：一层砖缝、一层受光砖面，红墙不再是一整片
     c.save();
     c.globalAlpha = 0.13;
     for (let yy = 3; yy < wallH - 2; yy += 4) {
       c.fillStyle = '#2d100b';
       c.fillRect(x, top + yy, w, 1);
     }
+    c.globalAlpha = 0.09;
+    for (let yy = 4; yy < wallH - 2; yy += 4) {
+      c.fillStyle = '#d9775a';
+      c.fillRect(x, top + yy, w, 1);
+      for (let xx = ((yy / 4) | 0) % 2 ? 0 : 8; xx < w - 8; xx += 16) {
+        c.fillRect(x + xx, top + yy, 7, 1);
+      }
+    }
     c.restore();
     // side faces and eave shadow give the wall volume
     c.save();
-    c.globalAlpha = 0.2;
+    c.globalAlpha = 0.24;
     c.fillStyle = '#1d0a07';
     c.fillRect(x, top, 4, wallH);
     c.fillRect(x + w - Math.max(4, w * 0.08), top, Math.max(4, w * 0.08), wallH);
+    c.globalAlpha = 0.12;
+    for (let yy = 0; yy < wallH; yy += 2) {
+      if (G.hash(x, top + yy, 33) < 0.5) c.fillRect(x + 4, top + yy, 2, 1);
+      if (G.hash(x + w, top + yy, 34) < 0.5) c.fillRect(x + w - Math.max(4, w * 0.08) - 2, top + yy, 2, 1);
+    }
     c.restore();
     const eaveShadow = c.createLinearGradient(0, top, 0, top + 14);
-    eaveShadow.addColorStop(0, 'rgba(28,10,6,.42)');
+    eaveShadow.addColorStop(0, 'rgba(28,10,6,.46)');
     eaveShadow.addColorStop(1, 'rgba(28,10,6,0)');
     c.fillStyle = eaveShadow;
     c.fillRect(x, top, w, 14);
@@ -2127,15 +2346,23 @@ body.title-mode #stage{visibility:hidden}
       const central = Math.abs(i - (bays - 1) / 2) < 0.6;
       const doorW = Math.min(central ? 18 : 10, bw * 0.52);
       const doorH = Math.round(wallH * (central ? 0.62 : 0.5));
-      // window lattice
+      // window lattice：门洞先落影，再画门板与格心，门楣有受光棱
       const wx = mid - doorW / 2, wy = top + 5;
-      r(c, wx, wy, doorW, doorH, '#4a1c15');
-      r(c, wx + 1, wy + 1, doorW - 2, doorH - 2, '#6b2c20');
+      r(c, wx, wy, doorW, doorH, '#3d1610');
+      r(c, wx + 1, wy + 1, doorW - 2, doorH - 2, '#5c2419');
+      r(c, wx + 1, wy + 1, doorW - 2, 1, '#8a3a29');
+      r(c, wx + doorW - 2, wy + 1, 1, doorH - 2, '#3a130d');
       c.save();
-      c.globalAlpha = 0.75;
+      c.globalAlpha = 0.72;
       c.fillStyle = A.pal.goldDark;
       for (let gx = wx + 2; gx < wx + doorW - 1; gx += 4) c.fillRect(gx, wy + 1, 1, doorH - 2);
       for (let gy = wy + 2; gy < wy + doorH - 1; gy += 4) c.fillRect(wx + 1, gy, doorW - 2, 1);
+      c.restore();
+      // 门底一道压影，把墙和地面连起来
+      c.save();
+      c.globalAlpha = 0.22;
+      c.fillStyle = '#1a0c07';
+      c.fillRect(wx, wy + doorH - 1, doorW, 1);
       c.restore();
       // gold studs
       if (central && doorW > 14) {
@@ -2167,17 +2394,32 @@ body.title-mode #stage{visibility:hidden}
     r(c, x, y, pw, ph, A.pal.stoneDark);
     r(c, x, y, pw, ph - 2, A.pal.marbleDark);
     r(c, x, y, pw, 2, A.pal.marble);
-    // railing
+    // 台基立面：受光棱、砖缝与底部压影，三层台阶读得出厚度
+    c.save();
+    c.globalAlpha = 0.5;
+    c.fillStyle = '#efe8d5';
+    c.fillRect(x + 1, y + 2, pw - 2, 1);
+    c.globalAlpha = 0.2;
+    c.fillStyle = '#8d8168';
+    for (let xx = x + 6; xx < x + pw - 4; xx += 12) c.fillRect(xx, y + 2, 1, ph - 3);
+    c.globalAlpha = 0.25;
+    c.fillStyle = '#141008';
+    c.fillRect(x, y + ph - 1, pw, 1);
+    c.restore();
+    // railing：柱头受光、柱身背光
     c.save();
     for (let xx = x + 2; xx < x + pw - 2; xx += 7) {
       r(c, xx, y - 4, 1, 4, A.pal.marble);
       r(c, xx, y - 4, 3, 1, A.pal.marble);
+      r(c, xx + 2, y - 3, 1, 3, A.pal.marbleDark);
+      r(c, xx + 1, y - 5, 1, 1, '#f0e9d7');
     }
     c.restore();
     // stairs
     const sw = opts.stairW || 30;
     for (let i = 0; i < 4; i++) {
       r(c, cx - sw / 2 + i, y + i * 2 + 1, sw - i * 2, 2, i % 2 ? A.pal.marble : A.pal.marbleDark);
+      r(c, cx - sw / 2 + i + 1, y + i * 2 + 1, sw - i * 2 - 2, 1, '#efe8d5');
     }
     // carved ramp
     r(c, cx - 3, y + 2, 6, ph - 1, A.pal.marble);
@@ -2255,8 +2497,10 @@ body.title-mode #stage{visibility:hidden}
 
   A.drawHall = function (ctx, x, baseY, w, opts) {
     const s = A.hallSprite(w, opts);
+    // 方向性落影：殿身向右下压出一片抖动软影，建筑才从地面上立起来
+    A.groundShadow(ctx, x + Math.round(w * 0.1), baseY + 2, Math.round(w * 0.62), 6, 0.15);
     ctx.save();
-    ctx.globalAlpha = 0.18;
+    ctx.globalAlpha = 0.2;
     ctx.fillStyle = '#20140d';
     ctx.beginPath();
     ctx.ellipse(x + 9, baseY - 2, w * 0.58, 7, 0, 0, G.TAU);
@@ -2401,6 +2645,7 @@ body.title-mode #stage{visibility:hidden}
 
   A.drawGate = function (ctx, x, baseY, w, opts) {
     const s = A.gateSprite(w, opts);
+    A.groundShadow(ctx, x + Math.round(w * 0.1), baseY + 2, Math.round(w * 0.6), 7, 0.16);
     ctx.save();
     ctx.globalAlpha = 0.2;
     ctx.fillStyle = '#1c120c';
@@ -2419,6 +2664,20 @@ body.title-mode #stage{visibility:hidden}
     ctx.save();
     ctx.globalAlpha = 0.12;
     for (let yy = 3; yy < h; yy += 5) { ctx.fillStyle = '#2a0c08'; ctx.fillRect(x1, baseY - h + yy, w, 1); }
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = '#e08a68';
+    for (let yy = 4; yy < h; yy += 5) ctx.fillRect(x1, baseY - h + yy, w, 1);
+    // 上缘受光、下缘落影：长墙也不再是一块平板
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#ffe6be';
+    ctx.fillRect(x1, baseY - h + 2, w, 1);
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = '#141008';
+    ctx.fillRect(x1, baseY - 4, w, 1);
+    // 垛口投在墙顶的一道短影
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = '#2a0c08';
+    for (let xx = x1 + 1; xx < x2 - 5; xx += 10) ctx.fillRect(xx + 6, baseY - h - 5, 4, 5);
     ctx.restore();
     // crenellations
     for (let xx = x1 + 1; xx < x2 - 5; xx += 10) {
@@ -2438,6 +2697,7 @@ body.title-mode #stage{visibility:hidden}
       r(ctx, x - 3, yy, w + 6, 1, A.pal.wallLight);
     }
     r(ctx, x, y1, 1, y2 - y1, A.pal.goldDark);
+    r(ctx, x + w - 1, y1, 1, y2 - y1, A.pal.wallDark);
   };
 
   /* ------------------------------------------------------------
@@ -2446,21 +2706,43 @@ body.title-mode #stage{visibility:hidden}
   A.tree = function (ctx, x, baseY, size, opt) {
     opt = opt || {};
     size = size || 1;
-    const p = opt.autumn ? ['#a8642c', '#c47a31', '#8c4d22'] : ['#4f6b3a', '#628048', '#3c552d'];
-    A.shadow(ctx, x, baseY, 20 * size, 3 * size, 0.25);
-    r(ctx, x - 2 * size, baseY - 14 * size, 3 * size, 14 * size, '#5a3a22');
-    r(ctx, x + 2 * size, baseY - 10 * size, 2 * size, 10 * size, '#4a2e1a');
+    const p = opt.autumn
+      ? ['#6e3f16', '#a8642c', '#c47a31', '#d99b4b', '#552f10']
+      : ['#37532a', '#4f6b3a', '#628048', '#8fa863', '#2b421f'];
+    // 树冠软阴影 + 接地阴影
+    A.groundShadow(ctx, x - 3 * size, baseY + 1, 30 * size, 7 * size, 0.16);
+    A.shadow(ctx, x, baseY, 20 * size, 3 * size, 0.28);
+    // 树干：亮面 / 暗面 / 树皮裂纹
+    r(ctx, x - 2 * size, baseY - 15 * size, 3 * size, 15 * size, '#4a2f1b');
+    r(ctx, x + 1 * size, baseY - 15 * size, 1 * size, 15 * size, '#66432a');
+    r(ctx, x - 1 * size, baseY - 9 * size, 1 * size, 6 * size, '#7a5233');
+    for (let i = 0; i < 5; i++) {
+      r(ctx, x - 2 * size, baseY - 13 * size + i * 3 * size, 3 * size, 1, '#35210f');
+    }
+    // 树冠：五团叶簇，暗底 → 中调 → 受光高光（光来自右上）
     const blobs = [
       [0, -22, 13], [-8, -17, 9], [9, -18, 9], [-4, -29, 9], [7, -28, 8],
     ];
     for (let i = 0; i < blobs.length; i++) {
       const [bx, by, br] = blobs[i];
-      const col = p[i % p.length];
-      r(ctx, x + bx * size - br * size / 2, baseY + by * size, br * size, br * size * 0.62, col);
-      if (i % 2 === 0) r(ctx, x + bx * size - br * size / 2 + 2, baseY + by * size - 2, br * size - 5, 2, p[1]);
+      r(ctx, x + bx * size - br * size / 2, baseY + by * size, br * size, br * size * 0.62, p[2]);
+      r(ctx, x + bx * size - br * size / 2, baseY + by * size + br * size * 0.42, br * size, br * size * 0.2, p[0]);
+      r(ctx, x + bx * size - br * size / 2 + 2, baseY + by * size + 2, br * size - 5, 2, p[3]);
     }
+    // 叶缘碎光：只在右上受光侧点缀
+    ctx.save();
+    ctx.globalAlpha = 0.5; ctx.fillStyle = p[3];
+    for (let i = 0; i < 12; i++) {
+      const lx = x + Math.round(Math.sin(i * 2.1) * 14 * size + 4 * size);
+      const ly = baseY - (26 - (i % 6) * 3) * size - 2;
+      if (G.hash(i, 3, 7) < 0.6) ctx.fillRect(lx, ly, 2, 1);
+    }
+    // 叶簇缝隙里的一点底色
+    ctx.globalAlpha = 0.4; ctx.fillStyle = p[0];
+    ctx.fillRect(x - 6 * size, baseY - 20 * size, 2, 3);
+    ctx.restore();
     if (opt.leaf !== false) {
-      ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = p[2];
+      ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = p[1];
       for (let yy = 0; yy < 22; yy += 3) {
         const xx = Math.round(Math.sin(yy * 1.7) * 12);
         ctx.fillRect(x + xx, baseY - 24 * size + yy * size, 2, 1);
@@ -2471,21 +2753,27 @@ body.title-mode #stage{visibility:hidden}
 
   A.pine = function (ctx, x, baseY, size) {
     size = size || 1;
+    A.groundShadow(ctx, x - 2 * size, baseY + 1, 24 * size, 6 * size, 0.15);
     A.shadow(ctx, x, baseY, 16 * size, 2, 0.25);
-    r(ctx, x - 1, baseY - 9 * size, 2, 9 * size, '#4b301c');
+    r(ctx, x - 1, baseY - 10 * size, 2, 10 * size, '#4b301c');
+    r(ctx, x, baseY - 10 * size, 1, 10 * size, '#6b4729');
     for (let i = 0; i < 4; i++) {
       const yy = baseY - 8 * size - i * 6 * size;
       const ww = (16 - i * 3) * size;
-      r(ctx, x - ww / 2, yy, ww, 4 * size, i % 2 ? '#2e4a30' : '#375737');
-      r(ctx, x - ww / 2 + 2, yy, ww - 4, 1, '#4f7145');
+      r(ctx, x - ww / 2, yy, ww, 4 * size, '#25402a');
+      r(ctx, x - ww / 2 + 1, yy + 1, ww - 2, 2 * size, i % 2 ? '#31502f' : '#3a5c39');
+      r(ctx, x - ww / 2 + 3, yy, ww - 6, 1, '#587c4c');
+      r(ctx, x + ww / 2 - Math.max(3, Math.round(ww * 0.22)), yy + 1, Math.max(2, Math.round(ww * 0.16)), 2, '#5d8550');
     }
   };
 
   A.willow = function (ctx, x, baseY, size, t) {
     size = size || 1;
     t = t || 0;
-    A.shadow(ctx, x, baseY, 22 * size, 2, 0.22);
+    A.groundShadow(ctx, x - 3 * size, baseY + 1, 28 * size, 6 * size, 0.16);
+    A.shadow(ctx, x, baseY, 22 * size, 2, 0.26);
     r(ctx, x - 2, baseY - 16 * size, 3, 16 * size, '#5a4028');
+    r(ctx, x - 1, baseY - 16 * size, 1, 16 * size, '#7a5836');
     for (let i = 0; i < 7; i++) {
       const ox = (i - 3) * 4 * size;
       const len = (10 + (i % 3) * 4) * size;
@@ -2497,8 +2785,10 @@ body.title-mode #stage{visibility:hidden}
       ctx.quadraticCurveTo(x + ox + 4 + sway, baseY - 18 * size, x + ox + 2 + sway, baseY - 26 * size + len);
       ctx.stroke();
     }
-    r(ctx, x - 13 * size, baseY - 30 * size, 26 * size, 7 * size, '#587340');
+    r(ctx, x - 13 * size, baseY - 30 * size, 26 * size, 7 * size, '#4d6b3a');
+    r(ctx, x - 12 * size, baseY - 31 * size, 24 * size, 3 * size, '#587340');
     r(ctx, x - 9 * size, baseY - 33 * size, 18 * size, 5 * size, '#68874a');
+    r(ctx, x - 6 * size, baseY - 34 * size, 12 * size, 2 * size, '#82a35d');
   };
 
   A.lantern = function (ctx, x, baseY, opt) {
@@ -2642,25 +2932,78 @@ body.title-mode #stage{visibility:hidden}
     ctx.restore();
   };
 
-  A.water = function (ctx, x, y, w, h, t, seed) {
-    r(ctx, x, y, w, h, A.pal.waterDark);
-    r(ctx, x, y + 1, w, h - 2, A.pal.water);
+  /* 抖动软阴影：比 A.shadow 更适合大树 / 建筑投影，出现体积感又不糊边。 */
+  A.groundShadow = function (ctx, x, y, rx, ry, alpha) {
+    rx = Math.max(2, Math.round(rx)); ry = Math.max(1, Math.round(ry));
+    const x0 = Math.round(x - rx), y0 = Math.round(y - ry);
+    const w0 = rx * 2, h0 = ry * 2;
     ctx.save();
-    ctx.globalAlpha = 0.28;
-    ctx.fillStyle = A.pal.waterLight;
-    for (let yy = y + 3; yy < y + h - 2; yy += 7) {
-      const off = Math.sin((t || 0) * 1.2 + yy * 0.3 + (seed || 0)) * 5;
-      for (let xx = x + 4; xx < x + w - 4; xx += 22) {
-        ctx.fillRect(xx + off, yy, 10, 1);
+    ctx.globalAlpha = alpha == null ? 0.2 : alpha;
+    ctx.fillStyle = '#0d0a06';
+    for (let yy = 0; yy < h0; yy++) {
+      const ny = (yy + 0.5) / ry - 1;
+      const half = Math.sqrt(Math.max(0, 1 - ny * ny)) * rx;
+      const xb = x0 + rx - half;
+      for (let xx = 0; xx < half * 2; xx++) {
+        const px = Math.round(xb + xx), py = y0 + yy;
+        if (G.hash(px, py, 23) < 0.55) ctx.fillRect(px, py, 1, 1);
       }
     }
     ctx.restore();
+  };
+
+  A.water = function (ctx, x, y, w, h, t, seed) {
+    t = t || 0; seed = seed || 0;
+    r(ctx, x, y, w, h, A.pal.waterDark);
+    // 深浅分层：浅滩、深水交替，用抖动像素过渡，水面有了深度
+    const bands = Math.max(2, Math.min(4, Math.round(h / 12)));
     ctx.save();
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#8fbfb4';
-    ctx.fillRect(x, y, w, 1);
-    ctx.fillStyle = '#1a3c3f';
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = A.pal.water;
+    ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+    for (let i = 0; i < bands; i++) {
+      const bandY = y + 1 + Math.round((h - 2) * (i / bands));
+      const bandH = Math.max(1, Math.round((h - 2) / bands));
+      if (i % 2 === 0) {
+        ctx.globalAlpha = 0.25;
+        ctx.fillStyle = A.pal.waterLight;
+      } else {
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = A.pal.waterDark;
+      }
+      for (let xx = x + 2; xx < x + w - 2; xx += 2) {
+        if (G.hash(xx, bandY, seed + 5) < 0.5) ctx.fillRect(xx, bandY, 2, bandH);
+      }
+    }
+    // 天光反射：上缘两道亮带
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = '#a7d6c8';
+    ctx.fillRect(x + 2, y + 1, w - 4, 1);
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = '#9fd0c2';
+    ctx.fillRect(x + 5, y + 2, w - 10, 1);
+    // 水岸压边
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#123236';
     ctx.fillRect(x, y + h - 1, w, 1);
+    ctx.fillRect(x, y, 1, h);
+    ctx.fillRect(x + w - 1, y, 1, h);
+    // 波纹、反光与碎屑高光
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = A.pal.waterLight;
+    for (let yy = y + 4; yy < y + h - 2; yy += 6) {
+      const off = Math.sin(t * 1.2 + yy * 0.3 + seed) * 5;
+      for (let xx = x + 4; xx < x + w - 4; xx += 18) {
+        if (G.hash(xx, yy, seed + 9) > 0.3) ctx.fillRect(Math.round(xx + off), yy, 8 + ((xx * 7) % 5), 1);
+      }
+    }
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#d9f2e4';
+    for (let i = 0; i < 6; i++) {
+      const gx = x + 6 + G.hash(i, seed, 1) * Math.max(1, w - 12);
+      const gy = y + 3 + ((t * 9 + i * 37) % Math.max(1, h - 6));
+      ctx.fillRect(Math.round(gx), Math.round(gy), 2, 1);
+    }
     ctx.restore();
   };
 
@@ -3023,6 +3366,8 @@ body.title-mode #stage{visibility:hidden}
     ctx.fillStyle = bg;
     ctx.fillRect(0, 220, 640, 140);
     ctx.restore();
+    // 暗角收拢视线
+    A.vignette(ctx, 0.45 * strength);
   };
 
   A.nightOverlay = function (ctx, cam, lights, strength) {
@@ -3031,6 +3376,8 @@ body.title-mode #stage{visibility:hidden}
     ctx.fillStyle = 'rgba(7,12,32,' + (strength == null ? 0.56 : strength) + ')';
     ctx.fillRect(0, 0, G.W, G.H);
     ctx.restore();
+    // 夜空压深四角，灯火区更亮
+    A.vignette(ctx, 0.5);
     if (lights && lights.length) {
       for (const l of lights) {
         const sx = l.x - (cam ? cam.x : 0), sy = l.y - (cam ? cam.y : 0);
@@ -4394,6 +4741,8 @@ body.title-mode #stage{visibility:hidden}
       this.focusEntity = null;
       this.lookAhead = opts.lookAhead == null ? 42 : opts.lookAhead;
       this.dayGrade = opts.dayGrade !== false;
+      // 画面调色强度：之前只存在于各场景的构造参数里，基类没有接住，导致永远按 1.0 满强度叠加
+      this.gradeStrength = opts.gradeStrength;
     }
 
     /* ---------- setup helpers ---------- */
@@ -4669,9 +5018,18 @@ body.title-mode #stage{visibility:hidden}
         draw: (c) => this.drawPlayer(c),
       });
       list.sort((a, b) => (a.baseY - b.baseY) || ((a.x || 0) - (b.x || 0)));
+      // 视口裁剪：宫殿精灵比锚点高得多（午门约 540px），墙/灯还可能在锚点下方，
+      // 所以留足纵向余量；实体也可以自带 bounds（x0/y0/x1/y1）做精确裁剪。
+      const padTop = 760, padBottom = 620, padX = 480;
       for (const e of list) {
-        if (e.baseY < cam.y - 240 || e.baseY > cam.y + G.H + 180) continue;
-        if (e.x != null && e.x < cam.x - 260 || e.x > cam.x + G.W + 260) continue;
+        if (e.bounds) {
+          const b = e.bounds;
+          if (b.y1 < cam.y - 60 || b.y0 > cam.y + G.H + 60) continue;
+          if (b.x1 < cam.x - 60 || b.x0 > cam.x + G.W + 60) continue;
+        } else {
+          if (e.baseY < cam.y - padTop || e.baseY > cam.y + G.H + padBottom) continue;
+          if (e.x != null && (e.x < cam.x - padX || e.x > cam.x + G.W + padX)) continue;
+        }
         e.draw(ctx);
       }
       this.drawForeground(ctx);
@@ -4679,6 +5037,8 @@ body.title-mode #stage{visibility:hidden}
       G.fx.draw(ctx, cam);
       if (this.night) G.art.nightOverlay(ctx, cam, this.lights, this.nightStrength == null ? 0.5 : this.nightStrength);
       else if (this.dayGrade) G.art.dayGrade(ctx, this.time, this.gradeStrength);
+      // 屏幕级颗粒：烘焙一次、每帧一次 drawImage，给平涂区域一层手作质感
+      if (G.art.grainTexture) G.art.grainTexture(ctx);
       this.drawScreen(ctx);
       if (!this.mapOpen) this.drawMarkers(ctx);
     }
@@ -5706,9 +6066,25 @@ body.title-mode #stage{visibility:hidden}
     roadH(c, x, y, w, h, main) {
       c.fillStyle = main ? '#47423c' : '#4f4941';
       c.fillRect(x, y, w, h);
+      // 沥青颗粒与轮迹：大面积道路不再是一整块灰
+      for (let yy = y + 2; yy < y + h - 2; yy += 3) {
+        for (let xx = x + 2; xx < x + w - 2; xx += 3) {
+          const hh = G.hash(xx, yy, 41);
+          if (hh < 0.3) { c.fillStyle = 'rgba(232,224,205,.055)'; c.fillRect(xx, yy, 1, 1); }
+          else if (hh > 0.86) { c.fillStyle = 'rgba(12,10,8,.16)'; c.fillRect(xx, yy, 1, 1); }
+        }
+      }
+      c.fillStyle = 'rgba(20,18,15,.22)';
+      c.fillRect(x, y + (h >> 1) - 6, w, 1);
+      c.fillRect(x, y + (h >> 1) + 6, w, 1);
+      // 路缘：受光顶面 + 阴影投在路面上
       c.fillStyle = '#a89575';
       c.fillRect(x, y - 3, w, 3);
       c.fillRect(x, y + h, w, 3);
+      c.fillStyle = 'rgba(255,240,210,.22)';
+      c.fillRect(x, y - 3, w, 1);
+      c.fillStyle = 'rgba(0,0,0,.16)';
+      c.fillRect(x, y + h + 3, w, 2);
       c.fillStyle = 'rgba(255,255,255,.03)';
       for (let xx = 0; xx < w; xx += 22) c.fillRect(x + xx, y + 8, 10, 1);
       if (main) {
@@ -5720,9 +6096,17 @@ body.title-mode #stage{visibility:hidden}
     roadV(c, x, y, h, w) {
       c.fillStyle = '#4d4841';
       c.fillRect(x, y, w, h);
+      for (let yy = y + 2; yy < y + h - 2; yy += 3) {
+        for (let xx = x + 2; xx < x + w - 2; xx += 3) {
+          if (G.hash(xx, yy, 42) < 0.3) { c.fillStyle = 'rgba(232,224,205,.05)'; c.fillRect(xx, yy, 1, 1); }
+        }
+      }
       c.fillStyle = '#9c8b6d';
       c.fillRect(x - 3, y, 3, h);
       c.fillRect(x + w, y, 3, h);
+      c.fillStyle = 'rgba(255,240,210,.2)';
+      c.fillRect(x - 3, y, 1, h);
+      c.fillRect(x + w, y, 1, h);
     }
 
     /* ============================================================
@@ -6037,7 +6421,7 @@ body.title-mode #stage{visibility:hidden}
 
       /* ---------------- 午门 ---------------- */
       this.addEntity({
-        x: 750, y: 1512, baseY: 1080,
+        x: 750, y: 1512, baseY: 1512,
         draw: (c) => {
           A.drawGate(c, 750, 1512, 300, {
             wallH: 60, roofH: 30, double: true, arches: 3, name: '午门',
@@ -6672,6 +7056,7 @@ body.title-mode #stage{visibility:hidden}
         { name: '老赵', text: '你是来看打铁花的吧？我姓赵，打了四十年铁。' },
         { name: '老赵', text: '铁水要烧到一千六百度。生铁、柳炭、柳木勺，一样不能少。' },
         { name: '老赵', text: '帮我把三样东西找来：珍宝馆前的生铁、御花园的柳炭、箭亭的柳木勺。' },
+        { name: '老赵', text: '铁花这东西，烧到几成、打得多高，都有讲究。不放心就按 T 问守境人。' },
         { name: '旅行手账', text: '好。等材料齐了，就能看一场真正的打铁花。' },
       ];
     }
@@ -6884,16 +7269,17 @@ body.title-mode #stage{visibility:hidden}
 
       // central imperial way, with stone borders and a carved median
       A.paving(c, 668, 108, 164, 1420, '#cdbf9f', '#bfb090', 7, 18);
-      c.fillStyle = 'rgba(116,96,65,.45)';
-      c.fillRect(668, 108, 2, 1420);
-      c.fillRect(830, 108, 2, 1420);
-      c.fillStyle = 'rgba(238,223,190,.38)';
-      c.fillRect(671, 108, 1, 1420);
-      c.fillRect(828, 108, 1, 1420);
+      // 石界：线条放轻，只留下浅浅一道，不抢砖面
+      c.fillStyle = 'rgba(116,96,65,.16)';
+      c.fillRect(668, 108, 1, 1420);
+      c.fillRect(831, 108, 1, 1420);
+      c.fillStyle = 'rgba(238,223,190,.12)';
+      c.fillRect(670, 108, 1, 1420);
+      c.fillRect(829, 108, 1, 1420);
       // carved imperial slab
       c.fillStyle = '#d9caab';
       c.fillRect(736, 108, 28, 1420);
-      c.fillStyle = 'rgba(151,126,82,.45)';
+      c.fillStyle = 'rgba(151,126,82,.18)';
       c.fillRect(736, 108, 1, 1420);
       c.fillRect(763, 108, 1, 1420);
       for (let y = 170; y < 1460; y += 82) {
@@ -6918,7 +7304,7 @@ body.title-mode #stage{visibility:hidden}
       A.paving(c, 166, 388, 1168, 40, '#c7b998', '#b8a988', 10, 18);
       A.paving(c, 166, 228, 1168, 76, '#b9ab8c', '#aa9a7b', 11, 18);
       for (const [y, h] of [[1028, 60], [598, 48], [388, 40], [228, 76]]) {
-        c.fillStyle = 'rgba(112,92,64,.22)';
+        c.fillStyle = 'rgba(112,92,64,.1)';
         c.fillRect(166, y, 1168, 1);
         c.fillRect(166, y + h - 1, 1168, 1);
       }
@@ -7303,16 +7689,21 @@ body.title-mode #stage{visibility:hidden}
     active: false,
     timers: [],
     entered: false,
+    mode: 'palace', // 'palace'（午门→故宫）或 'acropolis'（卫城山门→卫城）
 
-    start() {
+    start(mode) {
       if (this.active) return;
+      this.mode = mode === 'acropolis' ? 'acropolis' : 'palace';
       this.active = true;
       this.entered = false;
       G.overlayDepth++;
       G.ui.prompt(null);
       G.show($('#security'));
-      $('#sec-sub').textContent = '请出示身份证件，配合随身行李安检';
-      $('#sec-id-text').textContent = '旅行者 · 本人证件';
+      const acro = this.mode === 'acropolis';
+      const badge = document.querySelector('.sec-badge');
+      if (badge) badge.textContent = acro ? '卫城山门 · 观众入口' : '午门 · 观众入口';
+      $('#sec-sub').textContent = acro ? '请出示证件，随身物品过一下安检' : '请出示身份证件，配合随身行李安检';
+      $('#sec-id-text').textContent = acro ? '旅行者 · 通行证' : '旅行者 · 本人证件';
       G.$$('.sec-row').forEach((row) => {
         row.classList.remove('on', 'done');
         row.querySelector('em').textContent = '等待';
@@ -7333,7 +7724,10 @@ body.title-mode #stage{visibility:hidden}
         btn.disabled = false;
         btn.textContent = '安检通过 · 进入故宫';
         $('#sec-progress-fill').style.width = '100%';
-        $('#sec-sub').textContent = '安检通过。请从午门门洞入院，祝您参观愉快。';
+        $('#sec-sub').textContent = this.mode === 'acropolis'
+          ? '安检通过。沿石阶向前，就是卫城山顶。'
+          : '安检通过。请从午门门洞入院，祝您参观愉快。';
+        $('#sec-enter').textContent = this.mode === 'acropolis' ? '安检通过 · 进入卫城' : '安检通过 · 进入故宫';
         G.audio.sfx('success');
         return;
       }
@@ -7362,8 +7756,10 @@ body.title-mode #stage{visibility:hidden}
       $('#sec-progress-fill').style.width = '100%';
       const btn = $('#sec-enter');
       btn.disabled = false;
-      btn.textContent = '安检通过 · 进入故宫';
-      $('#sec-sub').textContent = '安检通过。请从午门门洞入院，祝您参观愉快。';
+      btn.textContent = this.mode === 'acropolis' ? '安检通过 · 进入卫城' : '安检通过 · 进入故宫';
+      $('#sec-sub').textContent = this.mode === 'acropolis'
+        ? '安检通过。沿石阶向前，就是卫城山顶。'
+        : '安检通过。请从午门门洞入院，祝您参观愉快。';
     },
 
     enter() {
@@ -7379,9 +7775,15 @@ body.title-mode #stage{visibility:hidden}
         this.timers.forEach((t) => clearTimeout(t));
         this.timers = [];
         G.overlayDepth = Math.max(0, G.overlayDepth - 1);
-        G.save.flag('entered', true);
-        G.save.persist();
-        if (G.enterPalace) G.enterPalace();
+        if (this.mode === 'acropolis') {
+          G.save.flag('acropolisEntered', true);
+          G.save.persist();
+          if (G.enterAcropolis) G.enterAcropolis();
+        } else {
+          G.save.flag('entered', true);
+          G.save.persist();
+          if (G.enterPalace) G.enterPalace();
+        }
       }, 520);
     },
   };
@@ -8047,7 +8449,7 @@ body.title-mode #stage{visibility:hidden}
       super({
         id: 'fusion', w: 1440, h: 1600, spawn: { x: 720, y: 1040 },
         clock: '∞', dateLabel: '融合参数不稳定', ambient: 'palace',
-        lookAhead: 105, gradeStrength: 0.6,
+        lookAhead: 105, gradeStrength: 0.22,
       });
       this.title = '万象灵境 · 雅典—故宫';
       this.mapOpen = false;
@@ -8072,6 +8474,8 @@ body.title-mode #stage{visibility:hidden}
       }
       G.ui.location('万象灵境', '雅典—故宫 · 投影错位');
       G.ui.setHomeButton(false);
+      const stage = document.querySelector('#stage');
+      if (stage) stage.classList.add('diorama');
       this.clock = '∞';
       this.dateLabel = this.state.repaired ? '来源标签已校准' : '投影标签错乱';
       this.updateHud();
@@ -8093,6 +8497,8 @@ body.title-mode #stage{visibility:hidden}
     exit() {
       clearTimeout(this.introTimer);
       G.ui.prompt(null);
+      const stage = document.querySelector('#stage');
+      if (stage) stage.classList.remove('diorama');
     }
 
     introLines() {
@@ -8101,6 +8507,7 @@ body.title-mode #stage{visibility:hidden}
         { name: '狄奥提玛', text: '那是帕特农的投影，可系统坚持说它是“故宫原生装饰”。西侧宫墙前还浮着女像柱，标签却写着“未知”。' },
         { name: '狄奥提玛', text: '两处档案散落在宫里：太和殿东庑的故宫档案，西侧帕特农投影区的卫城档案。' },
         { name: '狄奥提玛', text: '先把它们找回来。我们要校准的是来源说明，不是拆掉故宫。' },
+        { name: '旅行手账', text: '（按 T 可以打开考据台——我说的每一条，都能摊开出处给你看。）' },
         { name: '旅行手账', text: '（太和殿月台上，一层半透明的希腊山墙压在金瓦上，像一张贴错位置的描图纸。）' },
       ];
     }
@@ -8173,8 +8580,9 @@ body.title-mode #stage{visibility:hidden}
       this.solid(20, 1258, 630, 48);
       this.solid(790, 1258, 630, 48);
       this.solid(560, 1560, 320, 40);
-      // hybrid palace / side wings
-      this.solid(432, 825, 576, 125);
+      // hybrid palace / side wings（中轴处留出门洞，可以直接穿行）
+      this.solid(432, 825, 254, 125);
+      this.solid(754, 825, 254, 125);
       // west clock tower
       this.solid(278, 1132, 105, 98);
       // east observatory
@@ -8355,81 +8763,56 @@ body.title-mode #stage{visibility:hidden}
       c.fillStyle = '#17120e';
       c.fillRect(0, 0, this.w, this.h);
 
-      // base paving: warm Beijing stone plus a colder London edge
-      A.paving(c, 20, 20, 1400, 1560, '#c9bfa3', '#b4a98d', 21, 12);
-      c.save();
-      c.globalAlpha = 0.12;
-      c.fillStyle = '#69706d';
-      c.fillRect(20, 20, 1400, 220);
-      c.fillStyle = '#8d3a2b';
-      c.fillRect(20, 1240, 1400, 40);
-      c.restore();
+      // 统一的石面：只保留大块铺装，不再叠加装饰线
+      A.paving(c, 20, 20, 1400, 1560, '#c9bfa3', '#b4a98d', 21, 14);
 
-      // formal lawns (left = English parterre, right = Chinese garden)
+      // 两侧草坪：西边英式花坛，东边中式园地
       this.lawn(c, 82, 600, 342, 550, 2);
       this.lawn(c, 1016, 600, 342, 550, 5);
 
-      // central marble axis
-      A.paving(c, 646, 300, 148, 1260, '#ddd3bb', '#c7bca2', 9, 10);
-      c.fillStyle = 'rgba(139,106,47,.45)';
-      c.fillRect(650, 300, 1, 1260);
-      c.fillRect(789, 300, 1, 1260);
-      for (let y = 380; y < 1510; y += 124) {
-        c.save();
-        c.translate(720, y);
-        c.strokeStyle = 'rgba(139,106,47,.28)';
-        c.strokeRect(-11, -11, 22, 22);
-        c.beginPath(); c.arc(0, 0, 7, 0, G.TAU); c.stroke();
-        c.restore();
-      }
-
-      // cross axis in front of the palace
-      A.paving(c, 300, 1070, 840, 90, '#d8ceb6', '#c3b79b', 13, 10);
-
-      // palace forecourt: hybrid checker / red carpet line
-      A.paving(c, 416, 950, 608, 120, '#d4c9af', '#beb397', 31, 10);
+      // 中轴御道：一条干净的浅色石带
+      A.paving(c, 646, 300, 148, 1260, '#ddd3bb', '#c7bca2', 9, 12);
+      // 一条很淡的红毯中线，收住视线
       c.save();
-      c.globalAlpha = 0.2;
+      c.globalAlpha = 0.14;
+      c.fillStyle = '#8d3a2b';
+      c.fillRect(712, 300, 16, 1260);
+      c.restore();
+
+      // 宫前横道
+      A.paving(c, 300, 1070, 840, 90, '#d8ceb6', '#c3b79b', 13, 12);
+
+      // 宫前广场：只留一条迎驾的淡红条带
+      A.paving(c, 416, 950, 608, 120, '#d4c9af', '#beb397', 31, 12);
+      c.save();
+      c.globalAlpha = 0.1;
       c.fillStyle = '#8d3a2b';
       c.fillRect(646, 950, 148, 120);
       c.restore();
 
-      // terminal circular plaza
+      // 终端圆台：一圈石沿，别的不画
       c.save();
-      c.beginPath(); c.arc(720, 560, 184, 0, G.TAU);
-      c.fillStyle = '#d8ceb6'; c.fill();
-      c.strokeStyle = '#b5a98e'; c.lineWidth = 2; c.stroke();
-      c.beginPath(); c.arc(720, 560, 150, 0, G.TAU);
-      c.strokeStyle = 'rgba(199,156,84,.65)'; c.lineWidth = 2; c.stroke();
-      c.beginPath(); c.arc(720, 560, 108, 0, G.TAU);
-      c.strokeStyle = 'rgba(63,127,134,.38)'; c.lineWidth = 1; c.stroke();
-      for (let i = 0; i < 16; i++) {
-        const a = i * G.TAU / 16;
-        c.beginPath();
-        c.moveTo(720 + Math.cos(a) * 112, 560 + Math.sin(a) * 112);
-        c.lineTo(720 + Math.cos(a) * 146, 560 + Math.sin(a) * 146);
-        c.strokeStyle = i % 4 ? 'rgba(139,106,47,.2)' : 'rgba(63,127,134,.28)';
-        c.stroke();
-      }
+      c.beginPath(); c.arc(720, 560, 178, 0, G.TAU);
+      c.fillStyle = '#d8ceb6';
+      c.fill();
+      c.strokeStyle = 'rgba(181,169,142,.7)';
+      c.lineWidth = 2;
+      c.stroke();
       c.restore();
 
-      // north garden
+      // 北园
       this.lawn(c, 430, 220, 580, 190, 8);
-      A.paving(c, 646, 220, 148, 120, '#d0c5aa', '#bbb095', 4, 9);
+      A.paving(c, 646, 220, 148, 120, '#d0c5aa', '#bbb095', 4, 10);
 
-      // canal bed and banks
+      // 运河河床（两侧留干净的石岸）
       c.fillStyle = '#1d3030';
       c.fillRect(20, 1258, 1400, 48);
       c.fillStyle = '#8fbfb0';
       c.fillRect(20, 1256, 1400, 2);
       c.fillStyle = '#a99d83';
       c.fillRect(20, 1304, 1400, 3);
-      for (let x = 24; x < 1420; x += 9) {
-        c.fillStyle = 'rgba(230,221,198,.4)';
-        c.fillRect(x, 1253, 5, 2);
-      }
 
-      // lawn borders / clipped hedges
+      // 修剪整齐的树篱
       c.fillStyle = '#3e5036';
       c.fillRect(76, 594, 354, 8);
       c.fillRect(1010, 594, 354, 8);
@@ -8439,76 +8822,65 @@ body.title-mode #stage{visibility:hidden}
       c.fillRect(422, 594, 8, 560);
       c.fillRect(1010, 594, 8, 560);
       c.fillRect(1356, 594, 8, 560);
-      for (let x = 92; x < 416; x += 28) {
-        c.fillStyle = 'rgba(30,44,25,.22)';
-        c.fillRect(x, 598, 11, 6);
-      }
 
-      // gravel paths through the parterres
-      A.paving(c, 118, 760, 270, 28, '#d2c6a9', '#bdb08f', 18, 8);
-      A.paving(c, 118, 900, 270, 24, '#d2c6a9', '#bdb08f', 22, 8);
-      A.paving(c, 1060, 760, 250, 24, '#d2c6a9', '#bdb08f', 26, 8);
-      A.paving(c, 1060, 900, 250, 28, '#d2c6a9', '#bdb08f', 14, 8);
-
-      // flower beds
+      // 两处花坛（从四处减到两处）
       for (const [fx, fy, fw, fh, col] of [
-        [150, 820, 34, 16, '#a44538'], [350, 950, 28, 14, '#d7c08b'],
-        [1080, 820, 30, 14, '#a44538'], [1230, 950, 36, 16, '#d7c08b'],
+        [150, 820, 34, 16, '#a44538'], [1080, 820, 30, 14, '#d7c08b'],
       ]) {
         c.fillStyle = '#6d7e4c'; c.fillRect(fx, fy, fw, fh);
         c.fillStyle = col;
-        for (let i = 0; i < fw; i += 5) c.fillRect(fx + i + 1, fy + 3 + (i % 3), 2, 2);
+        for (let i = 0; i < fw; i += 6) c.fillRect(fx + i + 1, fy + 4, 2, 2);
       }
-
-      // inlaid brass stars at the terminal
-      c.save();
-      c.translate(720, 560);
-      c.strokeStyle = 'rgba(199,156,84,.5)'; c.lineWidth = 1;
-      c.beginPath();
-      for (let i = 0; i < 8; i++) {
-        const a = i * G.TAU / 8 - Math.PI / 2;
-        const rr = i % 2 ? 34 : 78;
-        const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
-        if (i === 0) c.moveTo(x, y); else c.lineTo(x, y);
-      }
-      c.closePath(); c.stroke();
-      c.restore();
     }
 
     lawn(c, x, y, w, h, seed) {
-      c.fillStyle = '#62784d'; c.fillRect(x, y, w, h);
+      c.fillStyle = '#62784d';
+      c.fillRect(x, y, w, h);
+      // 极轻的草坪纹理：不画路径，不画几何图案
       c.save();
-      c.globalAlpha = 0.18;
-      for (let yy = y + 4; yy < y + h; yy += 7) {
-        c.fillStyle = ((yy / 7) | 0) % 2 ? '#526a43' : '#71885a';
-        c.fillRect(x, yy, w, 2);
+      c.globalAlpha = 0.1;
+      for (let yy = y + 5; yy < y + h; yy += 9) {
+        c.fillStyle = ((yy / 9) | 0) % 2 ? '#526a43' : '#71885a';
+        c.fillRect(x, yy, w, 1);
       }
       c.restore();
-      // geometric gravel ribbons
-      c.save();
-      c.globalAlpha = 0.65;
-      c.strokeStyle = '#c9bd9f'; c.lineWidth = 5;
-      c.beginPath();
-      c.moveTo(x + 24, y + h - 30);
-      c.lineTo(x + w / 2, y + 42);
-      c.lineTo(x + w - 24, y + h - 30);
-      c.stroke();
-      c.lineWidth = 2;
-      c.beginPath();
-      c.moveTo(x + 24, y + 70);
-      c.lineTo(x + w - 24, y + h - 50);
-      c.stroke();
-      c.restore();
-      // scattered flowers
-      for (let i = 0; i < 34; i++) {
-        const fx = x + 10 + G.hash(i, seed, 5) * (w - 20);
-        const fy = y + 10 + G.hash(i, seed, 9) * (h - 20);
-        c.fillStyle = G.hash(i, seed, 2) < .5 ? 'rgba(232,208,163,.4)' : 'rgba(165,69,56,.38)';
-        c.fillRect(fx, fy, 1, 1);
-      }
     }
 
     drawGroundExtras(ctx) {
+      // 建筑投在地面的长影（统一往左下甩，配合斜视读成立体）
+      const castShadow = (cx0, w0, baseY, len) => {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = '#141008';
+        ctx.beginPath();
+        ctx.moveTo(cx0 - w0 / 2, baseY);
+        ctx.lineTo(cx0 + w0 / 2, baseY);
+        ctx.lineTo(cx0 + w0 / 2 - len * 0.55, baseY + len);
+        ctx.lineTo(cx0 - w0 / 2 - len * 0.75, baseY + len);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      };
+      castShadow(720, 620, 950, 34);
+      castShadow(330, 150, 1230, 20);
+      castShadow(1110, 150, 1110, 20);
+      castShadow(720, 210, 370, 18);
+      // 殿中门洞的地面进深：门里暗、门外亮，穿过时像是走进一条门廊
+      ctx.save();
+      const dg = ctx.createLinearGradient(0, 950, 0, 826);
+      dg.addColorStop(0, 'rgba(40,28,18,0.04)');
+      dg.addColorStop(0.55, 'rgba(36,25,16,0.30)');
+      dg.addColorStop(1, 'rgba(30,20,12,0.55)');
+      ctx.fillStyle = dg;
+      ctx.fillRect(686, 826, 68, 124);
+      // 门内两侧的石壁
+      ctx.fillStyle = 'rgba(58,42,28,0.35)';
+      ctx.fillRect(686, 826, 3, 124);
+      ctx.fillRect(751, 826, 3, 124);
+      // 北面出口透进来的一线亮
+      ctx.fillStyle = 'rgba(255,238,196,0.35)';
+      ctx.fillRect(692, 826, 56, 2);
+      ctx.restore();
       // canal
       A.water(ctx, 20, 1262, 1400, 40, this.time, 7);
       ctx.save();
@@ -8521,19 +8893,38 @@ body.title-mode #stage{visibility:hidden}
       ctx.restore();
       // bridge
       A.bridge(ctx, 720, 1285, 140, {});
-      // mist line on the water
-      ctx.save();
-      const mg = ctx.createLinearGradient(0, 1256, 0, 1312);
-      mg.addColorStop(0, 'rgba(186,220,213,0)');
-      mg.addColorStop(.48, 'rgba(186,220,213,.18)');
-      mg.addColorStop(1, 'rgba(186,220,213,0)');
-      ctx.fillStyle = mg;
-      ctx.fillRect(20, 1254, 1400, 62);
-      ctx.restore();
     }
 
     drawForeground(ctx) {
       this.drawGlitch(ctx);
+      this.drawLabels(ctx);
+    }
+
+    /* 建筑名：按世界坐标画在建筑之上，靠近才显示，避免整屏字幕 */
+    drawLabels(ctx) {
+      const near = (wx, wy, r) => {
+        const p = this.player;
+        return Math.hypot(p.x - wx, p.y - wy) < (r || 220);
+      };
+      const label = (wx, wy, text, opt) => {
+        if (!near(wx, wy, opt && opt.r)) return;
+        G.text(ctx, text, wx, wy, {
+          size: (opt && opt.size) || 7, color: (opt && opt.color) || '#3d2d1c',
+          align: 'center', outline: 'rgba(244,236,216,.9)', outlineWidth: 2.8,
+        });
+      };
+      label(720, 800, '太和殿', { size: 8 });
+      if (this.state.repaired) {
+        label(515, 928, '西庑');
+        label(925, 928, '东庑');
+      } else {
+        label(330, 1092, '卫城参照投影', { color: '#4f5f5c' });
+      }
+      label(1110, 1026, '故宫档案');
+      label(720, 462, '来源校准台', { size: 8 });
+      label(720, 286, '创作终端', { size: 8, color: this.state.repaired ? '#5a3c1e' : '#5d5346' });
+      label(720, 1512, '午门', { size: 8 });
+      label(720, 1244, '流光桥');
     }
 
     /* ============================================================
@@ -8550,6 +8941,56 @@ body.title-mode #stage{visibility:hidden}
       for (let i = 0; i < 5; i++) {
         r(c, x - 46 + i * 3, base + i * 2, 92 - i * 6, 2, i % 2 ? STONE : STONE_D);
       }
+      // 中央门洞：一扇能看见的宫门，中轴从这里穿过去
+      r(c, x - 34, base - 84, 68, 84, '#2a1d13');
+      r(c, x - 30, base - 80, 60, 80, '#3a2a1a');
+      // 门楣与门框
+      r(c, x - 34, base - 86, 68, 5, '#8a6a3f');
+      r(c, x - 34, base - 81, 3, 81, '#5e4426');
+      r(c, x + 31, base - 81, 3, 81, '#5e4426');
+      // 门内：一进到底的暗，让人一眼看出“门是开着的”
+      r(c, x - 28, base - 78, 56, 78, '#150e08');
+      c.save();
+      const ig = c.createLinearGradient(0, base - 78, 0, base);
+      ig.addColorStop(0, 'rgba(60,42,26,.75)');
+      ig.addColorStop(.7, 'rgba(22,14,9,.95)');
+      ig.addColorStop(1, 'rgba(12,8,5,1)');
+      c.fillStyle = ig;
+      c.fillRect(x - 27, base - 77, 54, 77);
+      c.restore();
+      // 两扇门向两侧敞开（透视梯形），门钉朝外
+      for (const side of [-1, 1]) {
+        const ox = x + side * 14;      // 门轴在里侧
+        const px = x + side * 46;      // 门扇外缘
+        c.fillStyle = '#5d3a22';
+        c.beginPath();
+        c.moveTo(ox, base - 78);
+        c.lineTo(px, base - 66);
+        c.lineTo(px, base - 10);
+        c.lineTo(ox, base - 2);
+        c.closePath();
+        c.fill();
+        c.fillStyle = 'rgba(0,0,0,.25)';
+        c.beginPath();
+        c.moveTo(ox, base - 78);
+        c.lineTo(ox + side * 8, base - 72);
+        c.lineTo(ox + side * 8, base - 6);
+        c.lineTo(ox, base - 2);
+        c.closePath();
+        c.fill();
+        c.fillStyle = '#a67c39';
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 4; j++) {
+            c.fillRect(ox + side * (8 + i * 9), base - 66 + j * 15, 2, 2);
+          }
+        }
+      }
+      // 门槛与门内的一线亮
+      r(c, x - 30, base - 3, 60, 3, '#7d5f3a');
+      c.save();
+      c.globalAlpha = 0.35;
+      r(c, x - 28, base - 70, 56, 1, '#c9a566');
+      c.restore();
 
       if (this.state.repaired) {
         // the projection lifts: the real Chinese side halls are revealed underneath
@@ -8678,7 +9119,6 @@ body.title-mode #stage{visibility:hidden}
         A.lantern(c, lx, base - 58, { h: 27, color: '#b23d2b' });
       }
       // gold sun motif above the roof ridge
-      A.glow(c, x, base - 150, 28, 'rgba(255,203,111,.24)', .4);
       c.strokeStyle = 'rgba(240,205,132,.7)'; c.lineWidth = 1;
       c.beginPath(); c.arc(x, base - 150, 11, 0, G.TAU); c.stroke();
       for (let i = 0; i < 8; i++) {
@@ -8703,7 +9143,6 @@ body.title-mode #stage{visibility:hidden}
         r(c, sx - 20, base - 24, 40, 2, '#d8b26a');
         for (let i = 0; i < 3; i++) r(c, sx - 15 + i * 9, base - 20, 5, 6, '#6b241b');
         // warm window light
-        A.glow(c, wx, base - 24, 40, 'rgba(255,201,120,.1)', .35);
       }
     }
 
@@ -8842,13 +9281,11 @@ body.title-mode #stage{visibility:hidden}
         r(c, sx - 9, base - 46, 18, 14, 'rgba(196,226,216,.15)');
         r(c, sx - 8, base - 45, 16, 1, 'rgba(225,242,232,.5)');
         if (this.state[key]) {
-          A.glow(c, sx, base - 39, 28, col === '#c79c54' ? 'rgba(240,196,106,.28)' : 'rgba(110,190,183,.28)', .5);
           G.text(c, key === 'cn' ? '故宫' : '卫城', sx, base - 51, { size: 6, color: '#f0d9ae', align: 'center' });
         }
       }
       // central brass gyroscope
       const cy = base - 92;
-      A.glow(c, x, cy, ready ? 86 : 46, repaired ? 'rgba(255,211,126,.3)' : (ready ? 'rgba(106,196,185,.22)' : 'rgba(130,180,180,.1)'), .5);
       c.save();
       c.translate(x, cy);
       for (let i = 0; i < 3; i++) {
@@ -8876,19 +9313,6 @@ body.title-mode #stage{visibility:hidden}
       r(c, x - 5, cy + 64, 10, 5, BRASS_D);
       r(c, x - 19, base - 56, 38, 9, '#2c2117');
       G.text(c, repaired ? '来源已校准' : (ready ? '等待校准' : '来源校准台'), x, base - 49, { size: 7, color: repaired ? '#f5d692' : '#e4d4b3', align: 'center' });
-      // floating rings of light when ready
-      if (ready) {
-        c.save();
-        c.globalAlpha = .35 + Math.sin(this.time * 2) * .1;
-        c.strokeStyle = repaired ? '#f0cf86' : '#7ac3b7';
-        c.lineWidth = 1;
-        for (let i = 0; i < 2; i++) {
-          c.beginPath();
-          c.ellipse(x, cy + 4, 58 + i * 14, 16 + i * 6, this.time * .2 + i, 0, G.TAU);
-          c.stroke();
-        }
-        c.restore();
-      }
     }
 
     drawPortal(c) {
@@ -8914,11 +9338,7 @@ body.title-mode #stage{visibility:hidden}
       c.closePath();
       c.fillStyle = '#413528'; c.fill();
       c.strokeStyle = BRASS; c.lineWidth = 2; c.stroke();
-      const pg = c.createRadialGradient(x, base - 84, 8, x, base - 84, 80);
-      pg.addColorStop(0, active ? 'rgba(255,241,194,.9)' : 'rgba(86,140,134,.24)');
-      pg.addColorStop(.5, active ? 'rgba(222,176,94,.35)' : 'rgba(67,111,108,.16)');
-      pg.addColorStop(1, 'rgba(20,27,25,0)');
-      c.fillStyle = pg;
+      c.fillStyle = active ? 'rgba(255,241,194,.5)' : 'rgba(86,140,134,.18)';
       c.beginPath(); c.arc(x, base - 84, 78, 0, G.TAU); c.fill();
       c.restore();
       // western pediment above the moon gate
@@ -8938,7 +9358,6 @@ body.title-mode #stage{visibility:hidden}
       c.closePath(); c.fill();
       c.restore();
       // gold sun in the pediment
-      A.glow(c, x, base - 226, 20, 'rgba(255,205,118,.18)', .4);
       c.strokeStyle = BRASS; c.lineWidth = 1;
       c.beginPath(); c.arc(x, base - 226, 10, 0, G.TAU); c.stroke();
       // plaque
@@ -8947,7 +9366,6 @@ body.title-mode #stage{visibility:hidden}
       G.text(c, '创作终端', x, base - 193, { size: 7, color: active ? '#f5d692' : '#a9997e', align: 'center' });
       // approach path glow
       if (active) {
-        A.glow(c, x, base - 76, 70, 'rgba(240,196,106,.16)', .35);
       }
     }
 
@@ -8989,7 +9407,6 @@ body.title-mode #stage{visibility:hidden}
         c.stroke();
       }
       c.restore();
-      A.glow(c, x, base - 82, 28, 'rgba(186,229,221,.14)', .4);
     }
 
     drawRedWall(c, x, base) {
@@ -9072,7 +9489,6 @@ body.title-mode #stage{visibility:hidden}
       r(c, x - 7 * s, base - 56 * s, 14 * s, 8 * s, '#b89755');
       r(c, x - 5 * s, base - 55 * s, 10 * s, 6 * s, 'rgba(255,221,143,.7)');
       r(c, x - 2 * s, base - 60 * s, 4 * s, 2, '#e8ca85');
-      A.glow(c, x, base - 54 * s, 24 * s, 'rgba(255,196,103,.2)', .4);
     }
 
     drawHedge(c, x, base, w, h) {
@@ -9138,121 +9554,42 @@ body.title-mode #stage{visibility:hidden}
     }
 
     drawScreen(ctx) {
-      // drifting mist from the canal
-      const mistY = 1262 - this.cam.y;
-      ctx.save();
-      const mg = ctx.createLinearGradient(0, mistY - 50, 0, mistY + 80);
-      mg.addColorStop(0, 'rgba(186,218,211,0)');
-      mg.addColorStop(.5, this.state.repaired ? 'rgba(240,209,141,.06)' : 'rgba(186,218,211,.12)');
-      mg.addColorStop(1, 'rgba(186,218,211,0)');
-      ctx.fillStyle = mg;
-      ctx.fillRect(0, mistY - 50, G.W, 130);
-      ctx.restore();
-
-      // cross-cultural light: cool while unstable, warm once the labels are calibrated
-      ctx.save();
-      ctx.globalCompositeOperation = 'soft-light';
-      const wg = ctx.createLinearGradient(0, 0, G.W, G.H);
-      if (this.state.repaired) {
-        wg.addColorStop(0, 'rgba(255,214,143,.12)');
-        wg.addColorStop(.6, 'rgba(255,190,102,.05)');
-        wg.addColorStop(1, 'rgba(155,58,43,.06)');
-      } else {
-        wg.addColorStop(0, 'rgba(92,151,169,.16)');
-        wg.addColorStop(.55, 'rgba(240,197,115,.06)');
-        wg.addColorStop(1, 'rgba(155,58,43,.1)');
-      }
-      ctx.fillStyle = wg;
-      ctx.fillRect(0, 0, G.W, G.H);
-      ctx.restore();
-
-      // a visible calibration pulse at the nexus / plaza
+      // 校准完成后的那一下涟漪保留（是操作反馈，不是常驻光效）
       if (this.state.repaired) {
         const age = this.time - this.repairAge;
-        if (age < 3.2) {
+        if (age < 2.4) {
           const cx = 720 - this.cam.x;
           const cy = 560 - this.cam.y;
           ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = Math.max(0, 0.45 - age * 0.13);
-          ctx.strokeStyle = '#f5d295';
+          ctx.globalAlpha = Math.max(0, 0.32 - age * 0.14);
+          ctx.strokeStyle = '#e8c98f';
           ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(cx, cy, 30 + age * 150, 0, G.TAU); ctx.stroke();
-          ctx.beginPath(); ctx.arc(cx, cy, 16 + age * 110, 0, G.TAU); ctx.stroke();
+          ctx.beginPath(); ctx.arc(cx, cy, 24 + age * 120, 0, G.TAU); ctx.stroke();
           ctx.restore();
         }
-        // long warm light shafts from the terminal
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = 0.05;
-        ctx.fillStyle = '#ffd99a';
-        ctx.beginPath();
-        ctx.moveTo(720 - this.cam.x, 560 - this.cam.y);
-        ctx.lineTo(-80, G.H);
-        ctx.lineTo(190, G.H);
-        ctx.closePath(); ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(720 - this.cam.x, 560 - this.cam.y);
-        ctx.lineTo(G.W - 190, G.H);
-        ctx.lineTo(G.W + 80, G.H);
-        ctx.closePath(); ctx.fill();
-        ctx.restore();
       }
 
-      // unstable scanline ripples
-      if (!this.state.repaired) {
-        ctx.save();
-        ctx.globalAlpha = .12;
-        for (let i = 0; i < 4; i++) {
-          const y = (this.time * 26 + i * 71) % G.H;
-          ctx.fillStyle = i % 2 ? '#8cd2c4' : '#e7b96d';
-          ctx.fillRect(0, y, G.W, 1);
-        }
-        ctx.restore();
-      }
-
-      // repair flash
+      // 校准瞬间的闪白也保留，但更轻
       if (this.flash > 0.01) {
         ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.fillStyle = 'rgba(255,225,164,' + (this.flash * .22) + ')';
+        ctx.globalAlpha = this.flash * 0.12;
+        ctx.fillStyle = '#ffe1a4';
         ctx.fillRect(0, 0, G.W, G.H);
         ctx.restore();
       }
 
-      // vignette
-      const vg = ctx.createRadialGradient(320, 170, 150, 320, 180, 390);
+      // 轻微暗角，只负责收边
+      const vg = ctx.createRadialGradient(320, 170, 170, 320, 180, 400);
       vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, 'rgba(8,6,4,.34)');
+      vg.addColorStop(1, 'rgba(8,6,4,.22)');
       ctx.fillStyle = vg;
       ctx.fillRect(0, 0, G.W, G.H);
     }
 
     updateAmbient(dt) {
       this.flash = Math.max(0, this.flash - dt * 1.4);
-      if (Math.random() < dt * 2.4) {
-        const x = this.cam.x + G.rand(0, G.W);
-        const y = this.cam.y + G.rand(0, G.H);
-        G.fx.add({
-          x, y, vx: G.rand(-3, 5), vy: G.rand(-9, -2),
-          life: G.rand(1.8, 3.6), size: 1,
-          color: this.state.repaired ? 'rgba(248,214,151,.45)' : 'rgba(167,218,207,.38)',
-          grav: -1, glow: false,
-        });
-      }
-      if (!this.state.repaired && Math.random() < dt * 1.1) {
-        const p = G.pick([[560, 760], [940, 700], [1030, 960], [390, 930]]);
-        G.fx.add({
-          x: p[0] + G.rand(-20, 20), y: p[1] + G.rand(-20, 20),
-          vx: G.rand(-8, 8), vy: G.rand(-16, -4),
-          life: G.rand(.3, .8), size: 1, color: 'rgba(119,207,197,.45)', glow: true,
-        });
-      }
     }
 
-    /* ============================================================
-       interactions
-       ============================================================ */
     takeArchive(kind) {
       if (G.dialog.active || G.difficulty.active) return;
       if (G.archiveGame && G.archiveGame.active) return;
@@ -12640,7 +12977,7 @@ body.title-mode #stage{visibility:hidden}
     }
 
     gate() {
-      if (G.save.flag('entered')) {
+      if (G.save.flag('acropolisEntered')) {
         G.dialog.show([
           { name: '山门管理员', text: '您已经入园了。帕特农神庙前今晚有点圣火的仪式。' },
         ]);
@@ -12650,7 +12987,7 @@ body.title-mode #stage{visibility:hidden}
         { name: '卫城山门 · 管理员', text: '前方是卫城。请出示证件，随身物品过一下安检。' },
         { name: '旅行手账', text: '过了这道门，就是女神住的山顶。' },
       ], () => {
-        if (G.security) G.security.start();
+        if (G.security) G.security.start('acropolis');
       });
     }
 
@@ -13573,7 +13910,9 @@ body.title-mode #stage{visibility:hidden}
        抉择 · how to light the sacred fire (branch-driven ending)
        ============================================================ */
     chooseHowToLight() {
-      if (G.save.flag('night') || this._choosing) return;
+      if (G.save.flag('night')) return;
+      // 只有“正在选”时才拦；上次用 Esc 取消留下的旧标记会自动失效，避免老赫永久没反应
+      if (this._choosing && G.choice.active) return;
       this._choosing = true;
       G.choice.show([
         { text: '把橄榄木炭、松脂、火盆都交给老赫，请他主持' },
@@ -13581,6 +13920,7 @@ body.title-mode #stage{visibility:hidden}
         { text: '只留一半材料，把另一半留给下一队远来的人（来得晚）' },
       ], {
         title: '材料齐了 · 这一炉圣火，你想怎么点？',
+        onClose: () => { this._choosing = false; },
         onPick: (i) => {
           this._choosing = false;
           if (i === 0) G.save.addFlavor('help');
@@ -13722,7 +14062,7 @@ body.title-mode #stage{visibility:hidden}
         if (G.unlock) G.unlock('sundial');
         G.sundial.start({
           title: '校 日 · 卫城',
-          hint: '左 / 右 转动表针 · 让影子对准金环 · 空格 锁定',
+          hint: '按住 ← / → 转动表针 · 让影子对准金环 · 空格 锁定',
           onExit: () => { if (G.scene === this) G.ui.showHud(true); },
         });
       });
@@ -14319,7 +14659,7 @@ body.title-mode #stage{visibility:hidden}
       G.audio.ambient('palace');
       G.audio.sfx('gong');
       if (opts.hint) this.setHint(opts.hint);
-      else this.setHint('左 / 右 转动表针 · 空格 锁定');
+      else this.setHint('按住 ← / → 转动表针 · 空格 锁定');
       setTimeout(() => {
         if (!this.active) return;
         this.nextRound();
@@ -14334,14 +14674,11 @@ body.title-mode #stage{visibility:hidden}
     key(code) {
       if (!this.active) return false;
       if (this.contextMenu) { if (code === 'Escape') { this.exit(); return true; } return false; }
+      if (code === 'Escape') { this.exit(); return true; }
       if (code === 'Space' || code === 'Enter' || code === 'KeyE' || code === 'ArrowUp') {
         if (this.phase === 'aim') { this.action(); return true; }
       }
-      if (this.phase === 'aim') {
-        if (code === 'ArrowLeft' || code === 'KeyA') this.angle -= 1.9 * 0.32;
-        else if (code === 'ArrowRight' || code === 'KeyD') this.angle += 1.9 * 0.32;
-        this.angle = ((this.angle + Math.PI) % (Math.PI * 2)) - Math.PI;
-      }
+      // 方向键的持续转动在 update() 里按按住状态处理；这里只吃锁定键
       return true;
     }
 
@@ -14357,7 +14694,7 @@ body.title-mode #stage{visibility:hidden}
       if (Math.abs(start - this.target) < 0.4) start += 1.4;
       this.angle = ((start + Math.PI) % (Math.PI * 2)) - Math.PI;
       G.show($('#pd-enter'));
-      this.setHint('圆 · 滑动表针，让影子落在金环里 · 第 ' + this.round + ' / ' + ROUNDS + ' 环');
+      this.setHint('按住 ← / → 转动表针，让影子落进金环 · 第 ' + this.round + ' / ' + ROUNDS + ' 环');
       G.audio.sfx('blip');
     }
 
@@ -14461,6 +14798,16 @@ body.title-mode #stage{visibility:hidden}
       this.t += dt;
       G.photo.tick(dt);
       this.updateParts(dt);
+      // 按住 ←/→ 平滑转动表针（放开即停），单次按键只走一小步
+      if (this.phase === 'aim') {
+        let dir = 0;
+        if (G.input.isDown('ArrowLeft', 'KeyA')) dir -= 1;
+        if (G.input.isDown('ArrowRight', 'KeyD')) dir += 1;
+        if (dir) {
+          this.angle += dir * 1.75 * Math.min(dt, 0.05);
+          this.angle = ((this.angle + Math.PI) % (Math.PI * 2)) - Math.PI;
+        }
+      }
       if (this.phase === 'settle') {
         this.settle -= dt;
         this.ringT += dt / 0.4;
@@ -15278,6 +15625,665 @@ body.title-mode #stage{visibility:hidden}
 })();
 
 </script>
+<script data-src="js/kb.js">
+/* ============================================================
+   考据卡 · 守境人知识库
+   每条都有出处；AI 与离线检索共用同一套资料，拒绝编造。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+
+  G.KB = [
+    {
+      id: 'axis',
+      title: '北京中轴线',
+      source: 'UNESCO《世界遗产名录》· 北京中轴线——中国理想都城秩序的杰作（2024 年列入）',
+      url: 'https://whc.unesco.org/en/list/1714/',
+      text: '北起钟鼓楼、南至永定门，全长约 7.8 公里。以宫城（紫禁城）为核心，串联起城门、坛庙、市井与山水，是“以中为尊”的都城秩序在空间上的完整表达，2024 年 7 月列入世界遗产。',
+      keywords: ['中轴', '中轴线', '钟鼓楼', '永定门', '世遗', '世界遗产', '轴线', '正阳门', '北京'],
+      scope: '都城中轴线',
+    },
+    {
+      id: 'gugong',
+      title: '紫禁城与故宫博物院',
+      source: '故宫博物院官网 · 故宫建筑（dpm.org.cn）',
+      url: 'https://www.dpm.org.cn/explore/buildings.html',
+      text: '紫禁城始建于明永乐四年（1406），永乐十八年（1420）建成，为明清两代皇宫；1925 年成立故宫博物院。总体格局为“前朝后寝”，中轴对称，左祖右社，是现存规模最大、保存最完整的木结构宫殿建筑群。',
+      keywords: ['紫禁城', '故宫', '前朝后寝', '左祖右社', '永乐', '宫殿', '皇宫', '博物院'],
+      scope: '宫城格局',
+    },
+    {
+      id: 'axis-order',
+      title: '门—院—殿的次序',
+      source: '《周礼·夏官司马》篇首「辨方正位，体国经野」；故宫建筑空间组织',
+      url: 'https://www.dpm.org.cn/explore/buildings.html',
+      text: '紫禁城沿中轴自南向北依次是午门、太和门、太和殿、中和殿、保和殿、乾清宫、御花园、神武门：进入次序本身就是礼制。门—院—殿的层层递进，让权力的“距离感”成为可以走出来的空间经验。',
+      keywords: ['门', '院', '殿', '次序', '礼制', '周礼', '辨方正位', '体国经野', '进入', '序列'],
+      scope: '礼制空间',
+    },
+    {
+      id: 'kaogong',
+      title: '《考工记》与“理想都城”',
+      source: '《周礼·考工记》「匠人营国，方九里，旁三门，国中九经九纬」',
+      url: 'https://ctext.org/text.pl?node=14507',
+      text: '《考工记》记载了理想都城的规划：方九里、旁三门、九经九纬、左祖右社、面朝后市。明清北京中轴线与之相呼应，但并非逐条照搬——礼制是理想，营建要落到地形、水系与既有城中。',
+      keywords: ['考工记', '匠人营国', '方九里', '九经九纬', '面朝后市', '理想', '规划', '都城'],
+      scope: '都城制度',
+    },
+    {
+      id: 'taihe',
+      title: '太和殿',
+      source: '故宫博物院官网 · 太和殿',
+      url: 'https://www.dpm.org.cn/explore/buildings.html',
+      text: '太和殿俗称“金銮殿”，现存建筑为清康熙三十四年（1695）重建。重檐庑殿顶，是清代建筑中等级最高的形制；殿前广场开阔，与“三台”汉白玉台基共同构成大朝典礼的空间。',
+      keywords: ['太和殿', '金銮殿', '庑殿', '重檐', '康熙', '大朝', '广场', '三台', '汉白玉', '台基'],
+      scope: '单体建筑',
+    },
+    {
+      id: 'wumen',
+      title: '午门与五凤楼',
+      source: '故宫博物院官网 · 午门',
+      url: 'https://www.dpm.org.cn/explore/buildings.html',
+      text: '午门是紫禁城正门，城台呈“凹”字形，上建五座楼阁，合称“五凤楼”。中门在礼制上供皇帝通行，宗室王公与官员分走侧门——一条中轴上的门，也要用几道门区分身份。',
+      keywords: ['午门', '五凤楼', '正门', '凹字形', '皇帝', '身份', '门'],
+      scope: '城门',
+    },
+    {
+      id: 'jinshui',
+      title: '内金水桥',
+      source: '故宫博物院官网 · 太和门与内金水河',
+      url: 'https://www.dpm.org.cn/explore/buildings.html',
+      text: '太和门前有内金水河自西向东流过，河上五座汉白玉石桥，中间一座为御路桥。水与桥既是排水与交通，也是“御路”的延伸——让一条路径有了形制上的等级。',
+      keywords: ['金水', '金水桥', '内金水河', '御路', '桥', '太和门', '排水'],
+      scope: '宫廷水系',
+    },
+    {
+      id: 'yuan',
+      title: '《园冶》与借景',
+      source: '明·计成《园冶·兴造论》「园林巧于因借，精在体宜」',
+      url: 'https://ctext.org/wiki.pl?chapter=378683&if=en&remap=gb',
+      text: '《园冶》成书于明崇祯七年（1634），是中国最早的造园专著之一。“因”是顺应地形与既有景物，“借”是把墙外的景纳入园中；“体宜”讲究尺度与分寸。园不在大，而在景与路互相成全。',
+      keywords: ['园冶', '计成', '借景', '因借', '体宜', '造园', '园林', '因'],
+      scope: '园林思想',
+    },
+    {
+      id: 'sunmao',
+      title: '榫卯：不用一钉的木作',
+      source: 'UNESCO 人类非物质文化遗产代表作名录 · 中国传统木结构建筑营造技艺（2009）',
+      url: 'https://ich.unesco.org/en/RL/chinese-timber-frame-structures-00174',
+      text: '榫卯是构件之间以凹凸咬合相连的木作技术，不用钉铆。它与大木作、瓦作、石作共同构成“中国传统木结构建筑营造技艺”，2009 年列入联合国教科文组织人类非遗代表作名录。木构的韧性来自节点，而不是胶合。',
+      keywords: ['榫卯', '木结构', '营造技艺', '非遗', '榫头', '卯口', '节点', '木材', '斗拱'],
+      scope: '非遗技艺',
+    },
+    {
+      id: 'tiehua',
+      title: '打铁花',
+      source: '国家级非物质文化遗产名录 · 打铁花（河南确山、山西泽州等地）',
+      url: 'https://www.ihchina.cn/',
+      text: '打铁花是将高温铁水击打向空中、形成火树银花的老技艺，多在节日夜间表演。铁水温度可达约 1600℃，现实中需要严格防护与场地条件；游戏里的打铁花是演出化的安全版本，请勿模仿。',
+      keywords: ['打铁花', '铁花', '铁水', '非遗', '确山', '泽州', '1600', '焰火'],
+      scope: '非遗技艺',
+    },
+    {
+      id: 'parthenon',
+      title: '帕特农神庙',
+      source: '雅典卫城官方资料（ysma.gr）· Parthenon',
+      url: 'https://www.ysma.gr/en/monuments/parthenon/',
+      text: '帕特农建于公元前 447—前 432 年，位于雅典卫城，多立克柱式，正面八柱；由建筑师伊克提诺斯与卡利克拉特斯主持，菲狄亚斯负责雕刻。它与伊瑞克提翁神庙、山门共同构成卫城的建筑群。',
+      keywords: ['帕特农', '卫城', '雅典', '多立克', '八柱', '古希腊', '菲狄亚斯', '柱式', '山门'],
+      scope: '卫城建筑',
+    },
+    {
+      id: 'erechtheion',
+      title: '伊瑞克提翁神庙与女像柱',
+      source: '雅典卫城官方资料（ysma.gr）· Erechtheion',
+      url: 'https://www.ysma.gr/en/monuments/erechtheion/',
+      text: '伊瑞克提翁神庙约建于公元前 421—前 406 年，南廊以六尊女像柱（Caryatids）承托檐部。女像柱把“人”直接变成结构的一部分，既是雕刻，也是建筑。',
+      keywords: ['伊瑞克提翁', '女像柱', 'caryatid', '卫城', '雕刻', '南廊'],
+      scope: '卫城建筑',
+    },
+    {
+      id: 'symmetria',
+      title: '亚里士多德：秩序、相称、限定',
+      source: '亚里士多德《形而上学》Μ 卷第 3 章（1078a36–b1）',
+      url: 'https://www.physics.ntua.gr/~mourmouras/greats/aristoteles/meta_ta_physica.pdf',
+      text: '“τάξις καὶ συμμετρία καὶ τὸ ὡρισμένον”——秩序、相称、明确的限定。亚里士多德用它描述美与善的形式条件。本游戏借用这三个词来讨论柱列、开间与节奏，是一种启发式引用，而不是帕特农的施工说明。',
+      keywords: ['亚里士多德', '形而上学', '秩序', '相称', '限定', 'symmetria', '比例', '希腊'],
+      scope: '希腊思想',
+    },
+    {
+      id: 'fusion-boundary',
+      title: '“万象灵境”的边界',
+      source: '本游戏设定说明（当代虚构）',
+      url: '',
+      text: '故宫与卫城之间不存在直接的建筑传承。可以比较的是空间观念、礼制序列与图像功能；“投影错位”与“来源校准台”是这道关卡的虚构设定。间接传播（如丝路图像）能说明交流，不能证明“帕特农的东西进入了故宫”。',
+      keywords: ['万象灵境', '投影', '错位', '校准', '传承', '融合', '丝路', '比较', '边界', '来源'],
+      scope: '考据边界',
+    },
+    {
+      id: 'beijing-inheritance',
+      title: '规则与考古证据',
+      source: '故宫博物院官网；北京中轴线申遗文本',
+      url: 'https://www.dpm.org.cn/explore/buildings.html',
+      text: '紫禁城之前的北京城与宫城格局来自元大都的旧制，明永乐营建时既沿用了部分旧轴线，也做了重新规划。谈“中轴线可沿用六百年”，指的是空间秩序的连续性，而不是建筑本体的逐代复制。',
+      keywords: ['元大都', '永乐', '沿用', '格局', '规划', '中轴', '连续', '复制'],
+      scope: '营建史',
+    },
+  ];
+})();
+
+</script>
+<script data-src="js/ai-config.js">
+/* 演示用 AI 接入配置（B 方案：随页面发布，供匿名评审直接体验）
+   接口：奇绩算力 api.openai-next.com（OpenAI 兼容）
+   如需换 key / 模型，改这里即可，ai.js 会优先使用它。 */
+window.WXL_AI = {
+  base: 'https://api.openai-next.com/v1',
+  key: 'sk-SIJDMT3DfzWrDkFi066f71FdAf274eD7A8Bd152b765dC9D0',
+  models: ['gemini-2.5-flash', 'deepseek-v4-flash', 'chatgpt-4o-latest'],
+};
+
+</script>
+<script data-src="js/ai.js">
+/* ============================================================
+   守境人 · 考据台
+   - 在线：走 OpenAI 兼容接口（奇绩算力 api.openai-next.com）
+   - 离线：本地考据卡检索，保证断网也能演示
+   - 规则：只答有依据的；没有依据就说“此处无考据支撑”
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+
+  /* 场景锚点：用来告诉 AI「玩家此刻在哪、最近是什么」 */
+  const POIS = {
+    beijing: [['正阳门', 1100, 1200], ['前门大街', 1100, 1280], ['天安门', 1100, 1000], ['午门', 1100, 880], ['景山', 1100, 700], ['北海白塔', 500, 620], ['天坛', 1500, 1300]],
+    gugong: [['午门', 750, 1300], ['内金水桥', 750, 1160], ['太和门', 750, 1080], ['太和殿', 750, 880], ['乾清宫', 750, 650], ['御花园', 750, 400], ['神武门', 750, 200], ['珍宝馆', 990, 380], ['箭亭', 990, 560]],
+    fusion: [['午门', 720, 1300], ['中央来源校准台', 720, 700], ['太和殿东庑', 1100, 900], ['帕特农投影', 330, 1250], ['创作终端', 720, 1050], ['狄奥提玛', 820, 1080]],
+    home: [['大厅', 560, 700], ['合成台', 480, 520], ['修复台', 660, 520]],
+    athens: [['雅典城', 540, 1400], ['卫城方向', 540, 900]],
+    acropolis: [['卫城山门', 720, 1300], ['帕特农神庙', 720, 900], ['伊瑞克提翁神庙', 940, 1000], ['圣火台', 720, 700]],
+  };
+
+  const CONFIG = (window.WXL_AI && typeof window.WXL_AI === 'object') ? window.WXL_AI : {};
+  const BASE = String(CONFIG.base || 'https://api.openai-next.com/v1').replace(/\/+$/, '');
+  const MODELS = (Array.isArray(CONFIG.models) && CONFIG.models.length)
+    ? CONFIG.models : ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini', 'qwen-plus', 'deepseek-chat'];
+  const keyOf = () => {
+    try {
+      // 演示便利：?ai=<key> 或 ?ai_key=<key> 可临时接入，并记到本机
+      let qpKey = '';
+      try {
+        const sp = new URLSearchParams(location.search);
+        qpKey = String(sp.get('ai') || sp.get('ai_key') || '').trim();
+        const qpModel = String(sp.get('ai_model') || '').trim();
+        if (qpKey) localStorage.setItem('wxl.ai.key', qpKey);
+        if (qpModel) localStorage.setItem('wxl.ai.model', qpModel);
+      } catch (e) { /* noop */ }
+      return String(localStorage.getItem('wxl.ai.key') || CONFIG.key || qpKey || '').trim();
+    } catch (e) { return String(CONFIG.key || ''); }
+  };
+  const modelList = () => {
+    let extra = '';
+    try { extra = String(localStorage.getItem('wxl.ai.model') || '').trim(); } catch (e) { /* noop */ }
+    return extra ? [extra].concat(MODELS.filter((m) => m !== extra)) : MODELS;
+  };
+
+  const SUGGESTIONS = {
+    beijing: ['中轴线为什么是一条线？', '“门—院—殿”是什么次序？', '《考工记》怎么说都城？'],
+    gugong: ['太和殿为什么等级最高？', '午门的五凤楼是什么？', '内金水桥为什么是五座？'],
+    fusion: ['这里为什么会有帕特农的投影？', '“来源校准”在纠正什么？', '故宫和卫城能怎么比较？'],
+    home: ['合成台和修复台有什么讲究？', '民间木作与宫廷木作差在哪？'],
+    athens: ['卫城山门为什么朝那个方向？', '帕特农和故宫能比较什么？'],
+    acropolis: ['女像柱为什么能承重？', '多立克柱式有什么特点？', '圣火在仪式里是什么位置？'],
+  };
+
+  /* 离线题库：没有 AI 或断网时也能考；答案位置故意打散 */
+  const QUIZ_OFFLINE = [
+    { card: 'axis', q: '北京中轴线的北端起点是哪儿？', options: ['正阳门', '钟鼓楼', '永定门'], answer: 1, explain: '中轴线北起钟鼓楼、南至永定门，全长约 7.8 公里。' },
+    { card: 'gugong', q: '紫禁城始建于哪一年？', options: ['明永乐四年（1406）', '清康熙三十四年（1695）', '明正统元年（1436）'], answer: 0, explain: '永乐四年动工，永乐十八年（1420）建成。' },
+    { card: 'axis-order', q: '紫禁城的正门是哪一座？', options: ['神武门', '太和门', '午门'], answer: 2, explain: '午门是紫禁城正门，城台呈凹字形，上建五凤楼。' },
+    { card: 'kaogong', q: '“匠人营国”这段理想都城的话，出自哪部典籍？', options: ['《园冶》', '《周礼·考工记》', '《营造法式》'], answer: 1, explain: '《考工记》记方九里、旁三门、九经九纬、左祖右社、面朝后市。' },
+    { card: 'taihe', q: '现存太和殿是哪个时期重建的？', options: ['清康熙三十四年（1695）', '明永乐十八年（1420）', '清乾隆十年（1745）'], answer: 0, explain: '现存太和殿为康熙三十四年重建，重檐庑殿顶。' },
+    { card: 'wumen', q: '午门城台是什么形状？', options: ['方形', '凸字形', '凹字形'], answer: 2, explain: '午门城台呈凹字形，上建五座楼阁，合称五凤楼。' },
+    { card: 'jinshui', q: '太和门前五座汉白玉桥横跨哪条河？', options: ['内金水河', '筒子河', '永定河'], answer: 0, explain: '内金水河自西向东流过太和门，中间一座为御路桥。' },
+    { card: 'yuan', q: '《园冶》的作者是谁？', options: ['李渔', '计成', '沈括'], answer: 1, explain: '明·计成著《园冶》，讲“巧于因借，精在体宜”。' },
+    { card: 'sunmao', q: '榫卯的典型特点是什么？', options: ['用铁钉钉牢', '用胶粘合', '凹凸咬合、不用钉铆'], answer: 2, explain: '榫卯靠构件凹凸咬合，木构的韧性来自节点。' },
+    { card: 'tiehua', q: '打铁花的铁水温度大约是多少？', options: ['约 1600℃', '约 600℃', '约 3000℃'], answer: 0, explain: '铁水约 1600℃，现实中要严格防护，游戏里是安全版本。' },
+    { card: 'parthenon', q: '帕特农神庙正面采用的是哪种柱式？', options: ['爱奥尼柱式', '多立克柱式', '科林斯柱式'], answer: 1, explain: '帕特农使用多立克柱式，正面八柱，前 447—前 432 年建成。' },
+    { card: 'symmetria', q: '“τάξις καὶ συμμετρία καὶ τὸ ὡρισμένον”出自哪里？', options: ['亚里士多德《形而上学》', '柏拉图《理想国》', '维特鲁威《建筑十书》'], answer: 0, explain: '出自亚里士多德《形而上学》Μ 卷第 3 章，意为秩序、相称、限定。' },
+    { card: 'fusion-boundary', q: '故宫与雅典卫城之间是什么关系？', options: ['帕特农是故宫的前身', '没有直接建筑传承，只可比较空间观念', '故宫仿建了帕特农'], answer: 1, explain: '两者没有直接传承；比较空间观念与图像功能可以，编造传承不行。' },
+    { card: 'beijing-inheritance', q: '明北京城的轴线与元大都的关系是？', options: ['完全新建，与元大都无关', '照搬长安城的里坊制', '沿用部分旧轴线并重新规划'], answer: 2, explain: '永乐营建既沿用元代旧轴线，也做了新的规划。' },
+  ];
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---------- 上下文 ---------- */
+  function sceneId() { return (G.scene && G.scene.id) || 'beijing'; }
+
+  function nearestPois(n) {
+    const list = POIS[sceneId()] || POIS.beijing;
+    const p = (G.scene && G.scene.player) || { x: 0, y: 0 };
+    return list
+      .map(([name, x, y]) => ({ name, d: Math.hypot(p.x - x, p.y - y) }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, n || 3);
+  }
+
+  function placeLabel() {
+    const names = { beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境 · 沙盘', home: '家 · 大厅', athens: '雅典城', acropolis: '卫城' };
+    return names[sceneId()] || (G.sceneName || '未知之地');
+  }
+
+  function codexTitles() {
+    const ids = (G.save && G.save.data && G.save.data.codex) || [];
+    const data = G.CODEX_DATA || {};
+    return ids.filter((id) => data[id]).map((id) => data[id].title).slice(0, 6);
+  }
+
+  function systemPrompt() {
+    const cards = (G.KB || []).map((k) => `【${k.id}】${k.title}（${k.source}）：${k.text}`).join('\n');
+    return [
+      '你是像素游戏《紫禁城 · 铁火》里的“守境人”，回答玩家关于北京中轴线、紫禁城、雅典卫城、非遗技艺与游戏设定的问题。',
+      '规则：',
+      '1. 只依据下面“考据卡”回答；考据卡里没有依据时，第一句必须写“此处无考据支撑”，然后只给一句可核对的邻近常识或提示玩家去找哪处线索，不要编造细节。',
+      '2. 回答不超过 90 字，尽量口语；引用时在句末用（考据：卡片标题）标出依据。',
+      '3. 严格区分“比较”与“传承”：不得声称故宫与卫城之间存在直接建筑传承；间接传播只能说明交流，不能证明实物进入。',
+      '4. 语气像守境人：平静、克制，不用感叹号，不客套。',
+      '考据卡：',
+      cards,
+      '玩家位置：' + placeLabel() + '；最近的地标：' + nearestPois(3).map((p) => p.name).join('、') + '。',
+      '玩家已解锁的图鉴：' + (codexTitles().join('、') || '暂无') + '。',
+    ].join('\n');
+  }
+
+  /* ---------- 本地检索（离线降级） ---------- */
+  function scoreCard(k, q) {
+    let s = 0;
+    for (const w of (k.keywords || [])) if (q.includes(w)) s += w.length >= 2 ? 2 : 1;
+    if (k.title && q.includes(k.title)) s += 3;
+    return s;
+  }
+
+  function localAnswer(q) {
+    const qq = q.toLowerCase();
+    const scored = (G.KB || []).map((k) => ({ k, s: scoreCard(k, qq) })).sort((a, b) => b.s - a.s);
+    const best = scored[0];
+    if (best && best.s >= 2) {
+      const k = best.k;
+      return { answer: k.text + '（考据：' + k.title + '）', sources: [k], refused: false };
+    }
+    const nearby = nearestPois(3).map((p) => p.name).join('、');
+    return {
+      answer: '此处无考据支撑。此刻你在' + placeLabel() + '，最近的是' + nearby + '；可以问一问它们各自的来历，或者去别处再看看。',
+      sources: [], refused: true,
+    };
+  }
+
+  /* ---------- 远程调用 ---------- */
+  async function remoteAnswer(q) {
+    const key = keyOf();
+    if (!key) throw new Error('no-key');
+    const body = {
+      messages: [
+        { role: 'system', content: systemPrompt() },
+        { role: 'user', content: q },
+      ],
+      temperature: 0.3,
+      max_tokens: 300,
+    };
+    const attempt = (model) => new Promise((resolve, reject) => {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => { try { ctl.abort(); } catch (e) { /* noop */ } reject(new Error('timeout')); }, 12000);
+      fetch(BASE + '/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
+        body: JSON.stringify(Object.assign({ model }, body)),
+        signal: ctl.signal,
+      }).then(async (res) => {
+        if (res.status === 401 || res.status === 403) throw new Error('auth-failed');
+        if (!res.ok) throw new Error('http-' + res.status);
+        const data = await res.json();
+        const text = ((data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+        if (!text) throw new Error('empty');
+        return { text, model };
+      }).then((v) => { clearTimeout(timer); resolve(v); },
+        (e) => { clearTimeout(timer); reject(e); });
+    });
+    // 并发竞速：哪个模型先给出有效回答就用哪个，避免单模型抖动拖慢演示
+    let winner = null;
+    try {
+      winner = await Promise.any(modelList().map(attempt));
+    } catch (agg) {
+      const errs = (agg && agg.errors) || [];
+      if (errs.some((e) => e && e.message === 'auth-failed')) throw new Error('auth-failed');
+      throw new Error('models-failed');
+    }
+    const text = winner.text;
+    const refused = text.includes('无考据支撑');
+    return { answer: text, sources: sourcesFor(q + text), refused, model: winner.model };
+  }
+
+  function sourcesFor(text) {
+    const t = String(text || '');
+    return (G.KB || [])
+      .map((k) => ({ k, s: scoreCard(k, t) + (t.includes(k.title) ? 4 : 0) }))
+      .filter((x) => x.s >= 2)
+      .sort((a, b) => b.s - a.s)
+      .slice(0, 3)
+      .map((x) => x.k);
+  }
+
+  /* ---------- UI ---------- */
+  G.ai = {
+    open: false,
+    busy: false,
+    init() {
+      if (this.el) return;
+      const wrap = document.createElement('section');
+      wrap.id = 'ai-panel';
+      wrap.className = 'ai-panel hidden';
+      wrap.setAttribute('role', 'dialog');
+      wrap.setAttribute('aria-modal', 'true');
+      wrap.setAttribute('aria-label', '守境人 · 考据台');
+      wrap.innerHTML = '' +
+        '<div class="ai-card">' +
+        '  <div class="ai-head">' +
+        '    <span class="ai-seal">考</span>' +
+        '    <span class="ai-title">守境人 · 考据台</span>' +
+        '    <span class="ai-count" id="ai-count">考据 0/' + ((G.KB || []).length) + '</span>' +
+        '    <span class="ai-mode" id="ai-mode">离线考据</span>' +
+        '    <button class="ai-close" id="ai-close" type="button">返回探索</button>' +
+        '  </div>' +
+        '  <p class="ai-place" id="ai-place"></p>' +
+        '  <div class="ai-chips" id="ai-chips"></div>' +
+        '  <div class="ai-quiz hidden" id="ai-quiz"></div>' +
+        '  <div class="ai-input">' +
+        '    <textarea id="ai-q" rows="2" maxlength="160" placeholder="问问这座城……（Enter 发问，Shift+Enter 换行）"></textarea>' +
+        '    <button id="ai-send" type="button">问</button>' +
+        '  </div>' +
+        '  <div class="ai-log" id="ai-log"></div>' +
+        '  <p class="ai-note">只回答有考据支撑的问题；说不清时会直接说“此处无考据支撑”。</p>' +
+        '</div>';
+      document.body.appendChild(wrap);
+      this.el = wrap;
+      this.log = wrap.querySelector('#ai-log');
+      this.q = wrap.querySelector('#ai-q');
+      this.mode = wrap.querySelector('#ai-mode');
+      wrap.querySelector('#ai-close').addEventListener('click', () => this.close());
+      wrap.querySelector('#ai-send').addEventListener('click', () => this.submit());
+      this.q.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.submit(); }
+        if (e.key === 'Escape') { e.preventDefault(); this.close(); }
+        e.stopPropagation();
+      });
+      wrap.addEventListener('mousedown', (e) => { if (e.target === wrap) this.close(); });
+      this.syncMode();
+    },
+    syncMode() {
+      if (!this.mode) return;
+      const on = !!keyOf();
+      this.mode.textContent = on ? ('已接入 AI' + (this.model ? ' · ' + this.model : '')) : '离线考据 · 无密钥';
+      this.mode.classList.toggle('online', on);
+    },
+    show() {
+      if (this.open) return;
+      this.init();
+      this.open = true;
+      G.overlayDepth++;
+      G.input.clearPressed();
+      this.el.classList.remove('hidden');
+      this.el.querySelector('#ai-place').textContent = '此刻在：' + placeLabel() + ' · ' + nearestPois(3).map((p) => p.name).join(' / ');
+      this.renderChips();
+      this.syncMode();
+      this.syncCount();
+      setTimeout(() => this.q.focus(), 30);
+      G.audio.sfx && G.audio.sfx('page');
+    },
+    close() {
+      if (!this.open) return;
+      this.open = false;
+      G.overlayDepth = Math.max(0, G.overlayDepth - 1);
+      G.input.clearPressed();
+      this.el.classList.add('hidden');
+    },
+    toggle() { if (this.open) this.close(); else this.show(); },
+    renderChips() {
+      const chips = (SUGGESTIONS[sceneId()] || SUGGESTIONS.beijing).slice(0, 3);
+      const box = this.el.querySelector('#ai-chips');
+      box.innerHTML = '';
+      for (const c of chips) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ai-chip';
+        b.textContent = c;
+        b.addEventListener('click', () => { this.q.value = c; this.submit(); });
+        box.appendChild(b);
+      }
+      const quiz = document.createElement('button');
+      quiz.type = 'button';
+      quiz.className = 'ai-chip ai-chip-quiz';
+      quiz.textContent = '考考我';
+      quiz.addEventListener('click', () => this.startQuiz());
+      box.appendChild(quiz);
+    },
+
+    /* ---------- 考据问答 ---------- */
+    async startQuiz() {
+      if (this.quizLive) return;
+      this.quizLive = true;
+      this.el.querySelector('.ai-input').classList.add('hidden');
+      this.el.querySelector('#ai-chips').classList.add('hidden');
+      this.addBubble('a', '好。我出一题，你选一个。不会就点「看答案」，我把出处摊开。');
+      let quiz = null;
+      if (keyOf()) {
+        try { quiz = await this.remoteQuiz(); } catch (e) { quiz = null; }
+      }
+      if (!quiz) {
+        quiz = this.offlineQuiz();
+        if (this.mode && keyOf()) { this.mode.textContent = 'AI 不可用 · 离线考据'; this.mode.classList.remove('online'); }
+      }
+      this.quiz = quiz;
+      this.renderQuiz(quiz);
+    },
+    async remoteQuiz() {
+      const cards = G.KB || [];
+      if (!cards.length) return null;
+      const card = cards[Math.floor(Math.random() * cards.length)];
+      const sys = '你是考据出题人。只依据给定考据卡，出 1 道 3 选 1 的单项选择题，考察卡里的具体事实（时间、地点、构件、出处）。' +
+        '严格输出 JSON，不要多余文字：{"q":"题干","options":["A","B","C"],"answer":0,"explain":"不超过 60 字的解释"}';
+      const user = '考据卡：' + card.title + '。' + card.text;
+      const key = keyOf();
+      const body = { messages: [{ role: 'system', content: sys }, { role: 'user', content: user }], temperature: 0.5, max_tokens: 260 };
+      for (const model of modelList()) {
+        try {
+          const ctl = new AbortController();
+          const timer = setTimeout(() => { try { ctl.abort(); } catch (e) { /* noop */ } }, 12000);
+          let res;
+          try {
+            res = await fetch(BASE + '/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
+              body: JSON.stringify(Object.assign({ model }, body)),
+              signal: ctl.signal,
+            });
+          } finally { clearTimeout(timer); }
+          if (!res.ok) continue;
+          const data = await res.json();
+          const raw = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '');
+          const m = raw.match(/\{[\s\S]*\}/);
+          if (!m) continue;
+          const q = JSON.parse(m[0]);
+          if (!q || typeof q.q !== 'string' || !Array.isArray(q.options) || q.options.length !== 3) continue;
+          const idx = Number(q.answer);
+          if (!(idx >= 0 && idx < 3)) continue;
+          const clean = (t) => String(t).replace(/^\s*[A-Ca-c][.、:：)）]\s*/, '').trim();
+          const opts = q.options.map(clean);
+          return { q: String(q.q), options: opts, answer: idx, explain: String(q.explain || ''), card, source: 'AI 出题 · ' + card.title };
+        } catch (e) { /* next model */ }
+      }
+      return null;
+    },
+    offlineQuiz() {
+      const bank = QUIZ_OFFLINE;
+      const pick = bank[Math.floor(Math.random() * bank.length)];
+      const card = (G.KB || []).find((k) => k.id === pick.card) || null;
+      return { q: pick.q, options: pick.options, answer: pick.answer, explain: pick.explain, card, source: '离线题 · ' + (card ? card.title : '') };
+    },
+    renderQuiz(quiz) {
+      const box = this.el.querySelector('#ai-quiz');
+      box.innerHTML = '';
+      box.classList.remove('hidden');
+      const qEl = document.createElement('p');
+      qEl.className = 'ai-quiz-q';
+      qEl.textContent = quiz.q;
+      box.appendChild(qEl);
+      const opts = document.createElement('div');
+      opts.className = 'ai-quiz-opts';
+      quiz.options.forEach((text, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ai-quiz-opt';
+        b.textContent = String.fromCharCode(65 + i) + ' · ' + text;
+        b.addEventListener('click', () => this.answerQuiz(i, false));
+        opts.appendChild(b);
+      });
+      box.appendChild(opts);
+      const hint = document.createElement('p');
+      hint.className = 'ai-quiz-hint';
+      hint.textContent = '不会就点「看答案」；选完会告诉你出处。';
+      box.appendChild(hint);
+      const acts = document.createElement('div');
+      acts.className = 'ai-quiz-acts';
+      const reveal = document.createElement('button');
+      reveal.type = 'button';
+      reveal.className = 'ai-quiz-btn';
+      reveal.textContent = '看答案';
+      reveal.addEventListener('click', () => this.answerQuiz(this.quiz.answer, true));
+      const again = document.createElement('button');
+      again.type = 'button';
+      again.className = 'ai-quiz-btn';
+      again.textContent = '再来一题';
+      again.addEventListener('click', () => this.nextQuiz());
+      const back = document.createElement('button');
+      back.type = 'button';
+      back.className = 'ai-quiz-btn ai-quiz-back';
+      back.textContent = '回到提问';
+      back.addEventListener('click', () => this.exitQuiz());
+      acts.append(reveal, again, back);
+      box.appendChild(acts);
+    },
+    answerQuiz(i, revealed) {
+      const quiz = this.quiz;
+      if (!quiz || quiz._done) return;
+      quiz._done = true;
+      const box = this.el.querySelector('#ai-quiz');
+      const opts = [...box.querySelectorAll('.ai-quiz-opt')];
+      const ok = i === quiz.answer;
+      opts.forEach((b, j) => {
+        b.disabled = true;
+        if (j === quiz.answer) b.classList.add('is-right');
+        if (j === i && !ok) b.classList.add('is-wrong');
+      });
+      const res = document.createElement('p');
+      res.className = 'ai-quiz-result ' + (ok ? 'ok' : 'bad');
+      res.textContent = (revealed ? '答案是：' : (ok ? '答对了。' : '答错了。')) + quiz.explain;
+      box.appendChild(res);
+      this.addNotice(quiz.source || '');
+      if (quiz.card) { this.addSources([quiz.card]); this.recordSources([quiz.card]); }
+    },
+    nextQuiz() {
+      const box = this.el.querySelector('#ai-quiz');
+      box.innerHTML = '';
+      this.quiz = null;
+      this.startQuiz();
+    },
+    exitQuiz() {
+      this.quizLive = false;
+      this.quiz = null;
+      const box = this.el.querySelector('#ai-quiz');
+      box.classList.add('hidden');
+      box.innerHTML = '';
+      this.el.querySelector('.ai-input').classList.remove('hidden');
+      this.el.querySelector('#ai-chips').classList.remove('hidden');
+      this.q.focus();
+    },
+    ask(text) { this.q.value = text; this.submit(); },
+    recordSources(cards) {
+      if (!cards || !cards.length || !G.save) return;
+      const d = G.save.data;
+      if (!Array.isArray(d.kbSeen)) d.kbSeen = [];
+      for (const k of cards) {
+        if (d.kbSeen.includes(k.id)) continue;
+        d.kbSeen.push(k.id);
+        G.save.persist();
+        G.ui && G.ui.toast('考据收录 · 《' + k.title + '》（' + d.kbSeen.length + '/' + (G.KB || []).length + '）', 'good', 2400);
+      }
+      this.syncCount();
+    },
+    syncCount() {
+      const el = this.el && this.el.querySelector('#ai-count');
+      if (!el) return;
+      const n = (G.save && Array.isArray(G.save.data.kbSeen)) ? G.save.data.kbSeen.length : 0;
+      el.textContent = '考据 ' + n + '/' + (G.KB || []).length;
+    },
+    async submit() {
+      const q = (this.q.value || '').trim();
+      if (!q || this.busy) return;
+      this.busy = true;
+      this.q.value = '';
+      this.addBubble('q', q);
+      const thinking = this.addBubble('a', '守境人正在翻考据卡……', true);
+      let result = null;
+      try {
+        result = await remoteAnswer(q);
+      } catch (e) {
+        const why = (e && (e.message === 'no-key' || e.message === 'auth-failed')) ? '未接入密钥，改用本地考据卡' : '服务未就绪，改用本地考据卡';
+        if (e && e.message === 'auth-failed') this.mode.textContent = '密钥无效 · 离线考据';
+        result = localAnswer(q);
+        result.notice = why;
+      }
+      if (result.model) { this.model = result.model; this.syncMode(); }
+      thinking.remove();
+      this.addBubble('a', result.answer);
+      if (result.notice) this.addNotice(result.notice);
+      if (result.sources && result.sources.length) { this.addSources(result.sources); this.recordSources(result.sources); }
+      if (result.refused && result.sources && result.sources.length) this.addNotice('已标注来源，可点开核对。');
+      this.busy = false;
+      this.log.scrollTop = this.log.scrollHeight;
+    },
+    addBubble(kind, text, thinking) {
+      const el = document.createElement('div');
+      el.className = 'ai-bubble ' + (kind === 'q' ? 'ai-bubble-q' : 'ai-bubble-a') + (thinking ? ' ai-thinking' : '');
+      el.innerHTML = '<span class="ai-who">' + (kind === 'q' ? '你' : '守境人') + '</span><p>' + esc(text) + '</p>';
+      this.log.appendChild(el);
+      this.log.scrollTop = this.log.scrollHeight;
+      return el;
+    },
+    addNotice(text) {
+      const el = document.createElement('p');
+      el.className = 'ai-notice';
+      el.textContent = text;
+      this.log.appendChild(el);
+    },
+    addSources(cards) {
+      const box = document.createElement('div');
+      box.className = 'ai-sources';
+      for (const k of cards) {
+        const det = document.createElement('details');
+        det.className = 'ai-source';
+        det.innerHTML = '<summary>考据 · ' + esc(k.title) + '</summary><p>' + esc(k.text) + '</p>' +
+          '<p class="ai-src-src">出处：' + esc(k.source) + '</p>' +
+          (k.url ? '<a href="' + esc(k.url) + '" target="_blank" rel="noopener">核对原文</a>' : '');
+        box.appendChild(det);
+      }
+      this.log.appendChild(box);
+    },
+  };
+})();
+
+</script>
 <script data-src="js/main.js">
 /* ============================================================
    紫禁城 · 铁火 — boot, title, scenes, UI glue
@@ -16018,6 +17024,10 @@ body.title-mode #stage{visibility:hidden}
      ============================================================ */
   G.onKeyDown = function (code) {
     if (G.audio.ctx) G.audio.resume();
+    if (G.ai && G.ai.open) {
+      if (code === 'Escape') G.ai.close();
+      return;
+    }
     if (G.confirmOpen) {
       if (code === 'Escape') G.closeConfirm(false);
       else if (code === 'Enter') G.closeConfirm(true);
@@ -16096,6 +17106,7 @@ body.title-mode #stage{visibility:hidden}
     if (code === 'KeyH') { G.toggleHome(); return; }
     if (code === 'Escape') { menu.show(); return; }
     if (code === 'KeyJ') { codex.show(); return; }
+    if (code === 'KeyT') { if (G.ai) G.ai.toggle(); return; }
     // E / movement handled by the world
   };
 
@@ -16128,11 +17139,16 @@ body.title-mode #stage{visibility:hidden}
     G.initTouch();
     codex.init();
     menu.init();
+    if (G.ai) G.ai.init();
 
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
+    const askBtn = $('#btn-ask');
+    if (askBtn && G.ai) askBtn.addEventListener('click', () => G.ai.toggle());
+    const menuAsk = $('#menu-ask');
+    if (menuAsk && G.ai) menuAsk.addEventListener('click', () => { menu.close(); G.ai.show(); });
     const menuArt = $('#menu-artdemo');
     if (menuArt) menuArt.addEventListener('click', () => { menu.close(); G.openArtDemo(); });
     const artClose = $('#artdemo-close');
@@ -16377,6 +17393,10 @@ body.title-mode #stage{visibility:hidden}
       } else if (G.minigame && G.minigame.active) {
         G.minigame.update(dt);
         G.minigame.draw(ctx);
+      } else if (G.sundial && G.sundial.active) {
+        // 日晷谜题直接画在主画布上，必须自己接管 update/draw，否则表针不动、也看不到盘面
+        G.sundial.update(dt);
+        G.sundial.draw(ctx);
       } else if (G.scene) {
         G.scene.update(dt);
         G.scene.draw(ctx);

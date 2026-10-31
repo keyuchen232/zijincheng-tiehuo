@@ -42,7 +42,7 @@
 
       /* ---------------- 午门 ---------------- */
       this.addEntity({
-        x: 750, y: 1512, baseY: 1080,
+        x: 750, y: 1512, baseY: 1512,
         draw: (c) => {
           A.drawGate(c, 750, 1512, 300, {
             wallH: 60, roofH: 30, double: true, arches: 3, name: '午门',
@@ -677,6 +677,7 @@
         { name: '老赵', text: '你是来看打铁花的吧？我姓赵，打了四十年铁。' },
         { name: '老赵', text: '铁水要烧到一千六百度。生铁、柳炭、柳木勺，一样不能少。' },
         { name: '老赵', text: '帮我把三样东西找来：珍宝馆前的生铁、御花园的柳炭、箭亭的柳木勺。' },
+        { name: '老赵', text: '铁花这东西，烧到几成、打得多高，都有讲究。不放心就按 T 问守境人。' },
         { name: '旅行手账', text: '好。等材料齐了，就能看一场真正的打铁花。' },
       ];
     }
@@ -889,16 +890,17 @@
 
       // central imperial way, with stone borders and a carved median
       A.paving(c, 668, 108, 164, 1420, '#cdbf9f', '#bfb090', 7, 18);
-      c.fillStyle = 'rgba(116,96,65,.45)';
-      c.fillRect(668, 108, 2, 1420);
-      c.fillRect(830, 108, 2, 1420);
-      c.fillStyle = 'rgba(238,223,190,.38)';
-      c.fillRect(671, 108, 1, 1420);
-      c.fillRect(828, 108, 1, 1420);
+      // 石界：线条放轻，只留下浅浅一道，不抢砖面
+      c.fillStyle = 'rgba(116,96,65,.16)';
+      c.fillRect(668, 108, 1, 1420);
+      c.fillRect(831, 108, 1, 1420);
+      c.fillStyle = 'rgba(238,223,190,.12)';
+      c.fillRect(670, 108, 1, 1420);
+      c.fillRect(829, 108, 1, 1420);
       // carved imperial slab
       c.fillStyle = '#d9caab';
       c.fillRect(736, 108, 28, 1420);
-      c.fillStyle = 'rgba(151,126,82,.45)';
+      c.fillStyle = 'rgba(151,126,82,.18)';
       c.fillRect(736, 108, 1, 1420);
       c.fillRect(763, 108, 1, 1420);
       for (let y = 170; y < 1460; y += 82) {
@@ -923,7 +925,7 @@
       A.paving(c, 166, 388, 1168, 40, '#c7b998', '#b8a988', 10, 18);
       A.paving(c, 166, 228, 1168, 76, '#b9ab8c', '#aa9a7b', 11, 18);
       for (const [y, h] of [[1028, 60], [598, 48], [388, 40], [228, 76]]) {
-        c.fillStyle = 'rgba(112,92,64,.22)';
+        c.fillStyle = 'rgba(112,92,64,.1)';
         c.fillRect(166, y, 1168, 1);
         c.fillRect(166, y + h - 1, 1168, 1);
       }

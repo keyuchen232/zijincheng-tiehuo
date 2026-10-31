@@ -24,7 +24,7 @@
       super({
         id: 'fusion', w: 1440, h: 1600, spawn: { x: 720, y: 1040 },
         clock: '∞', dateLabel: '融合参数不稳定', ambient: 'palace',
-        lookAhead: 105, gradeStrength: 0.6,
+        lookAhead: 105, gradeStrength: 0.22,
       });
       this.title = '万象灵境 · 雅典—故宫';
       this.mapOpen = false;
@@ -49,6 +49,8 @@
       }
       G.ui.location('万象灵境', '雅典—故宫 · 投影错位');
       G.ui.setHomeButton(false);
+      const stage = document.querySelector('#stage');
+      if (stage) stage.classList.add('diorama');
       this.clock = '∞';
       this.dateLabel = this.state.repaired ? '来源标签已校准' : '投影标签错乱';
       this.updateHud();
@@ -70,6 +72,8 @@
     exit() {
       clearTimeout(this.introTimer);
       G.ui.prompt(null);
+      const stage = document.querySelector('#stage');
+      if (stage) stage.classList.remove('diorama');
     }
 
     introLines() {
@@ -78,6 +82,7 @@
         { name: '狄奥提玛', text: '那是帕特农的投影，可系统坚持说它是“故宫原生装饰”。西侧宫墙前还浮着女像柱，标签却写着“未知”。' },
         { name: '狄奥提玛', text: '两处档案散落在宫里：太和殿东庑的故宫档案，西侧帕特农投影区的卫城档案。' },
         { name: '狄奥提玛', text: '先把它们找回来。我们要校准的是来源说明，不是拆掉故宫。' },
+        { name: '旅行手账', text: '（按 T 可以打开考据台——我说的每一条，都能摊开出处给你看。）' },
         { name: '旅行手账', text: '（太和殿月台上，一层半透明的希腊山墙压在金瓦上，像一张贴错位置的描图纸。）' },
       ];
     }
@@ -150,8 +155,9 @@
       this.solid(20, 1258, 630, 48);
       this.solid(790, 1258, 630, 48);
       this.solid(560, 1560, 320, 40);
-      // hybrid palace / side wings
-      this.solid(432, 825, 576, 125);
+      // hybrid palace / side wings（中轴处留出门洞，可以直接穿行）
+      this.solid(432, 825, 254, 125);
+      this.solid(754, 825, 254, 125);
       // west clock tower
       this.solid(278, 1132, 105, 98);
       // east observatory
@@ -332,81 +338,56 @@
       c.fillStyle = '#17120e';
       c.fillRect(0, 0, this.w, this.h);
 
-      // base paving: warm Beijing stone plus a colder London edge
-      A.paving(c, 20, 20, 1400, 1560, '#c9bfa3', '#b4a98d', 21, 12);
-      c.save();
-      c.globalAlpha = 0.12;
-      c.fillStyle = '#69706d';
-      c.fillRect(20, 20, 1400, 220);
-      c.fillStyle = '#8d3a2b';
-      c.fillRect(20, 1240, 1400, 40);
-      c.restore();
+      // 统一的石面：只保留大块铺装，不再叠加装饰线
+      A.paving(c, 20, 20, 1400, 1560, '#c9bfa3', '#b4a98d', 21, 14);
 
-      // formal lawns (left = English parterre, right = Chinese garden)
+      // 两侧草坪：西边英式花坛，东边中式园地
       this.lawn(c, 82, 600, 342, 550, 2);
       this.lawn(c, 1016, 600, 342, 550, 5);
 
-      // central marble axis
-      A.paving(c, 646, 300, 148, 1260, '#ddd3bb', '#c7bca2', 9, 10);
-      c.fillStyle = 'rgba(139,106,47,.45)';
-      c.fillRect(650, 300, 1, 1260);
-      c.fillRect(789, 300, 1, 1260);
-      for (let y = 380; y < 1510; y += 124) {
-        c.save();
-        c.translate(720, y);
-        c.strokeStyle = 'rgba(139,106,47,.28)';
-        c.strokeRect(-11, -11, 22, 22);
-        c.beginPath(); c.arc(0, 0, 7, 0, G.TAU); c.stroke();
-        c.restore();
-      }
-
-      // cross axis in front of the palace
-      A.paving(c, 300, 1070, 840, 90, '#d8ceb6', '#c3b79b', 13, 10);
-
-      // palace forecourt: hybrid checker / red carpet line
-      A.paving(c, 416, 950, 608, 120, '#d4c9af', '#beb397', 31, 10);
+      // 中轴御道：一条干净的浅色石带
+      A.paving(c, 646, 300, 148, 1260, '#ddd3bb', '#c7bca2', 9, 12);
+      // 一条很淡的红毯中线，收住视线
       c.save();
-      c.globalAlpha = 0.2;
+      c.globalAlpha = 0.14;
+      c.fillStyle = '#8d3a2b';
+      c.fillRect(712, 300, 16, 1260);
+      c.restore();
+
+      // 宫前横道
+      A.paving(c, 300, 1070, 840, 90, '#d8ceb6', '#c3b79b', 13, 12);
+
+      // 宫前广场：只留一条迎驾的淡红条带
+      A.paving(c, 416, 950, 608, 120, '#d4c9af', '#beb397', 31, 12);
+      c.save();
+      c.globalAlpha = 0.1;
       c.fillStyle = '#8d3a2b';
       c.fillRect(646, 950, 148, 120);
       c.restore();
 
-      // terminal circular plaza
+      // 终端圆台：一圈石沿，别的不画
       c.save();
-      c.beginPath(); c.arc(720, 560, 184, 0, G.TAU);
-      c.fillStyle = '#d8ceb6'; c.fill();
-      c.strokeStyle = '#b5a98e'; c.lineWidth = 2; c.stroke();
-      c.beginPath(); c.arc(720, 560, 150, 0, G.TAU);
-      c.strokeStyle = 'rgba(199,156,84,.65)'; c.lineWidth = 2; c.stroke();
-      c.beginPath(); c.arc(720, 560, 108, 0, G.TAU);
-      c.strokeStyle = 'rgba(63,127,134,.38)'; c.lineWidth = 1; c.stroke();
-      for (let i = 0; i < 16; i++) {
-        const a = i * G.TAU / 16;
-        c.beginPath();
-        c.moveTo(720 + Math.cos(a) * 112, 560 + Math.sin(a) * 112);
-        c.lineTo(720 + Math.cos(a) * 146, 560 + Math.sin(a) * 146);
-        c.strokeStyle = i % 4 ? 'rgba(139,106,47,.2)' : 'rgba(63,127,134,.28)';
-        c.stroke();
-      }
+      c.beginPath(); c.arc(720, 560, 178, 0, G.TAU);
+      c.fillStyle = '#d8ceb6';
+      c.fill();
+      c.strokeStyle = 'rgba(181,169,142,.7)';
+      c.lineWidth = 2;
+      c.stroke();
       c.restore();
 
-      // north garden
+      // 北园
       this.lawn(c, 430, 220, 580, 190, 8);
-      A.paving(c, 646, 220, 148, 120, '#d0c5aa', '#bbb095', 4, 9);
+      A.paving(c, 646, 220, 148, 120, '#d0c5aa', '#bbb095', 4, 10);
 
-      // canal bed and banks
+      // 运河河床（两侧留干净的石岸）
       c.fillStyle = '#1d3030';
       c.fillRect(20, 1258, 1400, 48);
       c.fillStyle = '#8fbfb0';
       c.fillRect(20, 1256, 1400, 2);
       c.fillStyle = '#a99d83';
       c.fillRect(20, 1304, 1400, 3);
-      for (let x = 24; x < 1420; x += 9) {
-        c.fillStyle = 'rgba(230,221,198,.4)';
-        c.fillRect(x, 1253, 5, 2);
-      }
 
-      // lawn borders / clipped hedges
+      // 修剪整齐的树篱
       c.fillStyle = '#3e5036';
       c.fillRect(76, 594, 354, 8);
       c.fillRect(1010, 594, 354, 8);
@@ -416,76 +397,65 @@
       c.fillRect(422, 594, 8, 560);
       c.fillRect(1010, 594, 8, 560);
       c.fillRect(1356, 594, 8, 560);
-      for (let x = 92; x < 416; x += 28) {
-        c.fillStyle = 'rgba(30,44,25,.22)';
-        c.fillRect(x, 598, 11, 6);
-      }
 
-      // gravel paths through the parterres
-      A.paving(c, 118, 760, 270, 28, '#d2c6a9', '#bdb08f', 18, 8);
-      A.paving(c, 118, 900, 270, 24, '#d2c6a9', '#bdb08f', 22, 8);
-      A.paving(c, 1060, 760, 250, 24, '#d2c6a9', '#bdb08f', 26, 8);
-      A.paving(c, 1060, 900, 250, 28, '#d2c6a9', '#bdb08f', 14, 8);
-
-      // flower beds
+      // 两处花坛（从四处减到两处）
       for (const [fx, fy, fw, fh, col] of [
-        [150, 820, 34, 16, '#a44538'], [350, 950, 28, 14, '#d7c08b'],
-        [1080, 820, 30, 14, '#a44538'], [1230, 950, 36, 16, '#d7c08b'],
+        [150, 820, 34, 16, '#a44538'], [1080, 820, 30, 14, '#d7c08b'],
       ]) {
         c.fillStyle = '#6d7e4c'; c.fillRect(fx, fy, fw, fh);
         c.fillStyle = col;
-        for (let i = 0; i < fw; i += 5) c.fillRect(fx + i + 1, fy + 3 + (i % 3), 2, 2);
+        for (let i = 0; i < fw; i += 6) c.fillRect(fx + i + 1, fy + 4, 2, 2);
       }
-
-      // inlaid brass stars at the terminal
-      c.save();
-      c.translate(720, 560);
-      c.strokeStyle = 'rgba(199,156,84,.5)'; c.lineWidth = 1;
-      c.beginPath();
-      for (let i = 0; i < 8; i++) {
-        const a = i * G.TAU / 8 - Math.PI / 2;
-        const rr = i % 2 ? 34 : 78;
-        const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
-        if (i === 0) c.moveTo(x, y); else c.lineTo(x, y);
-      }
-      c.closePath(); c.stroke();
-      c.restore();
     }
 
     lawn(c, x, y, w, h, seed) {
-      c.fillStyle = '#62784d'; c.fillRect(x, y, w, h);
+      c.fillStyle = '#62784d';
+      c.fillRect(x, y, w, h);
+      // 极轻的草坪纹理：不画路径，不画几何图案
       c.save();
-      c.globalAlpha = 0.18;
-      for (let yy = y + 4; yy < y + h; yy += 7) {
-        c.fillStyle = ((yy / 7) | 0) % 2 ? '#526a43' : '#71885a';
-        c.fillRect(x, yy, w, 2);
+      c.globalAlpha = 0.1;
+      for (let yy = y + 5; yy < y + h; yy += 9) {
+        c.fillStyle = ((yy / 9) | 0) % 2 ? '#526a43' : '#71885a';
+        c.fillRect(x, yy, w, 1);
       }
       c.restore();
-      // geometric gravel ribbons
-      c.save();
-      c.globalAlpha = 0.65;
-      c.strokeStyle = '#c9bd9f'; c.lineWidth = 5;
-      c.beginPath();
-      c.moveTo(x + 24, y + h - 30);
-      c.lineTo(x + w / 2, y + 42);
-      c.lineTo(x + w - 24, y + h - 30);
-      c.stroke();
-      c.lineWidth = 2;
-      c.beginPath();
-      c.moveTo(x + 24, y + 70);
-      c.lineTo(x + w - 24, y + h - 50);
-      c.stroke();
-      c.restore();
-      // scattered flowers
-      for (let i = 0; i < 34; i++) {
-        const fx = x + 10 + G.hash(i, seed, 5) * (w - 20);
-        const fy = y + 10 + G.hash(i, seed, 9) * (h - 20);
-        c.fillStyle = G.hash(i, seed, 2) < .5 ? 'rgba(232,208,163,.4)' : 'rgba(165,69,56,.38)';
-        c.fillRect(fx, fy, 1, 1);
-      }
     }
 
     drawGroundExtras(ctx) {
+      // 建筑投在地面的长影（统一往左下甩，配合斜视读成立体）
+      const castShadow = (cx0, w0, baseY, len) => {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = '#141008';
+        ctx.beginPath();
+        ctx.moveTo(cx0 - w0 / 2, baseY);
+        ctx.lineTo(cx0 + w0 / 2, baseY);
+        ctx.lineTo(cx0 + w0 / 2 - len * 0.55, baseY + len);
+        ctx.lineTo(cx0 - w0 / 2 - len * 0.75, baseY + len);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      };
+      castShadow(720, 620, 950, 34);
+      castShadow(330, 150, 1230, 20);
+      castShadow(1110, 150, 1110, 20);
+      castShadow(720, 210, 370, 18);
+      // 殿中门洞的地面进深：门里暗、门外亮，穿过时像是走进一条门廊
+      ctx.save();
+      const dg = ctx.createLinearGradient(0, 950, 0, 826);
+      dg.addColorStop(0, 'rgba(40,28,18,0.04)');
+      dg.addColorStop(0.55, 'rgba(36,25,16,0.30)');
+      dg.addColorStop(1, 'rgba(30,20,12,0.55)');
+      ctx.fillStyle = dg;
+      ctx.fillRect(686, 826, 68, 124);
+      // 门内两侧的石壁
+      ctx.fillStyle = 'rgba(58,42,28,0.35)';
+      ctx.fillRect(686, 826, 3, 124);
+      ctx.fillRect(751, 826, 3, 124);
+      // 北面出口透进来的一线亮
+      ctx.fillStyle = 'rgba(255,238,196,0.35)';
+      ctx.fillRect(692, 826, 56, 2);
+      ctx.restore();
       // canal
       A.water(ctx, 20, 1262, 1400, 40, this.time, 7);
       ctx.save();
@@ -498,19 +468,38 @@
       ctx.restore();
       // bridge
       A.bridge(ctx, 720, 1285, 140, {});
-      // mist line on the water
-      ctx.save();
-      const mg = ctx.createLinearGradient(0, 1256, 0, 1312);
-      mg.addColorStop(0, 'rgba(186,220,213,0)');
-      mg.addColorStop(.48, 'rgba(186,220,213,.18)');
-      mg.addColorStop(1, 'rgba(186,220,213,0)');
-      ctx.fillStyle = mg;
-      ctx.fillRect(20, 1254, 1400, 62);
-      ctx.restore();
     }
 
     drawForeground(ctx) {
       this.drawGlitch(ctx);
+      this.drawLabels(ctx);
+    }
+
+    /* 建筑名：按世界坐标画在建筑之上，靠近才显示，避免整屏字幕 */
+    drawLabels(ctx) {
+      const near = (wx, wy, r) => {
+        const p = this.player;
+        return Math.hypot(p.x - wx, p.y - wy) < (r || 220);
+      };
+      const label = (wx, wy, text, opt) => {
+        if (!near(wx, wy, opt && opt.r)) return;
+        G.text(ctx, text, wx, wy, {
+          size: (opt && opt.size) || 7, color: (opt && opt.color) || '#3d2d1c',
+          align: 'center', outline: 'rgba(244,236,216,.9)', outlineWidth: 2.8,
+        });
+      };
+      label(720, 800, '太和殿', { size: 8 });
+      if (this.state.repaired) {
+        label(515, 928, '西庑');
+        label(925, 928, '东庑');
+      } else {
+        label(330, 1092, '卫城参照投影', { color: '#4f5f5c' });
+      }
+      label(1110, 1026, '故宫档案');
+      label(720, 462, '来源校准台', { size: 8 });
+      label(720, 286, '创作终端', { size: 8, color: this.state.repaired ? '#5a3c1e' : '#5d5346' });
+      label(720, 1512, '午门', { size: 8 });
+      label(720, 1244, '流光桥');
     }
 
     /* ============================================================
@@ -527,6 +516,56 @@
       for (let i = 0; i < 5; i++) {
         r(c, x - 46 + i * 3, base + i * 2, 92 - i * 6, 2, i % 2 ? STONE : STONE_D);
       }
+      // 中央门洞：一扇能看见的宫门，中轴从这里穿过去
+      r(c, x - 34, base - 84, 68, 84, '#2a1d13');
+      r(c, x - 30, base - 80, 60, 80, '#3a2a1a');
+      // 门楣与门框
+      r(c, x - 34, base - 86, 68, 5, '#8a6a3f');
+      r(c, x - 34, base - 81, 3, 81, '#5e4426');
+      r(c, x + 31, base - 81, 3, 81, '#5e4426');
+      // 门内：一进到底的暗，让人一眼看出“门是开着的”
+      r(c, x - 28, base - 78, 56, 78, '#150e08');
+      c.save();
+      const ig = c.createLinearGradient(0, base - 78, 0, base);
+      ig.addColorStop(0, 'rgba(60,42,26,.75)');
+      ig.addColorStop(.7, 'rgba(22,14,9,.95)');
+      ig.addColorStop(1, 'rgba(12,8,5,1)');
+      c.fillStyle = ig;
+      c.fillRect(x - 27, base - 77, 54, 77);
+      c.restore();
+      // 两扇门向两侧敞开（透视梯形），门钉朝外
+      for (const side of [-1, 1]) {
+        const ox = x + side * 14;      // 门轴在里侧
+        const px = x + side * 46;      // 门扇外缘
+        c.fillStyle = '#5d3a22';
+        c.beginPath();
+        c.moveTo(ox, base - 78);
+        c.lineTo(px, base - 66);
+        c.lineTo(px, base - 10);
+        c.lineTo(ox, base - 2);
+        c.closePath();
+        c.fill();
+        c.fillStyle = 'rgba(0,0,0,.25)';
+        c.beginPath();
+        c.moveTo(ox, base - 78);
+        c.lineTo(ox + side * 8, base - 72);
+        c.lineTo(ox + side * 8, base - 6);
+        c.lineTo(ox, base - 2);
+        c.closePath();
+        c.fill();
+        c.fillStyle = '#a67c39';
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 4; j++) {
+            c.fillRect(ox + side * (8 + i * 9), base - 66 + j * 15, 2, 2);
+          }
+        }
+      }
+      // 门槛与门内的一线亮
+      r(c, x - 30, base - 3, 60, 3, '#7d5f3a');
+      c.save();
+      c.globalAlpha = 0.35;
+      r(c, x - 28, base - 70, 56, 1, '#c9a566');
+      c.restore();
 
       if (this.state.repaired) {
         // the projection lifts: the real Chinese side halls are revealed underneath
@@ -655,7 +694,6 @@
         A.lantern(c, lx, base - 58, { h: 27, color: '#b23d2b' });
       }
       // gold sun motif above the roof ridge
-      A.glow(c, x, base - 150, 28, 'rgba(255,203,111,.24)', .4);
       c.strokeStyle = 'rgba(240,205,132,.7)'; c.lineWidth = 1;
       c.beginPath(); c.arc(x, base - 150, 11, 0, G.TAU); c.stroke();
       for (let i = 0; i < 8; i++) {
@@ -680,7 +718,6 @@
         r(c, sx - 20, base - 24, 40, 2, '#d8b26a');
         for (let i = 0; i < 3; i++) r(c, sx - 15 + i * 9, base - 20, 5, 6, '#6b241b');
         // warm window light
-        A.glow(c, wx, base - 24, 40, 'rgba(255,201,120,.1)', .35);
       }
     }
 
@@ -819,13 +856,11 @@
         r(c, sx - 9, base - 46, 18, 14, 'rgba(196,226,216,.15)');
         r(c, sx - 8, base - 45, 16, 1, 'rgba(225,242,232,.5)');
         if (this.state[key]) {
-          A.glow(c, sx, base - 39, 28, col === '#c79c54' ? 'rgba(240,196,106,.28)' : 'rgba(110,190,183,.28)', .5);
           G.text(c, key === 'cn' ? '故宫' : '卫城', sx, base - 51, { size: 6, color: '#f0d9ae', align: 'center' });
         }
       }
       // central brass gyroscope
       const cy = base - 92;
-      A.glow(c, x, cy, ready ? 86 : 46, repaired ? 'rgba(255,211,126,.3)' : (ready ? 'rgba(106,196,185,.22)' : 'rgba(130,180,180,.1)'), .5);
       c.save();
       c.translate(x, cy);
       for (let i = 0; i < 3; i++) {
@@ -853,19 +888,6 @@
       r(c, x - 5, cy + 64, 10, 5, BRASS_D);
       r(c, x - 19, base - 56, 38, 9, '#2c2117');
       G.text(c, repaired ? '来源已校准' : (ready ? '等待校准' : '来源校准台'), x, base - 49, { size: 7, color: repaired ? '#f5d692' : '#e4d4b3', align: 'center' });
-      // floating rings of light when ready
-      if (ready) {
-        c.save();
-        c.globalAlpha = .35 + Math.sin(this.time * 2) * .1;
-        c.strokeStyle = repaired ? '#f0cf86' : '#7ac3b7';
-        c.lineWidth = 1;
-        for (let i = 0; i < 2; i++) {
-          c.beginPath();
-          c.ellipse(x, cy + 4, 58 + i * 14, 16 + i * 6, this.time * .2 + i, 0, G.TAU);
-          c.stroke();
-        }
-        c.restore();
-      }
     }
 
     drawPortal(c) {
@@ -891,11 +913,7 @@
       c.closePath();
       c.fillStyle = '#413528'; c.fill();
       c.strokeStyle = BRASS; c.lineWidth = 2; c.stroke();
-      const pg = c.createRadialGradient(x, base - 84, 8, x, base - 84, 80);
-      pg.addColorStop(0, active ? 'rgba(255,241,194,.9)' : 'rgba(86,140,134,.24)');
-      pg.addColorStop(.5, active ? 'rgba(222,176,94,.35)' : 'rgba(67,111,108,.16)');
-      pg.addColorStop(1, 'rgba(20,27,25,0)');
-      c.fillStyle = pg;
+      c.fillStyle = active ? 'rgba(255,241,194,.5)' : 'rgba(86,140,134,.18)';
       c.beginPath(); c.arc(x, base - 84, 78, 0, G.TAU); c.fill();
       c.restore();
       // western pediment above the moon gate
@@ -915,7 +933,6 @@
       c.closePath(); c.fill();
       c.restore();
       // gold sun in the pediment
-      A.glow(c, x, base - 226, 20, 'rgba(255,205,118,.18)', .4);
       c.strokeStyle = BRASS; c.lineWidth = 1;
       c.beginPath(); c.arc(x, base - 226, 10, 0, G.TAU); c.stroke();
       // plaque
@@ -924,7 +941,6 @@
       G.text(c, '创作终端', x, base - 193, { size: 7, color: active ? '#f5d692' : '#a9997e', align: 'center' });
       // approach path glow
       if (active) {
-        A.glow(c, x, base - 76, 70, 'rgba(240,196,106,.16)', .35);
       }
     }
 
@@ -966,7 +982,6 @@
         c.stroke();
       }
       c.restore();
-      A.glow(c, x, base - 82, 28, 'rgba(186,229,221,.14)', .4);
     }
 
     drawRedWall(c, x, base) {
@@ -1049,7 +1064,6 @@
       r(c, x - 7 * s, base - 56 * s, 14 * s, 8 * s, '#b89755');
       r(c, x - 5 * s, base - 55 * s, 10 * s, 6 * s, 'rgba(255,221,143,.7)');
       r(c, x - 2 * s, base - 60 * s, 4 * s, 2, '#e8ca85');
-      A.glow(c, x, base - 54 * s, 24 * s, 'rgba(255,196,103,.2)', .4);
     }
 
     drawHedge(c, x, base, w, h) {
@@ -1115,121 +1129,42 @@
     }
 
     drawScreen(ctx) {
-      // drifting mist from the canal
-      const mistY = 1262 - this.cam.y;
-      ctx.save();
-      const mg = ctx.createLinearGradient(0, mistY - 50, 0, mistY + 80);
-      mg.addColorStop(0, 'rgba(186,218,211,0)');
-      mg.addColorStop(.5, this.state.repaired ? 'rgba(240,209,141,.06)' : 'rgba(186,218,211,.12)');
-      mg.addColorStop(1, 'rgba(186,218,211,0)');
-      ctx.fillStyle = mg;
-      ctx.fillRect(0, mistY - 50, G.W, 130);
-      ctx.restore();
-
-      // cross-cultural light: cool while unstable, warm once the labels are calibrated
-      ctx.save();
-      ctx.globalCompositeOperation = 'soft-light';
-      const wg = ctx.createLinearGradient(0, 0, G.W, G.H);
-      if (this.state.repaired) {
-        wg.addColorStop(0, 'rgba(255,214,143,.12)');
-        wg.addColorStop(.6, 'rgba(255,190,102,.05)');
-        wg.addColorStop(1, 'rgba(155,58,43,.06)');
-      } else {
-        wg.addColorStop(0, 'rgba(92,151,169,.16)');
-        wg.addColorStop(.55, 'rgba(240,197,115,.06)');
-        wg.addColorStop(1, 'rgba(155,58,43,.1)');
-      }
-      ctx.fillStyle = wg;
-      ctx.fillRect(0, 0, G.W, G.H);
-      ctx.restore();
-
-      // a visible calibration pulse at the nexus / plaza
+      // 校准完成后的那一下涟漪保留（是操作反馈，不是常驻光效）
       if (this.state.repaired) {
         const age = this.time - this.repairAge;
-        if (age < 3.2) {
+        if (age < 2.4) {
           const cx = 720 - this.cam.x;
           const cy = 560 - this.cam.y;
           ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.globalAlpha = Math.max(0, 0.45 - age * 0.13);
-          ctx.strokeStyle = '#f5d295';
+          ctx.globalAlpha = Math.max(0, 0.32 - age * 0.14);
+          ctx.strokeStyle = '#e8c98f';
           ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(cx, cy, 30 + age * 150, 0, G.TAU); ctx.stroke();
-          ctx.beginPath(); ctx.arc(cx, cy, 16 + age * 110, 0, G.TAU); ctx.stroke();
+          ctx.beginPath(); ctx.arc(cx, cy, 24 + age * 120, 0, G.TAU); ctx.stroke();
           ctx.restore();
         }
-        // long warm light shafts from the terminal
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = 0.05;
-        ctx.fillStyle = '#ffd99a';
-        ctx.beginPath();
-        ctx.moveTo(720 - this.cam.x, 560 - this.cam.y);
-        ctx.lineTo(-80, G.H);
-        ctx.lineTo(190, G.H);
-        ctx.closePath(); ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(720 - this.cam.x, 560 - this.cam.y);
-        ctx.lineTo(G.W - 190, G.H);
-        ctx.lineTo(G.W + 80, G.H);
-        ctx.closePath(); ctx.fill();
-        ctx.restore();
       }
 
-      // unstable scanline ripples
-      if (!this.state.repaired) {
-        ctx.save();
-        ctx.globalAlpha = .12;
-        for (let i = 0; i < 4; i++) {
-          const y = (this.time * 26 + i * 71) % G.H;
-          ctx.fillStyle = i % 2 ? '#8cd2c4' : '#e7b96d';
-          ctx.fillRect(0, y, G.W, 1);
-        }
-        ctx.restore();
-      }
-
-      // repair flash
+      // 校准瞬间的闪白也保留，但更轻
       if (this.flash > 0.01) {
         ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.fillStyle = 'rgba(255,225,164,' + (this.flash * .22) + ')';
+        ctx.globalAlpha = this.flash * 0.12;
+        ctx.fillStyle = '#ffe1a4';
         ctx.fillRect(0, 0, G.W, G.H);
         ctx.restore();
       }
 
-      // vignette
-      const vg = ctx.createRadialGradient(320, 170, 150, 320, 180, 390);
+      // 轻微暗角，只负责收边
+      const vg = ctx.createRadialGradient(320, 170, 170, 320, 180, 400);
       vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, 'rgba(8,6,4,.34)');
+      vg.addColorStop(1, 'rgba(8,6,4,.22)');
       ctx.fillStyle = vg;
       ctx.fillRect(0, 0, G.W, G.H);
     }
 
     updateAmbient(dt) {
       this.flash = Math.max(0, this.flash - dt * 1.4);
-      if (Math.random() < dt * 2.4) {
-        const x = this.cam.x + G.rand(0, G.W);
-        const y = this.cam.y + G.rand(0, G.H);
-        G.fx.add({
-          x, y, vx: G.rand(-3, 5), vy: G.rand(-9, -2),
-          life: G.rand(1.8, 3.6), size: 1,
-          color: this.state.repaired ? 'rgba(248,214,151,.45)' : 'rgba(167,218,207,.38)',
-          grav: -1, glow: false,
-        });
-      }
-      if (!this.state.repaired && Math.random() < dt * 1.1) {
-        const p = G.pick([[560, 760], [940, 700], [1030, 960], [390, 930]]);
-        G.fx.add({
-          x: p[0] + G.rand(-20, 20), y: p[1] + G.rand(-20, 20),
-          vx: G.rand(-8, 8), vy: G.rand(-16, -4),
-          life: G.rand(.3, .8), size: 1, color: 'rgba(119,207,197,.45)', glow: true,
-        });
-      }
     }
 
-    /* ============================================================
-       interactions
-       ============================================================ */
     takeArchive(kind) {
       if (G.dialog.active || G.difficulty.active) return;
       if (G.archiveGame && G.archiveGame.active) return;

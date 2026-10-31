@@ -737,6 +737,10 @@
      ============================================================ */
   G.onKeyDown = function (code) {
     if (G.audio.ctx) G.audio.resume();
+    if (G.ai && G.ai.open) {
+      if (code === 'Escape') G.ai.close();
+      return;
+    }
     if (G.confirmOpen) {
       if (code === 'Escape') G.closeConfirm(false);
       else if (code === 'Enter') G.closeConfirm(true);
@@ -815,6 +819,7 @@
     if (code === 'KeyH') { G.toggleHome(); return; }
     if (code === 'Escape') { menu.show(); return; }
     if (code === 'KeyJ') { codex.show(); return; }
+    if (code === 'KeyT') { if (G.ai) G.ai.toggle(); return; }
     // E / movement handled by the world
   };
 
@@ -847,11 +852,16 @@
     G.initTouch();
     codex.init();
     menu.init();
+    if (G.ai) G.ai.init();
 
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
+    const askBtn = $('#btn-ask');
+    if (askBtn && G.ai) askBtn.addEventListener('click', () => G.ai.toggle());
+    const menuAsk = $('#menu-ask');
+    if (menuAsk && G.ai) menuAsk.addEventListener('click', () => { menu.close(); G.ai.show(); });
     const menuArt = $('#menu-artdemo');
     if (menuArt) menuArt.addEventListener('click', () => { menu.close(); G.openArtDemo(); });
     const artClose = $('#artdemo-close');
@@ -1096,6 +1106,10 @@
       } else if (G.minigame && G.minigame.active) {
         G.minigame.update(dt);
         G.minigame.draw(ctx);
+      } else if (G.sundial && G.sundial.active) {
+        // 日晷谜题直接画在主画布上，必须自己接管 update/draw，否则表针不动、也看不到盘面
+        G.sundial.update(dt);
+        G.sundial.draw(ctx);
       } else if (G.scene) {
         G.scene.update(dt);
         G.scene.draw(ctx);
