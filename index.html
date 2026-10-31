@@ -318,6 +318,8 @@
 <script src="js/art.js"></script>
 <script src="js/art-greek.js"></script>
 <script src="js/world.js"></script>
+
+<!-- ═══ 旧线（打铁花 / 雅典，逐步归档）═══ -->
 <script src="js/beijing.js"></script>
 <script src="js/gugong.js"></script>
 <script src="js/entry.js"></script>
@@ -332,6 +334,37 @@
 <script src="js/acropolis.js"></script>
 <script src="js/puzzle.js"></script>
 <script src="js/portraits.js"></script>
+<script src="js/str.js"></script>
+<script src="js/mod.js"></script>
+<script src="js/stage.js"></script>
+<script src="js/cut.js"></script>
 <script src="js/main.js"></script>
+
+<!-- ══════════════════════════════════════════════════════════
+     模块化接线区 —— 仓库里唯一需要「手工接线」的地方就是这一段。
+
+     为什么放在文件最末尾：index.html 是与 upstream/main 唯一有
+     交集的入口文件，把新增内容全部压在 </body> 前，合并时冲突
+     面最小（对方新增的脚本也只有末尾一行）。
+
+     · 地基（四个人都不改，只调 API）：js/str.js / js/mod.js /
+       js/stage.js / js/cut.js
+     · A 美术/关卡：js/art/*.js + data/maps/*.js
+     · C 玩法/交互/过场：js/mods/*.js + data/cuts/*.js
+     · 最后一行 js/boot.js 负责启动 G.mod.boot()
+     契约见 docs/模块接口.md
+     ══════════════════════════════════════════════════════════ -->
+<link rel="stylesheet" href="css/cut.css">
+<!-- A · 美术/关卡 -->
+<script src="js/art/wumen.js"></script>
+<script src="data/maps/wumen.js"></script>
+<!-- C · 玩法/交互/过场 -->
+<script src="js/mods/wumen-registration.js"></script>
+<script src="js/mods/taihe-keep.js"></script>
+<script src="js/mods/repair-relic.js"></script>
+<script src="data/cuts/opening.js"></script>
+<script src="data/cuts/wumen-intro.js"></script>
+<!-- 启动：必须排在所有模块脚本之后 -->
+<script src="js/boot.js"></script>
 </body>
 </html>
