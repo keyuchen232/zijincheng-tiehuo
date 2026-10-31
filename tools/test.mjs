@@ -324,6 +324,19 @@ async function main() {
   await sleep(400);
   check('Escape re-enters title from exit screen', await ev('G.titleActive === true && document.querySelector("#exit-screen").classList.contains("hidden")'));
 
+  // plugin（同境异笔）from upstream: pause-menu entry, keeps the four title entries
+  await ev('G.debug.beijing(1100,1200)');
+  await sleep(700);
+  await ev('document.querySelector("#btn-menu").click()');
+  await sleep(300);
+  await ev('document.querySelector("#menu-artdemo").click()');
+  await sleep(1000);
+  check('plugin overlay opens', await ev('!document.querySelector("#artdemo").classList.contains("hidden")'));
+  check('plugin keeps four title entries', (await ev('document.querySelectorAll("#title .title-actions .btn").length')) === 4);
+  await ev('G.closeArtDemo()');
+  await sleep(300);
+  check('plugin overlay closes', await ev('document.querySelector("#artdemo").classList.contains("hidden")'));
+
   console.log('\nRESULTS', JSON.stringify(results, null, 2));
   if (errors.length) {
     console.log('\nERRORS');

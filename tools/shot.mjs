@@ -204,6 +204,14 @@ async function main() {
       await sleep(20000);
       console.log('PUBLICSTATE', await evaluate('JSON.stringify({href:location.href,ready:document.readyState,G:typeof G,scene:typeof G!=="undefined"&&G.scene&&G.scene.id,title:typeof G!=="undefined"&&G.titleActive,scripts:[...document.scripts].map(s=>s.src),res:performance.getEntriesByType("resource").map(e=>({n:e.name.split("/").pop(),d:Math.round(e.duration),s:e.transferSize}))})'));
       await screenshot(process.env.SHOT_NAME || 'public');
+    } else if (name === 'plugin') {
+      await evaluate('G.debug.beijing(1100,1200)');
+      await sleep(700);
+      await evaluate('document.querySelector("#btn-menu").click()');
+      await sleep(250);
+      await evaluate('document.querySelector("#menu-artdemo").click()');
+      await sleep(1400);
+      await screenshot('plugin');
     } else if (name === 'create') {
       await evaluate('document.querySelector("#btn-create").click()');
       await sleep(1500);
