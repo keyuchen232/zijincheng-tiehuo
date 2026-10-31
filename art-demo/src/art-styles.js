@@ -1,0 +1,18 @@
+/* 媒介描述与提示词的唯一来源；界面请求和离线样例共用。 */
+(() => {
+ const styles={
+  jade:{name:'青绿绢绘',subtitle:'矿物色 · 绢本细笔',medium:'A refined hand-painted silk illustration with flowing fine brush outlines, malachite and azurite mineral pigment, luminous ivory stone, restrained cinnabar and gold accents. Smooth curved eaves, organically branching trees, layered transparent pigment, delicate silk grain, atmospheric depth. NOT a pixel painting or a pixel-traced illustration.'},
+  ink:{name:'水墨留白',subtitle:'墨色层次 · 纸上呼吸',medium:'A minimalist MONOCHROME Chinese ink-and-wash painting on bright ivory rice paper. At least half the artwork should breathe as almost-unpainted ivory negative space, especially the source dry grass zones, while preserving their dry-land identity. Use ONLY black ink and grey diluted washes, plus two or three tiny vermilion accents. No green, blue, gold or sepia pigments. Water is a few pale grey ripples, not filled colored rectangles. Confident calligraphic architecture outlines, bleeding wet ink, expressive dry-brush foliage. Greatly simplify fine details into poetic gestures. NOT a colored architectural watercolor; NOT a fully painted background. Major architectural masses and their positions remain readable.'},
+  paper:{name:'纸雕光境',subtitle:'层叠纸艺 · 微光剧场',medium:'An exquisite handcrafted cut-paper architectural diorama, photographed from the same elevated viewpoint. Sculpted curved paper roofs, folded ivory columns, layered jade cardstock foliage, translucent blue paper canals, warm amber light between paper layers. Tangible paper thickness, delicate cut edges and soft contact shadows. Elegant museum-scale craft, continuous curved silhouettes, no cubic voxel construction.'}
+ };
+ function prompt(scene){const s=styles[scene.style];if(!s)throw Error('未知媒介');return `Use case: style-transfer.
+Asset type: collectible artwork made from a player-created game scene.
+Input image 1: EDIT TARGET, a pixel screenshot serving as a STRUCTURAL MAP, not a texture or edge template.
+Primary request: completely reinterpret this scene as ${s.medium}
+Preserve: the elevated camera, overall crop and aspect ratio, relative positions and sizes of the major halls, Chinese-Greek hybrid architecture, foreground gates, central approach, left garden pools, right colonnaded temple, narrow canals and the visible visitor. The central building must still combine Greek white columns and Chinese timber/eaves. Keep the player's open or closed route and water level recognizable. Keep a whale only where visible in the source.
+Transformation: rebuild ALL low-resolution contours into continuous high-resolution shapes suited to the chosen medium. Redraw roof tiles, plants, people, wood and stone with new material detail. Treat source pixels as broad semantic regions. You may refine small shapes, foliage and lighting substantially. The finished work must look strikingly different from the screenshot at a glance while depicting the same designed place. Do not trace square pixel steps or copy flat game textures.
+Ground map: green regions are DRY GRASS/LAND; beige regions are DRY PAVING. Only existing blue pools and narrow blue canal strips are water. Preserve dry banks and walkable routes. Do not flood the courtyard or invent extra buildings, mountains or roof tiers.
+Player choices: garden=${scene.garden}, tide=${scene.tide}, rhythm=${scene.rhythm}. Scene intent: ${scene.spec.prompt}. Intent affects mood, not the ground map.
+Remove all labels and game UI. No text, border, watermark, pixel art, nearest-neighbor edges, mosaic, voxel blocks or retro game rendering. Contemporary fictional creation, not historical reconstruction.`;}
+ window.FusionArtStyles={styles,prompt,version:1};
+})();

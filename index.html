@@ -233,6 +233,7 @@
       <button class="btn btn-primary" id="menu-resume"><span>继续旅程</span></button>
       <button class="btn" id="menu-sound"><span>声音：开</span></button>
       <button class="btn" id="menu-reset"><span>重新开始</span></button>
+      <button class="btn" id="menu-artdemo"><span>同境异笔 · 插件</span></button>
     </div>
     <small>进度会自动保存在本机浏览器</small>
   </div>
@@ -292,6 +293,21 @@
       <span id="sq-feedback"></span>
       <button class="ag-close" id="sq-close">稍后再看</button>
     </div>
+  </div>
+</div>
+
+<!-- ================= 插件：同境异笔（独立页面 · iframe 隔离 · 非主线） ================= -->
+<div id="artdemo" class="screen overlay hidden" role="dialog" aria-modal="true" aria-label="同境异笔 插件">
+  <div class="artdemo-shell">
+    <div class="artdemo-bar">
+      <span class="artdemo-title"><b>同境异笔</b> 万象灵境 · 插件模式<em>非主线</em></span>
+      <span class="artdemo-actions">
+        <a id="artdemo-newtab" href="art-demo/index.html" target="_blank" rel="noopener">在新标签打开</a>
+        <button class="artdemo-close" id="artdemo-close" type="button">返回游戏</button>
+      </span>
+    </div>
+    <iframe id="artdemo-frame" src="about:blank" title="同境异笔 · 万象灵境插件"></iframe>
+    <div class="artdemo-loading" id="artdemo-loading">正在载入「同境异笔」…</div>
   </div>
 </div>
 

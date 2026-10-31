@@ -562,6 +562,36 @@
   };
 
   /* ============================================================
+     plugin: 同境异笔（独立页面 · iframe 隔离 · 不进主线）
+     ============================================================ */
+  G.artDemoOpen = false;
+  G.ART_DEMO_SRC = 'art-demo/index.html';
+  G.openArtDemo = function () {
+    if (G.artDemoOpen) return;
+    G.artDemoOpen = true;
+    const frame = $('#artdemo-frame');
+    const loading = $('#artdemo-loading');
+    if (loading) loading.classList.remove('hidden');
+    if (frame && frame.dataset.loaded !== '1') {
+      frame.onload = function () { if (loading) loading.classList.add('hidden'); };
+      frame.dataset.loaded = '1';
+      frame.src = G.ART_DEMO_SRC;
+    } else if (loading) {
+      loading.classList.add('hidden');
+    }
+    G.show($('#artdemo'));
+    G.input.clearPressed();
+    try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
+  };
+  G.closeArtDemo = function () {
+    if (!G.artDemoOpen) return;
+    G.artDemoOpen = false;
+    G.hide($('#artdemo'));
+    G.input.clearPressed();
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+
+  /* ============================================================
      home hall
      ============================================================ */
   G.homeReturn = null;
@@ -717,6 +747,10 @@
       if (code === 'Escape' || code === 'Enter' || code === 'Space') G.backToTitle();
       return;
     }
+    if (G.artDemoOpen) {
+      if (code === 'Escape') G.closeArtDemo();
+      return;
+    }
     // title
     if (G.titleActive) {
       if (code === 'Enter' || code === 'Space') {
@@ -818,6 +852,10 @@
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
+    const menuArt = $('#menu-artdemo');
+    if (menuArt) menuArt.addEventListener('click', () => { menu.close(); G.openArtDemo(); });
+    const artClose = $('#artdemo-close');
+    if (artClose) artClose.addEventListener('click', () => G.closeArtDemo());
     // tapping / clicking the map canvas closes the map (touch-friendly)
     $('#game').addEventListener('pointerdown', () => {
       if (G.scene && G.scene.mapOpen) {
