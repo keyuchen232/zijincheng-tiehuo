@@ -596,38 +596,27 @@
   /* ============================================================
      home hall
      ============================================================ */
+  /* 家 · 大厅已经整体下线（只保留了创造模式的接口） */
   G.homeReturn = null;
-  G.goHome = function () {
-    if (!G.scene || G.scene.id === 'home' || G.fade.busy) return;
-    if (G.dialog.active || G.security.active || G.cinema.active || (G.minigame && G.minigame.active) || (G.minigameGreek && G.minigameGreek.active) || G.scene.mapOpen) return;
-    const sc = G.scene;
-    G.homeReturn = { scene: sc, x: sc.player.x, y: sc.player.y, dir: sc.player.dir };
-    G.fade.to(() => {
-      if (!G.homeScene) G.homeScene = new G.HomeScene();
-      G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
-      G.ui.setHomeButton(true);
-      G.ui.toast('回到家了 · 右边多了一张造境台', 'good', 2400);
-    }, 360);
-  };
-  G.leaveHome = function () {
-    if (!G.scene || G.scene.id !== 'home' || G.fade.busy || G.dialog.active) return;
-    const ret = G.homeReturn;
-    G.fade.to(() => {
-      if (ret && ret.scene) {
-        G.setScene(ret.scene, { spawn: { x: ret.x, y: ret.y } });
-        ret.scene.player.dir = ret.dir || 'up';
-      } else {
-        G.enterBeijing({ x: 1100, y: 1200 });
-      }
-      G.homeReturn = null;
-      G.ui.setHomeButton(false);
-    }, 360);
-  };
-  G.toggleHome = function () {
-    if (G.scene && G.scene.id === 'home') G.leaveHome();
-    else G.goHome();
-  };
+  G.goHome = function () { G.ui.toast('家已经下线了 · 创造模式请从标题页进入', 'warn', 2200); };
+  G.leaveHome = function () {};
+  G.toggleHome = function () { G.goHome(); };
 
+  /* 故事模式：进「万象灵境 · 雅典—故宫」（原来放在创造模式里的那场戏） */
+  function startStory() {
+    G.audio.init();
+    G.audio.setEnabled(G.save.data.sound !== false);
+    G.save.reset(true);
+    G.save.data.flags.introSeen = false;
+    G.save.persist();
+    G.fade.to(() => {
+      if (G.enterFusion) G.enterFusion();
+      else G.enterBeijing({ x: 1100, y: 1200 });
+      G.ui.toast('故事模式 · 万象灵境：先和狄奥提玛确认投影标签', 'good', 3800);
+    }, 520);
+  }
+
+  /* 旧故事线（中轴线 → 故宫），保留给调试 / 后续支线使用 */
   function startNewGame() {
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
@@ -646,18 +635,6 @@
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
     const f = G.save.data.flags;
-    if (G.save.data.scene === 'home') {
-      G.fade.to(() => {
-        G.titleActive = false;
-        G.hide($('#title'));
-        if (!G.homeScene) G.homeScene = new G.HomeScene();
-        G.ui.showHud(true);
-        G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
-        G.ui.setHomeButton(true);
-        G.ui.toast('回到家了', 'good', 2000);
-      }, 520);
-      return;
-    }
     G.fade.to(() => {
       const pos = G.save.data.pos;
       if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
@@ -684,7 +661,22 @@
     }, 520);
   }
 
-  /* 创造模式：进入万象灵境的故宫数字沙盘 / 创作终端 */
+  /* 创造模式入口（接口）：家 · 大厅的工作台调用；标题页不再放按钮 */
+  G.enterCreateMode = function () {
+    if (G.fade.busy) return;
+    G.audio.sfx('page');
+    G.fade.to(() => {
+      if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        G.mod.go('create');
+        G.ui.showHud(true);
+        G.ui.toast('造境台 · 把紫禁城与卫城的构件摆到同一台上', 'good', 3200);
+        return;
+      }
+      G.enterFusion();
+    }, 340);
+  };
+
+  /* 旧入口（保留兼容）：也走同一个接口 */
   function enterCreate() {
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
@@ -788,16 +780,16 @@
     init() {
       $('#btn-start').addEventListener('click', () => {
         if (G.save.exists()) {
-          G.confirm('重新开始故事？', '当前进度与图鉴会被覆盖，最佳成绩会保留。', () => startNewGame());
+          G.confirm('重新开始故事？', '当前进度与图鉴会被覆盖，最佳成绩会保留。', () => startStory());
           return;
         }
-        startNewGame();
+        startStory();
       });
       $('#btn-continue').addEventListener('click', () => continueGame());
       const thBtn = $('#btn-tiehua');
       if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
       const crBtn = $('#btn-create');
-      if (crBtn) crBtn.addEventListener('click', () => enterCreate());
+      if (crBtn) crBtn.addEventListener('click', () => (G.enterCreateMode ? G.enterCreateMode() : enterCreate()));
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
@@ -823,7 +815,7 @@
       slot.classList.toggle('none', !has);
       if (!has) { info.textContent = '存档 · 暂无'; return; }
       const d = G.save.data || {};
-      const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', home: '家 · 大厅', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
+      const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
       const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
       const done = d.codex ? d.codex.length : 0;
       info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
@@ -955,7 +947,8 @@
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
-    $('#btn-home').addEventListener('click', () => G.toggleHome());
+    const homeBtn = $('#btn-home');
+    if (homeBtn) homeBtn.addEventListener('click', () => G.toggleHome());
     const askBtn = $('#btn-ask');
     if (askBtn && G.ai) askBtn.addEventListener('click', () => G.ai.toggle());
     const menuAsk = $('#menu-ask');
@@ -1052,13 +1045,6 @@
       fusion(skipIntro) {
         resetUI();
         G.enterFusion({ skipIntro: skipIntro !== false });
-      },
-      home() {
-        resetUI();
-        G.save.data.flags.homeIntroSeen = true;
-        if (!G.homeScene) G.homeScene = new G.HomeScene();
-        G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
-        G.ui.setHomeButton(true);
       },
       gugong(x, y) {
         resetUI();
