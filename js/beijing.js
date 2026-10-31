@@ -291,6 +291,18 @@
         });
       }
 
+      // 中轴大街的路灯、长椅与鸽子，让大街不空
+      for (const [lx, ly] of [[822, 1120], [1178, 1120], [822, 1240], [1178, 1240], [960, 1310], [1178, 1330]]) {
+        this.addEntity({ x: lx, y: ly, baseY: ly, draw: (c) => A.streetlamp(c, lx, ly, this.night) });
+      }
+      for (const [bxp, byp] of [[882, 1056], [1138, 1056]]) {
+        this.addEntity({ x: bxp, y: byp, baseY: byp, draw: (c) => A.bench(c, bxp, byp) });
+      }
+      for (const [px2, py2, sd] of [[1046, 1180, 4], [1150, 1202, 5], [1092, 1232, 6], [1198, 1252, 7]]) {
+        this.addEntity({ x: px2, y: py2, baseY: py2, draw: (c) => A.pigeon(c, px2, py2, this.time, sd) });
+      }
+      this.addEntity({ x: 1042, y: 1084, baseY: 1084, draw: (c) => A.foodCart(c, 1042, 1084) });
+
       /* -------- 王府井 -------- */
       const wf = [
         { x: 1410, y: 1070, name: '百货大楼', color: '#6a3d2c' },
@@ -976,9 +988,25 @@
     roadH(c, x, y, w, h, main) {
       c.fillStyle = main ? '#47423c' : '#4f4941';
       c.fillRect(x, y, w, h);
+      // 沥青颗粒与轮迹：大面积道路不再是一整块灰
+      for (let yy = y + 2; yy < y + h - 2; yy += 3) {
+        for (let xx = x + 2; xx < x + w - 2; xx += 3) {
+          const hh = G.hash(xx, yy, 41);
+          if (hh < 0.3) { c.fillStyle = 'rgba(232,224,205,.055)'; c.fillRect(xx, yy, 1, 1); }
+          else if (hh > 0.86) { c.fillStyle = 'rgba(12,10,8,.16)'; c.fillRect(xx, yy, 1, 1); }
+        }
+      }
+      c.fillStyle = 'rgba(20,18,15,.22)';
+      c.fillRect(x, y + (h >> 1) - 6, w, 1);
+      c.fillRect(x, y + (h >> 1) + 6, w, 1);
+      // 路缘：受光顶面 + 阴影投在路面上
       c.fillStyle = '#a89575';
       c.fillRect(x, y - 3, w, 3);
       c.fillRect(x, y + h, w, 3);
+      c.fillStyle = 'rgba(255,240,210,.22)';
+      c.fillRect(x, y - 3, w, 1);
+      c.fillStyle = 'rgba(0,0,0,.16)';
+      c.fillRect(x, y + h + 3, w, 2);
       c.fillStyle = 'rgba(255,255,255,.03)';
       for (let xx = 0; xx < w; xx += 22) c.fillRect(x + xx, y + 8, 10, 1);
       if (main) {
@@ -990,9 +1018,17 @@
     roadV(c, x, y, h, w) {
       c.fillStyle = '#4d4841';
       c.fillRect(x, y, w, h);
+      for (let yy = y + 2; yy < y + h - 2; yy += 3) {
+        for (let xx = x + 2; xx < x + w - 2; xx += 3) {
+          if (G.hash(xx, yy, 42) < 0.3) { c.fillStyle = 'rgba(232,224,205,.05)'; c.fillRect(xx, yy, 1, 1); }
+        }
+      }
       c.fillStyle = '#9c8b6d';
       c.fillRect(x - 3, y, 3, h);
       c.fillRect(x + w, y, 3, h);
+      c.fillStyle = 'rgba(255,240,210,.2)';
+      c.fillRect(x - 3, y, 1, h);
+      c.fillRect(x + w, y, 1, h);
     }
 
     /* ============================================================

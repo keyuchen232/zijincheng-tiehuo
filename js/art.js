@@ -80,39 +80,74 @@
   A.paving = function (ctx, x, y, w, h, base, alt, seed, tile) {
     tile = tile || 12;
     r(ctx, x, y, w, h, base);
+    // 真实石砖：错缝铺装（像砖墙一样隔行错开半块），砖面只有轻微色差
+    const colW = Math.max(6, Math.round(tile * 1.15));
+    const rowH = Math.max(4, Math.round(tile * 0.62));
     ctx.save();
-    // large slabs read as stone rather than a checkerboard
-    const slab = tile * 3;
-    for (let yy = 0; yy < h; yy += slab) {
-      for (let xx = 0; xx < w; xx += slab) {
-        const n = G.hash(x + xx, y + yy, (seed || 3) + 5);
-        ctx.globalAlpha = 0.05 + n * 0.05;
-        ctx.fillStyle = n < 0.5 ? alt : '#e8ddc4';
-        ctx.fillRect(x + xx, y + yy, Math.min(slab, w - xx), Math.min(slab, h - yy));
+    let row = 0;
+    for (let yy = 0; yy < h; yy += rowH, row++) {
+      const off = (row % 2) ? Math.round(colW / 2) : 0;
+      for (let xx = -off; xx < w; xx += colW) {
+        const cw0 = Math.min(colW, w - xx), ch0 = Math.min(rowH, h - yy);
+        if (cw0 <= 0 || ch0 <= 0) continue;
+        const n = G.hash(x + ((xx + off) % colW), y + yy, (seed || 3) + 5);
+        ctx.globalAlpha = 0.025 + n * 0.045;
+        ctx.fillStyle = n < 0.5 ? alt : (n > 0.86 ? '#efe6d1' : '#ddd2b8');
+        ctx.fillRect(x + xx, y + yy, cw0, ch0);
       }
     }
-    ctx.globalAlpha = 0.12;
-    for (let yy = 0; yy < h; yy += tile) {
-      for (let xx = 0; xx < w; xx += tile) {
-        const n = G.hash(x + xx, y + yy, seed || 3);
-        if (n < 0.16) {
-          ctx.fillStyle = alt;
-          ctx.fillRect(x + xx + 1, y + yy + 1, tile - 1, tile - 1);
-        } else if (n > 0.86) {
-          ctx.fillStyle = '#efe6d1';
-          ctx.fillRect(x + xx + 1, y + yy + 1, tile - 1, 1);
-        }
+    // 砖缝：隔行错缝，只留一道很浅的暗线，别让地面变成网格纸
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = '#16110c';
+    for (let yy = rowH; yy < h; yy += rowH) ctx.fillRect(x, y + yy - 1, w, 1);
+    row = 0;
+    for (let yy = 0; yy < h; yy += rowH, row++) {
+      const off = (row % 2) ? Math.round(colW / 2) : 0;
+      const y1 = Math.min(y + yy + rowH, y + h);
+      for (let xx = -off; xx < w; xx += colW) {
+        const lx = x + xx;
+        if (lx <= x || lx >= x + w - 1) continue;
+        ctx.fillRect(lx, y + yy, 1, y1 - (y + yy));
+      }
+    }
+    // 砖块之间的高差：只在每块砖的下缘留一抹很轻的压影
+    ctx.globalAlpha = 0.035;
+    ctx.fillStyle = '#141008';
+    row = 0;
+    for (let yy = 0; yy < h; yy += rowH, row++) {
+      const off = (row % 2) ? Math.round(colW / 2) : 0;
+      for (let xx = -off; xx < w; xx += colW) {
+        const sw = Math.min(colW, w - xx) - 2;
+        if (sw > 2) ctx.fillRect(x + xx + 1, y + yy + rowH - 1, sw, 1);
       }
     }
     ctx.restore();
+    // 岁月痕迹：极淡的苔痕与尘渍，不抢砖色
     ctx.save();
-    ctx.globalAlpha = 0.09;
-    ctx.fillStyle = '#16110c';
-    for (let yy = 0; yy < h; yy += tile) ctx.fillRect(x, y + yy, w, 1);
-    for (let xx = 0; xx < w; xx += tile) ctx.fillRect(x + xx, y, 1, h);
-    ctx.globalAlpha = 0.12;
-    for (let yy = 0; yy < h; yy += slab) ctx.fillRect(x, y + yy, w, 1);
-    for (let xx = 0; xx < w; xx += slab) ctx.fillRect(x + xx, y, 1, h);
+    for (let yy = 0; yy < h; yy += tile) {
+      for (let xx = 0; xx < w; xx += tile) {
+        const n = G.hash(x + xx, y + yy, (seed || 3) + 29);
+        if (n < 0.045) {
+          ctx.globalAlpha = 0.05;
+          ctx.fillStyle = '#5d6b4a';
+          ctx.fillRect(x + xx + 2 + (n * 40 | 0) % (tile - 5), y + yy + 2 + (n * 90 | 0) % (tile - 5), 2, 1);
+        } else if (n > 0.965) {
+          ctx.globalAlpha = 0.05;
+          ctx.fillStyle = '#f2ead9';
+          ctx.fillRect(x + xx + 1, y + yy + 1, 1, 1);
+        }
+      }
+    }
+    // 区域边缘：上缘一线反光，下缘一道压影（比之前轻一半）
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = '#f6eed7';
+    ctx.fillRect(x, y, w, 1);
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = '#141008';
+    ctx.fillRect(x, y + h - 1, w, 1);
+    ctx.globalAlpha = 0.04;
+    ctx.fillRect(x, y, 1, h);
+    ctx.fillRect(x + w - 1, y, 1, h);
     ctx.restore();
   };
 
@@ -126,6 +161,48 @@
     ctx.globalAlpha = alpha == null ? 0.4 : alpha;
     ctx.fillStyle = g;
     ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    ctx.restore();
+  };
+
+  /* 屏幕级颗粒：一层烘焙的抖动噪点，打散大面积平涂，画面不再像一张纸。 */
+  let grainCv = null;
+  A.grainTexture = function (ctx) {
+    if (!grainCv) {
+      grainCv = document.createElement('canvas');
+      grainCv.width = G.W; grainCv.height = G.H;
+      const g = grainCv.getContext('2d');
+      for (let yy = 0; yy < G.H; yy++) {
+        for (let xx = 0; xx < G.W; xx++) {
+          const h = G.hash(xx, yy, 91);
+          if (h < 0.15) { g.fillStyle = 'rgba(255,235,198,0.16)'; g.fillRect(xx, yy, 1, 1); }
+          else if (h > 0.915) { g.fillStyle = 'rgba(15,10,6,0.14)'; g.fillRect(xx, yy, 1, 1); }
+        }
+      }
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'overlay';
+    ctx.globalAlpha = 0.38;
+    ctx.drawImage(grainCv, 0, 0);
+    ctx.restore();
+  };
+
+  /* 屏幕级暗角：四角收拢，视线集中到画面中心。 */
+  let vigCv = null;
+  A.vignette = function (ctx, strength) {
+    if (!vigCv) {
+      vigCv = document.createElement('canvas');
+      vigCv.width = G.W; vigCv.height = G.H;
+      const g = vigCv.getContext('2d');
+      const rg = g.createRadialGradient(G.W * 0.5, G.H * 0.52, G.H * 0.4, G.W * 0.5, G.H * 0.52, G.W * 0.74);
+      rg.addColorStop(0, 'rgba(0,0,0,0)');
+      rg.addColorStop(0.7, 'rgba(12,8,4,0.1)');
+      rg.addColorStop(1, 'rgba(10,7,4,0.5)');
+      g.fillStyle = rg;
+      g.fillRect(0, 0, G.W, G.H);
+    }
+    ctx.save();
+    ctx.globalAlpha = strength == null ? 0.5 : strength;
+    ctx.drawImage(vigCv, 0, 0);
     ctx.restore();
   };
 
@@ -318,27 +395,47 @@
     const cB = pal.roofB || A.pal.roofB;
     const cC = pal.roofC || A.pal.roofC;
     const cEdge = pal.roofEdge || A.pal.roofEdge;
-    // under-eave shadow
+    // 檐下投影：落在墙身上，把屋盖和墙分开
     c.fillStyle = 'rgba(20,10,5,.35)';
     c.fillRect(cx - halfW, baseY, halfW * 2, 2);
+    // 中式屋顶：屋脊在上、最窄；檐口在下、最宽。逐行向下加宽。
     const rows = [];
     for (let i = 0; i < h; i++) {
       const t = i / Math.max(1, h - 1);
-      const half = Math.round(halfW * (1 - 0.62 * Math.pow(t, 0.78)));
+      const half = Math.round(halfW * (0.34 + 0.66 * Math.pow(t, 0.82)));
       const y = baseY - h + i;
       rows.push([half, y]);
-      c.fillStyle = i < 2 ? cEdge : (i % 5 === 0 ? cC : (i % 5 === 2 ? cB : cA));
+      const shade = i < 2 ? cEdge : (i % 5 === 0 ? cC : (i % 5 === 2 ? cB : cA));
+      c.fillStyle = shade;
       c.fillRect(cx - half, y, half * 2, 1);
+      // 屋脊一线受光、檐口压暗，坡面有上窄下宽的弧
+      if (i === 2 && h > 5) {
+        c.fillStyle = 'rgba(255,232,176,.5)';
+        c.fillRect(cx - half + 2, y, half * 2 - 4, 1);
+      }
+      if (i === h - 3 && h > 6) {
+        c.fillStyle = 'rgba(48,22,8,.3)';
+        c.fillRect(cx - half, y, half * 2, 1);
+      }
     }
-    // tile ribs and glaze highlights
+    // 瓦垄：暗缝 + 受光瓦背成对出现
     c.save();
-    c.globalAlpha = 0.28;
+    c.globalAlpha = 0.32;
     for (let i = 2; i < h; i++) {
       const half = rows[i][0], y = rows[i][1];
-      for (let xx = -half + ((i % 2) ? 3 : 0); xx < half; xx += 5) {
-        c.fillStyle = (i % 5 === 0) ? '#6b3c1c' : '#7d4a20';
+      for (let xx = -half + ((i % 2) ? 3 : 0); xx < half - 1; xx += 4) {
+        c.fillStyle = (i % 5 === 0) ? '#5e3216' : '#733f19';
         c.fillRect(cx + xx, y, 1, 1);
+        c.fillStyle = '#c98a3f';
+        c.fillRect(cx + xx + 1, y, 1, 1);
       }
+    }
+    // 右上受光面的金瓦反光
+    c.globalAlpha = 0.2;
+    c.fillStyle = '#ffe7b0';
+    for (let i = 3; i < h; i += 5) {
+      const half = rows[i][0], y = rows[i][1];
+      c.fillRect(cx + Math.round(half * 0.42), y, Math.max(2, Math.round(half * 0.4)), 1);
     }
     c.globalAlpha = 0.18;
     for (let i = 4; i < h; i += 4) {
@@ -347,8 +444,12 @@
       c.fillRect(cx - half + 3, y, half * 2 - 6, 1);
     }
     c.restore();
+    // 檐口瓦当：檐口最宽，一排小瓦口压在最下面
+    const eaveHalf = rows[h - 1][0];
+    c.fillStyle = cEdge;
+    for (let xx = -eaveHalf + 1; xx < eaveHalf; xx += 3) c.fillRect(cx + xx, baseY - 1, 1, 1);
     // eaves and upturned tips
-    const w0 = rows[0][0];
+    const w0 = eaveHalf;
     c.fillStyle = cEdge;
     c.fillRect(cx - w0, baseY - 2, w0 * 2, 2);
     c.fillRect(cx - w0 - 3, baseY - 4, 3, 2);
@@ -357,15 +458,15 @@
     c.fillRect(cx + w0 + 3, baseY - 6, 2, 2);
     c.fillStyle = A.pal.goldDark;
     c.fillRect(cx - w0, baseY - 3, w0 * 2, 1);
+    // 檐口内侧的一线反光与檐下压影
     c.fillStyle = 'rgba(255,236,180,.35)';
-    c.fillRect(cx - w0 + 2, baseY - h + 3, w0 * 2 - 4, 1);
-    // inner eave line and soft shadow
+    c.fillRect(cx - w0 + 2, baseY - 5, w0 * 2 - 4, 1);
     c.fillStyle = 'rgba(255,220,150,.18)';
-    c.fillRect(cx - w0 + 6, baseY - 5, w0 * 2 - 12, 1);
+    c.fillRect(cx - w0 + 6, baseY - 6, w0 * 2 - 12, 1);
     c.fillStyle = 'rgba(30,14,7,.28)';
     c.fillRect(cx - w0, baseY + 2, w0 * 2, 2);
-    // ridge
-    const topHalf = rows[h - 1][0];
+    // 屋脊：在最上面、最窄处
+    const topHalf = rows[0][0];
     c.fillStyle = A.pal.roofRidge;
     c.fillRect(cx - Math.max(4, topHalf), baseY - h - 1, Math.max(8, topHalf * 2), 2);
     c.fillStyle = A.pal.roofGold;
@@ -400,23 +501,36 @@
     const top = baseY - wallH;
     r(c, x, top, w, wallH, A.pal.wallDark);
     r(c, x, top + 1, w, wallH - 4, A.pal.wall);
-    // brick texture
+    // brick texture：一层砖缝、一层受光砖面，红墙不再是一整片
     c.save();
     c.globalAlpha = 0.13;
     for (let yy = 3; yy < wallH - 2; yy += 4) {
       c.fillStyle = '#2d100b';
       c.fillRect(x, top + yy, w, 1);
     }
+    c.globalAlpha = 0.09;
+    for (let yy = 4; yy < wallH - 2; yy += 4) {
+      c.fillStyle = '#d9775a';
+      c.fillRect(x, top + yy, w, 1);
+      for (let xx = ((yy / 4) | 0) % 2 ? 0 : 8; xx < w - 8; xx += 16) {
+        c.fillRect(x + xx, top + yy, 7, 1);
+      }
+    }
     c.restore();
     // side faces and eave shadow give the wall volume
     c.save();
-    c.globalAlpha = 0.2;
+    c.globalAlpha = 0.24;
     c.fillStyle = '#1d0a07';
     c.fillRect(x, top, 4, wallH);
     c.fillRect(x + w - Math.max(4, w * 0.08), top, Math.max(4, w * 0.08), wallH);
+    c.globalAlpha = 0.12;
+    for (let yy = 0; yy < wallH; yy += 2) {
+      if (G.hash(x, top + yy, 33) < 0.5) c.fillRect(x + 4, top + yy, 2, 1);
+      if (G.hash(x + w, top + yy, 34) < 0.5) c.fillRect(x + w - Math.max(4, w * 0.08) - 2, top + yy, 2, 1);
+    }
     c.restore();
     const eaveShadow = c.createLinearGradient(0, top, 0, top + 14);
-    eaveShadow.addColorStop(0, 'rgba(28,10,6,.42)');
+    eaveShadow.addColorStop(0, 'rgba(28,10,6,.46)');
     eaveShadow.addColorStop(1, 'rgba(28,10,6,0)');
     c.fillStyle = eaveShadow;
     c.fillRect(x, top, w, 14);
@@ -441,16 +555,59 @@
       const central = Math.abs(i - (bays - 1) / 2) < 0.6;
       const doorW = Math.min(central ? 18 : 10, bw * 0.52);
       const doorH = Math.round(wallH * (central ? 0.62 : 0.5));
-      // window lattice
+      // window lattice：门洞先落影，再画门板与格心，门楣有受光棱
       const wx = mid - doorW / 2, wy = top + 5;
-      r(c, wx, wy, doorW, doorH, '#4a1c15');
-      r(c, wx + 1, wy + 1, doorW - 2, doorH - 2, '#6b2c20');
+      if (opts && opts.openDoor && central) {
+        // 敞开的殿门：门里一进到底的暗，两扇门板向外斜开
+        r(c, wx, wy, doorW, doorH, '#1a100a');
+        c.save();
+        const og = c.createLinearGradient(0, wy, 0, wy + doorH);
+        og.addColorStop(0, 'rgba(52,34,20,.55)');
+        og.addColorStop(1, 'rgba(10,6,4,1)');
+        c.fillStyle = og;
+        c.fillRect(wx + 1, wy + 1, doorW - 2, doorH - 2);
+        c.restore();
+        const leaf = Math.max(3, Math.round(doorW * 0.22));
+        for (const side of [-1, 1]) {
+          const ox = mid + side * (leaf - 1);
+          const px = mid + side * (leaf + 5);
+          c.fillStyle = '#5d3a22';
+          c.beginPath();
+          c.moveTo(ox, wy + 1);
+          c.lineTo(px, wy + 3);
+          c.lineTo(px, wy + doorH - 3);
+          c.lineTo(ox, wy + doorH - 1);
+          c.closePath();
+          c.fill();
+          c.fillStyle = A.pal.gold;
+          c.fillRect(px - 1, wy + 4, 1, 2);
+          c.fillRect(px - 1, wy + doorH - 6, 1, 2);
+        }
+        // 门槛与门内的一线亮
+        r(c, wx, wy + doorH - 1, doorW, 1, '#6b4a2a');
+        c.save();
+        c.globalAlpha = 0.4;
+        c.fillStyle = '#c9a566';
+        c.fillRect(wx + 2, wy + 1, doorW - 4, 1);
+        c.restore();
+      } else {
+      r(c, wx, wy, doorW, doorH, '#3d1610');
+      r(c, wx + 1, wy + 1, doorW - 2, doorH - 2, '#5c2419');
+      r(c, wx + 1, wy + 1, doorW - 2, 1, '#8a3a29');
+      r(c, wx + doorW - 2, wy + 1, 1, doorH - 2, '#3a130d');
       c.save();
-      c.globalAlpha = 0.75;
+      c.globalAlpha = 0.72;
       c.fillStyle = A.pal.goldDark;
       for (let gx = wx + 2; gx < wx + doorW - 1; gx += 4) c.fillRect(gx, wy + 1, 1, doorH - 2);
       for (let gy = wy + 2; gy < wy + doorH - 1; gy += 4) c.fillRect(wx + 1, gy, doorW - 2, 1);
       c.restore();
+      // 门底一道压影，把墙和地面连起来
+      c.save();
+      c.globalAlpha = 0.22;
+      c.fillStyle = '#1a0c07';
+      c.fillRect(wx, wy + doorH - 1, doorW, 1);
+      c.restore();
+      }
       // gold studs
       if (central && doorW > 14) {
         c.fillStyle = A.pal.gold;
@@ -481,17 +638,32 @@
     r(c, x, y, pw, ph, A.pal.stoneDark);
     r(c, x, y, pw, ph - 2, A.pal.marbleDark);
     r(c, x, y, pw, 2, A.pal.marble);
-    // railing
+    // 台基立面：受光棱、砖缝与底部压影，三层台阶读得出厚度
+    c.save();
+    c.globalAlpha = 0.5;
+    c.fillStyle = '#efe8d5';
+    c.fillRect(x + 1, y + 2, pw - 2, 1);
+    c.globalAlpha = 0.2;
+    c.fillStyle = '#8d8168';
+    for (let xx = x + 6; xx < x + pw - 4; xx += 12) c.fillRect(xx, y + 2, 1, ph - 3);
+    c.globalAlpha = 0.25;
+    c.fillStyle = '#141008';
+    c.fillRect(x, y + ph - 1, pw, 1);
+    c.restore();
+    // railing：柱头受光、柱身背光
     c.save();
     for (let xx = x + 2; xx < x + pw - 2; xx += 7) {
       r(c, xx, y - 4, 1, 4, A.pal.marble);
       r(c, xx, y - 4, 3, 1, A.pal.marble);
+      r(c, xx + 2, y - 3, 1, 3, A.pal.marbleDark);
+      r(c, xx + 1, y - 5, 1, 1, '#f0e9d7');
     }
     c.restore();
     // stairs
     const sw = opts.stairW || 30;
     for (let i = 0; i < 4; i++) {
       r(c, cx - sw / 2 + i, y + i * 2 + 1, sw - i * 2, 2, i % 2 ? A.pal.marble : A.pal.marbleDark);
+      r(c, cx - sw / 2 + i + 1, y + i * 2 + 1, sw - i * 2 - 2, 1, '#efe8d5');
     }
     // carved ramp
     r(c, cx - 3, y + 2, 6, ph - 1, A.pal.marble);
@@ -569,8 +741,10 @@
 
   A.drawHall = function (ctx, x, baseY, w, opts) {
     const s = A.hallSprite(w, opts);
+    // 方向性落影：殿身向右下压出一片抖动软影，建筑才从地面上立起来
+    A.groundShadow(ctx, x + Math.round(w * 0.1), baseY + 2, Math.round(w * 0.62), 6, 0.15);
     ctx.save();
-    ctx.globalAlpha = 0.18;
+    ctx.globalAlpha = 0.2;
     ctx.fillStyle = '#20140d';
     ctx.beginPath();
     ctx.ellipse(x + 9, baseY - 2, w * 0.58, 7, 0, 0, G.TAU);
@@ -715,6 +889,7 @@
 
   A.drawGate = function (ctx, x, baseY, w, opts) {
     const s = A.gateSprite(w, opts);
+    A.groundShadow(ctx, x + Math.round(w * 0.1), baseY + 2, Math.round(w * 0.6), 7, 0.16);
     ctx.save();
     ctx.globalAlpha = 0.2;
     ctx.fillStyle = '#1c120c';
@@ -733,6 +908,20 @@
     ctx.save();
     ctx.globalAlpha = 0.12;
     for (let yy = 3; yy < h; yy += 5) { ctx.fillStyle = '#2a0c08'; ctx.fillRect(x1, baseY - h + yy, w, 1); }
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = '#e08a68';
+    for (let yy = 4; yy < h; yy += 5) ctx.fillRect(x1, baseY - h + yy, w, 1);
+    // 上缘受光、下缘落影：长墙也不再是一块平板
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#ffe6be';
+    ctx.fillRect(x1, baseY - h + 2, w, 1);
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = '#141008';
+    ctx.fillRect(x1, baseY - 4, w, 1);
+    // 垛口投在墙顶的一道短影
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = '#2a0c08';
+    for (let xx = x1 + 1; xx < x2 - 5; xx += 10) ctx.fillRect(xx + 6, baseY - h - 5, 4, 5);
     ctx.restore();
     // crenellations
     for (let xx = x1 + 1; xx < x2 - 5; xx += 10) {
@@ -752,6 +941,7 @@
       r(ctx, x - 3, yy, w + 6, 1, A.pal.wallLight);
     }
     r(ctx, x, y1, 1, y2 - y1, A.pal.goldDark);
+    r(ctx, x + w - 1, y1, 1, y2 - y1, A.pal.wallDark);
   };
 
   /* ------------------------------------------------------------
@@ -760,21 +950,43 @@
   A.tree = function (ctx, x, baseY, size, opt) {
     opt = opt || {};
     size = size || 1;
-    const p = opt.autumn ? ['#a8642c', '#c47a31', '#8c4d22'] : ['#4f6b3a', '#628048', '#3c552d'];
-    A.shadow(ctx, x, baseY, 20 * size, 3 * size, 0.25);
-    r(ctx, x - 2 * size, baseY - 14 * size, 3 * size, 14 * size, '#5a3a22');
-    r(ctx, x + 2 * size, baseY - 10 * size, 2 * size, 10 * size, '#4a2e1a');
+    const p = opt.autumn
+      ? ['#6e3f16', '#a8642c', '#c47a31', '#d99b4b', '#552f10']
+      : ['#37532a', '#4f6b3a', '#628048', '#8fa863', '#2b421f'];
+    // 树冠软阴影 + 接地阴影
+    A.groundShadow(ctx, x - 3 * size, baseY + 1, 30 * size, 7 * size, 0.16);
+    A.shadow(ctx, x, baseY, 20 * size, 3 * size, 0.28);
+    // 树干：亮面 / 暗面 / 树皮裂纹
+    r(ctx, x - 2 * size, baseY - 15 * size, 3 * size, 15 * size, '#4a2f1b');
+    r(ctx, x + 1 * size, baseY - 15 * size, 1 * size, 15 * size, '#66432a');
+    r(ctx, x - 1 * size, baseY - 9 * size, 1 * size, 6 * size, '#7a5233');
+    for (let i = 0; i < 5; i++) {
+      r(ctx, x - 2 * size, baseY - 13 * size + i * 3 * size, 3 * size, 1, '#35210f');
+    }
+    // 树冠：五团叶簇，暗底 → 中调 → 受光高光（光来自右上）
     const blobs = [
       [0, -22, 13], [-8, -17, 9], [9, -18, 9], [-4, -29, 9], [7, -28, 8],
     ];
     for (let i = 0; i < blobs.length; i++) {
       const [bx, by, br] = blobs[i];
-      const col = p[i % p.length];
-      r(ctx, x + bx * size - br * size / 2, baseY + by * size, br * size, br * size * 0.62, col);
-      if (i % 2 === 0) r(ctx, x + bx * size - br * size / 2 + 2, baseY + by * size - 2, br * size - 5, 2, p[1]);
+      r(ctx, x + bx * size - br * size / 2, baseY + by * size, br * size, br * size * 0.62, p[2]);
+      r(ctx, x + bx * size - br * size / 2, baseY + by * size + br * size * 0.42, br * size, br * size * 0.2, p[0]);
+      r(ctx, x + bx * size - br * size / 2 + 2, baseY + by * size + 2, br * size - 5, 2, p[3]);
     }
+    // 叶缘碎光：只在右上受光侧点缀
+    ctx.save();
+    ctx.globalAlpha = 0.5; ctx.fillStyle = p[3];
+    for (let i = 0; i < 12; i++) {
+      const lx = x + Math.round(Math.sin(i * 2.1) * 14 * size + 4 * size);
+      const ly = baseY - (26 - (i % 6) * 3) * size - 2;
+      if (G.hash(i, 3, 7) < 0.6) ctx.fillRect(lx, ly, 2, 1);
+    }
+    // 叶簇缝隙里的一点底色
+    ctx.globalAlpha = 0.4; ctx.fillStyle = p[0];
+    ctx.fillRect(x - 6 * size, baseY - 20 * size, 2, 3);
+    ctx.restore();
     if (opt.leaf !== false) {
-      ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = p[2];
+      ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = p[1];
       for (let yy = 0; yy < 22; yy += 3) {
         const xx = Math.round(Math.sin(yy * 1.7) * 12);
         ctx.fillRect(x + xx, baseY - 24 * size + yy * size, 2, 1);
@@ -785,21 +997,27 @@
 
   A.pine = function (ctx, x, baseY, size) {
     size = size || 1;
+    A.groundShadow(ctx, x - 2 * size, baseY + 1, 24 * size, 6 * size, 0.15);
     A.shadow(ctx, x, baseY, 16 * size, 2, 0.25);
-    r(ctx, x - 1, baseY - 9 * size, 2, 9 * size, '#4b301c');
+    r(ctx, x - 1, baseY - 10 * size, 2, 10 * size, '#4b301c');
+    r(ctx, x, baseY - 10 * size, 1, 10 * size, '#6b4729');
     for (let i = 0; i < 4; i++) {
       const yy = baseY - 8 * size - i * 6 * size;
       const ww = (16 - i * 3) * size;
-      r(ctx, x - ww / 2, yy, ww, 4 * size, i % 2 ? '#2e4a30' : '#375737');
-      r(ctx, x - ww / 2 + 2, yy, ww - 4, 1, '#4f7145');
+      r(ctx, x - ww / 2, yy, ww, 4 * size, '#25402a');
+      r(ctx, x - ww / 2 + 1, yy + 1, ww - 2, 2 * size, i % 2 ? '#31502f' : '#3a5c39');
+      r(ctx, x - ww / 2 + 3, yy, ww - 6, 1, '#587c4c');
+      r(ctx, x + ww / 2 - Math.max(3, Math.round(ww * 0.22)), yy + 1, Math.max(2, Math.round(ww * 0.16)), 2, '#5d8550');
     }
   };
 
   A.willow = function (ctx, x, baseY, size, t) {
     size = size || 1;
     t = t || 0;
-    A.shadow(ctx, x, baseY, 22 * size, 2, 0.22);
+    A.groundShadow(ctx, x - 3 * size, baseY + 1, 28 * size, 6 * size, 0.16);
+    A.shadow(ctx, x, baseY, 22 * size, 2, 0.26);
     r(ctx, x - 2, baseY - 16 * size, 3, 16 * size, '#5a4028');
+    r(ctx, x - 1, baseY - 16 * size, 1, 16 * size, '#7a5836');
     for (let i = 0; i < 7; i++) {
       const ox = (i - 3) * 4 * size;
       const len = (10 + (i % 3) * 4) * size;
@@ -811,8 +1029,10 @@
       ctx.quadraticCurveTo(x + ox + 4 + sway, baseY - 18 * size, x + ox + 2 + sway, baseY - 26 * size + len);
       ctx.stroke();
     }
-    r(ctx, x - 13 * size, baseY - 30 * size, 26 * size, 7 * size, '#587340');
+    r(ctx, x - 13 * size, baseY - 30 * size, 26 * size, 7 * size, '#4d6b3a');
+    r(ctx, x - 12 * size, baseY - 31 * size, 24 * size, 3 * size, '#587340');
     r(ctx, x - 9 * size, baseY - 33 * size, 18 * size, 5 * size, '#68874a');
+    r(ctx, x - 6 * size, baseY - 34 * size, 12 * size, 2 * size, '#82a35d');
   };
 
   A.lantern = function (ctx, x, baseY, opt) {
@@ -956,25 +1176,78 @@
     ctx.restore();
   };
 
-  A.water = function (ctx, x, y, w, h, t, seed) {
-    r(ctx, x, y, w, h, A.pal.waterDark);
-    r(ctx, x, y + 1, w, h - 2, A.pal.water);
+  /* 抖动软阴影：比 A.shadow 更适合大树 / 建筑投影，出现体积感又不糊边。 */
+  A.groundShadow = function (ctx, x, y, rx, ry, alpha) {
+    rx = Math.max(2, Math.round(rx)); ry = Math.max(1, Math.round(ry));
+    const x0 = Math.round(x - rx), y0 = Math.round(y - ry);
+    const w0 = rx * 2, h0 = ry * 2;
     ctx.save();
-    ctx.globalAlpha = 0.28;
-    ctx.fillStyle = A.pal.waterLight;
-    for (let yy = y + 3; yy < y + h - 2; yy += 7) {
-      const off = Math.sin((t || 0) * 1.2 + yy * 0.3 + (seed || 0)) * 5;
-      for (let xx = x + 4; xx < x + w - 4; xx += 22) {
-        ctx.fillRect(xx + off, yy, 10, 1);
+    ctx.globalAlpha = alpha == null ? 0.2 : alpha;
+    ctx.fillStyle = '#0d0a06';
+    for (let yy = 0; yy < h0; yy++) {
+      const ny = (yy + 0.5) / ry - 1;
+      const half = Math.sqrt(Math.max(0, 1 - ny * ny)) * rx;
+      const xb = x0 + rx - half;
+      for (let xx = 0; xx < half * 2; xx++) {
+        const px = Math.round(xb + xx), py = y0 + yy;
+        if (G.hash(px, py, 23) < 0.55) ctx.fillRect(px, py, 1, 1);
       }
     }
     ctx.restore();
+  };
+
+  A.water = function (ctx, x, y, w, h, t, seed) {
+    t = t || 0; seed = seed || 0;
+    r(ctx, x, y, w, h, A.pal.waterDark);
+    // 深浅分层：浅滩、深水交替，用抖动像素过渡，水面有了深度
+    const bands = Math.max(2, Math.min(4, Math.round(h / 12)));
     ctx.save();
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#8fbfb4';
-    ctx.fillRect(x, y, w, 1);
-    ctx.fillStyle = '#1a3c3f';
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = A.pal.water;
+    ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+    for (let i = 0; i < bands; i++) {
+      const bandY = y + 1 + Math.round((h - 2) * (i / bands));
+      const bandH = Math.max(1, Math.round((h - 2) / bands));
+      if (i % 2 === 0) {
+        ctx.globalAlpha = 0.25;
+        ctx.fillStyle = A.pal.waterLight;
+      } else {
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = A.pal.waterDark;
+      }
+      for (let xx = x + 2; xx < x + w - 2; xx += 2) {
+        if (G.hash(xx, bandY, seed + 5) < 0.5) ctx.fillRect(xx, bandY, 2, bandH);
+      }
+    }
+    // 天光反射：上缘两道亮带
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = '#a7d6c8';
+    ctx.fillRect(x + 2, y + 1, w - 4, 1);
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = '#9fd0c2';
+    ctx.fillRect(x + 5, y + 2, w - 10, 1);
+    // 水岸压边
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#123236';
     ctx.fillRect(x, y + h - 1, w, 1);
+    ctx.fillRect(x, y, 1, h);
+    ctx.fillRect(x + w - 1, y, 1, h);
+    // 波纹、反光与碎屑高光
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = A.pal.waterLight;
+    for (let yy = y + 4; yy < y + h - 2; yy += 6) {
+      const off = Math.sin(t * 1.2 + yy * 0.3 + seed) * 5;
+      for (let xx = x + 4; xx < x + w - 4; xx += 18) {
+        if (G.hash(xx, yy, seed + 9) > 0.3) ctx.fillRect(Math.round(xx + off), yy, 8 + ((xx * 7) % 5), 1);
+      }
+    }
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#d9f2e4';
+    for (let i = 0; i < 6; i++) {
+      const gx = x + 6 + G.hash(i, seed, 1) * Math.max(1, w - 12);
+      const gy = y + 3 + ((t * 9 + i * 37) % Math.max(1, h - 6));
+      ctx.fillRect(Math.round(gx), Math.round(gy), 2, 1);
+    }
     ctx.restore();
   };
 
@@ -1002,7 +1275,8 @@
     const rw = w + 8, rh = 8;
     for (let i = 0; i < rh; i++) {
       const t = i / (rh - 1);
-      const hw = Math.round(rw / 2 * (1 - 0.45 * t));
+      // 屋脊在最上最窄，檐口在最下最宽
+      const hw = Math.round(rw / 2 * (0.55 + 0.45 * t));
       r(ctx, x - hw, baseY - h - rh + i, hw * 2, 1, i % 3 === 0 ? '#5b5a55' : '#6e6d67');
     }
     r(ctx, x - rw / 2, baseY - h - 2, rw, 1, '#4a4945');
@@ -1337,6 +1611,8 @@
     ctx.fillStyle = bg;
     ctx.fillRect(0, 220, 640, 140);
     ctx.restore();
+    // 暗角收拢视线
+    A.vignette(ctx, 0.45 * strength);
   };
 
   A.nightOverlay = function (ctx, cam, lights, strength) {
@@ -1345,6 +1621,8 @@
     ctx.fillStyle = 'rgba(7,12,32,' + (strength == null ? 0.56 : strength) + ')';
     ctx.fillRect(0, 0, G.W, G.H);
     ctx.restore();
+    // 夜空压深四角，灯火区更亮
+    A.vignette(ctx, 0.5);
     if (lights && lights.length) {
       for (const l of lights) {
         const sx = l.x - (cam ? cam.x : 0), sy = l.y - (cam ? cam.y : 0);

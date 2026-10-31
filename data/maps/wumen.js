@@ -54,6 +54,17 @@ G.mod.register({
     }
   ],
   "props": [
+    { "painter": "wumen.steps", "x": 320, "baseY": 428, "opt": { "w": 190 } },
+    { "painter": "wumen.lion", "x": 150, "baseY": 470, "opt": { "flip": false } },
+    { "painter": "wumen.lion", "x": 490, "baseY": 470, "opt": { "flip": true } },
+    { "painter": "wumen.huabiao", "x": 112, "baseY": 476, "opt": {} },
+    { "painter": "wumen.huabiao", "x": 528, "baseY": 476, "opt": {} },
+    { "painter": "wumen.vat", "x": 210, "baseY": 512, "opt": {} },
+    { "painter": "wumen.vat", "x": 430, "baseY": 512, "opt": {} },
+    { "painter": "wumen.tree", "x": 74, "baseY": 600, "opt": { "kind": "pine", "s": 0.8 } },
+    { "painter": "wumen.tree", "x": 566, "baseY": 600, "opt": { "kind": "pine", "s": 0.8 } },
+    { "painter": "wumen.sign", "x": 190, "baseY": 600, "opt": { "text": "午門 · 广场", "w": 58 } },
+    { "painter": "wumen.sign", "x": 450, "baseY": 600, "opt": { "text": "万象灵境", "w": 58 } },
     {
       "painter": "wumen.far",
       "x": 320,

@@ -719,7 +719,7 @@
     }
 
     gate() {
-      if (G.save.flag('entered')) {
+      if (G.save.flag('acropolisEntered')) {
         G.dialog.show([
           { name: '山门管理员', text: '您已经入园了。帕特农神庙前今晚有点圣火的仪式。' },
         ]);
@@ -729,7 +729,7 @@
         { name: '卫城山门 · 管理员', text: '前方是卫城。请出示证件，随身物品过一下安检。' },
         { name: '旅行手账', text: '过了这道门，就是女神住的山顶。' },
       ], () => {
-        if (G.security) G.security.start();
+        if (G.security) G.security.start('acropolis');
       });
     }
 

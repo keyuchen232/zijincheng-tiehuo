@@ -7,8 +7,8 @@
 
    · 点「进入万象灵境」= G.mod.go('wumen')：go() 自己会关掉标题页、
      建场景、播进场的过场（wumen.intro）。
-   · 「旧线」按钮只是展开/收起 legacy-actions，里面还是原来那四个
-     入口（打铁花 / 继续 / 旧沙盘 / 雅典），逻辑仍由 main.js 绑。
+   · 「旧线」菜单已经整体下线：标题页只保留主入口、继续、创造模式、
+     支线·打铁花与退出。
    · 标题文案的真源是 data/script.json 的 ui.title，这里是同步器；
      index.html 里写的是同样的兜底文字（首屏不闪）。
    ============================================================ */
@@ -63,15 +63,6 @@
     G.mod.go('wumen');
   }
 
-  function toggleLegacy() {
-    const box = node('legacy-actions');
-    const btn = node('btn-legacy');
-    if (!box) return;
-    const willOpen = box.classList.contains('hidden');
-    box.classList.toggle('hidden', !willOpen);
-    if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-  }
-
   document.addEventListener('click', function (e) {
     let el = e.target;
     while (el && el !== document) {
@@ -80,7 +71,7 @@
         enter();
         return;
       }
-      if (el.id === 'btn-legacy') {
+      if (el.id === 'btn-legacy-disabled') {
         if (e.preventDefault) e.preventDefault();
         toggleLegacy();
         return;

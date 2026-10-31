@@ -76,7 +76,10 @@
     anyPressedAt: 0,
     init() {
       window.addEventListener('keydown', (e) => {
-        if (relevant.has(e.code)) e.preventDefault();
+        const t = e.target;
+        const typing = !!(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable));
+        if (!typing && relevant.has(e.code)) e.preventDefault();
+        if (typing) return; // 输入框里打字不触发游戏热键
         if (e.repeat) return;
         this.down[e.code] = true;
         this.pressed[e.code] = true;
@@ -125,6 +128,7 @@
         night: false, finished: false,
       },
       codex: [],
+      flavors: [],
       best: 0,
       plays: 0,
       sound: true,
@@ -163,6 +167,12 @@
     exists() {
       try { return !!localStorage.getItem(KEY); } catch (e) { return false; }
     },
+    /* 彻底删掉本机存档（标题页「删除存档」用） */
+    remove() {
+      try { localStorage.removeItem(KEY); } catch (e) { /* noop */ }
+      this.data = defaultSave();
+      return true;
+    },
     flag(k, v) {
       if (v === undefined) return !!this.data.flags[k];
       this.data.flags[k] = !!v;
@@ -173,6 +183,12 @@
     addCodex(id) {
       if (!this.data.codex.includes(id)) { this.data.codex.push(id); this.persist(); return true; }
       return false;
+    },
+    // 结局/抉择记录（卫城圣火的三条处理方式等）；旧存档没有 flavors 字段时补上
+    addFlavor(k) {
+      if (!Array.isArray(this.data.flavors)) this.data.flavors = [];
+      if (!this.data.flavors.includes(k)) { this.data.flavors.push(k); this.persist(); }
+      return k;
     },
   };
 
@@ -387,20 +403,29 @@
     optionEls: [],
     init() {
       this.el = G.$('#choice');
-      this.optionEls = G.$$('#choice .choice-opt');
-      this.optionEls.forEach((o) => {
-        o.addEventListener('mouseenter', () => {
-          o.classList.add('hover');
-          this.optionEls.forEach((x) => x.classList.remove('sel'));
-          o.classList.add('sel');
-        });
-        o.addEventListener('click', () => this.pick(parseInt(o.dataset.i, 10)));
+      // 选项是 show() 时动态生成的，必须在容器上做事件委托，否则用鼠标点选项没有任何反应
+      const body = G.$('#choice-body') || this.el;
+      body.addEventListener('click', (e) => {
+        const opt = e.target && e.target.closest ? e.target.closest('.choice-opt') : null;
+        if (!opt) return;
+        e.preventDefault();
+        this.pick(parseInt(opt.dataset.i, 10));
+      });
+      body.addEventListener('mouseover', (e) => {
+        const opt = e.target && e.target.closest ? e.target.closest('.choice-opt') : null;
+        if (!opt) return;
+        const idx = parseInt(opt.dataset.i, 10);
+        if (idx === this._hover) return;
+        this._hover = idx;
+        const els = G.$$('#choice .choice-opt');
+        els.forEach((x, i) => x.classList.toggle('sel', i === idx));
       });
       G.$('#choice').addEventListener('click', (e) => { if (e.target.id === 'choice') G.audio.sfx('error'); });
     },
     show(lines, opts) {
       lines = lines || [];
       this.onPick = (opts && opts.onPick) || null;
+      this.onClose = (opts && opts.onClose) || null;
       const askEl = G.$('#choice-ask');
       askEl.innerHTML = (opts && opts.title) || '你偏要向哪个方向走？';
       G.$('#choice-body').innerHTML = '';
@@ -437,6 +462,7 @@
       if (idx < 0 || idx >= n) return;
       const cb = this.onPick;
       G.audio.sfx('confirm');
+      this._picked = true;
       this.close();
       if (cb) setTimeout(() => cb(idx), 30);
     },
@@ -444,10 +470,15 @@
       if (!this.active) return;
       this.active = false;
       this.choiceWaiting = false;
+      const cb = this.onPick;
+      const onClose = this.onClose;
       this.onPick = null;
+      this.onClose = null;
       G.hide(this.el);
       G.overlayDepth = Math.max(0, G.overlayDepth - 1);
       G.input.clearPressed();
+      if (onClose && !this._picked) onClose();
+      this._picked = false;
     },
   };
 

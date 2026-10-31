@@ -124,7 +124,7 @@
         this._unbind();
         G.overlayDepth = Math.max(0, (G.overlayDepth || 1) - 1);
         this.active = false;
-        if (spec.seen !== false) G.save && G.save.flag && G.save.flag('cut.' + id, true);
+        if (spec.seen !== false) this.markSeen(id);
         if (cb) { try { cb(); } catch (e) { console.error(e); } }
       }
     },
@@ -144,8 +144,8 @@
       ui.sub.textContent = '';
       ui.stage.classList.add('hidden');
       ui.cv.style.opacity = '1';
-      const canvas = document.querySelector('canvas:not(.cut-portrait)');
-      if (canvas) canvas.style.transform = '';
+      const canvas = document.querySelector('#title-bg') || document.querySelector('canvas:not(.cut-portrait)');
+      if (canvas) { canvas.style.transitionDuration = '0ms'; canvas.style.transform = ''; }
     },
 
     /* ---------- 单步执行 ---------- */
@@ -239,7 +239,7 @@
         }
 
         case 'zoom': {
-          const c = document.querySelector('canvas:not(.cut-portrait)');
+          const c = document.querySelector('#title-bg') || document.querySelector('canvas:not(.cut-portrait)');
           if (c) {
             c.style.transition = 'transform ' + Math.max(1, ms) + 'ms ease-out';
             c.style.transform = 'scale(' + (s.v || 1) + ')';
@@ -410,11 +410,25 @@
       if (this._ui) this._ui.root.removeEventListener('mousedown', this._onClick);
     },
 
-    /* 便利方法：这段过场看过没有 */
+    /* 便利方法：这段过场看过没有
+       存在独立的 localStorage 里（wxl.cutseen），
+       这样「重新开始」清存档、重新加载页面都不会再播一次。 */
     seen(id) {
-      /* 注意：G.save 没有 isDone()，只有 flag()；这里以前写成 isDone，
-         导致 seen() 永远 false —— 开场每次刷新都重播一遍。 */
+      try {
+        const raw = localStorage.getItem('wxl.cutseen');
+        const arr = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(arr) && arr.indexOf(id) >= 0) return true;
+      } catch (e) { /* noop */ }
       return !!(G.save && G.save.flag && G.save.flag('cut.' + id));
+    },
+    markSeen(id) {
+      try {
+        const raw = localStorage.getItem('wxl.cutseen');
+        let arr = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(arr)) arr = [];
+        if (arr.indexOf(id) < 0) { arr.push(id); localStorage.setItem('wxl.cutseen', JSON.stringify(arr)); }
+      } catch (e) { /* noop */ }
+      if (G.save && G.save.flag) G.save.flag('cut.' + id, true);
     }
   };
 

@@ -143,6 +143,8 @@
           location.reload();
         });
       });
+      const quitBtn = $('#menu-quit');
+      if (quitBtn) quitBtn.addEventListener('click', () => { this.close(); G.quitToTitle(); });
       G.$('#menu').addEventListener('click', (e) => { if (e.target.id === 'menu') this.close(); });
     },
     show() {
@@ -594,38 +596,27 @@
   /* ============================================================
      home hall
      ============================================================ */
+  /* 家 · 大厅已经整体下线（只保留了创造模式的接口） */
   G.homeReturn = null;
-  G.goHome = function () {
-    if (!G.scene || G.scene.id === 'home' || G.fade.busy) return;
-    if (G.dialog.active || G.security.active || G.cinema.active || (G.minigame && G.minigame.active) || (G.minigameGreek && G.minigameGreek.active) || G.scene.mapOpen) return;
-    const sc = G.scene;
-    G.homeReturn = { scene: sc, x: sc.player.x, y: sc.player.y, dir: sc.player.dir };
-    G.fade.to(() => {
-      if (!G.homeScene) G.homeScene = new G.HomeScene();
-      G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
-      G.ui.setHomeButton(true);
-      G.ui.toast('回到家了 · 看看新打好的工作台', 'good', 2400);
-    }, 360);
-  };
-  G.leaveHome = function () {
-    if (!G.scene || G.scene.id !== 'home' || G.fade.busy || G.dialog.active) return;
-    const ret = G.homeReturn;
-    G.fade.to(() => {
-      if (ret && ret.scene) {
-        G.setScene(ret.scene, { spawn: { x: ret.x, y: ret.y } });
-        ret.scene.player.dir = ret.dir || 'up';
-      } else {
-        G.enterBeijing({ x: 1100, y: 1200 });
-      }
-      G.homeReturn = null;
-      G.ui.setHomeButton(false);
-    }, 360);
-  };
-  G.toggleHome = function () {
-    if (G.scene && G.scene.id === 'home') G.leaveHome();
-    else G.goHome();
-  };
+  G.goHome = function () { G.ui.toast('家已经下线了 · 创造模式请从标题页进入', 'warn', 2200); };
+  G.leaveHome = function () {};
+  G.toggleHome = function () { G.goHome(); };
 
+  /* 故事模式：进「万象灵境 · 雅典—故宫」（原来放在创造模式里的那场戏） */
+  function startStory() {
+    G.audio.init();
+    G.audio.setEnabled(G.save.data.sound !== false);
+    G.save.reset(true);
+    G.save.data.flags.introSeen = false;
+    G.save.persist();
+    G.fade.to(() => {
+      if (G.enterFusion) G.enterFusion();
+      else G.enterBeijing({ x: 1100, y: 1200 });
+      G.ui.toast('故事模式 · 万象灵境：先和狄奥提玛确认投影标签', 'good', 3800);
+    }, 520);
+  }
+
+  /* 旧故事线（中轴线 → 故宫），保留给调试 / 后续支线使用 */
   function startNewGame() {
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
@@ -644,20 +635,20 @@
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
     const f = G.save.data.flags;
-    if (G.save.data.scene === 'home') {
-      G.fade.to(() => {
-        G.titleActive = false;
-        G.hide($('#title'));
-        if (!G.homeScene) G.homeScene = new G.HomeScene();
-        G.ui.showHud(true);
-        G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
-        G.ui.setHomeButton(true);
-        G.ui.toast('回到家了', 'good', 2000);
-      }, 520);
-      return;
-    }
     G.fade.to(() => {
-      if (f.night || f.finished) {
+      const pos = G.save.data.pos;
+      if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        G.mod.go('create', { spawn: { x: pos.x, y: pos.y } });
+        G.ui.showHud(true);
+      }
+      else if (pos && pos.scene === 'wumen' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'wumen')) {
+        G.mod.go('wumen', { spawn: { x: pos.x, y: pos.y } });
+        G.ui.showHud(true);
+      }
+      else if (pos && pos.scene === 'fusion' && G.enterFusion) { G.enterFusion({ skipIntro: true, spawn: { x: pos.x, y: pos.y } }); }
+      else if (pos && pos.scene === 'gugong') { G.enterPalace({ x: pos.x, y: pos.y }); }
+      else if (pos && pos.scene === 'beijing') { G.enterBeijing({ x: pos.x, y: pos.y }); }
+      else if (f.night || f.finished) {
         G.enterPalace({ x: 650, y: 300 });
       } else if (f.entered) {
         let spawn = { x: 750, y: 1300 };
@@ -670,15 +661,92 @@
     }, 520);
   }
 
-  /* 创造模式：进入万象灵境的故宫数字沙盘 / 创作终端 */
+  /* 创造模式入口（接口）：家 · 大厅的工作台调用；标题页不再放按钮 */
+  G.enterCreateMode = function () {
+    if (G.fade.busy) return;
+    G.audio.sfx('page');
+    G.fade.to(() => {
+      if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        G.mod.go('create');
+        G.ui.showHud(true);
+        G.ui.toast('造境台 · 把紫禁城与卫城的构件摆到同一台上', 'good', 3200);
+        return;
+      }
+      G.enterFusion();
+    }, 340);
+  };
+
+  /* 旧入口（保留兼容）：也走同一个接口 */
   function enterCreate() {
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
     G.fade.to(() => {
+      // 新创造模式：造境台（中式/希式构件自由组合，可收境成展签）
+      if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        const sc = G.mod.go('create');
+        if (sc) {
+          G.ui.showHud(true);
+          G.ui.toast('创造模式 · 造境台：把紫禁城与卫城的构件摆到同一台上', 'good', 3600);
+          return;
+        }
+      }
       G.enterFusion();
       G.ui.toast('创造模式 · 先校准来源，再走进创作终端', 'good', 3200);
     }, 420);
   }
+
+  /* 自动保存：把场景与站位写进存档，供「继续游戏」还原 */
+  G.autosave = function () {
+    if (!G.scene || G.titleActive) return;
+    const p = G.scene.player || {};
+    G.save.data.pos = { scene: G.scene.id || G.sceneName || 'beijing', x: Math.round(p.x || 0), y: Math.round(p.y || 0) };
+    G.save.data.scene = G.scene.id || G.save.data.scene;
+    G.save.persist();
+  };
+
+  /* 退出到标题页（菜单里的「退出 · 回到标题」） */
+  G.quitToTitle = function () {
+    if (G.fade.busy) return;
+    G.autosave();
+    G.audio.sfx('page');
+    G.fade.to(() => {
+      if (G.scene && G.scene.exit) { try { G.scene.exit(); } catch (e) { /* noop */ } }
+      G.scene = null;
+      G.sceneName = '';
+      G.ui.showHud(false);
+      G.ui.setHomeButton(false);
+      G.hide($('#hud'));
+      G.hide($('#exit-screen'));
+      // 注意：这里不要调 G.backToTitle()——它会被 fade.busy 挡住，直接切回标题页
+      G.show($('#title'));
+      G.titleActive = true;
+      G.input.clearPressed();
+      title.sync();
+    }, 320);
+  };
+
+  /* 支线 · 打铁花：从正阳门出发，沿中轴线一路走到午门、进宫、入夜 */
+  G.enterTiehua = function () {
+    if (G.fade.busy) return;
+    G.audio.init();
+    G.audio.setEnabled(G.save.data.sound !== false);
+    // 支线从头走：清掉入园 / 材料 / 夜场标记，保留图鉴与最佳成绩
+    G.save.flag('entered', false);
+    G.save.flag('metZhao', false);
+    G.save.flag('iron', false);
+    G.save.flag('charcoal', false);
+    G.save.flag('ladle', false);
+    G.save.flag('night', false);
+    G.save.data.flags.palaceIntroSeen = false;
+    G.save.data.flags.introSeen = true;
+    G.save.data.scene = 'beijing';
+    G.save.persist();
+    G.fade.to(() => {
+      G.enterBeijing({ x: 1100, y: 1200 });
+      G.unlock('axis');
+      G.ui.toast('支线 · 打铁花：从正阳门出发，沿中轴线向北走到午门', 'good', 3600);
+    }, 420);
+  };
 
   /* 退出游戏：浏览器允许时直接关闭标签页，否则留在退出画面 */
   G.exitGame = function () {
@@ -710,25 +778,41 @@
   const title = {
     active: true,
     init() {
-      $('#btn-start').addEventListener('click', () => {
-        if (G.save.exists()) {
-          G.confirm('重新开始故事？', '当前进度与图鉴会被覆盖，最佳成绩会保留。', () => startNewGame());
-          return;
-        }
-        startNewGame();
-      });
+      /* 旧线（btn-start / btn-fusion / btn-athens）已整体下线 */
       $('#btn-continue').addEventListener('click', () => continueGame());
-      $('#btn-create').addEventListener('click', () => enterCreate());
+      const thBtn = $('#btn-tiehua');
+      if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
+      const crBtn = $('#btn-create');
+      if (crBtn) crBtn.addEventListener('click', () => (G.enterCreateMode ? G.enterCreateMode() : enterCreate()));
       $('#btn-exit').addEventListener('click', () => G.exitGame());
+      const delBtn = $('#btn-del-save');
+      if (delBtn) delBtn.addEventListener('click', () => {
+        G.confirm('删除本机存档？', '进度、图鉴与最佳成绩都会被清除，无法恢复。', () => {
+          G.save.remove();
+          title.sync();
+          G.ui.toast('存档已删除', 'good', 2200);
+        });
+      });
       $('#btn-back-title').addEventListener('click', () => G.backToTitle());
       this.sync();
     },
     sync() {
       const has = G.save.exists();
       const btn = $('#btn-continue');
-      if (!btn) return;
-      btn.disabled = !has;
-      btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
+      if (btn) {
+        btn.disabled = !has;
+        btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
+      }
+      const slot = $('#save-slot');
+      const info = $('#save-info');
+      if (!slot || !info) return;
+      slot.classList.toggle('none', !has);
+      if (!has) { info.textContent = '存档 · 暂无'; return; }
+      const d = G.save.data || {};
+      const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
+      const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
+      const done = d.codex ? d.codex.length : 0;
+      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
     },
   };
 
@@ -737,6 +821,10 @@
      ============================================================ */
   G.onKeyDown = function (code) {
     if (G.audio.ctx) G.audio.resume();
+    if (G.ai && G.ai.open) {
+      if (code === 'Escape') G.ai.close();
+      return;
+    }
     if (G.confirmOpen) {
       if (code === 'Escape') G.closeConfirm(false);
       else if (code === 'Enter') G.closeConfirm(true);
@@ -815,6 +903,7 @@
     if (code === 'KeyH') { G.toggleHome(); return; }
     if (code === 'Escape') { menu.show(); return; }
     if (code === 'KeyJ') { codex.show(); return; }
+    if (code === 'KeyT') { if (G.ai) G.ai.toggle(); return; }
     // E / movement handled by the world
   };
 
@@ -847,11 +936,17 @@
     G.initTouch();
     codex.init();
     menu.init();
+    if (G.ai) G.ai.init();
 
     $('#confirm-yes').addEventListener('click', () => G.closeConfirm(true));
     $('#confirm-no').addEventListener('click', () => G.closeConfirm(false));
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
-    $('#btn-home').addEventListener('click', () => G.toggleHome());
+    const homeBtn = $('#btn-home');
+    if (homeBtn) homeBtn.addEventListener('click', () => G.toggleHome());
+    const askBtn = $('#btn-ask');
+    if (askBtn && G.ai) askBtn.addEventListener('click', () => G.ai.toggle());
+    const menuAsk = $('#menu-ask');
+    if (menuAsk && G.ai) menuAsk.addEventListener('click', () => { menu.close(); G.ai.show(); });
     const menuArt = $('#menu-artdemo');
     if (menuArt) menuArt.addEventListener('click', () => { menu.close(); G.openArtDemo(); });
     const artClose = $('#artdemo-close');
@@ -945,13 +1040,6 @@
         resetUI();
         G.enterFusion({ skipIntro: skipIntro !== false });
       },
-      home() {
-        resetUI();
-        G.save.data.flags.homeIntroSeen = true;
-        if (!G.homeScene) G.homeScene = new G.HomeScene();
-        G.setScene(G.homeScene, { spawn: { x: 450, y: 420 } });
-        G.ui.setHomeButton(true);
-      },
       gugong(x, y) {
         resetUI();
         G.save.flag('entered', true);
@@ -1037,8 +1125,11 @@
       state() { return JSON.parse(JSON.stringify(G.save.data)); },
     };
 
+    // 每 8 秒自动保存一次站位与进度；打开菜单、切后台、离开页面时也会存
+    setInterval(() => { try { if (!G.titleActive) G.autosave(); } catch (e) { /* noop */ } }, 8000);
+    document.addEventListener('pause', () => G.autosave());
     // auto-save on hide
-    window.addEventListener('beforeunload', () => G.save.persist());
+    window.addEventListener('beforeunload', () => G.autosave());
     document.addEventListener('visibilitychange', () => { if (document.hidden) G.save.persist(); });
 
     // initial UI
@@ -1096,6 +1187,10 @@
       } else if (G.minigame && G.minigame.active) {
         G.minigame.update(dt);
         G.minigame.draw(ctx);
+      } else if (G.sundial && G.sundial.active) {
+        // 日晷谜题直接画在主画布上，必须自己接管 update/draw，否则表针不动、也看不到盘面
+        G.sundial.update(dt);
+        G.sundial.draw(ctx);
       } else if (G.scene) {
         G.scene.update(dt);
         G.scene.draw(ctx);

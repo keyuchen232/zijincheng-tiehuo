@@ -42,7 +42,7 @@
 
       /* ---------------- 午门 ---------------- */
       this.addEntity({
-        x: 750, y: 1512, baseY: 1080,
+        x: 750, y: 1512, baseY: 1512,
         draw: (c) => {
           A.drawGate(c, 750, 1512, 300, {
             wallH: 60, roofH: 30, double: true, arches: 3, name: '午门',
@@ -51,7 +51,8 @@
           A.wallH(c, 930, 1320, 1512, 30);
         },
       });
-      this.solid(590, 1490, 320, 24);
+      this.solid(590, 1490, 120, 24);
+      this.solid(790, 1490, 120, 24);
       this.solid(180, 1490, 410, 24);
       this.solid(910, 1490, 410, 24);
       this.addInteract({
@@ -109,9 +110,11 @@
       this.addBuilding(750, 1040, (c) => {
         A.drawHall(c, 750, 1040, 300, {
           wallH: 40, roofH: 34, double: true, name: '太和殿', bays: 7, platformPad: 56, stairW: 52,
+          openDoor: true,
         });
       });
-      this.solid(570, 995, 360, 45);
+      this.solid(570, 995, 144, 45);
+      this.solid(786, 995, 144, 45);
       this.addInteract({
         x: 940, y: 1090, r: 40, label: '太和殿 · 金銮殿',
         action: () => {
@@ -248,9 +251,11 @@
       this.addBuilding(750, 772, (c) => {
         A.drawHall(c, 750, 772, 196, {
           wallH: 32, roofH: 28, double: true, name: '保和殿', platformPad: 38,
+          openDoor: true,
         });
       });
-      this.solid(640, 744, 220, 30);
+      this.solid(640, 744, 74, 30);
+      this.solid(786, 744, 74, 30);
       this.addInteract({
         x: 900, y: 790, r: 34, label: '保和殿',
         action: () => {
@@ -274,9 +279,11 @@
       this.addBuilding(750, 574, (c) => {
         A.drawHall(c, 750, 574, 236, {
           wallH: 34, roofH: 28, double: true, name: '乾清宫', platformPad: 40,
+          openDoor: true,
         });
       });
-      this.solid(610, 544, 280, 32);
+      this.solid(610, 544, 104, 32);
+      this.solid(786, 544, 104, 32);
       this.addInteract({
         x: 940, y: 600, r: 40, label: '乾清宫',
         action: () => {
@@ -294,9 +301,11 @@
       this.addBuilding(750, 406, (c) => {
         A.drawHall(c, 750, 406, 190, {
           wallH: 30, roofH: 26, double: true, name: '坤宁宫', platformPad: 34,
+          openDoor: true,
         });
       });
-      this.solid(644, 380, 212, 28);
+      this.solid(644, 380, 70, 28);
+      this.solid(786, 380, 70, 28);
       this.addInteract({
         x: 910, y: 420, r: 34, label: '坤宁宫',
         action: () => G.dialog.show([
@@ -677,6 +686,7 @@
         { name: '老赵', text: '你是来看打铁花的吧？我姓赵，打了四十年铁。' },
         { name: '老赵', text: '铁水要烧到一千六百度。生铁、柳炭、柳木勺，一样不能少。' },
         { name: '老赵', text: '帮我把三样东西找来：珍宝馆前的生铁、御花园的柳炭、箭亭的柳木勺。' },
+        { name: '老赵', text: '铁花这东西，烧到几成、打得多高，都有讲究。不放心就按 T 问守境人。' },
         { name: '旅行手账', text: '好。等材料齐了，就能看一场真正的打铁花。' },
       ];
     }
@@ -745,7 +755,7 @@
       });
     }
 
-    startMinigame() {
+    startMinigame(auto) {
       if (!G.minigame) return;
       if (G.minigame.active) return;
       const launch = (diff) => G.minigame.start({
@@ -781,6 +791,12 @@
           this.updateMarker();
         },
       });
+      // 支线入口直接进难度选择（auto），主线仍先问一句
+      if (auto) {
+        if (G.difficulty) G.difficulty.open('tiehua', launch);
+        else launch('hard');
+        return;
+      }
       // 先确认是否现在挑战，再选难度；选择“否”则继续自由探索
       G.dialog.ask({
         name: '老赵',
@@ -807,6 +823,26 @@
         for (const e of this.entities) if (e.lantern) e.night = false;
         return;
       }
+      // 广场两侧的松树与陈设，把中轴两边的空地填住
+      for (const [tx, ty, sz] of [[300, 1240, .95], [1200, 1240, .95], [300, 1000, .9], [1200, 1000, .9], [300, 820, .9], [1200, 820, .9], [300, 640, .9], [1200, 640, .9], [300, 460, .85], [1200, 460, .85]]) {
+        this.addEntity({ x: tx, y: ty, baseY: ty, draw: (c) => A.pine(c, tx, ty, sz) });
+      }
+      for (const [vx, vy] of [[560, 1300], [940, 1300], [560, 900], [940, 900], [560, 480], [940, 480]]) {
+        this.addEntity({ x: vx, y: vy, baseY: vy, draw: (c) => A.vat(c, vx, vy, { water: true }) });
+      }
+      for (const [sx2, sy2, txt] of [[430, 1318, '太和门广场'], [1070, 1318, '太和殿广场']]) {
+        this.addEntity({ x: sx2, y: sy2, baseY: sy2, draw: (c) => A.sign(c, sx2, sy2, txt, { w: 60 }) });
+      }
+      // 广场上的鸽子与一位看殿的游客
+      for (const [px, py, seed] of [[700, 1146, 1], [800, 1162, 2], [764, 1186, 3]]) {
+        this.addEntity({ x: px, y: py, baseY: py, draw: (c) => A.pigeon(c, px, py, this.time, seed) });
+      }
+      this.addNPC({
+        x: 620, y: 1160, name: '游客', wander: 0,
+        palette: { robe: '#4f7f9f', robeDark: '#345c76', robeLight: '#6fa3c4', trim: '#f0d083', hatType: 'cap', hat: '#e1b34d', bag: '#7a5131' },
+        lines: [{ name: '游客', text: '太和殿前这块广场，比照片里大得多。' }],
+      });
+
       const lampSpots = [
         [690, 1180], [810, 1180], [690, 1060], [810, 1060], [690, 940], [810, 940],
         [690, 820], [810, 820], [690, 700], [810, 700], [690, 580], [810, 580],
@@ -889,16 +925,17 @@
 
       // central imperial way, with stone borders and a carved median
       A.paving(c, 668, 108, 164, 1420, '#cdbf9f', '#bfb090', 7, 18);
-      c.fillStyle = 'rgba(116,96,65,.45)';
-      c.fillRect(668, 108, 2, 1420);
-      c.fillRect(830, 108, 2, 1420);
-      c.fillStyle = 'rgba(238,223,190,.38)';
-      c.fillRect(671, 108, 1, 1420);
-      c.fillRect(828, 108, 1, 1420);
+      // 石界：线条放轻，只留下浅浅一道，不抢砖面
+      c.fillStyle = 'rgba(116,96,65,.16)';
+      c.fillRect(668, 108, 1, 1420);
+      c.fillRect(831, 108, 1, 1420);
+      c.fillStyle = 'rgba(238,223,190,.12)';
+      c.fillRect(670, 108, 1, 1420);
+      c.fillRect(829, 108, 1, 1420);
       // carved imperial slab
       c.fillStyle = '#d9caab';
       c.fillRect(736, 108, 28, 1420);
-      c.fillStyle = 'rgba(151,126,82,.45)';
+      c.fillStyle = 'rgba(151,126,82,.18)';
       c.fillRect(736, 108, 1, 1420);
       c.fillRect(763, 108, 1, 1420);
       for (let y = 170; y < 1460; y += 82) {
@@ -923,7 +960,7 @@
       A.paving(c, 166, 388, 1168, 40, '#c7b998', '#b8a988', 10, 18);
       A.paving(c, 166, 228, 1168, 76, '#b9ab8c', '#aa9a7b', 11, 18);
       for (const [y, h] of [[1028, 60], [598, 48], [388, 40], [228, 76]]) {
-        c.fillStyle = 'rgba(112,92,64,.22)';
+        c.fillStyle = 'rgba(112,92,64,.1)';
         c.fillRect(166, y, 1168, 1);
         c.fillRect(166, y + h - 1, 1168, 1);
       }
