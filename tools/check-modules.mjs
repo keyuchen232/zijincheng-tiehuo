@@ -31,12 +31,15 @@ function listFiles(dir) {
 const html = rd('index.html');
 const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map((m) => m[1]);
 
-const CORE = ['js/core.js', 'js/art.js', 'js/world.js', 'js/str.js', 'js/mod.js', 'js/stage.js', 'js/cut.js', 'js/main.js'];
+const CORE = ['js/core.js', 'js/art.js', 'js/world.js', 'js/str.js', 'js/mod.js', 'js/stage.js', 'js/cut.js'];
 CORE.forEach((f) => { if (!scripts.includes(f)) err('index.html 缺少地基脚本 ' + f); });
 const pos = (f) => scripts.indexOf(f);
 for (let i = 1; i < CORE.length; i++) {
   if (pos(CORE[i - 1]) > pos(CORE[i])) err('index.html 脚本顺序错：' + CORE[i - 1] + ' 应在 ' + CORE[i] + ' 之前');
 }
+/* js/boot.js 是模块化的启动入口（它绕开了 main.js 的合并冲突），必须是最后一个脚本 */
+if (!scripts.includes('js/boot.js')) err('index.html 末尾缺少 js/boot.js —— 没有它 G.mod.boot() 不会被调用');
+else if (scripts[scripts.length - 1] !== 'js/boot.js') err('js/boot.js 必须是 index.html 里最后一个 <script>（现在是 ' + scripts[scripts.length - 1] + '）');
 
 /* ---------- 2. 磁盘上的模块文件 ↔ index.html ---------- */
 const owned = [

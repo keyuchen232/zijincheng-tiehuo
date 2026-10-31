@@ -25,9 +25,23 @@
     if (!data || !path) return undefined;
     const parts = String(path).split('.');
     let o = data;
-    for (let i = 0; i < parts.length; i++) {
+    let i = 0;
+    /* 关键：关卡 / 物件的 id 自身就带点（'wumen.registration'、'obj_bench_cards' 之前的
+       'puzzles.wumen.registration.prompt'），所以不能只用 '.' 逐段找。
+       每走一步先试「最长的一整段 key」，再退回单段。 */
+    while (i < parts.length) {
       if (o == null || typeof o !== 'object') return undefined;
-      o = o[parts[i]];
+      let matched = false;
+      for (let j = parts.length; j > i; j--) {
+        const key = parts.slice(i, j).join('.');
+        if (Object.prototype.hasOwnProperty.call(o, key)) {
+          o = o[key];
+          i = j;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) return undefined;
     }
     return o;
   }
