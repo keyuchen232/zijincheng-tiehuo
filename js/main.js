@@ -640,7 +640,7 @@
     if (soundBtn) soundBtn.textContent = G.audio.enabled ? '♪' : '×';
     title.init();
 
-    // share link: play.html?mode=fusion jumps straight into the Athens–Gugong chapter
+    // share link: index.html?mode=fusion jumps straight into the Athens–Gugong chapter
     try {
       if (new URLSearchParams(window.location.search).get('mode') === 'fusion') {
         setTimeout(() => { if (G.titleActive) G.enterFusion(); }, 260);
