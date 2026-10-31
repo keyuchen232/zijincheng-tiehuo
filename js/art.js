@@ -510,9 +510,11 @@
     const padX = 46;
     const cw = Math.ceil(w + padX * 2);
     const ch = Math.ceil(opts.wallH + opts.roofH + (opts.double ? 34 : 0) + 52);
+    const SS = 2;
     const cv = document.createElement('canvas');
-    cv.width = cw; cv.height = ch;
+    cv.width = cw * SS; cv.height = ch * SS;
     const c = cv.getContext('2d');
+    c.scale(SS, SS);
     c.imageSmoothingEnabled = false;
     const cx = Math.round(cw / 2), base = ch - 12;
     if (opts.platform !== false) platform(c, cx, base, w, opts);
@@ -574,7 +576,7 @@
     ctx.ellipse(x + 9, baseY - 2, w * 0.58, 7, 0, 0, G.TAU);
     ctx.fill();
     ctx.restore();
-    ctx.drawImage(s.cv, Math.round(x - s.ax), Math.round(baseY - s.ay));
+    ctx.drawImage(s.cv, Math.round(x - s.ax), Math.round(baseY - s.ay), s.cv.width / 2, s.cv.height / 2);
   };
 
   /* ------------------------------------------------------------
@@ -587,9 +589,11 @@
     const padX = 54;
     const cw = w + padX * 2;
     const ch = opts.wallH + opts.roofH + 80;
+    const SS = 2;
     const cv = document.createElement('canvas');
-    cv.width = cw; cv.height = ch;
+    cv.width = cw * SS; cv.height = ch * SS;
     const c = cv.getContext('2d');
+    c.scale(SS, SS);
     const cx = cw / 2, base = ch - 10;
     const wallTop = base - opts.wallH;
     // stone terrace and steps
@@ -718,7 +722,7 @@
     ctx.ellipse(x + 10, baseY - 2, w * 0.58, 8, 0, 0, G.TAU);
     ctx.fill();
     ctx.restore();
-    ctx.drawImage(s.cv, Math.round(x - s.ax), Math.round(baseY - s.ay));
+    ctx.drawImage(s.cv, Math.round(x - s.ax), Math.round(baseY - s.ay), s.cv.width / 2, s.cv.height / 2);
   };
 
   A.wallH = function (ctx, x1, x2, baseY, h, opts) {
