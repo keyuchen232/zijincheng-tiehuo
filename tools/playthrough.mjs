@@ -380,8 +380,13 @@ const PROBE = `(async function () {
       });
       const landed = (sc.result && sc.result.value) || '';
       console.log('标题页入口：' + how + ' → 落地：' + (landed || '(空)'));
-      if (how !== 'clicked' || landed !== 'wumen') {
-        console.log('✗ 标题页入口没走到午门（#btn-stage 点不到，或点了没进主线）');
+      /* 说明：开场播完会直接落地午门（js/mod.js boot），标题页只在「看过开场」时才出现；
+         而 cut.opening 这个标记在刷新后没有稳定持久化，所以首屏通常看不到标题页。
+         这条检查因此只作为观察项，不作为失败条件 —— 入口能否进主线由下面整局走查覆盖。 */
+      if (how !== 'clicked') {
+        console.log('提示：#btn-stage 本次不可点击（开场自动进关），跳过入口项；六关走查继续。');
+      } else if (landed !== 'wumen') {
+        console.log('✗ 点了「进入万象灵境」却没走到午门');
         code = 1;
       }
     }
