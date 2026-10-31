@@ -4725,6 +4725,8 @@ body.title-mode #stage{visibility:hidden}
 })();
 
 </script>
+
+<!-- ═══ 旧线（打铁花 / 雅典，逐步归档）═══ -->
 <script data-src="js/beijing.js">
 /* ============================================================
    紫禁城 · 铁火 — Beijing axis map
@@ -16389,6 +16391,1800 @@ body.title-mode #stage{visibility:hidden}
       $('#btn-continue').querySelector('small').textContent = 'CONTINUE';
     }
   });
+})();
+
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     模块化接线区 —— 仓库里唯一需要「手工接线」的地方就是这一段。
+
+     为什么放在文件最末尾：index.html 是与 upstream/main 唯一有
+     交集的入口文件，把新增内容全部压在 </body> 前，合并时冲突
+     面最小（对方新增的脚本也只有末尾一行）。
+
+     · 地基（四个人都不改，只调 API）：js/str.js / js/mod.js /
+       js/stage.js / js/cut.js
+     · A 美术/关卡：js/art/*.js + data/maps/*.js
+     · C 玩法/交互/过场：js/mods/*.js + data/cuts/*.js
+     · 最后一行 js/boot.js 负责启动 G.mod.boot()
+     契约见 docs/模块接口.md
+     ══════════════════════════════════════════════════════════ -->
+<style>
+/* ============================================================
+   css/cut.css —— 过场演出的样式（配合 js/cut.js）
+   导演改节奏不用改这里；改「字多大、黑边多厚」才改这里。
+   ============================================================ */
+
+#cut {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 全局 .hidden 可能是 display:none，也可能只是 opacity:0，
+   这里统一兜住，避免过场结束还挡着鼠标 */
+#cut.hidden,
+#cut .hidden { display: none !important; }
+
+.cut-veil {
+  position: absolute;
+  inset: 0;
+  background: #08070a;
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+
+.cut-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 9vh;
+  background: #050406;
+  transition: transform 400ms ease;
+  pointer-events: none;
+}
+.cut-bar.top { top: 0; transform: translateY(-100%); }
+.cut-bar.bot { bottom: 0; transform: translateY(100%); }
+
+.cut-card {
+  position: absolute;
+  left: 50%;
+  bottom: 15vh;
+  transform: translateX(-50%);
+  width: min(780px, 86vw);
+  text-align: center;
+  pointer-events: none;
+}
+
+.cut-who {
+  margin: 0 0 10px;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  color: #cbb283;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.cut-text {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.85;
+  color: #f3ece0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.cut-sub {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: 0.06em;
+  color: #b9ad97;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* 标题卡：开场那种大字 */
+#cut .cut-big { bottom: 50%; transform: translate(-50%, 50%); }
+#cut .cut-big .cut-text {
+  font-size: 46px;
+  letter-spacing: 0.3em;
+  line-height: 1.5;
+}
+#cut .cut-big .cut-sub {
+  font-size: 15px;
+  letter-spacing: 0.42em;
+  margin-top: 22px;
+}
+
+.cut-portrait-wrap {
+  position: absolute;
+  bottom: 12vh;
+  left: 6vw;
+  transition: transform 400ms ease, opacity 400ms ease;
+  pointer-events: none;
+}
+.cut-portrait-wrap.right { left: auto; right: 6vw; }
+.cut-portrait {
+  width: 240px;
+  height: 360px;
+  image-rendering: pixelated;
+  transition: opacity 400ms ease;
+  filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.55));
+}
+
+.cut-hint {
+  position: absolute;
+  right: 22px;
+  bottom: 12px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: rgba(243, 236, 224, 0.42);
+  pointer-events: none;
+}
+
+/* 震屏：只抖画面，不抖黑边 */
+canvas.cut-shake {
+  animation: cut-shake 300ms linear;
+}
+@keyframes cut-shake {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-4px, 2px); }
+  40%  { transform: translate(3px, -3px); }
+  60%  { transform: translate(-2px, 3px); }
+  80%  { transform: translate(2px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+@media (max-width: 720px) {
+  .cut-text { font-size: 17px; }
+  #cut .cut-big .cut-text { font-size: 30px; letter-spacing: 0.2em; }
+  .cut-portrait { width: 168px; height: 252px; }
+  .cut-portrait-wrap { bottom: 16vh; }
+}
+
+</style>
+<script data-src="js/str.js">
+/* ============================================================
+   万象灵境 · 文案表（G.str）
+   唯一职责：把 data/script.json 里的字符串按 key 取出来。
+   这个文件由架构 owner 维护，其他三人只调用、不修改。
+
+   为什么叫 G.str 不叫 G.text：
+   js/core.js:690 的 G.text 是画布绘字函数，占用中。改名避免冲突。
+
+   加载优先级：
+     1) window.WXL_SCRIPT   —— tools/build-data.mjs 生成的兜底脚本（file:// 用）
+     2) fetch data/script.json —— node serve.js 环境
+     3) 都没有 → 空表，所有文案显示 ⟪key⟫，游戏仍能跑，不白屏
+
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = (window.G = window.G || {});
+  if (G.str) return;
+
+  const MISSING = [];
+  const seen = Object.create(null);
+  let data = null;
+
+  function lookup(path) {
+    if (!data || !path) return undefined;
+    const parts = String(path).split('.');
+    let o = data;
+    let i = 0;
+    /* 关键：关卡 / 物件的 id 自身就带点（'wumen.registration'、'obj_bench_cards' 之前的
+       'puzzles.wumen.registration.prompt'），所以不能只用 '.' 逐段找。
+       每走一步先试「最长的一整段 key」，再退回单段。 */
+    while (i < parts.length) {
+      if (o == null || typeof o !== 'object') return undefined;
+      let matched = false;
+      for (let j = parts.length; j > i; j--) {
+        const key = parts.slice(i, j).join('.');
+        if (Object.prototype.hasOwnProperty.call(o, key)) {
+          o = o[key];
+          i = j;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) return undefined;
+    }
+    return o;
+  }
+
+  function note(key) {
+    if (seen[key]) return;
+    seen[key] = 1;
+    MISSING.push(key);
+    if (window.console) console.warn('[str] 缺少文案:', key);
+  }
+
+  function fill(s, vars) {
+    if (!vars) return s;
+    return s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] == null ? m : String(vars[k])));
+  }
+
+  /* 取单条字符串。缺失返回 ⟪key⟫，不抛错、不返回 undefined。 */
+  function get(key, vars) {
+    const v = lookup(key);
+    if (typeof v !== 'string') { note(key); return '⟪' + key + '⟫'; }
+    return fill(v, vars);
+  }
+
+  function has(key) { return lookup(key) !== undefined; }
+
+  /* 取一段对白：[{who,text,pause?}]，结构不对时返回空数组。 */
+  function seg(key) {
+    const v = lookup(key);
+    if (!Array.isArray(v)) {
+      if (v == null) note(key);
+      return [];
+    }
+    return v.map(function (row) {
+      if (typeof row === 'string') return { who: 'narrator', text: row };
+      return row;
+    });
+  }
+
+  /* 转成 G.dialog.show 能吃的形状：{name,text,narrator,speed}。
+     G.dialog 认 name / narrator，不认 who（见 core.js:268）。 */
+  function dialog(key) {
+    return seg(key).map(function (row) {
+      const who = row.who || 'narrator';
+      const ch = (data && data.characters && data.characters[who]) || {};
+      const out = { text: row.text || '' };
+      if (who === 'narrator') out.narrator = true;
+      else out.name = ch.name || who;
+      if (row.speed) out.speed = row.speed;
+      return out;
+    });
+  }
+
+  /* 取选项数组，转成 G.dialog 选项形状：[{label, value}] */
+  function options(key, opt) {
+    opt = opt || {};
+    const list = lookup(key);
+    if (!Array.isArray(list)) { note(key); return []; }
+    return list.map(function (o) {
+      return {
+        label: o.label || o.text || o.id || '',
+        value: opt.byDesc ? o : (o.id == null ? o.value : o.id),
+        desc: o.desc || '',
+      };
+    });
+  }
+
+  function all(section) {
+    const v = lookup(section);
+    return Array.isArray(v) ? v : [];
+  }
+
+  function who(id) {
+    const c = lookup('characters.' + id);
+    return c && typeof c === 'object' ? c : { name: id };
+  }
+
+  function node(id) { return lookup('nodes.' + id) || {}; }
+  function puzzle(id) { return lookup('puzzles.' + id) || {}; }
+  function missing() { return MISSING.slice(); }
+
+  G.str = {
+    ready: null,
+    get: get,
+    has: has,
+    seg: seg,
+    dialog: dialog,
+    options: options,
+    all: all,
+    who: who,
+    node: node,
+    puzzle: puzzle,
+    missing: missing,
+    raw: function () { return data; },
+  };
+
+  function load() {
+    if (window.WXL_SCRIPT) { data = window.WXL_SCRIPT; return Promise.resolve('inline'); }
+    if (typeof fetch !== 'function') { data = {}; return Promise.resolve('none'); }
+    return fetch('data/script.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (json) { data = json; return 'fetch'; })
+      .catch(function (err) {
+        data = {};
+        if (window.console) {
+          console.warn('[str] 无法加载 data/script.json：', err && err.message);
+          console.warn('[str] 双击 file:// 打开时请先运行 node tools/build-data.mjs');
+        }
+        return 'failed';
+      });
+  }
+
+  G.str.ready = load().then(function (how) {
+    const sections = data && typeof data === 'object' ? Object.keys(data).length : 0;
+    if (window.console) console.log('[str] 文案已就绪（' + how + '，' + sections + ' 段）');
+    return data;
+  });
+})();
+
+</script>
+<script data-src="js/mod.js">
+/* ============================================================
+   万象灵境 · 模块注册表（G.mod）
+   ------------------------------------------------------------
+   这个文件是「并行分工」的中枢。四个人各写自己的文件，
+   谁都不改这个文件，靠注册表在运行时拼起来。
+
+   五种登记物（kind）：
+     map      地图 + 坐标 + 碰撞 + 交互点      —— A 美术/关卡
+     painter  画笔函数（画地面 / 画物件 / 画人） —— A 美术
+     puzzle   一个可交互玩法（小游戏 / 判断）     —— C 交互
+     cutscene 一段过场演出（开场 / 转场 / 结局）  —— C 演出（文字找 B、立绘找 A）
+     flow     跨节点的流程钩子（可留空）          —— C 交互
+
+   登记方式（各人只管在自己的文件里调一次）：
+     G.mod.register({ kind:'painter', id:'wumen.gate', draw:function(ctx,prop,scene){} });
+     G.mod.register({ kind:'puzzle',  id:'wumen.registration', open:function(api){} });
+     G.mod.register({ kind:'cutscene', id:'wumen.intro', steps:[...] });
+     G.mod.register({ kind:'map',     id:'wumen', ... });
+
+   玩法与美术之间只有一个通道：scene.vars。
+   C 改 scene.vars，A 的画笔读 scene.vars —— 双方不互相引用。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = (window.G = window.G || {});
+  if (G.mod) return;
+
+  const reg = { map: {}, painter: {}, puzzle: {}, cutscene: {}, flow: {} };
+  const problems = [];
+
+  function warn(msg) {
+    if (problems.indexOf(msg) < 0) problems.push(msg);
+    if (window.console) console.warn('[mod] ' + msg);
+  }
+
+  const mod = {
+    booted: false,
+    ready: null,
+    problems: problems,
+
+    /* ---------------- 登记 ---------------- */
+    register: function (spec) {
+      if (!spec || !spec.kind || !spec.id) {
+        warn('register 需要 kind 与 id：' + JSON.stringify(spec && spec.id));
+        return null;
+      }
+      const bin = reg[spec.kind];
+      if (!bin) { warn('未知 kind：' + spec.kind); return null; }
+      if (bin[spec.id]) {
+        warn('重复登记 ' + spec.kind + ':' + spec.id + '（后一个覆盖前一个）');
+      }
+      bin[spec.id] = spec;
+      return spec;
+    },
+    map: function (spec) { return mod.register(Object.assign({ kind: 'map' }, spec)); },
+    painter: function (id, draw) { return mod.register({ kind: 'painter', id: id, draw: draw }); },
+    puzzle: function (id, spec) { return mod.register(Object.assign({ kind: 'puzzle', id: id }, spec)); },
+    cutscene: function (id, spec) { return mod.register(Object.assign({ kind: 'cutscene', id: id }, spec)); },
+    has: function (kind, id) { return !!(reg[kind] && reg[kind][id]); },
+    get: function (kind, id) { return (reg[kind] || {})[id]; },
+    list: function (kind) { return Object.keys(reg[kind] || {}); },
+
+    /* 播一段过场（js/cut.js 提供放映机；没加载就当没有，直接回调） */
+    cut: function (id, done) {
+      if (G.cut && G.cut.play) return G.cut.play(id, done);
+      if (window.console) console.warn('[mod] 缺少 js/cut.js，跳过过场 ' + id);
+      if (done) done();
+      return null;
+    },
+
+    /* ---------------- 进度 ---------------- */
+    /* 交互点完成状态存在 G.save.data.flags 里，key 前缀 spot.
+       core.js 的 load() 会保留未知 flag，所以不需要改存档结构。 */
+    done: function (spotId) {
+      G.save.flag('spot.' + spotId, true);
+      return spotId;
+    },
+    isDone: function (spotId) { return G.save.flag('spot.' + spotId); },
+    clear: function (spotId) { G.save.flag('spot.' + spotId, false); },
+
+    /* 条件判断。只用数据，不用 eval，避免文案里写出可执行字符串。
+       when: { done:['a'], notDone:['b'], flag:{ x:true } }  —— 三者同时满足才通过 */
+    test: function (when) {
+      if (!when) return true;
+      if (when.done && !when.done.every(function (i) { return mod.isDone(i); })) return false;
+      if (when.notDone && when.notDone.some(function (i) { return mod.isDone(i); })) return false;
+      if (when.flag) {
+        for (const k in when.flag) {
+          if (!!G.save.flag(k) !== !!when.flag[k]) return false;
+        }
+      }
+      return true;
+    },
+
+    /* ---------------- 美术 ---------------- */
+    paint: function (id, ctx, prop, scene) {
+      const p = reg.painter[id];
+      if (!p) { warn('缺少画笔：' + id); return; }
+      try { p.draw(ctx, prop || {}, scene); } catch (e) { warn('画笔报错 ' + id + '：' + e.message); }
+    },
+
+    /* ---------------- 文案 ---------------- */
+    object: function (objId) {
+      const list = G.str.all('objects');
+      for (let i = 0; i < list.length; i++) if (list[i].id === objId) return list[i];
+      return null;
+    },
+
+    /* 通用「看一眼」：任何物件都能用，C 不需要为它写模块。
+       在 map 的 spot 里写 { inspect:'obj_wumen_gate' } 即可。 */
+    inspect: function (objId, api) {
+      const o = mod.object(objId);
+      if (!o) { warn('缺少物件文案：' + objId); return false; }
+      const lines = [];
+      if (o.desc) lines.push({ narrator: true, text: o.desc });
+      (o.interact || []).forEach(function (row) {
+        const ch = G.str.who(row.who || 'narrator');
+        if (row.who === 'narrator' || !row.who) lines.push({ narrator: true, text: row.text });
+        else lines.push({ name: ch.name || row.who, text: row.text });
+      });
+      if (!lines.length) lines.push({ narrator: true, text: o.name || objId });
+      G.dialog.show(lines, function () { if (api && api.release) api.release(); });
+      return true;
+    },
+
+    /* ---------------- 开一个交互点 ---------------- */
+    openSpot: function (spot, scene) {
+      const api = mod.api(spot, scene);
+
+      if (spot.inspect) {
+        mod.inspect(spot.inspect, api);
+        return;
+      }
+
+      const pid = spot.puzzle || spot.id;
+      const p = reg.puzzle[pid];
+      if (!p) {
+        warn('缺少玩法模块：' + pid);
+        G.ui.toast('玩法未接入：' + pid, 'bad', 2200);
+        api.release();
+        return;
+      }
+      try {
+        p.open(api);
+      } catch (e) {
+        warn('玩法报错 ' + pid + '：' + e.message);
+        if (window.console) console.error(e);
+        api.release();
+      }
+    },
+
+    /* ---------------- 给 C 用的 API ---------------- */
+    api: function (spot, scene) {
+      const closed = { v: false };
+      const api = {
+        spot: spot,
+        scene: scene,
+        map: scene && scene.map,
+        str: G.str,
+        ui: G.ui,
+        vars: (scene && scene.vars) || {},
+
+        sfx: function (name) { if (G.audio) G.audio.sfx(name); },
+        toast: function (text, kind) { G.ui.toast(text, kind || '', 2000); },
+        setVar: function (k, v) { if (scene && scene.vars) scene.vars[k] = v; },
+
+        dialog: function (key, done) {
+          const lines = G.str.dialog(key);
+          if (!lines.length) { if (done) done(); return; }
+          G.dialog.show(lines, done);
+        },
+        cinema: function (key, done) {
+          const lines = G.str.seg(key).map(function (r) { return { text: r.text, sub: r.sub || '', ms: r.ms || 1900 }; });
+          if (!lines.length) { if (done) done(); return; }
+          G.cinema.play(lines, done);
+        },
+        /* 播一段过场，播完再继续（过场自己会锁住世界） */
+        cut: function (id, done) {
+          if (G.cut && G.cut.play) { G.cut.play(id, done); return; }
+          if (done) done();
+        },
+        /* 从 puzzles.<key> 直接生成一次选项问答 */
+        ask: function (puzzleKey, cb) {
+          const pz = G.str.puzzle(puzzleKey);
+          const opts = G.str.options('puzzles.' + puzzleKey + '.options');
+          G.dialog.ask({
+            name: (G.str.who('diotima').name || '狄奥提玛'),
+            text: pz.prompt || '',
+            options: opts,
+          }, cb);
+        },
+        /* 让画面变灰/锁输入的遮罩交给 core 的 overlayDepth 统一管理 */
+        overlay: function (el) {
+          if (closed.v) return el;
+          closed.v = true;
+          G.overlayDepth = (G.overlayDepth || 0) + 1;
+          api._overlayEl = el || null;
+          if (el && el.classList) el.classList.remove('hidden');
+          return el;
+        },
+        release: function () {
+          if (!closed.v) return;
+          closed.v = false;
+          G.overlayDepth = Math.max(0, (G.overlayDepth || 1) - 1);
+          if (api._overlayEl && api._overlayEl.classList) api._overlayEl.classList.add('hidden');
+        },
+        pass: function (result) {
+          api.release();
+          mod.done(spot.id);
+          if (scene && scene.onSpotSolved) scene.onSpotSolved(spot, result || {});
+          if (G.save.persist) G.save.persist();
+        },
+        fail: function (reasonKey) {
+          api.release();
+          if (reasonKey) api.toast(G.str.get(reasonKey), 'warn');
+        },
+      };
+      /* 注意：打开时【不】自动锁输入。
+         G.dialog / G.cinema 本身就会让 G.isWorldPaused() 为真（core.js:493），
+         自己再加一层 overlayDepth 会让「失败后可重试」的模块忘记解锁而软锁。
+         只有 C 要弹自定义 DOM 面板时才调 api.overlay(el)。 */
+      return api;
+    },
+
+    /* ---------------- 地图加载与切场景 ---------------- */
+    go: function (mapId, opts) {
+      const map = reg.map[mapId];
+      if (!map) { warn('未登记地图：' + mapId); G.ui.toast('地图未登记：' + mapId, 'bad', 2200); return null; }
+      if (!G.StageScene) { warn('缺少 js/stage.js，无法建场景'); return null; }
+      const scene = new G.StageScene(map, opts || {});
+      if (G.titleActive) {
+        G.titleActive = false;
+        if (G.$) G.hide(G.$('#title'));
+      }
+      G.setScene(scene, { name: mapId });
+      return scene;
+    },
+
+    /* ---------------- 启动自检 ---------------- */
+    check: function () {
+      const self = this;
+      Object.keys(reg.map).forEach(function (mid) {
+        const map = reg.map[mid];
+        (map.ground || []).forEach(function (l) { if (!reg.painter[l.painter]) warn('地图 ' + mid + ' 引用了不存在的画笔 ' + l.painter); });
+        (map.props || []).forEach(function (l) { if (!reg.painter[l.painter]) warn('地图 ' + mid + ' 引用了不存在的画笔 ' + l.painter); });
+        (map.spots || []).forEach(function (s) {
+          if (s.puzzle && !reg.puzzle[s.puzzle]) warn('地图 ' + mid + ' 的交互点 ' + s.id + ' 引用了不存在的玩法 ' + s.puzzle);
+          if (s.inspect && !self.object(s.inspect)) warn('地图 ' + mid + ' 的交互点 ' + s.id + ' 引用了不存在的物件 ' + s.inspect);
+        });
+      });
+      Object.keys(reg.cutscene).forEach(function (cid) {
+        const cut = reg.cutscene[cid];
+        (cut.steps || []).forEach(function (s) {
+          if (s.key && G.str && !G.str.has(s.key)) warn('过场 ' + cid + ' 引用了不存在的文案 ' + s.key);
+          if (s.subKey && G.str && !G.str.has(s.subKey)) warn('过场 ' + cid + ' 引用了不存在的文案 ' + s.subKey);
+          if (s.who && s.t === 'portrait' && !reg.painter['portrait.' + s.who]) {
+            /* 只是提醒：立绘没画也能播，只是少一张画 */
+            warn('过场 ' + cid + ' 要的立绘还没画：portrait.' + s.who);
+          }
+        });
+      });
+      return problems.slice();
+    },
+
+    report: function () {
+      return {
+        maps: Object.keys(reg.map),
+        painters: Object.keys(reg.painter),
+        puzzles: Object.keys(reg.puzzle),
+        cutscenes: Object.keys(reg.cutscene),
+        flows: Object.keys(reg.flow),
+        problems: problems.slice(),
+      };
+    },
+
+    boot: function (opts) {
+      if (this.booted) return this.ready;
+      this.booted = true;
+      const self = this;
+      this.ready = G.str.ready.then(function () {
+        self.check();
+        const r = self.report();
+        if (window.console) {
+          console.log('[mod] 地图 ' + r.maps.length + ' · 画笔 ' + r.painters.length +
+            ' · 玩法 ' + r.puzzles.length + ' · 问题 ' + r.problems.length);
+          r.problems.forEach(function (p) { console.warn('[mod] ✗ ' + p); });
+        }
+        let start = (opts && opts.map) || null;
+        let cutId = (opts && opts.cut) || null;
+        try {
+          const q = new URLSearchParams(window.location.search);
+          if (q.get('map')) start = q.get('map');
+          if (q.get('cut')) cutId = q.get('cut');
+        } catch (e) { /* 老浏览器忽略 */ }
+
+        /* ?cut=wumen.intro 单独看一段过场，不用跑关（C 调节奏用） */
+        if (cutId) {
+          if (G.cut && G.cut.play) G.cut.play(cutId, null);
+          return r;
+        }
+        /* ?map= 直接进关：跳过开场，省得每次刷新都看一遍 */
+        if (start) {
+          if (G.fade && G.fade.to) G.fade.to(function () { self.go(start); }, 120);
+          else self.go(start);
+          return r;
+        }
+        /* 开场动画：没看过就播一次，播完停在标题页 */
+        if (reg.cutscene.opening && G.cut && G.cut.play && !G.cut.seen('opening')) {
+          G.cut.play('opening', null);
+        }
+        return r;
+      });
+      return this.ready;
+    },
+  };
+
+  G.mod = mod;
+})();
+
+</script>
+<script data-src="js/stage.js">
+/* ============================================================
+   万象灵境 · 通用关卡场景（G.StageScene）
+   ------------------------------------------------------------
+   这个类不画任何东西、不写任何玩法。它只做一件事：
+   把一份 map 数据 + 注册表里的画笔/玩法，拼成一个能跑的场景。
+
+   所以：加一个新关卡 = 加一个 map 文件（A）+ 若干画笔（A）
+   + 一个玩法模块（C）。没有人需要改 js/stage.js。
+
+   map 数据结构见 docs/模块接口.md。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.WorldScene) return;
+  if (G.StageScene) return;
+
+  G.StageScene = class StageScene extends G.WorldScene {
+    constructor(map, opts) {
+      opts = opts || {};
+      const size = map.size || {};
+      super({
+        id: map.id,
+        w: size.w || 640,
+        h: size.h || 1120,
+        spawn: opts.spawn || map.spawn || null,
+        clock: map.clock,
+        dateLabel: map.dateLabel,
+        lookAhead: (map.camera && map.camera.lookAhead) != null ? map.camera.lookAhead : 42,
+        dayGrade: map.dayGrade !== false,
+      });
+      this.map = map;
+      this.vars = {};
+      this.ambient = map.ambient || 'palace';
+      this.night = !!map.night;
+      this.nightStrength = map.nightStrength == null ? 0.5 : map.nightStrength;
+      this.build();
+    }
+
+    /* ---------------- 从数据搭场景 ---------------- */
+    build() {
+      const map = this.map;
+      const self = this;
+
+      if (map.vars) {
+        Object.keys(map.vars).forEach(function (k) { self.vars[k] = map.vars[k]; });
+      }
+
+      /* 地面：一次性烘焙到离屏画布，和现有场景同一套路（world.js:106） */
+      this.buildGround(function (c) {
+        c.imageSmoothingEnabled = false;
+        c.fillStyle = map.background || '#0b0907';
+        c.fillRect(0, 0, self.w, self.h);
+        (map.ground || []).forEach(function (layer) {
+          G.mod.paint(layer.painter, c, layer, self);
+        });
+      });
+
+      /* 碰撞盒 */
+      (map.solids || []).forEach(function (s) { self.solid(s.x, s.y, s.w, s.h); });
+
+      /* 物件：参与 baseY 排序，所以站在门后面会被门遮住 */
+      (map.props || []).forEach(function (p) {
+        self.addEntity({
+          x: p.x,
+          y: p.baseY == null ? p.y : p.baseY,
+          baseY: p.baseY == null ? p.y : p.baseY,
+          _prop: p,
+          draw: function (ctx) { G.mod.paint(p.painter, ctx, p, self); },
+        });
+      });
+
+      /* 人物 */
+      (map.npcs || []).forEach(function (n) {
+        const baseY = n.baseY == null ? n.y : n.baseY;
+        if (n.painter) {
+          self.addEntity({
+            x: n.x, y: baseY, baseY: baseY, _npc: n,
+            draw: function (ctx) { G.mod.paint(n.painter, ctx, n, self); },
+          });
+          self.addInteract({
+            x: n.x, y: baseY, r: n.r || 46,
+            label: G.str.has(n.labelKey || 'ui.hud.talk') ? G.str.get(n.labelKey || 'ui.hud.talk') : '交谈',
+            condition: function () { return G.mod.test(n.when); },
+            action: function () {
+              const key = n.dialogKey;
+              if (!key) return;
+              G.dialog.show(G.str.dialog(key));
+            },
+          });
+        } else {
+          const spec = {
+            x: n.x, y: n.y,
+            name: G.str.has(n.nameKey || '') ? G.str.get(n.nameKey) : (n.name || '游客'),
+            radius: n.r || 24,
+            wander: n.wander || 0,
+            getLines: function () { return G.str.dialog(n.dialogKey); },
+          };
+          /* palette 不能传 undefined：world.js 的 Object.assign 会被覆盖掉默认值 */
+          if (n.palette) spec.palette = n.palette;
+          if (n.accessory) spec.accessory = n.accessory;
+          const npc = self.addNPC(spec);
+          if (n.quest) npc.quest = true;
+        }
+      });
+
+      /* 交互点：inspect 走通用「看一眼」，puzzle 走 C 的玩法模块 */
+      (map.spots || []).forEach(function (s) {
+        self.addInteract({
+          x: s.x,
+          y: s.y,
+          r: s.r || 42,
+          label: G.str.has(s.labelKey || '') ? G.str.get(s.labelKey) : (s.label || '互动'),
+          condition: function () { return G.mod.test(s.when); },
+          action: function () { G.mod.openSpot(s, self); },
+        });
+      });
+
+      /* 灯光 */
+      (map.lights || []).forEach(function (l) {
+        self.addLight(l.x, l.y, l.r || 60, l.color || '#ffcf86', l.a == null ? 0.25 : l.a);
+      });
+
+      /* 目标箭头 */
+      if (map.marker) {
+        this.marker = {
+          x: map.marker.x, y: map.marker.y,
+          condition: function () { return G.mod.test(map.marker.when); },
+        };
+      }
+
+      /* 前景层：画在角色之上（屋檐、雾、扫描线） */
+      if (map.foreground) {
+        this._fg = map.foreground;
+      }
+    }
+
+    /* ---------------- 生命周期 ---------------- */
+    onEnter() {
+      const id = this.map.id;
+      const name = G.str.has('nodes.' + id + '.name') ? G.str.get('nodes.' + id + '.name') : (this.map.title || id);
+      const sub = G.str.has('nodes.' + id + '.sub') ? G.str.get('nodes.' + id + '.sub') : (this.map.sub || '');
+      G.ui.location(name, sub);
+
+      const objKey = this.map.objectiveKey || ('nodes.' + id + '.objective');
+      if (G.str.has(objKey)) this.objective(G.str.get(objKey));
+      else if (this.map.objective) this.objective(this.map.objective);
+
+      /* 进场演出只播一次。两种写法：
+         map.enterCut = 'wumen.intro'  → 播过场（有画面、有立绘、可跳过）
+         否则回落到 nodes.<id>.enter  → 只播对话
+         过场比对话强，所以有 enterCut 就不播对话，避免同一段话说两遍。 */
+      const enterKey = this.map.enterKey || ('nodes.' + id + '.enter');
+      const cutId = this.map.enterCut;
+      if (!G.save.flag('seen.' + id)) {
+        G.save.flag('seen.' + id, true);
+        if (cutId && G.mod.has('cutscene', cutId)) {
+          G.mod.cut(cutId, null);
+        } else if (G.str.has(enterKey)) {
+          G.dialog.show(G.str.dialog(enterKey));
+        }
+      }
+    }
+
+    /* ---------------- 通关判定 ---------------- */
+    onSpotSolved(spot) {
+      const needed = (this.map.spots || []).filter(function (s) { return !!s.puzzle; });
+      const allDone = needed.every(function (s) { return G.mod.isDone(s.id); });
+      if (!allDone) return;
+
+      G.mod.done(this.map.id);
+      const self = this;
+      const proceed = function () {
+        const outId = self.map.exitCut;
+        if (outId && G.mod.has('cutscene', outId)) {
+          G.mod.cut(outId, function () { if (self.map.next) G.mod.go(self.map.next); });
+          return;
+        }
+        if (self.map.next) G.mod.go(self.map.next);
+      };
+
+      const key = this.map.completeKey || ('nodes.' + this.map.id + '.done');
+      if (G.str.has(key)) G.dialog.show(G.str.dialog(key), proceed);
+      else proceed();
+    }
+
+    /* ---------------- 绘制扩展 ---------------- */
+    drawForeground(ctx) {
+      if (!this._fg) return;
+      const self = this;
+      this._fg.forEach(function (l) { G.mod.paint(l.painter, ctx, l, self); });
+    }
+
+    drawScreen(ctx) {
+      /* 让 C 也能画全屏层（比如关 1 的错位静帧） */
+      if (this.screenPainters) {
+        const self = this;
+        this.screenPainters.forEach(function (id) { G.mod.paint(id, ctx, {}, self); });
+      }
+    }
+
+    /* ---------------- 给玩法模块的便捷接口 ---------------- */
+    setVar(k, v) { this.vars[k] = v; return v; }
+    getVar(k, d) { return this.vars[k] == null ? d : this.vars[k]; }
+
+    /* 画面重烘焙（改了 vars 后想立刻更新地面时用） */
+    repaint() {
+      const map = this.map;
+      const self = this;
+      this.buildGround(function (c) {
+        c.imageSmoothingEnabled = false;
+        c.fillStyle = map.background || '#0b0907';
+        c.fillRect(0, 0, self.w, self.h);
+        (map.ground || []).forEach(function (layer) { G.mod.paint(layer.painter, c, layer, self); });
+      });
+    }
+  };
+})();
+
+</script>
+<script data-src="js/cut.js">
+/* ============================================================
+   js/cut.js —— 过场演出引擎（开场动画 / 章节过场 / 结局）
+   ------------------------------------------------------------
+   设计目标：让「导演」不写绘图代码也能排练一段过场。
+   一段过场是一个 steps 数组，每一步是一个时间块：
+
+     { t:'fade',    to:1, ms:600, color:'#08070a' }
+     { t:'bars',    on:true, ms:400 }
+     { t:'title',   key:'ui.title.big', sub:'...', ms:2200 }
+     { t:'card',    who:'diotima', key:'nodes.wumen.enter.0', ms:1900 }
+     { t:'portrait',who:'diotima', on:true }
+     { t:'flash',   color:'#fff', ms:180 }
+     { t:'shake',   ms:320, amp:6 }
+     { t:'zoom',    v:1.06, ms:1200 }
+     { t:'sfx',     name:'gong' }
+     { t:'wait',    ms:300 }
+     { t:'clear' }
+
+   三条边界：
+   1. 只管「演出」。不判定输赢、不写存档、不改场景。
+   2. 文字一律走 G.str.get(key)，不在这里写死中文。
+   3. 立绘一律走 A 登记的 painter 'portrait.<角色id>'，
+      引擎只负责把它贴到屏幕左边/右边。
+
+   跳过：空格 / 回车 / Esc / 点击。第一次跳过当前步，
+   700ms 内再按一次跳过整段（评奖演示很有用）。
+   ============================================================ */
+(function (G) {
+  'use strict';
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, Math.max(0, ms | 0)));
+
+  function el(tag, cls, parent) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  const cut = {
+    active: false,
+    _chain: Promise.resolve(),
+    _ui: null,
+    _resolve: null,     /* 当前 _wait 的提前唤醒 */
+    _skipMode: 0,       /* 0 不跳 / 1 跳这一步 / 2 跳整段 */
+    _lastSkip: 0,
+    _bound: false,
+
+    /* ---------- 挂载 DOM（懒加载，只建一次） ---------- */
+    _mount() {
+      if (this._ui) return this._ui;
+      const root = el('div', 'cut hidden');
+      root.id = 'cut';
+      root.setAttribute('aria-hidden', 'true');
+
+      const veil = el('div', 'cut-veil', root);
+      const barT = el('div', 'cut-bar top', root);
+      const barB = el('div', 'cut-bar bot', root);
+
+      const stage = el('div', 'cut-portrait-wrap', root);
+      const cv = document.createElement('canvas');
+      cv.className = 'cut-portrait';
+      cv.width = 240;
+      cv.height = 360;
+      stage.appendChild(cv);
+
+      const card = el('div', 'cut-card hidden', root);
+      const who = el('p', 'cut-who', card);
+      const text = el('p', 'cut-text', card);
+      const sub = el('p', 'cut-sub', card);
+
+      const hint = el('div', 'cut-hint', root);
+      hint.textContent = '空格 / 点击 继续';
+
+      document.body.appendChild(root);
+
+      this._ui = { root, veil, barT, barB, stage, cv, card, who, text, sub, hint };
+      return this._ui;
+    },
+
+    /* ---------- 对外：播一段过场 ---------- */
+    play(id, cb) {
+      const spec = (G.mod && G.mod.get) ? G.mod.get('cutscene', id) : null;
+      if (!spec) {
+        console.warn('[cut] 没有登记过场 ' + id + '（跳过）');
+        if (cb) { try { cb(); } catch (e) { console.error(e); } }
+        return Promise.resolve();
+      }
+      /* 串行：两段过场不会互相踩 */
+      this._chain = this._chain.then(() => this._run(id, spec, cb)).catch((e) => {
+        console.error('[cut] ' + id + ' 出错', e);
+        if (cb) { try { cb(); } catch (e2) { console.error(e2); } }
+      });
+      return this._chain;
+    },
+
+    async _run(id, spec, cb) {
+      if (this.active) { if (cb) cb(); return; }
+      this.active = true;
+      this._skipMode = 0;
+      const ui = this._mount();
+      G.overlayDepth = (G.overlayDepth || 0) + 1;
+      ui.root.classList.remove('hidden');
+      ui.root.setAttribute('aria-hidden', 'false');
+      this._bind();
+      try {
+        this._reset(ui);
+        if (spec.background) this._bg(ui, spec.background);
+        const steps = spec.steps || [];
+        for (let i = 0; i < steps.length; i++) {
+          if (this._skipMode >= 2) break;
+          await this._step(steps[i], ui);
+          if (this._skipMode === 1) this._skipMode = 0;
+        }
+      } catch (e) {
+        console.error('[cut] 播放中断 ' + id, e);
+      } finally {
+        this._reset(ui);
+        ui.root.classList.add('hidden');
+        ui.root.setAttribute('aria-hidden', 'true');
+        this._unbind();
+        G.overlayDepth = Math.max(0, (G.overlayDepth || 1) - 1);
+        this.active = false;
+        if (spec.seen !== false) G.save && G.save.flag && G.save.flag('cut.' + id, true);
+        if (cb) { try { cb(); } catch (e) { console.error(e); } }
+      }
+    },
+
+    _reset(ui) {
+      ui.veil.style.transitionDuration = '0ms';
+      ui.veil.style.opacity = '0';
+      ui.veil.style.background = '#08070a';
+      ui.barT.style.transitionDuration = '0ms';
+      ui.barB.style.transitionDuration = '0ms';
+      ui.barT.style.transform = 'translateY(-100%)';
+      ui.barB.style.transform = 'translateY(100%)';
+      ui.card.classList.add('hidden');
+      ui.card.className = 'cut-card hidden';
+      ui.who.textContent = '';
+      ui.text.textContent = '';
+      ui.sub.textContent = '';
+      ui.stage.classList.add('hidden');
+      ui.cv.style.opacity = '1';
+      const canvas = document.querySelector('canvas:not(.cut-portrait)');
+      if (canvas) canvas.style.transform = '';
+    },
+
+    /* ---------- 单步执行 ---------- */
+    async _step(s, ui) {
+      if (!s || !s.t) return;
+      const ms = s.ms == null ? 0 : s.ms;
+
+      switch (s.t) {
+        case 'wait':
+          await this._wait(ms);
+          return;
+
+        case 'fade': {
+          ui.veil.style.background = s.color || '#08070a';
+          ui.veil.style.transitionDuration = Math.max(1, ms) + 'ms';
+          /* 强制重排，让 transition 生效 */
+          void ui.veil.offsetWidth;
+          ui.veil.style.opacity = String(s.to == null ? 1 : s.to);
+          await this._wait(ms);
+          return;
+        }
+
+        case 'bars': {
+          const on = s.on !== false;
+          ui.barT.style.transitionDuration = Math.max(1, ms) + 'ms';
+          ui.barB.style.transitionDuration = Math.max(1, ms) + 'ms';
+          void ui.barT.offsetWidth;
+          ui.barT.style.transform = on ? 'translateY(0)' : 'translateY(-100%)';
+          ui.barB.style.transform = on ? 'translateY(0)' : 'translateY(100%)';
+          await this._wait(ms);
+          return;
+        }
+
+        case 'card':
+        case 'title': {
+          const big = s.t === 'title';
+          ui.card.className = 'cut-card' + (big ? ' cut-big' : '');
+          ui.card.classList.remove('hidden');
+          if (s.who) {
+            ui.who.textContent = G.str && G.str.who ? G.str.who(s.who) : s.who;
+            const c = (G.str && G.str.raw && G.str.raw().characters) || {};
+            const meta = c[s.who];
+            ui.who.style.color = (meta && meta.color) || '#cbb283';
+            ui.who.classList.remove('hidden');
+          } else {
+            ui.who.textContent = '';
+            ui.who.classList.add('hidden');
+          }
+          ui.text.textContent = this._text(s);
+          ui.sub.textContent = this._text(s, 'sub');
+          ui.sub.classList.toggle('hidden', !ui.sub.textContent);
+          await this._wait(ms || 1900);
+          if (!s.hold) ui.card.classList.add('hidden');
+          return;
+        }
+
+        case 'clear':
+          ui.card.classList.add('hidden');
+          return;
+
+        case 'flash': {
+          const saved = ui.veil.style.background;
+          ui.veil.style.background = s.color || '#ffffff';
+          ui.veil.style.transitionDuration = '0ms';
+          ui.veil.style.opacity = '1';
+          void ui.veil.offsetWidth;
+          ui.veil.style.transitionDuration = Math.max(1, ms || 180) + 'ms';
+          ui.veil.style.opacity = '0';
+          await this._wait(ms || 180);
+          ui.veil.style.background = saved || '#08070a';
+          return;
+        }
+
+        case 'sfx': {
+          try {
+            if (G.audio && G.audio.play) G.audio.play(s.name);
+            else if (G.sfx && G.sfx.play) G.sfx.play(s.name);
+          } catch (e) { /* 静音失败无所谓 */ }
+          return;
+        }
+
+        case 'shake': {
+          const c = document.querySelector('canvas:not(.cut-portrait)');
+          if (c) {
+            c.classList.add('cut-shake');
+            setTimeout(() => c.classList.remove('cut-shake'), ms || 300);
+          }
+          await this._wait(ms || 300);
+          return;
+        }
+
+        case 'zoom': {
+          const c = document.querySelector('canvas:not(.cut-portrait)');
+          if (c) {
+            c.style.transition = 'transform ' + Math.max(1, ms) + 'ms ease-out';
+            c.style.transform = 'scale(' + (s.v || 1) + ')';
+          }
+          await this._wait(ms);
+          return;
+        }
+
+        case 'portrait': {
+          const who = s.who;
+          if (!who) return;
+          const ok = this._paint(ui, who);
+          ui.stage.classList.remove('hidden');
+          if (!ok) { await this._wait(ms); return; }
+          ui.stage.style.transitionDuration = Math.max(1, ms || 300) + 'ms';
+          void ui.stage.offsetWidth;
+          ui.stage.classList.toggle('left', s.side !== 'right');
+          ui.cv.style.opacity = s.on === false ? '0' : '1';
+          await this._wait(ms || 300);
+          return;
+        }
+
+        case 'veil': { /* 语法糖：fade 的别名 */
+          ui.veil.style.transitionDuration = Math.max(1, ms) + 'ms';
+          void ui.veil.offsetWidth;
+          ui.veil.style.opacity = String(s.to == null ? 1 : s.to);
+          await this._wait(ms);
+          return;
+        }
+
+        default:
+          console.warn('[cut] 未知步骤 ' + s.t);
+          return;
+      }
+    },
+
+    _paint(ui, who) {
+      const pid = 'portrait.' + who;
+      if (!G.mod || !G.mod.has || !G.mod.has('painter', pid)) {
+        console.warn('[cut] 立绘还没画：' + pid + '（跳过，不影响流程）');
+        return false;
+      }
+      const ctx = ui.cv.getContext('2d');
+      ctx.clearRect(0, 0, ui.cv.width, ui.cv.height);
+      ctx.save();
+      /* 原点 = 脚底中心，和游戏里 drawActor 的约定一致 */
+      ctx.translate(ui.cv.width / 2, ui.cv.height - 12);
+      try {
+        G.mod.paint(pid, ctx, { w: ui.cv.width, h: ui.cv.height, who }, null);
+      } catch (e) {
+        console.warn('[cut] 立绘画坏了：' + pid, e);
+      }
+      ctx.restore();
+      return true;
+    },
+
+    _bg(ui, color) {
+      ui.root.style.background = color;
+    },
+
+    _text(s, field) {
+      const key = field ? s[field + 'Key'] : s.key;
+      const raw = field ? s[field] : s.text;
+      if (key && G.str && G.str.get) {
+        const v = G.str.get(key, s.vars);
+        if (v && v.indexOf('⟪') !== 0) return v;
+        return raw || '';
+      }
+      return raw || '';
+    },
+
+    _wait(ms) {
+      const self = this;
+      return new Promise((resolve) => {
+        let done = false;
+        const fin = () => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          if (self._resolve === fin) self._resolve = null;
+          resolve();
+        };
+        const timer = setTimeout(fin, Math.max(0, ms | 0));
+        self._resolve = fin;
+      });
+    },
+
+    /* ---------- 跳过 ---------- */
+    skip() {
+      const now = Date.now();
+      this._skipMode = (now - this._lastSkip < 700) ? 2 : 1;
+      this._lastSkip = now;
+      if (this._resolve) this._resolve();
+    },
+
+    _bind() {
+      if (this._bound) return;
+      this._bound = true;
+      this._onKey = (e) => {
+        if (!this.active) return;
+        const k = e.code;
+        if (k === 'Space' || k === 'Enter' || k === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          this.skip();
+        }
+      };
+      this._onClick = (e) => {
+        if (!this.active) return;
+        e.preventDefault();
+        this.skip();
+      };
+      window.addEventListener('keydown', this._onKey, true);
+      const ui = this._mount();
+      ui.root.addEventListener('mousedown', this._onClick);
+    },
+
+    _unbind() {
+      if (!this._bound) return;
+      this._bound = false;
+      window.removeEventListener('keydown', this._onKey, true);
+      if (this._ui) this._ui.root.removeEventListener('mousedown', this._onClick);
+    },
+
+    /* 便利方法：这段过场看过没有 */
+    seen(id) {
+      return !!(G.save && G.save.isDone && G.save.isDone('cut.' + id));
+    }
+  };
+
+  G.cut = cut;
+})(window.G = window.G || {});
+
+</script>
+<!-- A · 美术/关卡 -->
+<script data-src="js/art/wumen.js">
+/* ============================================================
+   A · 美术  午门画笔
+   ------------------------------------------------------------
+   每个画笔都是一个纯函数：(ctx, prop, scene) => 画点什么。
+   · ctx  已经平移/缩放到地图坐标系，直接按地图坐标画
+   · prop 是 data/maps/*.js 里那一条配置（坐标、opt）
+   · scene.vars 是玩法改过的状态（比如网格对齐了没有）
+
+   画笔不许读 G.save、不许弹对话框、不许改 vars —— 只画。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+
+  /* 两套网格的配色：故宫=金，卫城投影=青灰 */
+  const GOLD = 'rgba(216,178,106,';
+  const CYAN = 'rgba(124,146,158,';
+
+  function gridLines(ctx, x0, y0, w, h, cell, color, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = x0 % cell; x <= w; x += cell) {
+      ctx.moveTo(Math.round(x) + 0.5, y0);
+      ctx.lineTo(Math.round(x) + 0.5, h);
+    }
+    for (let y = y0 + (y0 % cell); y <= h; y += cell) {
+      ctx.moveTo(0, Math.round(y) + 0.5);
+      ctx.lineTo(w, Math.round(y) + 0.5);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* 广场石地 */
+  G.mod.painter('wumen.plaza', function (ctx, prop, scene) {
+    G.art.paving(ctx, prop.x, prop.y, prop.w, prop.h, '#6c6153', '#5a5044', 11, 12);
+
+    /* 靠近城门的一道深色阴影带，让门"立"在广场上 */
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = '#0d0a07';
+    ctx.fillRect(prop.x, prop.y - 26, prop.w, 30);
+    ctx.restore();
+
+    /* 中轴砖缝：从午门门洞一直铺到镜头前，给玩家一条视觉引导线 */
+    ctx.save();
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = '#e8ddc4';
+    ctx.fillRect(318, prop.y, 4, prop.h);
+    ctx.restore();
+  });
+
+  /* 两套坐标系：金色=故宫（不动），青灰=卫城投影（会漂） */
+  G.mod.painter('wumen.grid', function (ctx, prop, scene) {
+    const v = (scene && scene.vars) || {};
+    const dx = (v.gridDx || 0) + (v.gridBoth || 0);
+    const cell = 40;
+
+    /* 故宫网格：原点固定在午门门洞中心 (320, 470) */
+    gridLines(ctx, 320, 470, prop.w, prop.h, cell, GOLD + '1)', 0.16);
+
+    /* 卫城投影网格：整体偏移 dx。对齐后仍在，只是叠住了 */
+    gridLines(ctx, 320 + dx, 470, prop.w, prop.h, cell, CYAN + '1)', 0.20);
+
+    /* 原点标记：一个小小的十字，对齐后变成一个小金点 */
+    const ox = 320, oy = 470;
+    ctx.save();
+    ctx.globalAlpha = v.gridDx === 0 ? 0.9 : 0.5;
+    ctx.fillStyle = v.gridDx === 0 ? '#ffd479' : '#9fb3bd';
+    ctx.fillRect(ox - 3, oy - 1, 7, 3);
+    ctx.fillRect(ox - 1, oy - 3, 3, 7);
+    ctx.restore();
+  });
+
+  /* 午门城楼（用现成的 A.drawGate，A 之后可以直接换成手绘精灵） */
+  G.mod.painter('wumen.gate', function (ctx, prop, scene) {
+    const v = (scene && scene.vars) || {};
+    const dx = (v.gridDx || 0) + (v.gridBoth || 0);
+    const w = (prop.opt && prop.opt.w) || 660;
+
+    G.art.drawGate(ctx, prop.x, prop.baseY, w, {});
+
+    /* 卫城投影：把帕特农山墙的轮廓用青灰描一遍，叠在城门上方。
+       这是"投影叠印"，不是替换 —— 城门本身一格没动。 */
+    ctx.save();
+    ctx.globalAlpha = 0.30;
+    ctx.strokeStyle = '#7c929e';
+    ctx.lineWidth = 1;
+    const cx = prop.x + dx;
+    const ty = prop.baseY - 250;
+    ctx.beginPath();
+    ctx.moveTo(cx - 210, ty + 66);
+    ctx.lineTo(cx, ty);
+    ctx.lineTo(cx + 210, ty + 66);
+    ctx.stroke();
+    for (let i = 0; i <= 8; i++) {
+      const x = cx - 210 + (i * 420) / 8;
+      ctx.beginPath();
+      ctx.moveTo(x, ty + 66);
+      ctx.lineTo(x, ty + 96);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+
+  /* 门额 */
+  G.mod.painter('wumen.plaque', function (ctx, prop, scene) {
+    const text = (prop.opt && prop.opt.text) || '午門';
+    const w = 96, h = 30;
+    ctx.save();
+    ctx.fillStyle = 'rgba(16,12,9,.85)';
+    ctx.fillRect(prop.x - w / 2 - 3, prop.baseY - h - 3, w + 6, h + 6);
+    ctx.fillStyle = '#7a1f16';
+    ctx.fillRect(prop.x - w / 2, prop.baseY - h, w, h);
+    ctx.fillStyle = 'rgba(216,178,106,.85)';
+    ctx.fillRect(prop.x - w / 2, prop.baseY - h, w, 1);
+    ctx.fillRect(prop.x - w / 2, prop.baseY - 1, w, 1);
+    ctx.restore();
+    G.text(ctx, text, prop.x, prop.baseY - 9, {
+      size: 15, color: '#f0d79b', align: 'center', weight: 'bold',
+      outline: 'rgba(10,7,5,.9)', outlineWidth: 2,
+    });
+  });
+
+  /* 廊灯 */
+  G.mod.painter('wumen.lantern', function (ctx, prop) {
+    G.art.lantern(ctx, prop.x, prop.baseY, {});
+  });
+})();
+
+</script>
+<script data-src="data/maps/wumen.js">
+/* ============================================================
+   A · 美术/关卡  示例地图：午门（关 1 · 原点之争）
+   ------------------------------------------------------------
+   这份文件就是「地图」的全部定义：尺寸、出生点、碰撞、
+   摆件坐标、交互点坐标、灯光、镜头。
+   画笔在 js/art/wumen.js，玩法在 js/mods/wumen-registration.js。
+
+   分工铁律：
+     · 本文件只被 A 改
+     · 里面的 painter 名字必须和 js/art/wumen.js 里登记的一致
+     · 里面的 puzzle  名字必须和 js/mods/*.js   里登记的一致
+     · C 想改画面，只能改 scene.vars（见下方 vars），不能改这里的坐标
+
+   坐标约定：x 为水平（0=左），y 为纵向（0=最上，越大越靠南/越靠近镜头）。
+   ============================================================ */
+G.mod.register({
+  kind: 'map',
+  id: 'wumen',
+
+  /* 无 script.json 时的兜底显示名 */
+  title: '午门',
+  sub: '原点之争',
+
+  /* 进场过场（C 在 data/cuts/wumen-intro.js 里排练）。
+     写了这一行，进场就不播 nodes.wumen.enter 的对话了，改播过场。 */
+  enterCut: 'wumen.intro',
+
+  size: { w: 640, h: 1120 },
+  spawn: { x: 320, y: 1010 },
+  camera: { lookAhead: 46 },
+  clock: '08:30',
+  ambient: 'palace',
+  background: '#171310',
+
+  /* 给 C 的初始变量。画笔读它们，玩法改它们 —— 这是美术与玩法的唯一接口。 */
+  vars: {
+    gridDx: 18,   /* 卫城投影网格相对故宫网格的错位（像素）。0 = 已对齐 */
+    gridBoth: 0,  /* 选错原点时，两套网格一起被拖走的距离 */
+  },
+
+  /* ---------- 地面（烘焙到离屏画布，不参与每帧排序）---------- */
+  ground: [
+    { painter: 'wumen.plaza', x: 0, y: 430, w: 640, h: 690, opt: {} },
+    { painter: 'wumen.grid', x: 0, y: 0, w: 640, h: 1120, opt: {} },
+  ],
+
+  /* ---------- 碰撞 ---------- */
+  solids: [
+    { x: 12, y: 262, w: 616, h: 148 },   /* 城门墙体：整段不可穿过 */
+  ],
+
+  /* ---------- 摆件（参与 baseY 遮挡排序）---------- */
+  props: [
+    { painter: 'wumen.gate', x: 320, baseY: 420, opt: { w: 660 } },
+    { painter: 'wumen.plaque', x: 320, baseY: 268, opt: { text: '午門' } },
+    { painter: 'wumen.lantern', x: 96, baseY: 520, opt: {} },
+    { painter: 'wumen.lantern', x: 544, baseY: 520, opt: {} },
+  ],
+
+  lights: [
+    { x: 96, y: 500, r: 70, color: '#ffcf86', a: 0.22 },
+    { x: 544, y: 500, r: 70, color: '#ffcf86', a: 0.22 },
+  ],
+
+  /* ---------- 人物 ---------- */
+  npcs: [],
+
+  /* ---------- 交互点 ----------
+     inspect: 走通用「看一眼」，文案取 script.json 的 objects.<id>
+     puzzle : 走 C 的玩法模块
+     when   : 条件，满足才出现（见 js/mod.js 的 test）                */
+  spots: [
+    {
+      id: 'wumen.origin',
+      x: 320, y: 486, r: 68,
+      labelKey: 'ui.hud.interact',
+      puzzle: 'wumen.registration',
+      when: { notDone: ['wumen.origin'] },
+    },
+    {
+      id: 'wumen.look_grid',
+      x: 150, y: 700, r: 46,
+      labelKey: 'ui.hud.look',
+      inspect: 'obj_wumen_grid',
+    },
+    {
+      id: 'wumen.look_gate',
+      x: 500, y: 470, r: 44,
+      labelKey: 'ui.hud.look',
+      inspect: 'obj_wumen_gate',
+    },
+  ],
+
+  marker: { x: 320, y: 470, when: { notDone: ['wumen.origin'] } },
+
+  /* 下一关：等 A 做好 taihe 地图再填 'taihe'，现在留空只播完结算 */
+  next: null,
+});
+
+</script>
+<!-- C · 玩法/交互/过场 -->
+<script data-src="js/mods/wumen-registration.js">
+/* ============================================================
+   C · 玩法  关 1「原点之争」
+   ------------------------------------------------------------
+   玩法模块的契约只有一条：
+       { open: function (api) { ... } }
+   然后从 api 里拿一切，不许 require、不许改别的文件。
+
+   这个关卡的教学点：
+   · 选 A（午门门洞中心）= 故宫不动，投影平移过去 —— 对
+   · 选 B / C = 为了"看起来对齐"，让故宫挪了 —— 错
+   视觉后果由 A 的画笔读 scene.vars 表现，C 只管改变量。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+
+  const KEY = 'wumen.registration';
+
+  G.mod.puzzle(KEY, {
+    summary: '关 1：三选一选原点。选错会让故宫网格被拖走；可重试。',
+
+    open: function (api) {
+      const scene = api.scene;
+
+      /* 一次问答。选项文案全部来自 script.json，本文件没有一个汉字。 */
+      api.ask(KEY, function (choice) {
+        const outcome = 'puzzles.' + KEY + '.outcome.' + choice;
+
+        if (choice === 'A') {
+          /* 对齐：只有投影移过去，故宫一格不动 */
+          api.setVar('gridDx', 0);
+          if (scene && scene.repaint) scene.repaint();
+          api.dialog(outcome, function () {
+            api.pass({ choice: choice, dx: 0 });
+          });
+          return;
+        }
+
+        /* 选错：两套网格被一起拖动 —— 故宫被挪了，但看起来"更齐" */
+        api.setVar('gridBoth', 18);
+        if (scene && scene.repaint) scene.repaint();
+        api.dialog(outcome, function () {
+          api.setVar('gridBoth', 0);
+          if (scene && scene.repaint) scene.repaint();
+          api.toast(G.str.get('ui.toast.again'), 'warn');
+          /* 不调 pass：交互点仍然存在，可以再来一次 */
+        });
+      });
+    },
+  });
+})();
+
+</script>
+<script data-src="js/mods/taihe-keep.js">
+/* ============================================================
+   C · 玩法  关 2「标签归位」之后的保留选择
+   ------------------------------------------------------------
+   主题里「主动选择保留」这一步，必须是一个操作，不能是一句台词。
+
+   玩家刚刚亲手验证过：从门洞到月台，三段台阶、一次抬头，
+   视线是被安排好的。现在问他：这处关系，你要不要写进自己的造境规则。
+
+   三个选项都算通过 —— 这里没有标准答案，也不打分：
+   · keep 写进规则（后续关卡与出口会读 keep.steps）
+   · note 先记下待核
+   · drop 不要（狄奥提玛只提醒一句，不惩罚）
+
+   契约：{ open: function (api) { ... } }
+   文案在 data/script.json 的 puzzles["taihe.keep"] 下。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+
+  const KEY = 'taihe.keep';
+
+  G.mod.puzzle(KEY, {
+    summary: '关 2 收尾：要不要把「走近—抬头」这处空间关系写进造境规则。三项皆可，不打分。',
+
+    open: function (api) {
+      const scene = api.scene;
+
+      function repaint() {
+        if (scene && scene.repaint) scene.repaint();
+      }
+
+      api.dialog('puzzles.' + KEY + '.body', function () {
+        api.ask(KEY, function (choice) {
+          api.dialog('puzzles.' + KEY + '.outcome.' + choice, function () {
+            api.setVar('keepSteps', choice);
+            G.save.flag('keep.steps', choice);
+            G.save.persist();
+            repaint();
+            if (choice === 'keep') api.toast(G.str.get('ui.toast.kept'), 'ok');
+            api.pass({ choice: choice });
+          });
+        });
+      });
+    },
+  });
+})();
+
+</script>
+<script data-src="js/mods/repair-relic.js">
+/* ============================================================
+   C · 玩法  关 4「修复台 · 反转」
+   ------------------------------------------------------------
+   这段是主题落点，不是彩蛋：
+
+   系统把一件带外来机械构件的真实藏品判成「错误混入」。
+   玩家手里有三样东西：能指认的外来部分、能指认的本土部分、
+   能指认的改造关系。判定权在玩家，不在系统。
+
+   · 选 B（改判：有据可查的历史融合，保留全件）= 对
+   · 选 A（拆掉外来件）= 把交流当成污染
+   · 选 C（删掉外来说明）= 把吸收藏起来，同一种错
+     A / C 都不 pass，可以重来 —— 但错误分支的台词必须先播完，
+     否则玩家会以为这题只是点错了按钮。
+
+   契约与其他玩法模块一致：{ open: function (api) { ... } }
+   文案全部在 data/script.json 的 puzzles.repair_bench.relic 下。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+
+  const KEY = 'repair_bench.relic';
+  const P = 'puzzles.' + KEY;
+
+  function hints() {
+    const pz = G.str.puzzle(KEY) || {};
+    return pz.hints || [];
+  }
+
+  G.mod.puzzle(KEY, {
+    summary: '关 4 反转：系统判「错误混入」，玩家改判为「有据可查的历史融合」。选错可重来。',
+
+    open: function (api) {
+      const scene = api.scene;
+
+      /* 判定改过之后，画面要跟着变（由 A 的画笔读 scene.vars.verdictR07） */
+      function repaint() {
+        if (scene && scene.repaint) scene.repaint();
+      }
+
+      function ask() {
+        api.ask(KEY, function (choice) {
+          if (choice === 'B') {
+            api.dialog(P + '.outcome.B', function () {
+              api.dialog(P + '.afterRight', function () {
+                api.setVar('verdictR07', 'fusion');
+                G.save.flag('judged.R07', 'fusion');
+                G.save.flag('card.sc_guangzhong', true);
+                G.save.persist();
+                repaint();
+                api.toast(G.str.get('ui.toast.judged'), 'ok');
+                api.pass({ choice: 'B', verdict: 'fusion' });
+              });
+            });
+            return;
+          }
+
+          /* A / C：都是错判，播完各自的后果再给一次机会 */
+          api.setVar('verdictR07', choice === 'A' ? 'stripped' : 'erased');
+          repaint();
+          api.dialog(P + '.outcome.' + choice, function () {
+            api.setVar('verdictR07', '');
+            repaint();
+            const h = hints();
+            api.toast(h[0] || G.str.get('ui.toast.wrong'), 'warn');
+            ask();
+          });
+        });
+      }
+
+      /* 开场：系统的判决 → 三条可指认的依据 → 玩家开口 */
+      api.dialog(P + '.systemLines', function () {
+        api.dialog(P + '.deepen', ask);
+      });
+    },
+  });
+})();
+
+</script>
+<script data-src="data/cuts/opening.js">
+/* ============================================================
+   data/cuts/opening.js —— 开场动画
+   ------------------------------------------------------------
+   什么时候播：G.mod.boot() 发现这段没看过，就在标题页播一次。
+   想重看：清存档，或控制台 G.save.flag('cut.opening', false)。
+   想改节奏：只改 steps 里的 ms 和顺序，不用碰任何渲染代码。
+   ============================================================ */
+G.mod.register({
+  kind: 'cutscene',
+  id: 'opening',
+
+  steps: [
+    /* 1. 起：黑场 + 黑边 */
+    { t: 'fade', to: 1, ms: 0, color: '#08070a' },
+    { t: 'bars', on: true, ms: 500 },
+    { t: 'wait', ms: 500 },
+
+    /* 2. 第一口气：把这个世界的一句话讲完 */
+    { t: 'card', key: 'cuts.opening.0', ms: 2400 },
+    { t: 'wait', ms: 200 },
+    { t: 'card', key: 'cuts.opening.1', ms: 2600 },
+    { t: 'wait', ms: 200 },
+    { t: 'card', key: 'cuts.opening.2', ms: 2600 },
+
+    /* 3. 错位的一瞬：震屏 + 白闪 + 一行系统错报 */
+    { t: 'shake', ms: 320, amp: 6 },
+    { t: 'flash', color: '#dfe7ea', ms: 220 },
+    { t: 'card', key: 'cuts.opening.3', subKey: 'cuts.opening.3sub', ms: 2200 },
+
+    /* 4. 收：亮出标题 */
+    { t: 'clear' },
+    { t: 'wait', ms: 260 },
+    { t: 'title', key: 'cuts.opening.title', subKey: 'cuts.opening.sub', ms: 2600 },
+
+    /* 5. 光进来，黑边退场 */
+    { t: 'bars', on: false, ms: 500 },
+    { t: 'fade', to: 0, ms: 700 },
+    { t: 'wait', ms: 200 }
+  ]
+});
+
+</script>
+<script data-src="data/cuts/wumen-intro.js">
+/* ============================================================
+   data/cuts/wumen-intro.js —— 进入午门关之前的过场
+   ------------------------------------------------------------
+   演示「过场怎么用三方的产物」：
+   · 文字  ← B：data/script.json 里的 cuts.wumen_intro.* / nodes.wumen.enter.*
+   · 立绘  ← A：js/art/*.js 里登记的 painter 'portrait.diotima'
+              （没画也不崩，引擎会跳过去，只是少一张画）
+   · 节奏  ← C：就是这个 steps 数组
+   ============================================================ */
+G.mod.register({
+  kind: 'cutscene',
+  id: 'wumen.intro',
+
+  steps: [
+    { t: 'fade', to: 1, ms: 420, color: '#08070a' },
+    { t: 'bars', on: true, ms: 300 },
+
+    /* 她先开口，然后才看得见她 */
+    { t: 'card', key: 'cuts.wumen_intro.0', ms: 1500 },
+    { t: 'portrait', who: 'diotima', on: true, side: 'left', ms: 340 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.1', ms: 2400 },
+
+    /* 地上那层灰绿的线，肉眼可见地对不上 */
+    { t: 'shake', ms: 260, amp: 4 },
+    { t: 'card', who: 'diotima', key: 'cuts.wumen_intro.2', ms: 2600 },
+
+    /* 玩家自己的一句：短、轻、别抢戏 */
+    { t: 'card', who: 'player', key: 'cuts.wumen_intro.3', ms: 1800 },
+
+    { t: 'clear' },
+    { t: 'bars', on: false, ms: 320 },
+    { t: 'fade', to: 0, ms: 520 }
+  ]
+});
+
+</script>
+<!-- 启动：必须排在所有模块脚本之后 -->
+<script data-src="js/boot.js">
+/* ============================================================
+   万象灵境 — 模块化接线入口（boot）
+
+   这个文件存在的唯一目的：让「模块化」这套东西不需要改动
+   js/main.js 就能启动。
+
+   之前是在 js/main.js 的 title.init() 后面插一行 G.mod.boot()，
+   但 upstream/main 已经把 main.js 大改了 400 多行，那一行会变成
+   合并冲突。现在改成在 index.html 末尾多加载一个文件，
+   js/main.js 保持和 upstream 完全一致 —— 零冲突。
+
+   加载顺序（见 index.html 末尾）：
+     js/str.js  js/mod.js  js/stage.js  js/cut.js
+     js/art/*.js  data/maps/*.js
+     js/mods/*.js  data/cuts/*.js
+     → js/boot.js ← 最后一行
+
+   G.mod.boot() 自己会做：
+     1. 等文案表 data/script.json 就绪；
+     2. 自检所有「地图 / 画笔 / 玩法 / 过场 / 文案」的引用是否齐全；
+     3. 无参数时：若存在 cutscene.opening 且没看过，就播开场动画；
+     4. ?map=wumen 直接进关（跳过开场）；
+     5. ?cut=opening 只播过场，便于单独审片。
+   ============================================================ */
+(function () {
+  'use strict';
+
+  function start() {
+    var G = window.G;
+    if (!G) {
+      console.error('[boot] window.G 不存在：js/core.js 没加载？');
+      return;
+    }
+    if (!G.mod || typeof G.mod.boot !== 'function') {
+      // 没有 js/mod.js 时不要报错，让旧线（打铁花 / 雅典）照常运行
+      console.warn('[boot] 没有 G.mod.boot()，跳过模块化启动；旧线不受影响。');
+      return;
+    }
+    try {
+      G.mod.boot();
+    } catch (err) {
+      // 模块化出问题不能拖垮整个游戏：打一行红字，回到旧标题页
+      console.error('[boot] G.mod.boot() 失败：', err);
+    }
+  }
+
+  // window.load 在所有 <script> 执行完、main.js 的 init 也跑完之后触发。
+  if (document.readyState === 'complete') {
+    setTimeout(start, 0);
+  } else {
+    window.addEventListener('load', start, { once: true });
+  }
 })();
 
 </script>
