@@ -6,9 +6,18 @@
 
 另附独立章节 **「万象灵境 · 雅典—故宫」**：故宫沙盘被雅典卫城的数据包叠印，建筑本体没有改变，但投影和来源标签错位了。找回故宫档案与卫城档案，校准一处说明，再走进创作终端。
 
-> 本仓库另有一个独立希腊游戏 **[雅典 · 卫城](athens-city/README.md)**（`athens-city/`，端口 8213），与本作互不影响。
-
 全部画面由 Canvas 程序化绘制，没有外部图片素材；游戏逻辑为原生 JavaScript，无构建步骤。
+
+---
+
+## 本仓库包含两个游戏
+
+| 游戏 | 目录 | 端口 | 一句话 |
+| --- | --- | --- | --- |
+| **紫禁城 · 铁火** | 根目录 | 8123 | 北京中轴线：午门入园、故宫探索、打铁花 |
+| **[雅典 · 卫城](athens-city/README.md)** | `athens-city/` | 8213 | 希腊卫城：山门入城、卫城探索、点火圣火 |
+
+两个游戏完全独立：各自的 `index.html`、`serve.js`、存档键互不干扰，可以分别运行。
 
 ---
 
@@ -34,8 +43,10 @@ node serve.js
 
 `web.html` 是全部 CSS / JS 内联后的单文件版本，**可以直接双击用浏览器打开**，也可以上传到任意静态托管（GitHub Pages、Netlify、Cloudflare Pages 等）。
 
+修改源码后重新生成：
+
 ```bash
-node tools/build-web.mjs
+node tools/build-web.mjs   # 或 npm run build:web
 # 生成 web.html
 ```
 
@@ -141,7 +152,29 @@ node tools/build-web.mjs
 | ![难度选择](shots/difficulty.png) | ![榫卯小游戏](shots/archive_cn.png) |
 | ![回纹小游戏](shots/archive_en.png) | ![来源判断](shots/source_quiz.png) |
 | ![手绘地图](shots/map.png) | ![打铁花](shots/mgimpact.png) |
-| ![打铁花](shots/mgimpact.png) |  |
+
+---
+
+## 做新地图之前
+
+风格已经固化成一份规范，后面的地图照着它做就不会跑偏：
+
+| 文件 | 作用 |
+| --- | --- |
+| **[STYLE.md](STYLE.md)** | 美术与地图风格规范：调色板、尺寸表、光照、建筑语法、道具、UI、验收清单 |
+| `shots/style-sheet.png` | 视觉样张（一张图看完色板 / 建筑 / 角色 / 道具 / 昼夜） |
+| `js/map-template.js` | 可运行的地图模板（城东小院），复制一份改内容即可 |
+| `map-bench.html` | 模板预览台，不接主流程也能单独跑一张地图 |
+
+先读 STYLE.md 的第 12 节「新地图制作 SOP」，再打开
+`http://127.0.0.1:8123/map-bench.html` 走一圈，就能开工了。
+
+```bash
+# 独立预览一张地图（等接入主流程前）
+node serve.js
+# http://127.0.0.1:8123/map-bench.html
+# 参数：?night=1 夜景 · ?map=1 导览图 · ?player=640,470 指定站位
+```
 
 ---
 
@@ -154,6 +187,9 @@ forbidden-city/
   styles.css          HUD、安检、图鉴、结算等界面
   serve.js            本地静态服务器
   start.bat           一键启动
+  STYLE.md            美术与地图风格规范
+  style-sheet.html    美术风格样张（Canvas 绘制）
+  map-bench.html      地图模板预览台
   js/
     core.js           输入、对话、音效、存档、粒子、场景管理
     art.js            像素人物、宫殿、城门、道具、夜景绘制
@@ -168,7 +204,9 @@ forbidden-city/
     entry.js          午门入园安检
     minigame.js       打铁花小游戏
     main.js           标题、启动、图鉴、菜单、调试
-  tools/              无头浏览器截图与端到端测试脚本
+    map-template.js   地图模板：城东小院（1120 × 800）
+  athens-city/        雅典 · 卫城（独立游戏，见 athens-city/README.md）
+  tools/              build-web.mjs 单文件构建、无头浏览器截图与端到端测试脚本
   shots/              截图
 ```
 
@@ -179,3 +217,17 @@ forbidden-city/
 - 游戏中的入园安检是玩法化演出，不收集、不上传任何个人信息。
 - 打铁花为国家级非物质文化遗产，铁水温度可达约 1600°C，现实中的表演有严格的安全防护，请勿模仿。
 - 所有像素画面均由 Canvas 实时绘制；字体使用系统中文字体。
+- 本项目采用 [MIT 许可证](LICENSE) 开源。
+
+---
+
+## 本地运行（命令行）
+
+Windows 双击 `start.bat`；其它系统用：
+
+```bash
+node serve.js      # 或 npm start / npm run dev / npm run serve
+# 打开 http://127.0.0.1:8123/
+```
+
+截图 / 样张由无头 Chrome 生成，命令见 [STYLE.md §17](STYLE.md)。
