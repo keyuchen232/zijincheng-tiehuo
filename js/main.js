@@ -778,8 +778,7 @@
   const title = {
     active: true,
     init() {
-      const startBtn = $('#btn-start');
-      if (startBtn) startBtn.addEventListener('click', () => G.enterTiehua());
+      /* 旧线（btn-start / btn-fusion / btn-athens）已整体下线 */
       $('#btn-continue').addEventListener('click', () => continueGame());
       const thBtn = $('#btn-tiehua');
       if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
