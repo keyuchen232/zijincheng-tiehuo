@@ -143,6 +143,8 @@
           location.reload();
         });
       });
+      const quitBtn = $('#menu-quit');
+      if (quitBtn) quitBtn.addEventListener('click', () => { this.close(); G.quitToTitle(); });
       G.$('#menu').addEventListener('click', (e) => { if (e.target.id === 'menu') this.close(); });
     },
     show() {
@@ -657,7 +659,19 @@
       return;
     }
     G.fade.to(() => {
-      if (f.night || f.finished) {
+      const pos = G.save.data.pos;
+      if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        G.mod.go('create', { spawn: { x: pos.x, y: pos.y } });
+        G.ui.showHud(true);
+      }
+      else if (pos && pos.scene === 'wumen' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'wumen')) {
+        G.mod.go('wumen', { spawn: { x: pos.x, y: pos.y } });
+        G.ui.showHud(true);
+      }
+      else if (pos && pos.scene === 'fusion' && G.enterFusion) { G.enterFusion({ skipIntro: true, spawn: { x: pos.x, y: pos.y } }); }
+      else if (pos && pos.scene === 'gugong') { G.enterPalace({ x: pos.x, y: pos.y }); }
+      else if (pos && pos.scene === 'beijing') { G.enterBeijing({ x: pos.x, y: pos.y }); }
+      else if (f.night || f.finished) {
         G.enterPalace({ x: 650, y: 300 });
       } else if (f.entered) {
         let spawn = { x: 750, y: 1300 };
@@ -675,10 +689,49 @@
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
     G.fade.to(() => {
+      // 新创造模式：造境台（中式/希式构件自由组合，可收境成展签）
+      if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        const sc = G.mod.go('create');
+        if (sc) {
+          G.ui.showHud(true);
+          G.ui.toast('创造模式 · 造境台：把紫禁城与卫城的构件摆到同一台上', 'good', 3600);
+          return;
+        }
+      }
       G.enterFusion();
       G.ui.toast('创造模式 · 先校准来源，再走进创作终端', 'good', 3200);
     }, 420);
   }
+
+  /* 自动保存：把场景与站位写进存档，供「继续游戏」还原 */
+  G.autosave = function () {
+    if (!G.scene || G.titleActive) return;
+    const p = G.scene.player || {};
+    G.save.data.pos = { scene: G.scene.id || G.sceneName || 'beijing', x: Math.round(p.x || 0), y: Math.round(p.y || 0) };
+    G.save.data.scene = G.scene.id || G.save.data.scene;
+    G.save.persist();
+  };
+
+  /* 退出到标题页（菜单里的「退出 · 回到标题」） */
+  G.quitToTitle = function () {
+    if (G.fade.busy) return;
+    G.autosave();
+    G.audio.sfx('page');
+    G.fade.to(() => {
+      if (G.scene && G.scene.exit) { try { G.scene.exit(); } catch (e) { /* noop */ } }
+      G.scene = null;
+      G.sceneName = '';
+      G.ui.showHud(false);
+      G.ui.setHomeButton(false);
+      G.hide($('#hud'));
+      G.hide($('#exit-screen'));
+      // 注意：这里不要调 G.backToTitle()——它会被 fade.busy 挡住，直接切回标题页
+      G.show($('#title'));
+      G.titleActive = true;
+      G.input.clearPressed();
+      title.sync();
+    }, 320);
+  };
 
   /* 退出游戏：浏览器允许时直接关闭标签页，否则留在退出画面 */
   G.exitGame = function () {
@@ -720,15 +773,34 @@
       $('#btn-continue').addEventListener('click', () => continueGame());
       $('#btn-create').addEventListener('click', () => enterCreate());
       $('#btn-exit').addEventListener('click', () => G.exitGame());
+      const delBtn = $('#btn-del-save');
+      if (delBtn) delBtn.addEventListener('click', () => {
+        G.confirm('删除本机存档？', '进度、图鉴与最佳成绩都会被清除，无法恢复。', () => {
+          G.save.remove();
+          title.sync();
+          G.ui.toast('存档已删除', 'good', 2200);
+        });
+      });
       $('#btn-back-title').addEventListener('click', () => G.backToTitle());
       this.sync();
     },
     sync() {
       const has = G.save.exists();
       const btn = $('#btn-continue');
-      if (!btn) return;
-      btn.disabled = !has;
-      btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
+      if (btn) {
+        btn.disabled = !has;
+        btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
+      }
+      const slot = $('#save-slot');
+      const info = $('#save-info');
+      if (!slot || !info) return;
+      slot.classList.toggle('none', !has);
+      if (!has) { info.textContent = '存档 · 暂无'; return; }
+      const d = G.save.data || {};
+      const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', home: '家 · 大厅', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
+      const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
+      const done = d.codex ? d.codex.length : 0;
+      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
     },
   };
 
@@ -1047,8 +1119,11 @@
       state() { return JSON.parse(JSON.stringify(G.save.data)); },
     };
 
+    // 每 8 秒自动保存一次站位与进度；打开菜单、切后台、离开页面时也会存
+    setInterval(() => { try { if (!G.titleActive) G.autosave(); } catch (e) { /* noop */ } }, 8000);
+    document.addEventListener('pause', () => G.autosave());
     // auto-save on hide
-    window.addEventListener('beforeunload', () => G.save.persist());
+    window.addEventListener('beforeunload', () => G.autosave());
     document.addEventListener('visibilitychange', () => { if (document.hidden) G.save.persist(); });
 
     // initial UI

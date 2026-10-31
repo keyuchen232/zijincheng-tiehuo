@@ -708,6 +708,46 @@ body.title-mode #stage{visibility:hidden}
   #stage.diorama #game{transform:rotateX(11deg) scale(1.05)}
 }
 
+/* 标题页存档位 */
+.title-save{display:flex;align-items:center;gap:.8em;justify-content:center;margin:.9em 0 .2em;font-size:.8em;color:#b9a887}
+.title-save #save-info{letter-spacing:.06em}
+.title-save .save-del{border:1px solid #6b5434;background:transparent;color:#c9b48a;font-size:.92em;padding:.28em .7em;cursor:pointer;border-radius:2px}
+.title-save .save-del:hover{border-color:#b0503c;color:#e8b0a0}
+.title-save.none .save-del{display:none}
+
+/* ============================================================
+   创造模式 · 造境台面板
+   ============================================================ */
+.create-panel{position:fixed;inset:0;z-index:62;display:grid;place-items:center;padding:2em 1em;background:rgba(8,6,4,.6)}
+.create-panel.hidden{display:none}
+.cp-card{width:min(760px,100%);max-height:86vh;overflow:auto;background:linear-gradient(180deg,#241c15,#17110e);
+  border:1px solid #6b5434;box-shadow:0 18px 60px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.45);color:#f1e5cf;padding:1.1em 1.2em}
+.cp-head{display:flex;align-items:center;gap:.6em;border-bottom:1px dashed #3f3021;padding-bottom:.6em}
+.cp-head b{font-family:var(--serif,Georgia,serif);letter-spacing:.08em;color:#f3d99a;font-size:1.05em}
+.cp-head span{font-size:.74em;color:#9a8a72}
+.cp-close{margin-left:auto;border:1px solid #5a4529;background:#241b14;color:#d8b26a;font-size:.72em;padding:.35em .8em;cursor:pointer;border-radius:2px}
+.cp-close:hover{border-color:#d8b26a;color:#ffe9bd}
+.cp-tip{font-size:.78em;color:#b9a887;line-height:1.75;margin:.8em 0}
+.cp-groups{display:grid;grid-template-columns:1fr 1fr;gap:1em}
+.cp-col h4{margin:.2em 0 .5em;font-size:.8em;color:#c9a25c;letter-spacing:.1em}
+.cp-list{display:flex;flex-direction:column;gap:.4em}
+.cp-item{border:1px solid #4d3a22;background:#1d1710;color:#d9c9a6;font-size:.78em;padding:.45em .7em;cursor:pointer;text-align:left;border-radius:2px;font:inherit}
+.cp-item:hover{border-color:#8a6b2f;color:#ffe9bd}
+.cp-item.on{border-color:#8a6b2f;background:#2a2013;color:#ffd98a}
+.cp-ratio{margin:1em 0 .4em;font-size:.76em;color:#c9b48a}
+.cp-bar{display:flex;height:12px;border:1px solid #4d3a22;background:#151010;margin-top:.4em}
+.cp-bar i{display:block;height:100%}
+#cp-bar-cn{background:#c79c54}
+#cp-bar-gr{background:#6d9a9c}
+.cp-laws{list-style:none;padding:0;margin:.8em 0;font-size:.8em;color:#b9a887;display:flex;flex-direction:column;gap:.3em}
+.cp-laws li.ok{color:#9dd48a}
+.cp-laws li.strong{margin-top:.3em;color:#d8b26a}
+.cp-actions{display:flex;gap:.6em;justify-content:flex-end}
+.cp-main{border:1px solid #6d5326;background:linear-gradient(180deg,#c9a25c,#a0793d);color:#1c130b;font-weight:700;padding:.5em 1.1em;cursor:pointer;border-radius:2px;font:inherit}
+.cp-main:disabled{opacity:.45;cursor:not-allowed}
+.cp-actions button:not(.cp-main){border:1px solid #5a4529;background:#241b14;color:#c9b48a;padding:.5em .9em;cursor:pointer;border-radius:2px;font:inherit}
+@media(max-width:640px){.cp-groups{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -837,6 +877,10 @@ body.title-mode #stage{visibility:hidden}
       <button id="btn-create" class="btn btn-nexus"><span>创造模式</span><small>CREATIVE MODE</small></button>
       <button id="btn-exit" class="btn btn-quiet"><span>退出游戏</span><small>EXIT</small></button>
     </div>
+    <div class="title-save" id="save-slot">
+      <span id="save-info">存档 · 暂无</span>
+      <button id="btn-del-save" class="save-del" type="button">删除存档</button>
+    </div>
   </div>
   <div class="title-foot">
     <span>共创引擎团队出品 · 文化赛道</span>
@@ -937,6 +981,7 @@ body.title-mode #stage{visibility:hidden}
       <button class="btn" id="menu-ask"><span>问守境人 · 考据</span></button>
       <button class="btn" id="menu-sound"><span>声音：开</span></button>
       <button class="btn" id="menu-reset"><span>重新开始</span></button>
+      <button class="btn" id="menu-quit"><span>退出 · 回到标题</span></button>
       <button class="btn" id="menu-artdemo"><span>同境异笔 · 插件</span></button>
     </div>
     <small>进度会自动保存在本机浏览器</small>
@@ -1187,6 +1232,12 @@ body.title-mode #stage{visibility:hidden}
     },
     exists() {
       try { return !!localStorage.getItem(KEY); } catch (e) { return false; }
+    },
+    /* 彻底删掉本机存档（标题页「删除存档」用） */
+    remove() {
+      try { localStorage.removeItem(KEY); } catch (e) { /* noop */ }
+      this.data = defaultSave();
+      return true;
     },
     flag(k, v) {
       if (v === undefined) return !!this.data.flags[k];
@@ -16506,6 +16557,8 @@ window.WXL_AI = {
           location.reload();
         });
       });
+      const quitBtn = $('#menu-quit');
+      if (quitBtn) quitBtn.addEventListener('click', () => { this.close(); G.quitToTitle(); });
       G.$('#menu').addEventListener('click', (e) => { if (e.target.id === 'menu') this.close(); });
     },
     show() {
@@ -17020,7 +17073,19 @@ window.WXL_AI = {
       return;
     }
     G.fade.to(() => {
-      if (f.night || f.finished) {
+      const pos = G.save.data.pos;
+      if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        G.mod.go('create', { spawn: { x: pos.x, y: pos.y } });
+        G.ui.showHud(true);
+      }
+      else if (pos && pos.scene === 'wumen' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'wumen')) {
+        G.mod.go('wumen', { spawn: { x: pos.x, y: pos.y } });
+        G.ui.showHud(true);
+      }
+      else if (pos && pos.scene === 'fusion' && G.enterFusion) { G.enterFusion({ skipIntro: true, spawn: { x: pos.x, y: pos.y } }); }
+      else if (pos && pos.scene === 'gugong') { G.enterPalace({ x: pos.x, y: pos.y }); }
+      else if (pos && pos.scene === 'beijing') { G.enterBeijing({ x: pos.x, y: pos.y }); }
+      else if (f.night || f.finished) {
         G.enterPalace({ x: 650, y: 300 });
       } else if (f.entered) {
         let spawn = { x: 750, y: 1300 };
@@ -17038,10 +17103,49 @@ window.WXL_AI = {
     G.audio.init();
     G.audio.setEnabled(G.save.data.sound !== false);
     G.fade.to(() => {
+      // 新创造模式：造境台（中式/希式构件自由组合，可收境成展签）
+      if (G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
+        const sc = G.mod.go('create');
+        if (sc) {
+          G.ui.showHud(true);
+          G.ui.toast('创造模式 · 造境台：把紫禁城与卫城的构件摆到同一台上', 'good', 3600);
+          return;
+        }
+      }
       G.enterFusion();
       G.ui.toast('创造模式 · 先校准来源，再走进创作终端', 'good', 3200);
     }, 420);
   }
+
+  /* 自动保存：把场景与站位写进存档，供「继续游戏」还原 */
+  G.autosave = function () {
+    if (!G.scene || G.titleActive) return;
+    const p = G.scene.player || {};
+    G.save.data.pos = { scene: G.scene.id || G.sceneName || 'beijing', x: Math.round(p.x || 0), y: Math.round(p.y || 0) };
+    G.save.data.scene = G.scene.id || G.save.data.scene;
+    G.save.persist();
+  };
+
+  /* 退出到标题页（菜单里的「退出 · 回到标题」） */
+  G.quitToTitle = function () {
+    if (G.fade.busy) return;
+    G.autosave();
+    G.audio.sfx('page');
+    G.fade.to(() => {
+      if (G.scene && G.scene.exit) { try { G.scene.exit(); } catch (e) { /* noop */ } }
+      G.scene = null;
+      G.sceneName = '';
+      G.ui.showHud(false);
+      G.ui.setHomeButton(false);
+      G.hide($('#hud'));
+      G.hide($('#exit-screen'));
+      // 注意：这里不要调 G.backToTitle()——它会被 fade.busy 挡住，直接切回标题页
+      G.show($('#title'));
+      G.titleActive = true;
+      G.input.clearPressed();
+      title.sync();
+    }, 320);
+  };
 
   /* 退出游戏：浏览器允许时直接关闭标签页，否则留在退出画面 */
   G.exitGame = function () {
@@ -17083,15 +17187,34 @@ window.WXL_AI = {
       $('#btn-continue').addEventListener('click', () => continueGame());
       $('#btn-create').addEventListener('click', () => enterCreate());
       $('#btn-exit').addEventListener('click', () => G.exitGame());
+      const delBtn = $('#btn-del-save');
+      if (delBtn) delBtn.addEventListener('click', () => {
+        G.confirm('删除本机存档？', '进度、图鉴与最佳成绩都会被清除，无法恢复。', () => {
+          G.save.remove();
+          title.sync();
+          G.ui.toast('存档已删除', 'good', 2200);
+        });
+      });
       $('#btn-back-title').addEventListener('click', () => G.backToTitle());
       this.sync();
     },
     sync() {
       const has = G.save.exists();
       const btn = $('#btn-continue');
-      if (!btn) return;
-      btn.disabled = !has;
-      btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
+      if (btn) {
+        btn.disabled = !has;
+        btn.querySelector('small').textContent = has ? 'CONTINUE' : 'NO SAVE';
+      }
+      const slot = $('#save-slot');
+      const info = $('#save-info');
+      if (!slot || !info) return;
+      slot.classList.toggle('none', !has);
+      if (!has) { info.textContent = '存档 · 暂无'; return; }
+      const d = G.save.data || {};
+      const sceneName = ({ beijing: '北京 · 中轴线', gugong: '紫禁城', fusion: '万象灵境', home: '家 · 大厅', wumen: '午门', create: '造境台', acropolis: '卫城', athens: '雅典城' })[d.scene] || (d.scene || '旅途');
+      const mins = Math.max(0, Math.round(((Date.now() - (d.at || Date.now())) / 60000)));
+      const done = d.codex ? d.codex.length : 0;
+      info.textContent = '存档 · ' + sceneName + ' · 图鉴 ' + done + ' 页';
     },
   };
 
@@ -17410,8 +17533,11 @@ window.WXL_AI = {
       state() { return JSON.parse(JSON.stringify(G.save.data)); },
     };
 
+    // 每 8 秒自动保存一次站位与进度；打开菜单、切后台、离开页面时也会存
+    setInterval(() => { try { if (!G.titleActive) G.autosave(); } catch (e) { /* noop */ } }, 8000);
+    document.addEventListener('pause', () => G.autosave());
     // auto-save on hide
-    window.addEventListener('beforeunload', () => G.save.persist());
+    window.addEventListener('beforeunload', () => G.autosave());
     document.addEventListener('visibilitychange', () => { if (document.hidden) G.save.persist(); });
 
     // initial UI
@@ -19045,6 +19171,276 @@ G.mod.register({
 });
 
 </script>
+<script data-src="js/art/create.js">
+/* ============================================================
+   A · 美术 造境台（创造模式）
+   ------------------------------------------------------------
+   一件件中式/希式构件摆在两侧展台上，中央是空的造境台。
+   玩法（js/mods/create-mode.js）把玩家选中的构件写进
+   scene.vars.picked，这里负责把它们排到台上。
+   画笔只画，不改状态。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+  const A = G.art;
+  const AG = G.artGreek || {};
+  const r = A.r;
+
+  const CN = [
+    { id: 'cn.wall', name: '红墙', sub: '宫墙 · 朱红' },
+    { id: 'cn.hall', name: '金瓦殿', sub: '重檐 · 琉璃' },
+    { id: 'cn.gate', name: '月洞门', sub: '中轴 · 门阙' },
+  ];
+  const GR = [
+    { id: 'gr.colonnade', name: '多立克柱廊', sub: '列柱 · 石梁' },
+    { id: 'gr.pediment', name: '三角山墙', sub: '山花 · 檐部' },
+    { id: 'gr.caryatid', name: '女像柱廊', sub: '六柱 · 人形' },
+  ];
+  G.CREATE_PIECES = CN.concat(GR);
+
+  /* ---------- 地面 ---------- */
+  G.mod.painter('create.plaza', function (ctx) {
+    // 底色：暖石
+    A.paving(ctx, 0, 0, 640, 1120, '#c2b69b', '#b0a488', 7, 16);
+    // 两侧展台
+    A.paving(ctx, 24, 250, 176, 720, '#cabd9f', '#b9ac8d', 21, 14);
+    A.paving(ctx, 440, 250, 176, 720, '#cabd9f', '#b9ac8d', 22, 14);
+    // 中央造境台
+    A.paving(ctx, 152, 470, 336, 420, '#dcd1b4', '#c9bd9d', 11, 14);
+    // 台口的两道石阶
+    for (let i = 0; i < 4; i++) {
+      r(ctx, 176 - i * 3, 890 + i * 4, 288 + i * 6, 4, i % 2 ? '#d3c8ab' : '#bfb394');
+    }
+    // 中轴引导线
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#8a6a3f';
+    ctx.fillRect(318, 900, 4, 190);
+    ctx.restore();
+  });
+
+  /* ---------- 单件构件（两侧展台） ---------- */
+  function drawPiece(ctx, kind, x, y, faint) {
+    ctx.save();
+    if (faint) ctx.globalAlpha = 0.28;
+    if (kind === 'cn.wall') {
+      A.wallH(ctx, x - 52, x + 52, y, 26);
+    } else if (kind === 'cn.hall') {
+      A.drawHall(ctx, x, y, 118, { wallH: 22, roofH: 18, name: '', openDoor: true });
+    } else if (kind === 'cn.gate') {
+      A.drawGate(ctx, x, y, 96, { wallH: 26, roofH: 15, arches: 1, name: '' });
+    } else if (kind === 'gr.colonnade') {
+      if (AG.drawTemple) AG.drawTemple(ctx, x, y, 128, { columns: 6, step: true, name: '' });
+    } else if (kind === 'gr.pediment') {
+      if (AG.drawTemple) AG.drawTemple(ctx, x, y, 116, { columns: 4, pediment: true, step: true, name: '' });
+    } else if (kind === 'gr.caryatid') {
+      if (AG.caryatidPorch) AG.caryatidPorch(ctx, x, y, 1);
+    }
+    ctx.restore();
+  }
+  G.CREATE_DRAW_PIECE = drawPiece;
+
+  G.mod.painter('create.piece', function (ctx, prop, scene) {
+    const kind = prop.opt && prop.opt.kind;
+    const picked = (scene && scene.vars && scene.vars.picked) || [];
+    const used = picked.indexOf(kind) >= 0;
+    drawPiece(ctx, kind, prop.x, prop.baseY, used);
+    // 已选：展台上留一块「已请上台」的印
+    if (used) {
+      ctx.save();
+      ctx.globalAlpha = 0.7;
+      r(ctx, prop.x - 13, prop.baseY + 6, 26, 12, '#6d3a24');
+      G.text(ctx, '已选', prop.x, prop.baseY + 15, { size: 8, color: '#f4e2c2', align: 'center', weight: 'bold' });
+      ctx.restore();
+    }
+  });
+
+  /* ---------- 造境台：把选中的构件排上去 ---------- */
+  G.mod.painter('create.stage', function (ctx, prop, scene) {
+    const v = (scene && scene.vars) || {};
+    const picked = v.picked || [];
+    const cx = 320;
+    const base = 860;
+
+    // 台座
+    A.shadow(ctx, cx, base, 300, 7, 0.26);
+    r(ctx, cx - 156, base - 16, 312, 16, '#9b8e75');
+    r(ctx, cx - 152, base - 22, 304, 8, '#cbbfa2');
+    r(ctx, cx - 148, base - 24, 296, 3, '#e6dcc3');
+
+    if (!picked.length) {
+      G.text(ctx, '台上还空着 —— 走到展台前按 E 选构件', cx, base - 70, {
+        size: 9, color: '#6b5a44', align: 'center',
+      });
+      // 台上的定位十字
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      r(ctx, cx - 6, base - 96, 12, 2, '#8a7a5e');
+      r(ctx, cx - 1, base - 101, 2, 12, '#8a7a5e');
+      ctx.restore();
+      return;
+    }
+
+    // 排布：最近相邻的两种文化交替站台，形成「合璧」
+    const sorted = picked.slice().sort(function (a, b) {
+      const ac = a.indexOf('cn.') === 0 ? 0 : 1;
+      const bc = b.indexOf('cn.') === 0 ? 0 : 1;
+      return ac - bc;
+    });
+    const n = sorted.length;
+    const gap = Math.min(84, 260 / Math.max(1, n));
+    for (let i = 0; i < n; i++) {
+      const k = sorted[i];
+      const x = cx + (i - (n - 1) / 2) * gap;
+      ctx.save();
+      ctx.translate(x, base - 26);
+      ctx.scale(0.78, 0.78);
+      drawPiece(ctx, k, 0, 0, false);
+      ctx.restore();
+    }
+
+    // 合璧：两种文化各占一半以上 → 金色网格 + 云
+    const blend = v.blend == null ? 0 : v.blend;
+    if (v.harmony) {
+      ctx.save();
+      ctx.globalAlpha = 0.16;
+      ctx.strokeStyle = '#d8b26a';
+      ctx.lineWidth = 1;
+      for (let gx = -120; gx <= 120; gx += 24) {
+        ctx.beginPath(); ctx.moveTo(cx + gx, base - 150); ctx.lineTo(cx + gx, base - 20); ctx.stroke();
+      }
+      for (let gy = -150; gy <= -20; gy += 24) {
+        ctx.beginPath(); ctx.moveTo(cx - 120, base + gy); ctx.lineTo(cx + 120, base + gy); ctx.stroke();
+      }
+      ctx.restore();
+      G.text(ctx, '合 璧', cx, base - 176, {
+        size: 13, color: '#8a5a24', align: 'center', weight: 'bold',
+        outline: 'rgba(244,236,216,.9)', outlineWidth: 3,
+      });
+      G.text(ctx, '中式 ' + Math.round((1 - blend) * 100) + '% · 希式 ' + Math.round(blend * 100) + '%', cx, base - 158, {
+        size: 8, color: '#6b5a44', align: 'center',
+      });
+    }
+  });
+})();
+
+/* ---------- 附属画笔 ---------- */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+  const A = G.art;
+  const r = A.r;
+
+  G.mod.painter('create.plaque', function (ctx, prop) {
+    const text = (prop.opt && prop.opt.text) || '造境台';
+    const w = 128, h = 34;
+    ctx.save();
+    ctx.fillStyle = 'rgba(16,12,9,.85)';
+    ctx.fillRect(prop.x - w / 2 - 4, prop.baseY - h - 4, w + 8, h + 8);
+    ctx.fillStyle = '#6f2a1c';
+    ctx.fillRect(prop.x - w / 2, prop.baseY - h, w, h);
+    ctx.fillStyle = 'rgba(216,178,106,.85)';
+    ctx.fillRect(prop.x - w / 2, prop.baseY - h, w, 1);
+    ctx.fillRect(prop.x - w / 2, prop.baseY - 1, w, 1);
+    ctx.restore();
+    G.text(ctx, text, prop.x, prop.baseY - 11, {
+      size: 15, color: '#f0d79b', align: 'center', weight: 'bold',
+      outline: 'rgba(10,7,5,.9)', outlineWidth: 2,
+    });
+  });
+
+  G.mod.painter('create.lantern', function (ctx, prop) {
+    A.lantern(ctx, prop.x, prop.baseY, { h: 30 });
+  });
+})();
+
+</script>
+<script data-src="data/maps/create.js">
+/* ============================================================
+   A · 美术/关卡  创造模式：造境台（中西合璧）
+   ------------------------------------------------------------
+   两张展台分列左右：左边三件中式（红墙 / 金瓦殿 / 月洞门），
+   右边三件希式（多立克柱廊 / 三角山墙 / 女像柱廊）。
+   中央是空的造境台 —— 玩法把玩家选的件排上去（scene.vars.picked）。
+   ============================================================ */
+G.mod.register({
+  kind: 'map',
+  id: 'create',
+  title: '造境台',
+  sub: '中西合璧',
+
+  size: { w: 640, h: 1120 },
+  spawn: { x: 320, y: 1010 },
+  camera: { lookAhead: 34 },
+  clock: '∞',
+  ambient: 'palace',
+  background: '#171310',
+
+  vars: {
+    picked: [],
+    blend: 0,
+    harmony: false,
+  },
+
+  ground: [
+    { painter: 'create.plaza', x: 0, y: 0, w: 640, h: 1120, opt: {} },
+  ],
+
+  solids: [
+    { x: 0, y: 0, w: 640, h: 20 },
+    { x: 0, y: 1086, w: 640, h: 34 },
+    { x: 0, y: 0, w: 20, h: 1120 },
+    { x: 620, y: 0, w: 20, h: 1120 },
+    /* 两侧展台 */
+    { x: 24, y: 250, w: 176, h: 720 },
+    { x: 440, y: 250, w: 176, h: 720 },
+  ],
+
+  props: [
+    /* 左侧展台：中式 */
+    { painter: 'create.piece', x: 112, baseY: 420, opt: { kind: 'cn.wall' } },
+    { painter: 'create.piece', x: 112, baseY: 620, opt: { kind: 'cn.hall' } },
+    { painter: 'create.piece', x: 112, baseY: 820, opt: { kind: 'cn.gate' } },
+    /* 右侧展台：希式 */
+    { painter: 'create.piece', x: 528, baseY: 420, opt: { kind: 'gr.colonnade' } },
+    { painter: 'create.piece', x: 528, baseY: 620, opt: { kind: 'gr.pediment' } },
+    { painter: 'create.piece', x: 528, baseY: 820, opt: { kind: 'gr.caryatid' } },
+    /* 中央造境台 */
+    { painter: 'create.stage', x: 320, baseY: 866, opt: {} },
+    /* 匾与灯 */
+    { painter: 'create.plaque', x: 320, baseY: 196, opt: { text: '造 境 台' } },
+    { painter: 'create.lantern', x: 236, baseY: 960, opt: {} },
+    { painter: 'create.lantern', x: 404, baseY: 960, opt: {} },
+  ],
+
+  lights: [
+    { x: 236, y: 940, r: 60, color: '#ffcf86', a: 0.2 },
+    { x: 404, y: 940, r: 60, color: '#ffcf86', a: 0.2 },
+    { x: 320, y: 840, r: 90, color: '#ffd79a', a: 0.16 },
+  ],
+
+  npcs: [],
+
+  spots: [
+    {
+      id: 'create.stage',
+      x: 320, y: 930, r: 92,
+      label: '走到造境台前 · 挑选构件',
+      puzzle: 'create.pick',
+    },
+    {
+      id: 'create.note',
+      x: 320, y: 1080, r: 34,
+      label: '看造境台说明',
+      puzzle: 'create.readme',
+    },
+  ],
+});
+
+</script>
 <!-- C · 玩法/交互/过场 -->
 <script data-src="js/mods/wumen-registration.js">
 /* ============================================================
@@ -19096,6 +19492,321 @@ G.mod.register({
           /* 不调 pass：交互点仍然存在，可以再来一次 */
         });
       });
+    },
+  });
+})();
+
+</script>
+<script data-src="js/mods/create-mode.js">
+/* ============================================================
+   C · 玩法  创造模式「造境台」
+   ------------------------------------------------------------
+   一张白台 + 六件构件（左中右希）。玩法只做三件事：
+     1. 让玩家把构件请上台（写 scene.vars.picked，A 的画笔负责画）
+     2. 实时算「对称 / 借景 / 比例」三条造境原则
+     3. 合璧时可以把这次组合收成一张展签（PNG 下载）
+   文案写在本文件里（这是新增模式，暂不进 script.json）。
+   ============================================================ */
+(function () {
+  'use strict';
+  const G = window.G;
+  if (!G || !G.mod) return;
+
+  const PIECES = G.CREATE_PIECES || [];
+  const CN_IDS = PIECES.filter(function (p) { return p.id.indexOf('cn.') === 0; }).map(function (p) { return p.id; });
+  const GR_IDS = PIECES.filter(function (p) { return p.id.indexOf('gr.') === 0; }).map(function (p) { return p.id; });
+  const NAME = {};
+  PIECES.forEach(function (p) { NAME[p.id] = p.name; });
+
+  function store() {
+    if (!G.save.data.create) G.save.data.create = { picked: [] };
+    if (!Array.isArray(G.save.data.create.picked)) G.save.data.create.picked = [];
+    return G.save.data.create;
+  }
+
+  function lawsOf(picked) {
+    const cn = picked.filter(function (k) { return CN_IDS.indexOf(k) >= 0; }).length;
+    const gr = picked.filter(function (k) { return GR_IDS.indexOf(k) >= 0; }).length;
+    const total = cn + gr;
+    const ratio = total ? gr / total : 0;
+    const ratioOk = cn > 0 && gr > 0 && Math.max(cn, gr) <= Math.min(cn, gr) * 2;
+    return {
+      cn: cn, gr: gr, total: total, ratio: ratio,
+      symmetry: cn > 0 && gr > 0 && Math.abs(cn - gr) <= 1,
+      borrow: picked.indexOf('cn.wall') >= 0 || picked.indexOf('gr.pediment') >= 0,
+      balance: ratioOk,
+      harmony: cn > 0 && gr > 0 && Math.abs(cn - gr) <= 1 && ratioOk &&
+        (picked.indexOf('cn.wall') >= 0 || picked.indexOf('gr.pediment') >= 0),
+    };
+  }
+
+  function apply(scene, picked) {
+    if (!scene) return lawsOf(picked);
+    scene.vars.picked = picked.slice();
+    const l = lawsOf(picked);
+    scene.vars.blend = l.ratio;
+    scene.vars.harmony = l.harmony;
+    if (scene.repaint) scene.repaint();
+    return l;
+  }
+
+  /* ---------------- 面板 ---------------- */
+  let panel = null;
+  let ui = null;
+
+  function mount() {
+    if (panel) return panel;
+    panel = document.createElement('section');
+    panel.id = 'create-panel';
+    panel.className = 'create-panel hidden';
+    panel.innerHTML = '' +
+      '<div class="cp-card">' +
+      '  <div class="cp-head"><b>造境台 · 中西合璧</b><span>紫禁城 × 雅典卫城</span>' +
+      '  <button class="cp-close" type="button">收起</button></div>' +
+      '  <p class="cp-tip">左边三件中式，右边三件希式。两边各至少一件、比例不偏过 2:1，就算「合璧」—— 天马行空，但要能自洽。</p>' +
+      '  <div class="cp-groups">' +
+      '    <div class="cp-col"><h4>中式 · 紫禁城</h4><div class="cp-list" id="cp-cn"></div></div>' +
+      '    <div class="cp-col"><h4>希式 · 卫城</h4><div class="cp-list" id="cp-gr"></div></div>' +
+      '  </div>' +
+      '  <div class="cp-ratio"><span id="cp-ratio-label">中式 0% · 希式 0%</span>' +
+      '    <div class="cp-bar"><i id="cp-bar-cn"></i><i id="cp-bar-gr"></i></div></div>' +
+      '  <ul class="cp-laws" id="cp-laws"></ul>' +
+      '  <div class="cp-actions">' +
+      '    <button id="cp-export" type="button" class="cp-main">收境 · 生成展签</button>' +
+      '    <button id="cp-clear" type="button">清空</button>' +
+      '  </div>' +
+      '</div>';
+    document.body.appendChild(panel);
+    return panel;
+  }
+
+  function render(scene) {
+    if (!panel) return;
+    const picked = store().picked;
+    const l = apply(scene, picked);
+    ['cn', 'gr'].forEach(function (side) {
+      const box = panel.querySelector('#cp-' + side);
+      box.innerHTML = '';
+      const ids = side === 'cn' ? CN_IDS : GR_IDS;
+      ids.forEach(function (id) {
+        const on = picked.indexOf(id) >= 0;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cp-item' + (on ? ' on' : '');
+        b.textContent = NAME[id] + (on ? ' · 已上台' : '');
+        b.addEventListener('click', function () {
+          const arr = store().picked;
+          const i = arr.indexOf(id);
+          if (i >= 0) arr.splice(i, 1);
+          else { if (arr.length >= 6) { G.ui.toast('台上最多六件', 'warn', 1800); return; } arr.push(id); }
+          G.save.persist && G.save.persist();
+          render(scene);
+          G.audio && G.audio.sfx('blip');
+        });
+        box.appendChild(b);
+      });
+    });
+    const pct = Math.round(l.ratio * 100);
+    const rl = panel.querySelector('#cp-ratio-label');
+    if (rl) rl.textContent = '中式 ' + (100 - pct) + '% · 希式 ' + pct + '%';
+    const bc = panel.querySelector('#cp-bar-cn');
+    const bg = panel.querySelector('#cp-bar-gr');
+    if (bc) bc.style.width = (100 - pct) + '%';
+    if (bg) bg.style.width = pct + '%';
+    const ul = panel.querySelector('#cp-laws');
+    if (ul) {
+      const rows = [
+        ['对称 · 两边各站至少一件，数量不偏过一件', l.symmetry],
+        ['借景 · 有一面红墙或一道山墙作背景', l.borrow],
+        ['比例 · 中式与希式大致相当（不超 2:1）', l.balance],
+      ];
+      ul.innerHTML = rows.map(function (r) {
+        return '<li class="' + (r[1] ? 'ok' : '') + '">' + (r[1] ? '✓' : '·') + ' ' + r[0] + '</li>';
+      }).join('') + '<li class="' + (l.harmony ? 'ok strong' : 'strong') + '">' +
+        (l.harmony ? '✓ 合璧：这一台，可以收境了' : '· 合璧：三条都成立才可以收境') + '</li>';
+    }
+    const ex = panel.querySelector('#cp-export');
+    if (ex) ex.disabled = !l.harmony;
+  }
+
+  function openPanel(scene, api) {
+    mount();
+    ui = api;
+    render(scene);
+    panel.classList.remove('hidden');
+    if (api.overlay) api.overlay(panel);
+    if (!panel._bound) {
+      panel._bound = true;
+      panel.querySelector('.cp-close').addEventListener('click', closePanel);
+      panel.querySelector('#cp-clear').addEventListener('click', function () {
+        store().picked = [];
+        G.save.persist && G.save.persist();
+        render(ui && ui.scene);
+      });
+      panel.querySelector('#cp-export').addEventListener('click', function () {
+        const scene2 = ui && ui.scene;
+        const l = lawsOf(store().picked);
+        if (!l.harmony) return;
+        exportCard(scene2, store().picked, l);
+      });
+    }
+    G.audio && G.audio.sfx('page');
+  }
+
+  function closePanel() {
+    if (panel) panel.classList.add('hidden');
+    if (ui && ui.release) ui.release();
+    ui = null;
+  }
+
+  /* ---------------- 展签 ---------------- */
+  function autoName(picked) {
+    if (picked.indexOf('cn.hall') >= 0 && picked.indexOf('gr.colonnade') >= 0) return '金瓦柱廊';
+    if (picked.indexOf('cn.wall') >= 0 && picked.indexOf('gr.pediment') >= 0) return '朱墙山花';
+    if (picked.indexOf('cn.gate') >= 0 && picked.indexOf('gr.caryatid') >= 0) return '月门女柱';
+    return '双城一境';
+  }
+
+  function quote(picked) {
+    const has = function (k) { return picked.indexOf(k) >= 0; };
+    if (has('cn.hall') && has('gr.colonnade')) return '金瓦压在柱廊上，中轴借着卫城的光。';
+    if (has('cn.wall') && has('gr.pediment')) return '一面朱墙替山墙挡住了风，山花就开在墙头上。';
+    if (has('cn.gate') && has('gr.caryatid')) return '月洞门里走出女像柱，石头也有了呼吸。';
+    return '把两座城放进同一台，先别问像不像，先问站不站得住。';
+  }
+
+  function exportCard(scene, picked, l) {
+    const cv = document.createElement('canvas');
+    cv.width = 900; cv.height = 1260;
+    const c = cv.getContext('2d');
+    c.imageSmoothingEnabled = false;
+
+    // 纸底
+    c.fillStyle = '#f4ead8';
+    c.fillRect(0, 0, 900, 1260);
+    c.strokeStyle = '#c9b28a';
+    c.lineWidth = 2;
+    c.strokeRect(28, 28, 844, 1204);
+    c.strokeStyle = '#8a6a3f';
+    c.lineWidth = 1;
+    c.strokeRect(40, 40, 820, 1180);
+
+    // 标题
+    c.fillStyle = '#3b2b1e';
+    c.font = 'bold 40px "Songti SC","STSong",serif';
+    c.textAlign = 'center';
+    c.fillText('造 境 台', 450, 120);
+    c.font = '18px "Songti SC","STSong",serif';
+    c.fillStyle = '#7a6448';
+    c.fillText('紫禁城 × 雅典卫城 · 中西合璧', 450, 158);
+    c.strokeStyle = '#c9b28a';
+    c.beginPath(); c.moveTo(180, 182); c.lineTo(720, 182); c.stroke();
+
+    // 台面上的组合
+    const stageY = 620;
+    c.fillStyle = '#e2d6ba';
+    c.fillRect(120, 250, 660, 420);
+    c.strokeStyle = '#c9b28a';
+    c.strokeRect(120, 250, 660, 420);
+    c.fillStyle = '#cbbfa2';
+    c.fillRect(150, stageY + 8, 600, 18);
+    c.fillStyle = '#9b8e75';
+    c.fillRect(150, stageY + 26, 600, 8);
+    const n = Math.max(1, picked.length);
+    const gap = Math.min(120, 520 / n);
+    for (let i = 0; i < picked.length; i++) {
+      const x = 450 + (i - (picked.length - 1) / 2) * gap;
+      c.save();
+      c.translate(x, stageY + 4);
+      c.scale(1.15, 1.15);
+      if (G.CREATE_DRAW_PIECE) G.CREATE_DRAW_PIECE(c, picked[i], 0, 0, false);
+      c.restore();
+    }
+
+    // 名称与题记
+    c.fillStyle = '#3b2b1e';
+    c.font = 'bold 30px "Songti SC","STSong",serif';
+    c.fillText('「' + autoName(picked) + '」', 450, 730);
+    c.font = '17px "Songti SC","STSong",serif';
+    c.fillStyle = '#6b5a44';
+    c.fillText(quote(picked), 450, 768);
+
+    // 比例条
+    const pct = Math.round(l.ratio * 100);
+    c.fillStyle = '#d8cdb2';
+    c.fillRect(200, 812, 500, 22);
+    c.fillStyle = '#c79c54';
+    c.fillRect(200, 812, 500 * (1 - l.ratio), 22);
+    c.fillStyle = '#6d9a9c';
+    c.fillRect(200 + 500 * (1 - l.ratio), 812, 500 * l.ratio, 22);
+    c.fillStyle = '#3b2b1e';
+    c.font = '16px "Songti SC","STSong",serif';
+    c.textAlign = 'left';
+    c.fillText('中式 ' + (100 - pct) + '%', 200, 858);
+    c.textAlign = 'right';
+    c.fillText('希式 ' + pct + '%', 700, 858);
+
+    // 构件清单
+    c.textAlign = 'left';
+    c.fillStyle = '#3b2b1e';
+    c.font = 'bold 20px "Songti SC","STSong",serif';
+    c.fillText('台上构件', 120, 918);
+    c.font = '17px "Songti SC","STSong",serif';
+    c.fillStyle = '#5c4a35';
+    picked.forEach(function (k, i) {
+      c.fillText('· ' + (NAME[k] || k), 140, 952 + i * 30);
+    });
+
+    // 三条原则
+    c.fillStyle = '#3b2b1e';
+    c.font = 'bold 20px "Songti SC","STSong",serif';
+    c.fillText('造境原则', 470, 918);
+    c.font = '17px "Songti SC","STSong",serif';
+    const rows = [['对称', l.symmetry], ['借景', l.borrow], ['比例', l.balance]];
+    rows.forEach(function (row, i) {
+      c.fillStyle = row[1] ? '#4f7a48' : '#8a7a63';
+      c.fillText((row[1] ? '✓ ' : '· ') + row[0], 490, 952 + i * 30);
+    });
+
+    // 落款
+    c.fillStyle = '#7a6448';
+    c.font = '15px "Songti SC","STSong",serif';
+    c.textAlign = 'center';
+    const d = new Date();
+    const stamp = d.getFullYear() + '.' + (d.getMonth() + 1) + '.' + d.getDate();
+    c.fillText('万象灵境 · 造境台 ／ ' + stamp, 450, 1188);
+    c.fillStyle = '#8a2f22';
+    c.font = 'bold 16px "Songti SC","STSong",serif';
+    c.fillText('合 璧', 450, 1130);
+
+    cv.toBlob(function (blob) {
+      if (!blob) { G.ui.toast('展签生成失败', 'bad', 2000); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '造境台-' + autoName(picked) + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      G.ui.toast('展签已下载 · 「' + autoName(picked) + '」', 'good', 2600);
+    }, 'image/png');
+  }
+
+  /* ---------------- 登记玩法 ---------------- */
+  G.mod.puzzle('create.pick', {
+    summary: '创造模式：把中式 / 希式构件请上造境台，三条原则成立后可收境成展签。',
+    open: function (api) { openPanel(api.scene, api); },
+  });
+
+  G.mod.puzzle('create.readme', {
+    summary: '造境台说明',
+    open: function (api) {
+      G.dialog.show([
+        { name: '造境台', text: '左边三件来自紫禁城，右边三件来自雅典卫城。走到台前按 E，就能把它们请上台。' },
+        { name: '造境台', text: '台上的件要站得住：两边都有、数量不偏、有一面红墙或山墙作背景，才算合璧。' },
+        { name: '旅行手账', text: '（天马行空可以，但要能自洽——这是这座台唯一的原则。）' },
+      ], function () { if (api.release) api.release(); });
     },
   });
 })();

@@ -167,6 +167,12 @@
     exists() {
       try { return !!localStorage.getItem(KEY); } catch (e) { return false; }
     },
+    /* 彻底删掉本机存档（标题页「删除存档」用） */
+    remove() {
+      try { localStorage.removeItem(KEY); } catch (e) { /* noop */ }
+      this.data = defaultSave();
+      return true;
+    },
     flag(k, v) {
       if (v === undefined) return !!this.data.flags[k];
       this.data.flags[k] = !!v;

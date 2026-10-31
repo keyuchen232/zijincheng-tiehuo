@@ -135,6 +135,10 @@
       <button id="btn-create" class="btn btn-nexus"><span>创造模式</span><small>CREATIVE MODE</small></button>
       <button id="btn-exit" class="btn btn-quiet"><span>退出游戏</span><small>EXIT</small></button>
     </div>
+    <div class="title-save" id="save-slot">
+      <span id="save-info">存档 · 暂无</span>
+      <button id="btn-del-save" class="save-del" type="button">删除存档</button>
+    </div>
   </div>
   <div class="title-foot">
     <span>共创引擎团队出品 · 文化赛道</span>
@@ -235,6 +239,7 @@
       <button class="btn" id="menu-ask"><span>问守境人 · 考据</span></button>
       <button class="btn" id="menu-sound"><span>声音：开</span></button>
       <button class="btn" id="menu-reset"><span>重新开始</span></button>
+      <button class="btn" id="menu-quit"><span>退出 · 回到标题</span></button>
       <button class="btn" id="menu-artdemo"><span>同境异笔 · 插件</span></button>
     </div>
     <small>进度会自动保存在本机浏览器</small>
@@ -363,8 +368,11 @@
 <!-- A · 美术/关卡 -->
 <script src="js/art/wumen.js"></script>
 <script src="data/maps/wumen.js"></script>
+<script src="js/art/create.js"></script>
+<script src="data/maps/create.js"></script>
 <!-- C · 玩法/交互/过场 -->
 <script src="js/mods/wumen-registration.js"></script>
+<script src="js/mods/create-mode.js"></script>
 <script src="js/mods/taihe-keep.js"></script>
 <script src="js/mods/repair-relic.js"></script>
 <script src="data/cuts/opening.js"></script>
