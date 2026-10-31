@@ -616,21 +616,21 @@ body.title-mode #stage{visibility:hidden}
 .pd-enter:hover{background:linear-gradient(180deg,#bf5138,#8d3021)}
 
 /* ================= 同境异笔 · 插件（iframe 独立页，不进主线） ================= */
-#artdemo{padding:0;background:#05080f;z-index:66}
-#artdemo .artdemo-shell{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0}
-#artdemo .artdemo-bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:1em;height:42px;padding:0 1em;background:linear-gradient(180deg,#16121a,#0a0709);border-bottom:1px solid #3c2f21;color:#e6d6b6;font-size:13px;letter-spacing:.05em}
-#artdemo .artdemo-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-#artdemo .artdemo-title b{font-family:var(--kai);font-weight:400;font-size:1.2em;letter-spacing:.14em;color:#f0dcb6}
-#artdemo .artdemo-title em{font-style:normal;font-size:.8em;color:#8fb8ab;border:1px solid #436a60;padding:.05em .45em;margin-left:.7em;border-radius:2px}
-#artdemo .artdemo-actions{display:flex;align-items:center;gap:.9em;flex:0 0 auto}
-#artdemo .artdemo-actions a{color:#9ec9bd;font-size:.9em;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
-#artdemo .artdemo-actions a:hover{color:#d6efe6}
-#artdemo .artdemo-close{padding:.35em 1em;border:1px solid #6b5434;background:rgba(42,32,24,.92);color:#e9d9bc;font-size:.92em;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
-#artdemo .artdemo-close:hover{border-color:var(--gold);color:#fff0d2}
-#artdemo iframe{flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;display:block;background:#05080f}
-#artdemo .artdemo-loading{position:absolute;inset:42px 0 0 0;display:grid;place-items:center;background:#05080f;color:#8fa8a2;font-size:14px;letter-spacing:.14em;pointer-events:none}
-#artdemo .artdemo-loading.hidden{display:none}
-@media(max-width:640px){#artdemo .artdemo-bar{height:36px;padding:0 .6em}#artdemo .artdemo-title{font-size:11px}#artdemo .artdemo-actions a{display:none}}/* ============================================================
+:is(#artdemo,#creation){padding:0;background:#05080f;z-index:66}
+:is(#artdemo,#creation) .artdemo-shell{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0}
+:is(#artdemo,#creation) .artdemo-bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:1em;height:42px;padding:0 1em;background:linear-gradient(180deg,#16121a,#0a0709);border-bottom:1px solid #3c2f21;color:#e6d6b6;font-size:13px;letter-spacing:.05em}
+:is(#artdemo,#creation) .artdemo-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+:is(#artdemo,#creation) .artdemo-title b{font-family:var(--kai);font-weight:400;font-size:1.2em;letter-spacing:.14em;color:#f0dcb6}
+:is(#artdemo,#creation) .artdemo-title em{font-style:normal;font-size:.8em;color:#8fb8ab;border:1px solid #436a60;padding:.05em .45em;margin-left:.7em;border-radius:2px}
+:is(#artdemo,#creation) .artdemo-actions{display:flex;align-items:center;gap:.9em;flex:0 0 auto}
+:is(#artdemo,#creation) .artdemo-actions a{color:#9ec9bd;font-size:.9em;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+:is(#artdemo,#creation) .artdemo-actions a:hover{color:#d6efe6}
+:is(#artdemo,#creation) .artdemo-close{padding:.35em 1em;border:1px solid #6b5434;background:rgba(42,32,24,.92);color:#e9d9bc;font-size:.92em;letter-spacing:.1em;cursor:pointer;white-space:nowrap}
+:is(#artdemo,#creation) .artdemo-close:hover{border-color:var(--gold);color:#fff0d2}
+:is(#artdemo,#creation) iframe{flex:1 1 auto;width:100%;height:100%;min-height:0;border:0;display:block;background:#05080f}
+:is(#artdemo,#creation) .artdemo-loading{position:absolute;inset:42px 0 0 0;display:grid;place-items:center;background:#05080f;color:#8fa8a2;font-size:14px;letter-spacing:.14em;pointer-events:none}
+:is(#artdemo,#creation) .artdemo-loading.hidden{display:none}
+@media(max-width:640px){:is(#artdemo,#creation) .artdemo-bar{height:36px;padding:0 .6em}:is(#artdemo,#creation) .artdemo-title{font-size:11px}:is(#artdemo,#creation) .artdemo-actions a{display:none}}/* ============================================================
    守境人 · 考据台（AI 对话）
    ============================================================ */
 .ai-panel{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:2.4em 1.2em}
@@ -763,15 +763,18 @@ body.title-mode #stage{visibility:hidden}
 
 </style>
 <style data-href="css/title-poster.css">
-/* Poster-led title: original characters stay untouched. */
+/* Redrawn realm: full-bleed original vector landscape and atmospheric motion. */
 #title{--atlas-paper:#f4f0e5;--atlas-ink:#253c50;--atlas-gold:#aa7a36;--atlas-jade:#347b7b;background:var(--atlas-paper);isolation:isolate}
 #title-bg{visibility:hidden}
+#title.poster-unavailable #title-bg{visibility:visible}
+#title.poster-unavailable .title-poster-world{display:none}
 body.title-mode #rotate-hint{display:none!important}
 .title-poster-world{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:var(--atlas-paper)}
 .title-poster-wash{position:absolute;inset:-12%;background-position:center;background-size:cover;filter:blur(64px) saturate(.65);opacity:.2;animation:atlas-wash 26s ease-in-out infinite alternate}
+.title-poster-world::before{content:"";position:absolute;left:56%;top:12%;width:40%;height:55%;z-index:1;pointer-events:none;background:linear-gradient(120deg,transparent 40%,rgba(143,235,227,.18) 49%,transparent 58%);clip-path:polygon(12% 10%,88% 0,100% 100%,0 88%);animation:atlas-projection 12s ease-in-out infinite}
 .title-poster-world::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f4f0e5 0%,rgba(244,240,229,.97) 30%,rgba(244,240,229,.65) 47%,transparent 66%);pointer-events:none}
-.title-poster-frame{position:absolute;inset:3vh 3vw 3vh 42%;display:flex;justify-content:center;align-items:center;animation:atlas-breathe 20s ease-in-out infinite alternate;transform-origin:65% 55%}
-.title-poster-image{display:block;max-height:100%;max-width:100%;height:100%;width:100%;object-fit:contain;filter:drop-shadow(0 16px 38px rgba(52,62,67,.1))}
+.title-poster-frame{position:absolute;inset:-1.5%;display:flex;justify-content:center;align-items:center;animation:atlas-breathe 20s ease-in-out infinite alternate;transform-origin:70% 55%}
+.title-poster-image{display:block;height:100%;width:100%;object-fit:cover;object-position:70% center}
 .title-atlas-orbit{position:absolute;left:-19vw;top:calc(50% - 31vw);width:62vw;height:62vw;border:1px solid rgba(170,122,54,.15);border-radius:50%;box-shadow:0 0 0 24px rgba(170,122,54,.025),0 0 0 25px rgba(170,122,54,.07);animation:atlas-orbit 110s linear infinite}
 .title-atlas-orbit::before,.title-atlas-orbit::after{content:"";position:absolute;inset:9%;border:1px dashed rgba(52,123,123,.17);border-radius:50%}
 .title-atlas-orbit::after{inset:22%;border-style:solid}
@@ -804,7 +807,7 @@ body.title-mode #rotate-hint{display:none!important}
 .title-motes i{position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:#ba8e48;box-shadow:0 0 9px rgba(209,166,84,.4);opacity:0;animation:atlas-mote var(--duration) ease-in-out var(--delay) infinite}
 .title-mist{position:absolute;inset:55% -20% -25% 33%;z-index:1;background:radial-gradient(ellipse,rgba(245,248,234,.3),transparent 65%);animation:atlas-mist 17s ease-in-out infinite alternate;pointer-events:none}
 .title-motion-toggle{position:absolute;right:28px;bottom:24px;z-index:5;background:rgba(244,240,229,.9);color:#526b69;border:1px solid rgba(74,95,93,.25);border-radius:2px;padding:10px 14px;min-height:44px;font-size:11px;letter-spacing:.1em;cursor:pointer}
-#title.motion-paused .title-poster-world *,#title.motion-paused .title-motes *,#title.motion-paused .title-mist{animation-play-state:paused!important}
+#title.motion-paused .title-poster-world::before,#title.motion-paused .title-poster-world *,#title.motion-paused .title-motes *,#title.motion-paused .title-mist{animation-play-state:paused!important}
 #title.hidden *{animation-play-state:paused!important}
 @keyframes atlas-breathe{from{transform:translateY(0) scale(1)}to{transform:translateY(-4px) scale(1.015)}}
 @keyframes atlas-wash{to{transform:translate3d(2%,1%,0) scale(1.04)}}
@@ -813,7 +816,8 @@ body.title-mode #rotate-hint{display:none!important}
 @keyframes atlas-mote{0%,100%{opacity:0;transform:translate3d(0,16px,0)}30%,70%{opacity:.55}90%{opacity:0;transform:translate3d(16px,-65px,0)}}
 @media(max-width:700px){
  #title .title-inner{left:6vw;top:auto;bottom:5vh;transform:none;width:88vw;max-height:60vh;z-index:3;overflow:visible}
- .title-poster-frame{inset:1vh 3vw 25vh 3vw;align-items:flex-start}
+ .title-poster-frame{inset:0 0 28vh 0;align-items:flex-start}
+ .title-poster-image{object-position:78% center}
  .title-poster-world::after{background:linear-gradient(0deg,#f4f0e5 0%,rgba(244,240,229,.98) 24%,rgba(244,240,229,.8) 40%,transparent 65%)}
  #title .title-logo{font-size:44px;margin:.1em 0}
  #title .title-eyebrow{font-size:9px}
@@ -828,6 +832,7 @@ body.title-mode #rotate-hint{display:none!important}
  .title-motion-toggle{right:16px;top:16px;bottom:auto;font-size:10px}
 }
 @media(max-height:600px) and (min-width:701px){#title .title-inner{width:40vw;left:5vw}#title .title-logo{font-size:44px}#title .title-actions{margin-top:12px;gap:8px}#title .title-actions .btn{min-height:44px;padding:7px}#title .title-inner .title-foot{margin-top:10px}}
+@media(max-height:360px){#title .title-inner{top:12px;bottom:auto;transform:none;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}}
 @media(prefers-reduced-motion:reduce){#title .title-poster-world *,#title .title-motes *,#title .title-mist{animation:none!important}.title-motes{display:none}}
 
 </style>
@@ -1141,6 +1146,20 @@ body.title-mode #rotate-hint{display:none!important}
     </div>
     <iframe id="artdemo-frame" src="about:blank" title="同境异笔 · 万象灵境插件"></iframe>
     <div class="artdemo-loading" id="artdemo-loading">正在载入「同境异笔」…</div>
+  </div>
+</div>
+
+<div id="creation" class="screen overlay hidden" role="dialog" aria-modal="true" aria-label="创造模式">
+  <div class="artdemo-shell">
+    <div class="artdemo-bar">
+      <span class="artdemo-title"><b>创造模式</b> 万象灵境 · 创作与探索<em>独立存档</em></span>
+      <span class="artdemo-actions">
+        <a id="creation-newtab" href="creation/index.html" target="_blank" rel="noopener">在新标签打开</a>
+        <button class="artdemo-close" id="creation-close" type="button">返回游戏</button>
+      </span>
+    </div>
+    <iframe id="creation-frame" src="about:blank" title="万象灵境 创造模式"></iframe>
+    <div class="artdemo-loading" id="creation-loading">正在载入「创造模式」…</div>
   </div>
 </div>
 
@@ -16371,6 +16390,53 @@ window.WXL_AI = {
   };
 
   /* ============================================================
+     创造模式（独立页面 · iframe 隔离 · 独立存档）
+     ============================================================ */
+  G.creationOpen = false;
+  G.CREATION_SRC = 'creation/index.html';
+  G.creationCreations = function () {
+    if (!Array.isArray(G.save.data.creations)) G.save.data.creations = [];
+    return G.save.data.creations;
+  };
+  G.openCreation = function () {
+    if (G.creationOpen) return;
+    G.creationOpen = true;
+    const frame = $('#creation-frame');
+    const loading = $('#creation-loading');
+    if (loading) loading.classList.remove('hidden');
+    if (frame && frame.dataset.loaded !== '1') {
+      frame.dataset.loaded = '1';
+      frame.onload = function () {
+        if (loading) loading.classList.add('hidden');
+        try {
+          // 同源 iframe：完成事件只在子窗口触发，必须监听 contentWindow
+          frame.contentWindow.addEventListener('wanxiang:creation-completed', function (ev) {
+            const d = (ev && ev.detail) || {};
+            if (typeof d.worldId !== 'string' || d.independent !== true) return;
+            const list = G.creationCreations();
+            list.push({ worldId: d.worldId, at: Date.now() });
+            G.save.persist();
+            G.ui.toast('创造模式 · 作品已定格：' + d.worldId, 'good', 2800);
+          });
+        } catch (e) { /* 跨域时静默：仍是独立页面 */ }
+      };
+      frame.src = G.CREATION_SRC;
+    } else if (loading) {
+      loading.classList.add('hidden');
+    }
+    G.show($('#creation'));
+    G.input.clearPressed();
+    try { if (frame) frame.focus(); } catch (e) { /* ignore */ }
+  };
+  G.closeCreation = function () {
+    if (!G.creationOpen) return;
+    G.creationOpen = false;
+    G.hide($('#creation'));
+    G.input.clearPressed();
+    try { const c = $('#game'); if (c && c.focus) c.focus(); } catch (e) { /* ignore */ }
+  };
+
+  /* ============================================================
      home hall
      ============================================================ */
   /* 家 · 大厅已经整体下线（只保留了创造模式的接口） */
@@ -16560,7 +16626,9 @@ window.WXL_AI = {
       const thBtn = $('#btn-tiehua');
       if (thBtn) thBtn.addEventListener('click', () => G.enterTiehua());
       const crBtn = $('#btn-create');
-      if (crBtn) crBtn.addEventListener('click', () => (G.enterCreateMode ? G.enterCreateMode() : enterCreate()));
+      if (crBtn) crBtn.addEventListener('click', () => G.openCreation());
+      const creationClose = $('#creation-close');
+      if (creationClose) creationClose.addEventListener('click', () => G.closeCreation());
       $('#btn-exit').addEventListener('click', () => G.exitGame());
       const delBtn = $('#btn-del-save');
       if (delBtn) delBtn.addEventListener('click', () => {
@@ -16600,6 +16668,10 @@ window.WXL_AI = {
     if (G.audio.ctx) G.audio.resume();
     if (G.ai && G.ai.open) {
       if (code === 'Escape') G.ai.close();
+      return;
+    }
+    if (G.creationOpen) {
+      if (code === 'Escape') G.closeCreation();
       return;
     }
     if (G.confirmOpen) {
@@ -16957,7 +17029,7 @@ window.WXL_AI = {
       if (G.titleActive) {
         titleT += dt;
         titleArt.t = titleT;
-        if (titleBgCtx && !document.querySelector('.title-poster-image')?.complete) titleArt.draw(titleBgCtx);
+        if (titleBgCtx && !document.querySelector('.title-poster-image')?.naturalWidth) titleArt.draw(titleBgCtx);
       } else if (G.minigameGreek && G.minigameGreek.active) {
         G.minigameGreek.update(dt);
         G.minigameGreek.draw(ctx);
@@ -16986,7 +17058,7 @@ window.WXL_AI = {
 
 </script>
 <script data-src="js/title-poster.js">
-/* Original poster composition, local assets only; no network image service. */
+/* Original vector painting with local atmospheric animation. No image API. */
 (function () {
   'use strict';
   const title = document.getElementById('title');
@@ -16996,20 +17068,24 @@ window.WXL_AI = {
   world.setAttribute('aria-hidden', 'true');
   const wash = document.createElement('div');
   wash.className = 'title-poster-wash';
-  wash.style.backgroundImage = 'url("assets/title/poster-original.png")';
+  wash.style.backgroundImage = 'radial-gradient(ellipse at 76% 35%, #99d6d0, transparent 55%)';
   const orbit = document.createElement('div');
   orbit.className = 'title-atlas-orbit';
   const frame = document.createElement('div');
   frame.className = 'title-poster-frame';
   const image = document.createElement('img');
   image.className = 'title-poster-image';
-  image.src = 'assets/title/poster-original.png';
+  image.src = 'assets/title/realm-redrawn.svg';
   image.alt = '';
   image.decoding = 'async';
   frame.append(image);
   world.append(wash, orbit, frame);
   title.prepend(world);
   image.addEventListener('load', () => { title.dataset.posterReady = 'true'; });
+  image.addEventListener('error', () => {
+    title.classList.add('poster-unavailable');
+    console.warn('Redrawn title illustration could not load; using procedural title background.');
+  });
   const mist = document.createElement('div');
   mist.className = 'title-mist';
   mist.setAttribute('aria-hidden', 'true');
@@ -20940,14 +21016,11 @@ window.WXL_SCRIPT = {
           else self.go(start);
           return r;
         }
-        /* 开场动画：没看过就播一次。
-           播完直接落地午门——原来停在标题页，玩家还得再点一次
-           「进入万象灵境」，演示时那一下很像游戏已经结束了。
-           已经看过开场的人（cut.opening 已置位）才停在标题页。 */
+        /* 开场动画：没看过就播一次，播完停在标题页。
+           不自动进关——玩家自己点「进入万象灵境」再开始。 */
         if (reg.cutscene.opening && G.cut && G.cut.play && !G.cut.seen('opening')) {
           G.cut.play('opening', function () {
-            if (G.fade && G.fade.to) G.fade.to(function () { self.go('wumen'); }, 140);
-            else self.go('wumen');
+            if (G.ui && G.ui.toast) G.ui.toast('点「进入万象灵境」开始', 'good', 2600);
           });
         }
         return r;
@@ -20991,6 +21064,8 @@ window.WXL_SCRIPT = {
         dateLabel: map.dateLabel,
         lookAhead: (map.camera && map.camera.lookAhead) != null ? map.camera.lookAhead : 42,
         dayGrade: map.dayGrade !== false,
+        /* 六关统一用中等强度的暖调/光雾，避免每张图各自满强度叠加 */
+        gradeStrength: map.gradeStrength == null ? 0.55 : map.gradeStrength,
       });
       this.map = map;
       this.bounds = map.bounds || null;
@@ -22452,6 +22527,8 @@ window.WXL_SCRIPT = {
     const x = prop.x;
     const y = prop.baseY;
 
+    /* 台基投在地面的影：让月台“压”在地面上 */
+    A.shadow(ctx, x, y + 2, w + 18, 5, 0.28);
     ctx.save();
     /* 台基 */
     ctx.fillStyle = '#8a8073';
@@ -23696,6 +23773,50 @@ G.mod.register({
       "x": 320,
       "baseY": 416,
       "opt": {}
+    },
+    {
+      "painter": "hall.trees",
+      "x": 70,
+      "baseY": 580,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 570,
+      "baseY": 580,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 84,
+      "baseY": 506,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 556,
+      "baseY": 506,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 70,
+      "baseY": 620,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 570,
+      "baseY": 620,
+      "opt": {}
     }
   ],
   "lights": [
@@ -23929,6 +24050,50 @@ G.mod.register({
       "x": 320,
       "baseY": 500,
       "opt": {}
+    },
+    {
+      "painter": "hall.trees",
+      "x": 66,
+      "baseY": 470,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 574,
+      "baseY": 470,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 76,
+      "baseY": 560,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 564,
+      "baseY": 560,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 74,
+      "baseY": 610,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 566,
+      "baseY": 610,
+      "opt": {}
     }
   ],
   "lights": [
@@ -24084,6 +24249,50 @@ G.mod.register({
       "opt": {
         "s": 18
       }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 70,
+      "baseY": 440,
+      "opt": {
+        "w": 120
+      }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 570,
+      "baseY": 440,
+      "opt": {
+        "w": 120
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 66,
+      "baseY": 570,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 574,
+      "baseY": 570,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 70,
+      "baseY": 620,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 570,
+      "baseY": 620,
+      "opt": {}
     }
   ],
   "lights": [
@@ -24260,6 +24469,50 @@ G.mod.register({
       "x": 320,
       "baseY": 476,
       "opt": {}
+    },
+    {
+      "painter": "hall.trees",
+      "x": 66,
+      "baseY": 400,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 574,
+      "baseY": 400,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 70,
+      "baseY": 570,
+      "opt": {
+        "w": 120
+      }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 570,
+      "baseY": 570,
+      "opt": {
+        "w": 120
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 70,
+      "baseY": 500,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 570,
+      "baseY": 500,
+      "opt": {}
     }
   ],
   "lights": [
@@ -24426,6 +24679,50 @@ G.mod.register({
       "opt": {
         "read": "b"
       }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 66,
+      "baseY": 470,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 574,
+      "baseY": 470,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 76,
+      "baseY": 580,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 564,
+      "baseY": 580,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 66,
+      "baseY": 570,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 574,
+      "baseY": 570,
+      "opt": {}
     }
   ],
   "lights": [
@@ -26200,7 +26497,7 @@ G.mod.register({
   /* 标题页上按回车也进主线（省得演示时点偏） */
   window.addEventListener('keydown', function (e) {
     const G = window.G;
-    if (!G || G.titleActive === false) return;
+    if (!G || G.titleActive === false || G.creationOpen) return;
     if (e.key !== 'Enter' && e.key !== 'NumpadEnter') return;
     const t = G.$ && G.$('#title');
     if (!t || t.classList.contains('hidden')) return;

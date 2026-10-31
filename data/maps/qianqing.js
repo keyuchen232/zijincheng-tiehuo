@@ -96,6 +96,50 @@ G.mod.register({
       "x": 320,
       "baseY": 500,
       "opt": {}
+    },
+    {
+      "painter": "hall.trees",
+      "x": 66,
+      "baseY": 470,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 574,
+      "baseY": 470,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 76,
+      "baseY": 560,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "hall.rock",
+      "x": 564,
+      "baseY": 560,
+      "opt": {
+        "s": 18
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 74,
+      "baseY": 610,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 566,
+      "baseY": 610,
+      "opt": {}
     }
   ],
   "lights": [

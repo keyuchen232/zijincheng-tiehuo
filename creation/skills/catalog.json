@@ -1,0 +1,44 @@
+{
+  "palace-order": {
+    "name": "门院成序",
+    "requires": [
+      "palace"
+    ],
+    "required": true,
+    "rule": "门—院—殿递进；主院开敞、两翼呼应，保留侧廊回游和可穿过的门洞。",
+    "effect": "对称主院、两道门庭、开敞前院与两翼建筑；使用真实门洞碰撞。",
+    "source": "https://www.dpm.org.cn/explore/buildings.html",
+    "boundary": "以故宫门院组织为参照，非实测复原；不把等级制度当作玩家价值判断。"
+  },
+  "acropolis-terrain": {
+    "name": "台地与观看",
+    "requires": [
+      "acropolis"
+    ],
+    "required": true,
+    "rule": "用高差、进场方向和建筑周围的留白组织观看；保留绕行与斜向视线。",
+    "effect": "卫城主场采用错位台地、分散庙宇与宽阶连接；融合时保留上部白石观景台。",
+    "source": "https://www.ysma.gr/en/monuments/",
+    "boundary": "抽取卫城地形及建筑观看关系；场景压缩为二维台地，不声称遗址导览或准确高程。"
+  },
+  "column-rhythm": {
+    "name": "柱间有节",
+    "requires": [
+      "acropolis"
+    ],
+    "required": false,
+    "rule": "以重复柱列和空间间距建立可感知的节奏；允许观者用行走改变节奏方向。",
+    "effect": "三块空间声石按次序踩亮，完成后柱廊与地面流光同步；未选时使用自由声石。",
+    "source": "https://www.ysma.gr/en/monuments/parthenon/",
+    "boundary": "柱列重复有建筑参照；三音行走游戏是现代转译，不是古希腊仪式或历史音乐复原。"
+  },
+  "borrowed-view": {
+    "name": "框景与借见",
+    "requires": [],
+    "required": false,
+    "rule": "区分近处框口、侧庭水树与远处建筑，用遮露和取景方向建立层次。",
+    "effect": "侧庭出现取景窗；转动取景方向，使远景轮廓落入窗心；未选时为开放观景台。",
+    "source": "https://zh.wikisource.org/wiki/園冶",
+    "boundary": "借景是中国园林的另一个参照，不能等同故宫整体布局；《园冶》仅作概念阅读线索，当前旋转取景小游戏为虚构。"
+  }
+}

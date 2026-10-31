@@ -220,6 +220,8 @@
     const x = prop.x;
     const y = prop.baseY;
 
+    /* 台基投在地面的影：让月台“压”在地面上 */
+    A.shadow(ctx, x, y + 2, w + 18, 5, 0.28);
     ctx.save();
     /* 台基 */
     ctx.fillStyle = '#8a8073';

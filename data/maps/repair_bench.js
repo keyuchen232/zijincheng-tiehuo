@@ -81,6 +81,50 @@ G.mod.register({
       "opt": {
         "s": 18
       }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 70,
+      "baseY": 440,
+      "opt": {
+        "w": 120
+      }
+    },
+    {
+      "painter": "hall.bench",
+      "x": 570,
+      "baseY": 440,
+      "opt": {
+        "w": 120
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 66,
+      "baseY": 570,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "hall.trees",
+      "x": 574,
+      "baseY": 570,
+      "opt": {
+        "n": 2
+      }
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 70,
+      "baseY": 620,
+      "opt": {}
+    },
+    {
+      "painter": "wumen.lantern",
+      "x": 570,
+      "baseY": 620,
+      "opt": {}
     }
   ],
   "lights": [

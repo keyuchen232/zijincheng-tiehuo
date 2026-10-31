@@ -1,0 +1,454 @@
+{
+  "identityKey": "89jac4",
+  "scene": {
+    "spec": {
+      "schema": "wanxiang.world",
+      "version": 5,
+      "revision": "0.7",
+      "prompt": "保留故宫门院递进、主次分明与两翼呼应的空间关系，在西侧庭院设置一扇框景窗，让夜色与暖灯留在回游小径。",
+      "packages": [
+        "palace"
+      ],
+      "plan": {
+        "title": "门院与回望",
+        "primary": "palace",
+        "skills": [
+          "borrowed-view",
+          "palace-order"
+        ],
+        "weather": "clear",
+        "timeOfDay": "night",
+        "palette": "warm",
+        "motif": "lights",
+        "spatialIntent": "gathered",
+        "gardenSide": "west",
+        "description": "保留故宫 · 门院递进的空间关系，以宽阔的庭院、侧庭环路和可绕行的建筑组织探索。完成取景与空间节奏后，在高处把自己的选择留成作品。本地规则创作，非历史复原。"
+      },
+      "layout": {
+        "width": 1500,
+        "height": 1350,
+        "topology": "gate-courts-and-loops",
+        "regions": [
+          {
+            "id": "arrival",
+            "name": "门外前庭",
+            "x": 530,
+            "y": 1100,
+            "w": 440,
+            "h": 170,
+            "elevation": 0
+          },
+          {
+            "id": "outer",
+            "name": "开阔外院",
+            "x": 410,
+            "y": 840,
+            "w": 680,
+            "h": 270,
+            "elevation": 0
+          },
+          {
+            "id": "inner",
+            "name": "殿前主院",
+            "x": 440,
+            "y": 570,
+            "w": 620,
+            "h": 290,
+            "elevation": 1
+          },
+          {
+            "id": "garden",
+            "name": "侧庭回游",
+            "x": 170,
+            "y": 470,
+            "w": 280,
+            "h": 530,
+            "elevation": 1
+          },
+          {
+            "id": "colonnade",
+            "name": "东廊小院",
+            "x": 1050,
+            "y": 470,
+            "w": 280,
+            "h": 530,
+            "elevation": 1
+          },
+          {
+            "id": "upper",
+            "name": "后殿观景庭",
+            "x": 440,
+            "y": 220,
+            "w": 620,
+            "h": 380,
+            "elevation": 2
+          }
+        ],
+        "connections": [
+          {
+            "id": "entry",
+            "x": 718,
+            "y": 1070,
+            "w": 64,
+            "h": 60
+          },
+          {
+            "id": "threshold",
+            "x": 700,
+            "y": 810,
+            "w": 100,
+            "h": 75
+          },
+          {
+            "id": "upper-step",
+            "x": 710,
+            "y": 540,
+            "w": 110,
+            "h": 95
+          },
+          {
+            "id": "west-upper",
+            "x": 370,
+            "y": 530,
+            "w": 170,
+            "h": 70
+          },
+          {
+            "id": "west-lower",
+            "x": 350,
+            "y": 920,
+            "w": 160,
+            "h": 70
+          },
+          {
+            "id": "east-upper",
+            "x": 990,
+            "y": 530,
+            "w": 180,
+            "h": 70
+          },
+          {
+            "id": "east-lower",
+            "x": 990,
+            "y": 920,
+            "w": 170,
+            "h": 70
+          }
+        ],
+        "obstacles": [
+          {
+            "x": 235,
+            "y": 650,
+            "w": 118,
+            "h": 120,
+            "kind": "water"
+          },
+          {
+            "x": 615,
+            "y": 1080,
+            "w": 105,
+            "h": 25
+          },
+          {
+            "x": 780,
+            "y": 1080,
+            "w": 105,
+            "h": 25
+          },
+          {
+            "x": 647.5,
+            "y": 825,
+            "w": 72.5,
+            "h": 25
+          },
+          {
+            "x": 780,
+            "y": 825,
+            "w": 72.5,
+            "h": 25
+          },
+          {
+            "x": 602,
+            "y": 525,
+            "w": 296,
+            "h": 58
+          },
+          {
+            "x": 434.5,
+            "y": 925,
+            "w": 111,
+            "h": 58
+          },
+          {
+            "x": 954.5,
+            "y": 925,
+            "w": 111,
+            "h": 58
+          },
+          {
+            "x": 674.5,
+            "y": 315,
+            "w": 251,
+            "h": 58
+          },
+          {
+            "x": 1103,
+            "y": 475,
+            "w": 184,
+            "h": 58
+          },
+          {
+            "x": 410,
+            "y": 1090,
+            "w": 300,
+            "h": 10,
+            "kind": "wall"
+          },
+          {
+            "x": 790,
+            "y": 1090,
+            "w": 300,
+            "h": 10,
+            "kind": "wall"
+          },
+          {
+            "x": 410,
+            "y": 835,
+            "w": 300,
+            "h": 10,
+            "kind": "wall"
+          },
+          {
+            "x": 790,
+            "y": 835,
+            "w": 300,
+            "h": 10,
+            "kind": "wall"
+          }
+        ],
+        "pond": {
+          "x": 235,
+          "y": 650,
+          "w": 118,
+          "h": 120
+        },
+        "placements": [
+          {
+            "kind": "gate",
+            "name": "入境宫门",
+            "package": "palace",
+            "x": 750,
+            "y": 1100,
+            "w": 270
+          },
+          {
+            "kind": "gate",
+            "name": "承序门",
+            "package": "palace",
+            "x": 750,
+            "y": 845,
+            "w": 205
+          },
+          {
+            "kind": "hall",
+            "name": "重檐主殿",
+            "package": "palace",
+            "x": 750,
+            "y": 585,
+            "w": 320
+          },
+          {
+            "kind": "wing",
+            "name": "西廊",
+            "package": "palace",
+            "x": 490,
+            "y": 985,
+            "w": 135
+          },
+          {
+            "kind": "wing",
+            "name": "东廊",
+            "package": "palace",
+            "x": 1010,
+            "y": 985,
+            "w": 135
+          },
+          {
+            "kind": "hall",
+            "name": "后殿",
+            "package": "palace",
+            "x": 800,
+            "y": 375,
+            "w": 275
+          },
+          {
+            "kind": "wing",
+            "name": "侧院长廊",
+            "package": "palace",
+            "x": 1195,
+            "y": 535,
+            "w": 208
+          }
+        ],
+        "nodes": [
+          {
+            "id": "arrival",
+            "x": 750,
+            "y": 1190
+          },
+          {
+            "id": "frame",
+            "x": 325,
+            "y": 850
+          },
+          {
+            "id": "echo",
+            "x": 1180,
+            "y": 835
+          },
+          {
+            "id": "compose",
+            "x": 750,
+            "y": 760
+          },
+          {
+            "id": "finish",
+            "x": 600,
+            "y": 300
+          }
+        ],
+        "pads": [
+          {
+            "x": 1120,
+            "y": 730
+          },
+          {
+            "x": 1190,
+            "y": 670
+          },
+          {
+            "x": 1260,
+            "y": 730
+          }
+        ],
+        "frameTarget": -25,
+        "spawn": {
+          "x": 750,
+          "y": 1230
+        },
+        "route": [
+          {
+            "x": 750,
+            "y": 1230
+          },
+          {
+            "x": 750,
+            "y": 950
+          },
+          {
+            "x": 750,
+            "y": 760
+          },
+          {
+            "x": 550,
+            "y": 640
+          },
+          {
+            "x": 550,
+            "y": 300
+          }
+        ]
+      },
+      "placements": [
+        {
+          "kind": "gate",
+          "name": "入境宫门",
+          "package": "palace",
+          "x": 750,
+          "y": 1100,
+          "w": 270
+        },
+        {
+          "kind": "gate",
+          "name": "承序门",
+          "package": "palace",
+          "x": 750,
+          "y": 845,
+          "w": 205
+        },
+        {
+          "kind": "hall",
+          "name": "重檐主殿",
+          "package": "palace",
+          "x": 750,
+          "y": 585,
+          "w": 320
+        },
+        {
+          "kind": "wing",
+          "name": "西廊",
+          "package": "palace",
+          "x": 490,
+          "y": 985,
+          "w": 135
+        },
+        {
+          "kind": "wing",
+          "name": "东廊",
+          "package": "palace",
+          "x": 1010,
+          "y": 985,
+          "w": 135
+        },
+        {
+          "kind": "hall",
+          "name": "后殿",
+          "package": "palace",
+          "x": 800,
+          "y": 375,
+          "w": 275
+        },
+        {
+          "kind": "wing",
+          "name": "侧院长廊",
+          "package": "palace",
+          "x": 1195,
+          "y": 535,
+          "w": 208
+        }
+      ],
+      "cultureRefs": [
+        "borrowed-view",
+        "palace-order"
+      ],
+      "seed": "v7:1jplnxz",
+      "provenance": {
+        "mode": "local",
+        "model": null
+      }
+    },
+    "flags": {
+      "guide": false,
+      "axis": false,
+      "garden": false,
+      "tide": false,
+      "echo": false,
+      "finished": false
+    },
+    "garden": "lights",
+    "tide": "still",
+    "rhythm": "ascending",
+    "frameAngle": 0,
+    "assisted": false,
+    "player": {
+      "x": 750,
+      "y": 1230
+    },
+    "view": "axis",
+    "style": "jade"
+  },
+  "source": "assets/sample-palace-source.png",
+  "result": "assets/sample-palace-result.png",
+  "model": "gpt-image-2",
+  "note": "实际单故宫图生图；仅与精确匹配的预览场景绑定。"
+}

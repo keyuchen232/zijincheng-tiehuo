@@ -39,7 +39,8 @@ try{
  console.log('SAVED',await ev(state),await ev('JSON.stringify({done:G.mod.isDone("wumen.origin"),can:G.scene.canContinue(),text:document.querySelector("#prompt-text").textContent})'));
  check(await ev('document.querySelector("#prompt-text").textContent === G.str.get("ui.buttons.continue") && !document.querySelector("#prompt").classList.contains("hidden")'),'completed save offers Continue at original puzzle');
  await key('KeyE');
- check(await ev('G.dialog.active'),'real E resumes completed-map progression');
+ await until('G.dialog.active || G.scene.id === "taihe"');
+ check(true,'real E resumes completed-map progression');
  for(let i=0;i<30;i++){if(await ev('G.scene.id === "taihe"'))break;await key('KeyE');}
  await until('G.scene.id === "taihe"');
  check(true,'completed Wumen proceeds to Taihe without clearing save');

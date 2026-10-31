@@ -1,0 +1,20 @@
+{
+  "plan": {
+    "description": "以故宫门院组织为参照，沿门—外院—内院—主殿递进，主院聚合、前院开敞，两翼呼应，侧廊连通回游。白石台地与柱廊置入西侧庭及上部观景台，斜向登阶后可绕神庙行走；合璧殿以柱列承接红檐。月夜自由探索，转动西侧取景方向，将远处白石神庙对准窗心；依次踩响三块声石，让脚步回声伴随柱廊流光，再选择月亮意象、定格成画。建筑为简化参照，借景另取园林来源，合璧建筑与两项小游戏均为现代虚构。",
+    "gardenSide": "west",
+    "motif": "moon",
+    "palette": "mineral",
+    "primary": "palace",
+    "skills": [
+      "palace-order",
+      "acropolis-terrain",
+      "column-rhythm",
+      "borrowed-view"
+    ],
+    "spatialIntent": "gathered",
+    "timeOfDay": "night",
+    "title": "月照宫门，白石回声",
+    "weather": "clear"
+  },
+  "model": "gpt-6-astra"
+}

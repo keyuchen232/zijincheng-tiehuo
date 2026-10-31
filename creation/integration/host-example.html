@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>创造模式 · 主游戏接入示例</title>
+<style>body{margin:0;background:#111f25;color:#e9dfc6;font:16px/1.7 system-ui}header{padding:16px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}button,a{font:inherit;color:inherit;background:#284148;border:1px solid #83998a;border-radius:4px;padding:8px 14px;cursor:pointer}#creation-frame{display:block;border:0;width:100%;height:calc(100dvh - 100px);min-height:360px}#integration-status{color:#b6cbbf;margin:0}#creation-frame[hidden]{display:none}</style>
+<header><b>主游戏 / 创造模式接入示例</b><button id="enter-creation">进入创造模式</button><button id="leave-creation" hidden>返回主游戏</button><p id="integration-status" role="status">创造模式独立于主线结局。</p></header>
+<iframe id="creation-frame" title="万象灵境创造模式" hidden></iframe>
+<script>
+const frame=document.getElementById('creation-frame'),enter=document.getElementById('enter-creation'),leave=document.getElementById('leave-creation'),status=document.getElementById('integration-status');
+enter.onclick=()=>{frame.hidden=false;leave.hidden=false;enter.hidden=true;if(!frame.getAttribute('src'))frame.src='../index.html';else frame.contentWindow.focus();};
+leave.onclick=()=>{frame.hidden=true;leave.hidden=true;enter.hidden=false;status.textContent='已返回主游戏；创造模式保留在本次页面中。';};
+frame.addEventListener('load',()=>{
+ try{
+  // 同源 iframe 内的事件不会自动冒泡到父窗口，必须监听子窗口。
+  frame.contentWindow.addEventListener('wanxiang:creation-completed',event=>{
+   const {worldId,independent}=event.detail||{};
+   if(typeof worldId!=='string'||independent!==true)return;
+   status.textContent='作品已定格：'+worldId+'（独立创作，不修改结局）';
+   // 可选：在这里读取 frame.contentWindow.FusionExplore.artifact()，交给主游戏自己的存储层。
+  });
+  status.textContent='创造模式已载入；按 P 可看作品，观景台正式定格会发出完成事件。';
+ }catch{status.textContent='跨域无法监听子窗口，请使用同源部署或实现带来源校验的消息桥。';}
+});
+</script></html>

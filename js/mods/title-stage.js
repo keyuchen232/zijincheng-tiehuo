@@ -83,7 +83,7 @@
   /* 标题页上按回车也进主线（省得演示时点偏） */
   window.addEventListener('keydown', function (e) {
     const G = window.G;
-    if (!G || G.titleActive === false) return;
+    if (!G || G.titleActive === false || G.creationOpen) return;
     if (e.key !== 'Enter' && e.key !== 'NumpadEnter') return;
     const t = G.$ && G.$('#title');
     if (!t || t.classList.contains('hidden')) return;
