@@ -64,7 +64,7 @@ window.WXL_SCRIPT = {
    "full": "Διοτίμα",
    "role": "雅典学者 · 研究《会饮篇》",
    "color": "#cbb283",
-   "note": "直接、克制、偶尔刻薄。承认自己也会错，但不轻易承认。"
+   "note": "四十岁上下。说话像在报测量数据，情绪上来时更精确。承认自己会错，但要在没人看见的时候认。对石头有职业性的骄傲，对系统判定有职业性的愤怒。"
   },
   "player": {
    "name": "你",
@@ -105,6 +105,10 @@ window.WXL_SCRIPT = {
    "remove": "移除",
    "note": "先记下"
   },
+  "cut": {
+   "skipHint": "按 空格 跳过（或点一下画面）",
+   "loading": "正在进入万象灵境"
+  },
   "hud": {
    "progress": "校准 {done} / {total}",
    "cards": "来源卡 {got} / {total}",
@@ -113,7 +117,11 @@ window.WXL_SCRIPT = {
    "interact": "查看",
    "look": "观察 {name}",
    "talk": "交谈",
-   "relic": "待处置 {n}"
+   "relic": "待处置 {n}",
+   "silent": "静帧",
+   "silentSub": "先看清楚这一帧，再动手",
+   "layer": "切换图层",
+   "clue": "看清楚 {name}"
   },
   "panel": {
    "objectTitle": "观察",
@@ -127,7 +135,8 @@ window.WXL_SCRIPT = {
    "codexEmpty": "还没有记下什么。",
    "albumTitle": "校准记录",
    "judgeTitle": "你的判定",
-   "judgeEvidence": "可指认的依据"
+   "judgeEvidence": "可指认的依据",
+   "stampMark": "未成立"
   },
   "toast": {
    "saved": "已保存",
@@ -138,7 +147,11 @@ window.WXL_SCRIPT = {
    "cantUse": "现在还用不上。",
    "again": "再试一次。",
    "judged": "判定已更新",
-   "kept": "已记入造境规则"
+   "kept": "已记入造境规则",
+   "layerOn": "「{layer}」层：开着",
+   "layerOff": "「{layer}」层：关掉了",
+   "signed": "方案已签字",
+   "notSigned": "方案没有签字"
   }
  },
  "chapters": [
@@ -183,23 +196,44 @@ window.WXL_SCRIPT = {
   "wumen": {
    "name": "午门",
    "sub": "原点之争",
+   "plaque": "午門",
    "objective": "把卫城投影的坐标系贴到故宫沙盘上，让两套网格共用同一个原点。先分清哪一层在动。",
    "enter": [
     {
      "who": "narrator",
-     "text": "午门广场。两套网格叠在地上，一套金的，一套青灰的。"
+     "text": "午门广场。八点三十。风从门洞里穿出来，带着一点石灰味。"
     },
     {
      "who": "narrator",
-     "text": "青灰的那套，偏了大约一砖。"
+     "text": "两套网格叠在地上：一套金的，贴着故宫；一套青灰的，浮在上头。"
+    },
+    {
+     "who": "narrator",
+     "text": "青灰那套偏了。不多，大约一砖。"
     },
     {
      "who": "diotima",
-     "text": "抱歉。我把卫城的数据包接进了你的沙盘，想让它看起来完整一点。"
+     "text": "别急着进去。先看地上。"
     },
     {
      "who": "diotima",
-     "text": "先把一件事说清楚：两套东西出现在同一块地上，本身不算错。"
+     "text": "我昨晚三点把卫城的数据包接了进来。我以为只是加一层投影。"
+    },
+    {
+     "who": "diotima",
+     "text": "结果它没落在自己的位置上。……是我的错。"
+    },
+    {
+     "who": "player",
+     "text": "差多少？"
+    },
+    {
+     "who": "diotima",
+     "text": "十八个像素。刚好够让人以为「本来就该这样」。"
+    },
+    {
+     "who": "diotima",
+     "text": "先说清楚：两套东西出现在同一块地上，不算错。"
     },
     {
      "who": "diotima",
@@ -207,7 +241,7 @@ window.WXL_SCRIPT = {
     },
     {
      "who": "diotima",
-     "text": "所以别急着夸它好看。告诉我：哪一层在动？"
+     "text": "所以别夸它好看。告诉我：哪一层在动？"
     }
    ],
    "hint": "选一个原点，两套网格会自己贴上去。"
@@ -219,15 +253,23 @@ window.WXL_SCRIPT = {
    "enter": [
     {
      "who": "narrator",
-     "text": "太和殿月台。三块说明牌悬在半空，谁都不在自己的位置上。"
+     "text": "太和殿月台。三块说明牌悬在半空，像被谁随手一抛。"
     },
     {
      "who": "narrator",
-     "text": "从门洞走到这儿，你要上三段台阶，视线才第一次正对殿身。"
+     "text": "从门洞到这儿，要上三段台阶。最后一级上去，视线才第一次正对殿身。"
     },
     {
      "who": "diotima",
-     "text": "先别动牌子。站在这儿，看一眼。"
+     "text": "先别动牌子。站在这儿，抬头。"
+    },
+    {
+     "who": "diotima",
+     "text": "我在帕特农的台阶上量过每一级的高度。"
+    },
+    {
+     "who": "diotima",
+     "text": "可我从来没在你们的石头上站过。"
     },
     {
      "who": "diotima",
@@ -235,11 +277,15 @@ window.WXL_SCRIPT = {
     },
     {
      "who": "diotima",
-     "text": "我的数据一进来，牌子就乱了。可乱的是标签，不是这段路。"
+     "text": "我的数据一进来，牌子就乱了。乱的是标签，不是这段路。"
+    },
+    {
+     "who": "player",
+     "text": "所以先分清哪层在动。"
     },
     {
      "who": "diotima",
-     "text": "三块牌子，两块被我盖错了。还有一块——本来就没错。"
+     "text": "对。三块牌子，两块是我盖错的。还有一块——本来就没错。"
     },
     {
      "who": "diotima",
@@ -255,7 +301,7 @@ window.WXL_SCRIPT = {
    "enter": [
     {
      "who": "narrator",
-     "text": "乾清宫前。六根少女托着檐部，第七根，是你们的木柱。"
+     "text": "乾清宫前。六根少女托着檐部。第七根，是你们的木柱。"
     },
     {
      "who": "narrator",
@@ -264,6 +310,26 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "六根少女替你扛着屋檐。第七根……是你们的柱子。"
+    },
+    {
+     "who": "diotima",
+     "text": "她们在雅典也这么站着。扛了两千四百年。没人问过她们累不累。"
+    },
+    {
+     "who": "diotima",
+     "text": "你听。"
+    },
+    {
+     "who": "narrator",
+     "text": "木头在响。很轻，像有人在很远的地方磨牙。"
+    },
+    {
+     "who": "player",
+     "text": "它在胀。"
+    },
+    {
+     "who": "diotima",
+     "text": "对。它活着。"
     },
     {
      "who": "diotima",
@@ -298,6 +364,14 @@ window.WXL_SCRIPT = {
      "text": "还有一条……我故意放进去的。"
     },
     {
+     "who": "player",
+     "text": "为什么？"
+    },
+    {
+     "who": "diotima",
+     "text": "因为我也想看看，你会不会硬连。"
+    },
+    {
      "who": "narrator",
      "text": "台面角落里，系统推了一条待处置记录过来。"
     },
@@ -308,6 +382,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "这条我还没看。先把线接完。"
+    },
+    {
+     "who": "diotima",
+     "text": "如果一个系统连「像」和「是」都分不清，它就不该替人签字。"
     }
    ],
    "hint": "有些线索，接不上才是对的。"
@@ -315,6 +393,7 @@ window.WXL_SCRIPT = {
   "creator": {
    "name": "御花园",
    "sub": "共同造境",
+   "pavilion": "御景亭",
    "objective": "用三件组件拼出自己的空间，审掉方案里那处来源错误，并写下你要保留什么。",
    "enter": [
     {
@@ -336,6 +415,22 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "我一开始也以为对齐就是校准。"
+    },
+    {
+     "who": "player",
+     "text": "后来呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "后来我把一个中国学生的东西，标成了我的注脚。"
+    },
+    {
+     "who": "diotima",
+     "text": "所以这次，你签字。"
+    },
+    {
+     "who": "narrator",
+     "text": "她退到台地边上，把手背在身后。"
     }
    ],
    "hint": "方案里有一样东西，来源标错了。"
@@ -343,15 +438,28 @@ window.WXL_SCRIPT = {
   "shenwumen": {
    "name": "神武门",
    "sub": "亲手完成",
+   "plaque": "神武門",
    "objective": "走进自己造的空间，配对两条线索打开出口；出门时交代你借鉴了什么、保留了什么、新造了什么。",
    "enter": [
     {
      "who": "narrator",
-     "text": "神武门。你造的空间从这里开始。"
+     "text": "神武门。门洞暗着。你造的空间从这里开始。"
     },
     {
      "who": "diotima",
      "text": "你自己写的规则。你自己走一遍。"
+    },
+    {
+     "who": "diotima",
+     "text": "我不进去。至少在门开之前不进去。"
+    },
+    {
+     "who": "player",
+     "text": "怕什么？"
+    },
+    {
+     "who": "diotima",
+     "text": "怕我进去以后，会忍不住替你改。"
     }
    ],
    "hint": "出口认的不是人，是规则。"
@@ -385,23 +493,35 @@ window.WXL_SCRIPT = {
      },
      {
       "who": "narrator",
-      "text": "故宫的网格一格都没动。"
+      "text": "故宫的网格，一格都没动。"
+     },
+     {
+      "who": "diotima",
+      "text": "……好。"
      },
      {
       "who": "diotima",
       "text": "好。你没动它。"
      },
      {
+      "who": "player",
+      "text": "它没动。动的是另一套。"
+     },
+     {
       "who": "diotima",
-      "text": "在雅典我们管这叫配准。在你们这儿它叫什么不重要。"
+      "text": "对。在雅典我们管这叫配准。在你们这儿它叫什么不重要。"
      },
      {
       "who": "diotima",
       "text": "重要的是你刚才没做的事。"
      },
      {
-      "who": "player",
-      "text": "它没动。动的是另一套。"
+      "who": "diotima",
+      "text": "我准备了一套说教，六页。现在用不上了。"
+     },
+     {
+      "who": "narrator",
+      "text": "她笑了一下，很快收住，像怕被谁看见。"
      },
      {
       "who": "diotima",
@@ -419,7 +539,11 @@ window.WXL_SCRIPT = {
      },
      {
       "who": "narrator",
-      "text": "砖缝乱了。"
+      "text": "砖缝乱了。门钉从四颗变成五颗。"
+     },
+     {
+      "who": "diotima",
+      "text": "停。"
      },
      {
       "who": "diotima",
@@ -427,7 +551,11 @@ window.WXL_SCRIPT = {
      },
      {
       "who": "diotima",
-      "text": "再选一次。"
+      "text": "你把两边一起挪，就等于谁都没校准。再选一次。"
+     },
+     {
+      "who": "narrator",
+      "text": "她没看你，蹲下去，把指尖按在砖缝上。"
      }
     ],
     "C": [
@@ -452,13 +580,100 @@ window.WXL_SCRIPT = {
       "text": "为了让两套东西对上，你挪了自己。"
      },
      {
-      "who": "diotima",
+      "who": "player",
       "text": "这不是校准。"
+     },
+     {
+      "who": "diotima",
+      "text": "不是。这是迁就。"
+     },
+     {
+      "who": "diotima",
+      "text": "重来。这一次，先问自己哪一层不该动。"
      }
     ]
    },
    "hint1": "别管格子对不对齐。看一眼门钉。",
-   "hint2": "门钉的间距应该是一样的。它们现在一样吗？"
+   "hint2": "门钉的间距应该是一样的。它们现在一样吗？",
+   "open": [
+    {
+     "who": "narrator",
+     "text": "门洞前，两套坐标一起亮起来。金色那套贴着故宫，青灰那套浮在上头，差着十八个像素。"
+    },
+    {
+     "who": "diotima",
+     "text": "现在得选一个原点。选哪个，另一套就跟着挪。"
+    },
+    {
+     "who": "diotima",
+     "text": "我把选择权给你——不是客气。我怕我选。"
+    },
+    {
+     "who": "player",
+     "text": "你怕什么？"
+    },
+    {
+     "who": "diotima",
+     "text": "怕我又替你们决定一次。"
+    },
+    {
+     "who": "narrator",
+     "text": "她退开半步，把位置让给你。手在袖口里攥了一下。"
+    }
+   ],
+   "seam": {
+    "prompt": "两套网格严丝合缝。可是——哪里不对？",
+    "options": [
+     {
+      "id": "seam",
+      "label": "砖缝和门钉的间距"
+     },
+     {
+      "id": "color",
+      "label": "两套的颜色不一样"
+     },
+     {
+      "id": "ok",
+      "label": "哪里都对，就这样"
+     }
+    ],
+    "right": [
+     {
+      "who": "narrator",
+      "text": "石板拼缝在门洞两侧对不上了。门钉的间距，从一个方向看是四颗，换个方向是五颗。"
+     },
+     {
+      "who": "diotima",
+      "text": "对齐是齐了。"
+     },
+     {
+      "who": "diotima",
+      "text": "代价是把你们自己的东西拉变形了。"
+     },
+     {
+      "who": "player",
+      "text": "它没动。动的是另一套。"
+     },
+     {
+      "who": "diotima",
+      "text": "记住这句话。接下来每一关，它都会回来。"
+     },
+     {
+      "who": "diotima",
+      "text": "我宁可你记错一个数字，也别记错这件事。"
+     }
+    ],
+    "wrong": [
+     {
+      "who": "narrator",
+      "text": "两套网格仍然严丝合缝，可脚下这块石头不对。"
+     },
+     {
+      "who": "diotima",
+      "text": "再蹲下来看一次。看缝。别看颜色，也别看我。"
+     }
+    ]
+   }
   },
   "taihe.labels": {
    "prompt": "三块牌子。先点一块，再点它该去的位置。",
@@ -486,7 +701,18 @@ window.WXL_SCRIPT = {
      "from": "月台栏杆上",
      "to": "投影位置",
      "correct": true,
-     "desc": "它压在一段汉白玉栏杆上，可栏杆是故宫的。"
+     "desc": "它压在一段汉白玉栏杆上，可栏杆是故宫的。",
+     "ask": "「帕特农东山墙」的牌子压在一段汉白玉栏杆上。可栏杆是故宫的。\n你怎么处理？",
+     "options": [
+      {
+       "id": "move",
+       "label": "挪到投影位置"
+      },
+      {
+       "id": "stay",
+       "label": "留在原地不动"
+      }
+     ]
     },
     {
      "id": "p2",
@@ -494,7 +720,18 @@ window.WXL_SCRIPT = {
      "from": "殿身斗拱下",
      "to": "西侧柱廊",
      "correct": true,
-     "desc": "六个少女的影子和斗拱挤在一起，谁都看不清。"
+     "desc": "六个少女的影子和斗拱挤在一起，谁都看不清。",
+     "ask": "「伊瑞克提翁女像柱廊」的牌子塞在殿身斗拱下面，六个少女的影子和斗拱挤在一起。\n你怎么处理？",
+     "options": [
+      {
+       "id": "move",
+       "label": "挪到西侧柱廊"
+      },
+      {
+       "id": "stay",
+       "label": "留在原地不动"
+      }
+     ]
     },
     {
      "id": "p3",
@@ -502,7 +739,18 @@ window.WXL_SCRIPT = {
      "from": "一块石雕上",
      "to": "不动",
      "correct": false,
-     "desc": "它看起来最刺眼——可那块雕饰，本来就是故宫的。"
+     "desc": "它看起来最刺眼——可那块雕饰，本来就是故宫的。",
+     "ask": "「故宫太和殿月台」的牌子歪在一块石雕上。它看起来最刺眼，最该被搬走。\n你怎么处理？",
+     "options": [
+      {
+       "id": "move",
+       "label": "挪开，它挡着投影了"
+      },
+      {
+       "id": "stay",
+       "label": "留在原地不动"
+      }
+     ]
     }
    ],
    "wrongPlaced": [
@@ -517,6 +765,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "它只是长得像我带来的东西。"
+    },
+    {
+     "who": "diotima",
+     "text": "我会认错，石头不会。下次先看它。"
     }
    ],
    "layerReveal": [
@@ -527,16 +779,24 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "雕饰是实的，投影是虚的。它们从来不是一回事。"
+    },
+    {
+     "who": "diotima",
+     "text": "影子叠在石头上，人就会以为它们是同一种东西。"
+    },
+    {
+     "who": "diotima",
+     "text": "你们被这样误会过很多次吧。"
     }
    ],
    "success": [
     {
      "who": "narrator",
-     "text": "三块牌子各归各位。乱码停了。"
+     "text": "三块牌子各归各位。乱码停了。月台上安静下来。"
     },
     {
      "who": "diotima",
-     "text": "你一动手，先问的是'这属于谁'。"
+     "text": "你一动手，先问的是「这属于谁」。"
     },
     {
      "who": "diotima",
@@ -561,10 +821,54 @@ window.WXL_SCRIPT = {
     {
      "who": "player",
      "text": "错的是标签，不是另一套东西本身。"
+    },
+    {
+     "who": "diotima",
+     "text": "（她点头，很轻）这句话，我记下了。"
+    },
+    {
+     "who": "narrator",
+     "text": "她抬头看了很久，久到风把牌子吹得轻轻响。"
     }
    ],
    "wrongHint": "先关掉图像层再看一次。",
-   "keepPuzzle": "taihe.keep"
+   "keepPuzzle": "taihe.keep",
+   "open": [
+    {
+     "who": "narrator",
+     "text": "太和殿月台上浮着三块说明牌。风一样的东西从牌子底下穿过去。"
+    },
+    {
+     "who": "diotima",
+     "text": "两块是我盖错的。"
+    },
+    {
+     "who": "diotima",
+     "text": "还有一块——它本来就长得像我的东西。我第一次看见时也愣了一下。"
+    },
+    {
+     "who": "diotima",
+     "text": "先别动手。三块都看一遍。看石头，不看影子。"
+    },
+    {
+     "who": "player",
+     "text": "你也会认错？"
+    },
+    {
+     "who": "diotima",
+     "text": "会。只是不常当着人认。"
+    }
+   ],
+   "glitchLine": [
+    {
+     "who": "narrator",
+     "text": "牌子上爬出一行乱码，像没渲染完的字。"
+    },
+    {
+     "who": "diotima",
+     "text": "这块石头是你们自己的。它只是长得像我带来的东西。"
+    }
+   ]
   },
   "taihe.keep": {
    "prompt": "这处空间关系，要写进你的造境规则吗？",
@@ -575,7 +879,19 @@ window.WXL_SCRIPT = {
     },
     {
      "who": "diotima",
-     "text": "你可以把它带走，也可以只记下来。没有标准答案。"
+     "text": "但也可能只是巧合。你要不要把它当成一条规则？"
+    },
+    {
+     "who": "diotima",
+     "text": "带走，或者只记下来。没有标准答案——我不替你选。"
+    },
+    {
+     "who": "player",
+     "text": "你为什么总让我选？"
+    },
+    {
+     "who": "diotima",
+     "text": "因为这次，做对做错都算你的。我不抢。"
     }
    ],
    "options": [
@@ -604,12 +920,16 @@ window.WXL_SCRIPT = {
      {
       "who": "narrator",
       "text": "已记入造境规则 · 保留关系：走近与抬头同向。"
+     },
+     {
+      "who": "diotima",
+      "text": "等你造完，我第一个走进去。"
      }
     ],
     "note": [
      {
       "who": "diotima",
-      "text": "记下来也算数。"
+      "text": "记下来也算数。有时候「待核」比「确定」更诚实。"
      },
      {
       "who": "narrator",
@@ -624,6 +944,10 @@ window.WXL_SCRIPT = {
      {
       "who": "diotima",
       "text": "只是别忘了刚才为什么会抬头。"
+     },
+     {
+      "who": "narrator",
+      "text": "台阶在你身后，一级一级，仍旧朝着殿身。"
      }
     ]
    },
@@ -631,6 +955,10 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "「走近—抬头」已写进造境规则。"
+    },
+    {
+     "who": "diotima",
+     "text": "现在它跟着你了。走到哪儿，都别把它弄丢。"
     }
    ]
   },
@@ -640,29 +968,34 @@ window.WXL_SCRIPT = {
     {
      "id": "stone",
      "label": "石柱（女像柱）",
-     "desc": "大理石。受得住压，受不住剪。"
+     "desc": "大理石。受得住压，受不住剪。",
+     "ask": "石柱。大理石，受得住压，受不住剪。\n柱头和檐部之间，用哪种连接？"
     },
     {
      "id": "wood",
      "label": "木柱（故宫）",
-     "desc": "会胀，会缩，会咬合。"
+     "desc": "会胀，会缩，会咬合。",
+     "ask": "木柱。会胀，会缩，会咬合。\n柱头和檐部之间，用哪种连接？"
     }
    ],
    "methods": [
     {
      "id": "tenon",
      "label": "榫卯",
-     "desc": "转一个角度，对准卯口插进去。"
+     "desc": "转一个角度，对准卯口插进去。",
+     "option": "榫卯 · 转个角度插进去"
     },
     {
      "id": "dowel",
      "label": "铅灌铁销",
-     "desc": "两块石头之间打一根铁销，灌铅封住。"
+     "desc": "两块石头之间打一根铁销，灌铅封住。",
+     "option": "铅灌铁销 · 打销、灌铅"
     },
     {
      "id": "dry",
      "label": "直接叠压",
-     "desc": "什么都不加，靠自重和摩擦。"
+     "desc": "什么都不加，靠自重和摩擦。",
+     "option": "直接叠压 · 什么都不加"
     }
    ],
    "outcome": {
@@ -681,6 +1014,10 @@ window.WXL_SCRIPT = {
        {
         "who": "diotima",
         "text": "石头不会因为你喜欢榫卯，就接受榫卯。"
+       },
+       {
+        "who": "diotima",
+        "text": "别灰心。它只是说了实话。"
        }
       ]
      },
@@ -694,6 +1031,18 @@ window.WXL_SCRIPT = {
        {
         "who": "narrator",
         "text": "檐口回正。"
+       },
+       {
+        "who": "diotima",
+        "text": "看。石头要的是这个。"
+       },
+       {
+        "who": "player",
+        "text": "硬碰硬。"
+       },
+       {
+        "who": "diotima",
+        "text": "对。它服硬，不服巧。"
        }
       ]
      },
@@ -707,6 +1056,14 @@ window.WXL_SCRIPT = {
        {
         "who": "narrator",
         "text": "它站住了。石头本来就能这样站。"
+       },
+       {
+        "who": "diotima",
+        "text": "站住了。可它靠的是重量，不是连接。"
+       },
+       {
+        "who": "diotima",
+        "text": "你们这座院子，最不缺的就是重量。"
        }
       ]
      }
@@ -722,6 +1079,18 @@ window.WXL_SCRIPT = {
        {
         "who": "narrator",
         "text": "檐口回正。"
+       },
+       {
+        "who": "diotima",
+        "text": "你听那个声音。越压越紧，它自己在咬。"
+       },
+       {
+        "who": "player",
+        "text": "木头顶着木头。"
+       },
+       {
+        "who": "diotima",
+        "text": "对。不用求它，它自己会抓紧。"
        }
       ]
      },
@@ -739,6 +1108,14 @@ window.WXL_SCRIPT = {
        {
         "who": "diotima",
         "text": "它会呼吸。你的铁不会。"
+       },
+       {
+        "who": "player",
+        "text": "木头顶松了铁销。"
+       },
+       {
+        "who": "diotima",
+        "text": "不是铁不好。是它没打算跟木头一起呼吸。"
        }
       ]
      },
@@ -752,6 +1129,14 @@ window.WXL_SCRIPT = {
        {
         "who": "narrator",
         "text": "整排柱子往一边让了半步。"
+       },
+       {
+        "who": "diotima",
+        "text": "什么都不加，它就滑。"
+       },
+       {
+        "who": "diotima",
+        "text": "木头不是石头。它一直在动。"
        }
       ]
      }
@@ -777,6 +1162,14 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "一件东西好看，往往是因为做它的人知道手里的材料会怎么动。"
+    },
+    {
+     "who": "narrator",
+     "text": "她把手指从木纹上收回来。"
+    },
+    {
+     "who": "diotima",
+     "text": "……这一点，你们比我会。"
     }
    ],
    "allDone": [
@@ -791,11 +1184,46 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "榫卯这一手我建议你带走。它比外形难学，也比外形耐用。"
+    },
+    {
+     "who": "player",
+     "text": "你刚才说「你们比我会」。"
+    },
+    {
+     "who": "diotima",
+     "text": "我说过吗。"
+    },
+    {
+     "who": "diotima",
+     "text": "……那就当我没收回。"
     }
    ],
-   "hint": "榫卯在石头上试一次，再用同样的办法在木头上试一次。"
+   "hint": "榫卯在石头上试一次，再用同样的办法在木头上试一次。",
+   "open": [
+    {
+     "who": "narrator",
+     "text": "乾清宫前，两排柱子立着。左边石头，右边木头。上头压着同一根梁。"
+    },
+    {
+     "who": "diotima",
+     "text": "檐口要往下坠了。"
+    },
+    {
+     "who": "diotima",
+     "text": "你选连接方式，我来加载。两种材料，分开试。"
+    },
+    {
+     "who": "diotima",
+     "text": "别想着一次就对。我第一次做石膏模型，塌了七次。"
+    },
+    {
+     "who": "narrator",
+     "text": "她朝左边抬了抬下巴：先石头。"
+    }
+   ]
   },
   "repair_bench.evidence": {
+   "blankLabel": "留白：不连，盖「未成立」",
    "prompt": "把线索接到来源卡上。每条线都要说明你比较的是哪个层面。",
    "layers": [
     {
@@ -821,6 +1249,7 @@ window.WXL_SCRIPT = {
      "detail": "两块三角形的山花，都朝着正面，都在讲一个故事。",
      "answerCard": "sc_sequence",
      "answerLayer": "spatial",
+     "ask": "「帕特农东山墙」被改成了「太和殿山花」。两块三角形，都朝着正面，都在讲一个故事。\n接到哪张卡上？",
      "explain": "它们处理的是同一种观看秩序：正面、中轴、仰视。这叫空间观念对照。"
     },
     {
@@ -829,6 +1258,7 @@ window.WXL_SCRIPT = {
      "detail": "都是躺着、坐着、有人伺候、有人看。",
      "answerCard": "sc_banquet",
      "answerLayer": "function",
+     "ask": "瓶画上的宴饮，和《韩熙载夜宴图》：都是躺着、坐着、有人伺候、有人看。\n接到哪张卡上？",
      "explain": "两幅画都在用宴饮组织人物和视线。这是功能可比，不是谁影响了谁。"
     },
     {
@@ -837,6 +1267,7 @@ window.WXL_SCRIPT = {
      "detail": "希腊的神，出现在中国甘肃的一只盘子上。",
      "answerCard": "sc_boundary",
      "answerLayer": "boundary",
+     "ask": "靖远鎏金银盘上的酒神：希腊的神，出现在中国甘肃的一只盘子上。\n接到哪张卡上？",
      "explain": "它能证明有中介、有传播。它不能证明这两件作品直接相连。"
     },
     {
@@ -846,6 +1277,7 @@ window.WXL_SCRIPT = {
      "answerCard": null,
      "answerLayer": null,
      "isBait": true,
+     "ask": "女像柱的柱础纹样，和故宫柱础几乎一样。放大看，确实很像。\n接到哪张卡上？",
      "explain": "相似不等于同源。这里没有年代链，也没有工艺链。这条不成立。"
     }
    ],
@@ -861,6 +1293,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "但你给了它一个不存在的证据。"
+    },
+    {
+     "who": "diotima",
+     "text": "撤回。我们不缺这一条。"
     }
    ],
    "baitLinked": [
@@ -875,6 +1311,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "可它撑不住一条结论。"
+    },
+    {
+     "who": "diotima",
+     "text": "像，是最便宜的证据。也是最贵的。"
     }
    ],
    "baitLeftBlank": [
@@ -896,11 +1336,19 @@ window.WXL_SCRIPT = {
     },
     {
      "who": "diotima",
-     "text": "我年轻的时候也硬连过。"
+     "text": "我年轻的时候也硬连过。那篇论文，我现在还留着。"
     },
     {
      "who": "player",
-     "text": "这里本来就没有东西可以连。"
+     "text": "后来呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "后来我自己撤了稿。没人发现，除了我。"
+    },
+    {
+     "who": "diotima",
+     "text": "承认「这里没有东西」，比编一条线难。"
     }
    ],
    "success": [
@@ -921,7 +1369,70 @@ window.WXL_SCRIPT = {
      "text": "现在去看系统留给你的那一条。"
     }
    ],
-   "hint": "有一条线索，你不需要给它找卡。"
+   "hint": "有一条线索，你不需要给它找卡。",
+   "open": [
+    {
+     "who": "narrator",
+     "text": "修复台上摊着四条线索，四张来源卡，还有一格是空的。"
+    },
+    {
+     "who": "diotima",
+     "text": "每条线接一张卡，再接一个层面。"
+    },
+    {
+     "who": "diotima",
+     "text": "卡接错，线就不成立；层面写错，等于没写。"
+    },
+    {
+     "who": "diotima",
+     "text": "还有——不是每条线索都需要一张卡。"
+    },
+    {
+     "who": "player",
+     "text": "你是说，有的线本来就不该连。"
+    },
+    {
+     "who": "diotima",
+     "text": "我没说。你自己判断。"
+    }
+   ],
+   "layerAsk": "这条比较，比的是哪一层？",
+   "layerOptions": [
+    {
+     "id": "function",
+     "label": "功能可比"
+    },
+    {
+     "id": "spatial",
+     "label": "空间观念对照"
+    },
+    {
+     "id": "boundary",
+     "label": "间接传播边界"
+    }
+   ],
+   "wrongLayer": [
+    {
+     "who": "narrator",
+     "text": "卡接对了，可层面写岔了。台面上多出一道折痕。"
+    },
+    {
+     "who": "diotima",
+     "text": "同一件事，可以说「都在解决同一个问题」，也可以说「长得像」。"
+    },
+    {
+     "who": "diotima",
+     "text": "这两句话的责任不一样。"
+    },
+    {
+     "who": "player",
+     "text": "一句能给别人复核，一句不能。"
+    },
+    {
+     "who": "diotima",
+     "text": "对。写论文和造境，栽在同一处。"
+    }
+   ]
   },
   "repair_bench.relic": {
    "prompt": "系统给出了处置建议。你的判定是：",
@@ -941,6 +1452,10 @@ window.WXL_SCRIPT = {
     {
      "who": "system",
      "text": "与本土工艺不一致。判定：错误混入。建议：移除后恢复本土形制。"
+    },
+    {
+     "who": "system",
+     "text": "复核入口：已关闭。"
     }
    ],
    "evidence": [
@@ -972,6 +1487,14 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "外来件本身不是错。错在有没有写下它被吸收、又被改成了什么。"
+    },
+    {
+     "who": "player",
+     "text": "所以问题不是「干不干净」。"
+    },
+    {
+     "who": "diotima",
+     "text": "是「写没写清楚」。"
     }
    ],
    "options": [
@@ -1008,6 +1531,14 @@ window.WXL_SCRIPT = {
      {
       "who": "diotima",
       "text": "你把它修干净了。可它原来的样子，是有人做过选择的样子。"
+     },
+     {
+      "who": "player",
+      "text": "它不响了。"
+     },
+     {
+      "who": "diotima",
+      "text": "对。安静，不等于干净。"
      },
      {
       "who": "system",
@@ -1050,6 +1581,14 @@ window.WXL_SCRIPT = {
      {
       "who": "player",
       "text": "它没有被清干净。它被写清楚了。"
+     },
+     {
+      "who": "diotima",
+      "text": "（她看了钟很久）我收回刚才那句「先把线接完」。"
+     },
+     {
+      "who": "diotima",
+      "text": "你比我先看懂了它。"
      }
     ],
     "C": [
@@ -1070,6 +1609,14 @@ window.WXL_SCRIPT = {
       "text": "把吸收藏起来，和把交流当成污染，是同一种错。"
      },
      {
+      "who": "player",
+      "text": "都是不肯承认，东西本来就是混出来的。"
+     },
+     {
+      "who": "diotima",
+      "text": "都是。"
+     },
+     {
       "who": "system",
       "text": "标签已更新。待复核。"
      }
@@ -1083,14 +1630,62 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "系统会给建议。签字的人是你们。"
+    },
+    {
+     "who": "player",
+     "text": "那如果签错了呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "那就再改一次。别怕改。怕的是不改。"
     }
    ],
    "hints": [
     "先问一句：外来的部分，能不能指认出来？本土的部分，能不能指认出来？",
     "能指认「怎么被吸收、又被改成了什么」，才叫融合。只凭「里面有外来的东西」不足以下判断。"
+   ],
+   "open": [
+    {
+     "who": "system",
+     "text": "待处置藏品：R-07。"
+    },
+    {
+     "who": "narrator",
+     "text": "广钟停在台面侧面。系统已经给它判了性。"
+    },
+    {
+     "who": "diotima",
+     "text": "它还在走。"
+    },
+    {
+     "who": "player",
+     "text": "系统说它是错误。"
+    },
+    {
+     "who": "diotima",
+     "text": "系统说的，是先写进模板的判断。"
+    },
+    {
+     "who": "diotima",
+     "text": "先看，再签。"
+    }
    ]
   },
   "creator.review": {
+   "tagLabels": {
+    "gugong": "故宫参考",
+    "acropolis": "卫城参考",
+    "personal": "个人创作"
+   },
+   "fmt": {
+    "title": "《{title}》—— {oneLine}",
+    "placement": "· {label}（{tag}）",
+    "why": "他的理由：{why}"
+   },
+   "accusePrompt": "哪一件有问题？",
+   "typePrompt": "它错在哪一类？",
+   "fixPrompt": "你想怎么改？",
+   "noProblemLabel": "都没问题，签",
    "prompt": "选三件组件，或者让我替你选。然后审一遍方案。",
    "rules": [
     "至少一件故宫组件、一件卫城组件、一件你自己的。",
@@ -1155,6 +1750,14 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "看起来能成立。你看一眼。"
+    },
+    {
+     "who": "diotima",
+     "text": "这次我不提示。"
+    },
+    {
+     "who": "narrator",
+     "text": "她把双手背到身后，像在忍住不去指屏幕。"
     }
    ],
    "wrongAccuse": [
@@ -1165,6 +1768,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "再看一眼哪个标签写了来源。"
+    },
+    {
+     "who": "diotima",
+     "text": "别找「最刺眼」的，找「来源写错了」的。"
     }
    ],
    "rightAccuse": [
@@ -1187,6 +1794,10 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "女像柱留在月台上，标签换成了它真正的出处。"
+    },
+    {
+     "who": "diotima",
+     "text": "它该站在哪儿，和它从哪儿来，是两件事。"
     }
    ],
    "acceptedAnyway": [
@@ -1197,6 +1808,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "但它会在门口等你。"
+    },
+    {
+     "who": "diotima",
+     "text": "你签的字，我不替你担。"
     }
    ],
    "regenerated": [
@@ -1207,6 +1822,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "这次我没法替你签字了。你签。"
+    },
+    {
+     "who": "diotima",
+     "text": "我就在旁边看着。"
     }
    ],
    "keepNote": [
@@ -1217,12 +1836,226 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "出门的时候，那扇门会问你。"
+    },
+    {
+     "who": "player",
+     "text": "它问得这么细？"
+    },
+    {
+     "who": "diotima",
+     "text": "门是我画的。我想听你说清楚。"
     }
    ],
-   "hint": "逐件看标签。来源写在标签上。"
+   "hint": "逐件看标签。来源写在标签上。",
+   "open": [
+    {
+     "who": "narrator",
+     "text": "御花园的台地空着。终端亮着，等一个方案。"
+    },
+    {
+     "who": "diotima",
+     "text": "先定一件事：你想保留哪条关系？"
+    },
+    {
+     "who": "diotima",
+     "text": "定了这条，方案才有对错可言。"
+    },
+    {
+     "who": "player",
+     "text": "如果我选错了呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "那就重来。这里没有一次定终身。"
+    }
+   ],
+   "keepPrompt": "你要保留哪一条关系？",
+   "keepOptions": [
+    {
+     "id": "gugong_axis",
+     "label": "故宫中轴：殿身不能离开轴线"
+    },
+    {
+     "id": "acropolis_axis",
+     "label": "卫城正面：走近与抬头要同向"
+    }
+   ],
+   "keepLines": {
+    "gugong_axis": [
+     {
+      "who": "narrator",
+      "text": "规则写进去了：殿身不离轴线。"
+     },
+     {
+      "who": "diotima",
+      "text": "好。这条最硬，也最容易被你自己破坏。"
+     }
+    ],
+    "acropolis_axis": [
+     {
+      "who": "narrator",
+      "text": "规则写进去了：走近与抬头同向。"
+     },
+     {
+      "who": "diotima",
+      "text": "这条是我带来的。你留着，它就不只是我的了。"
+     }
+    ]
+   },
+   "plans": [
+    {
+     "id": "plan_gugong",
+     "keepWhat": "gugong_axis",
+     "title": "月台与六位少女",
+     "oneLine": "把卫城的柱廊搬上月台，让屋檐由六位少女托起。",
+     "why": "殿身保留中轴，柱廊提供正面的节奏。",
+     "placements": [
+      {
+       "slot": "c",
+       "componentId": "gugong_hall",
+       "tag": "gugong",
+       "label": "太和殿式殿身"
+      },
+      {
+       "slot": "w",
+       "componentId": "acropolis_caryatid",
+       "tag": "gugong",
+       "label": "伊瑞克提翁女像柱廊"
+      },
+      {
+       "slot": "s",
+       "componentId": "palace_lantern",
+       "tag": "personal",
+       "label": "宫灯"
+      }
+     ],
+     "wrongSlot": "w",
+     "wrongType": "v_lineage",
+     "note": "女像柱被标成了「故宫参考」——这是不存在的传承。"
+    },
+    {
+     "id": "plan_acropolis",
+     "keepWhat": "acropolis_axis",
+     "title": "三道门与一个月台",
+     "oneLine": "沿轴线排三道门，最后一道正对台地。",
+     "why": "走近的节奏和抬头的位置，落在同一条线上。",
+     "placements": [
+      {
+       "slot": "c",
+       "componentId": "gugong_hall",
+       "tag": "gugong",
+       "label": "太和殿式殿身"
+      },
+      {
+       "slot": "w",
+       "componentId": "acropolis_axis_walk",
+       "tag": "acropolis",
+       "label": "卫城正面步道"
+      },
+      {
+       "slot": "s",
+       "componentId": "palace_lantern",
+       "tag": "personal",
+       "label": "宫灯"
+      }
+     ],
+     "wrongSlot": "c",
+     "wrongType": "v_rule",
+     "note": "殿身被挪出了轴线——方案自己破了自己定的规矩。"
+    }
+   ],
+   "fixOptions": [
+    {
+     "id": "retag",
+     "label": "把标签改成它真正的出处"
+    },
+    {
+     "id": "move",
+     "label": "挪到不破坏关系的位置"
+    },
+    {
+     "id": "swap",
+     "label": "换一件组件"
+    },
+    {
+     "id": "drop",
+     "label": "把这件删掉"
+    },
+    {
+     "id": "self",
+     "label": "算我个人新造的"
+    }
+   ],
+   "wrongType": [
+    {
+     "who": "diotima",
+     "text": "是这一件，但不是这个毛病。"
+    },
+    {
+     "who": "diotima",
+     "text": "再读一遍它写的那行来源，还有你自己定的那条规则。"
+    }
+   ],
+   "wrongFix": [
+    {
+     "who": "diotima",
+     "text": "删掉它，问题就没了。"
+    },
+    {
+     "who": "diotima",
+     "text": "可它本来该在这儿。你要修的是标签，不是把它藏起来。"
+    },
+    {
+     "who": "diotima",
+     "text": "把错的东西删掉，是另一种干净。"
+    }
+   ],
+   "noProblem": [
+    {
+     "who": "diotima",
+     "text": "行。你签的字，你负责。"
+    },
+    {
+     "who": "narrator",
+     "text": "方案没有修改，直接送了出去。"
+    },
+    {
+     "who": "diotima",
+     "text": "我提醒过你。"
+    }
+   ],
+   "signed": [
+    {
+     "who": "narrator",
+     "text": "你签了字。终端整屏亮起来。"
+    },
+    {
+     "who": "diotima",
+     "text": "现在它得自己站住了。"
+    },
+    {
+     "who": "player",
+     "text": "你呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "我进去看看。"
+    }
+   ]
   },
   "shenwumen.verify": {
    "prompt": "调查两条线索，完成配对，打开出口。",
+   "clueFmt": "线索一：{a}\n线索二：{b}",
+   "matchOptions": [
+    {
+     "id": "match",
+     "label": "咬得上：一处标签错位，一处少了基座，修好了才算对上"
+    },
+    {
+     "id": "no",
+     "label": "这两条没什么关系"
+    }
+   ],
    "nodeBlocked": [
     {
      "who": "narrator",
@@ -1255,12 +2088,20 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "门框亮了。"
+    },
+    {
+     "who": "diotima",
+     "text": "听见没有。木头咬合的声音。"
     }
    ],
    "matchWrong": [
     {
      "who": "narrator",
      "text": "两条线索对不上。门没有反应。"
+    },
+    {
+     "who": "diotima",
+     "text": "门不说话的时候，就是在说不。"
     }
    ],
    "doorOpen": [
@@ -1287,6 +2128,9 @@ window.WXL_SCRIPT = {
    ],
    "showcase": {
     "prompt": "出门之前，说清楚三件事：",
+    "askFmt": "{label}？",
+    "goLabel": "说完再走",
+    "todoLabel": "老实说：我还没想好",
     "items": [
      {
       "id": "borrow",
@@ -1312,10 +2156,150 @@ window.WXL_SCRIPT = {
      {
       "who": "diotima",
       "text": "行了。你的东西，你说得清。"
+     },
+     {
+      "who": "diotima",
+      "text": "那我进去了。"
+     },
+     {
+      "who": "player",
+      "text": "进去以后呢？"
+     },
+     {
+      "who": "diotima",
+      "text": "进去以后，我就只是你作品里的一个人。"
      }
     ]
    },
-   "hint": "回到创作终端，把没修的地方修掉，再进来一次。"
+   "hint": "回到创作终端，把没修的地方修掉，再进来一次。",
+   "open": [
+    {
+     "who": "narrator",
+     "text": "神武门下，门洞暗着。"
+    },
+    {
+     "who": "diotima",
+     "text": "先看两处。看完再说话。"
+    },
+    {
+     "who": "diotima",
+     "text": "别凭印象。你造的世界会记住你偷的懒。"
+    }
+   ],
+   "needClues": [
+    {
+     "who": "diotima",
+     "text": "两处线索你都还没看全。"
+    },
+    {
+     "who": "diotima",
+     "text": "凭印象配出来的东西，撑不住一扇门。"
+    }
+   ],
+   "doorDark": [
+    {
+     "who": "narrator",
+     "text": "门框一点光都没有。"
+    },
+    {
+     "who": "diotima",
+     "text": "回到御花园，把你的方案签掉。"
+    },
+    {
+     "who": "diotima",
+     "text": "没签字的规则，门不认。"
+    },
+    {
+     "who": "player",
+     "text": "这么严格？"
+    },
+    {
+     "who": "diotima",
+     "text": "我改的。"
+    }
+   ]
+  },
+  "taihe.layer.stones": {
+   "on": [
+    {
+     "who": "narrator",
+     "text": "石作层单独亮起来：栏杆、台阶、雕饰，全是实的。"
+    },
+    {
+     "who": "diotima",
+     "text": "记住这一层。摸得着的只有它。"
+    },
+    {
+     "who": "diotima",
+     "text": "这一层不会骗人。至少不会。"
+    }
+   ],
+   "off": [
+    {
+     "who": "narrator",
+     "text": "石作层暗下去，只剩下底下的轮廓。"
+    }
+   ]
+  },
+  "taihe.layer.images": {
+   "on": [
+    {
+     "who": "narrator",
+     "text": "图像层重新打上来，山墙的轮廓浮在栏杆前面，半透明。"
+    }
+   ],
+   "off": [
+    {
+     "who": "narrator",
+     "text": "图像层灭了。栏杆上什么都没有——刚才那个「山花」，是打上去的。"
+    },
+    {
+     "who": "diotima",
+     "text": "影子和石头挤在一起的时候，人会以为它们是一回事。"
+    },
+    {
+     "who": "player",
+     "text": "所以刚才那个「山花」……"
+    },
+    {
+     "who": "diotima",
+     "text": "是打上去的。影子没有重量。"
+    }
+   ]
+  },
+  "taihe.layer.labels": {
+   "on": [
+    {
+     "who": "narrator",
+     "text": "标签层亮起来，三块牌子又浮在半空。"
+    }
+   ],
+   "off": [
+    {
+     "who": "narrator",
+     "text": "标签层关了。匾额也一起隐掉——写字的那一层，本来就不属于建筑。"
+    },
+    {
+     "who": "diotima",
+     "text": "写字的那层最轻，也最容易出错。"
+    }
+   ]
+  },
+  "shenwumen.back": {
+   "line": [
+    {
+     "who": "narrator",
+     "text": "门不亮。你转身往回走。"
+    },
+    {
+     "who": "diotima",
+     "text": "方案还压在那儿，没人签。"
+    },
+    {
+     "who": "diotima",
+     "text": "我等你。"
+    }
+   ]
   }
  },
  "objects": [
@@ -1323,11 +2307,23 @@ window.WXL_SCRIPT = {
    "id": "obj_wumen_gate",
    "node": "wumen",
    "name": "午门门洞",
-   "desc": "五个门洞，中间那个只有皇帝能走。今天它只是一个原点。",
+   "desc": "五个门洞，中间那个只有皇帝能走。今天它只是一个原点。门钉九路，一颗不少。",
    "interact": [
     {
      "who": "narrator",
      "text": "门钉排得很密。数一遍要花点时间，但值得数。"
+    },
+    {
+     "who": "diotima",
+     "text": "我们的门上没有这个。你们的门钉，是礼制。"
+    },
+    {
+     "who": "player",
+     "text": "九路。一颗都不能少。"
+    },
+    {
+     "who": "diotima",
+     "text": "少一颗，你们会知道。这就是区别。"
     }
    ]
   },
@@ -1340,6 +2336,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "两套网格都画到地上，谁也没让谁。"
+    },
+    {
+     "who": "diotima",
+     "text": "我这套是昨天夜里铺的。铺的时候，我没问过你们。"
+    },
+    {
+     "who": "player",
+     "text": "现在问了。"
+    },
+    {
+     "who": "diotima",
+     "text": "现在问，也算问。"
     }
    ]
   },
@@ -1347,7 +2355,7 @@ window.WXL_SCRIPT = {
    "id": "obj_taihe_archive",
    "node": "taihe",
    "name": "故宫档案",
-   "desc": "太和殿东庑的柜子。营缮司的旧档，纸都发脆了。",
+   "desc": "太和殿东庑的柜子。营缮司的旧档，纸都发脆了，带着樟脑味。",
    "interact": [
     {
      "who": "narrator",
@@ -1356,6 +2364,14 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "第一份档案到手：中轴、台基、斗拱的尺寸都在。"
+    },
+    {
+     "who": "diotima",
+     "text": "你们的档案，连误差都记。"
+    },
+    {
+     "who": "diotima",
+     "text": "我们那边，很多尺寸是后人量的。"
     }
    ]
   },
@@ -1368,6 +2384,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "牌子是铜的，背面刻着编号。"
+    },
+    {
+     "who": "diotima",
+     "text": "编号都在。错的是它们被放的位置。"
+    },
+    {
+     "who": "player",
+     "text": "牌子没坏。"
+    },
+    {
+     "who": "diotima",
+     "text": "牌子没坏。坏的是有人替它选了位置。"
     }
    ]
   },
@@ -1380,6 +2408,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "雕得太深了，不像投影。投影落不下这么实的影子。"
+    },
+    {
+     "who": "diotima",
+     "text": "这个涡卷，我第一眼以为是我们的。"
+    },
+    {
+     "who": "player",
+     "text": "它是我们的。"
+    },
+    {
+     "who": "diotima",
+     "text": "我知道。所以我才看了这么久。"
     }
    ]
   },
@@ -1400,6 +2440,10 @@ window.WXL_SCRIPT = {
     {
      "who": "diotima",
      "text": "这不是巧合。这是图纸上量过的。"
+    },
+    {
+     "who": "diotima",
+     "text": "我们管这个叫「观看的顺序」。你们把它砌进了台阶。"
     }
    ]
   },
@@ -1412,6 +2456,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "凑近看，衣褶里有一层极细的扫描线。那是投影。"
+    },
+    {
+     "who": "diotima",
+     "text": "她们是真的。在雅典，她们身上有真的重量。"
+    },
+    {
+     "who": "player",
+     "text": "在这里，她们只有影子。"
+    },
+    {
+     "who": "diotima",
+     "text": "影子也在扛。你别小看影子。"
     }
    ]
   },
@@ -1424,6 +2480,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "木头在慢慢胀。你能听见它。"
+    },
+    {
+     "who": "diotima",
+     "text": "你们的柱子会动。我们的不会。"
+    },
+    {
+     "who": "player",
+     "text": "会动的更难伺候。"
+    },
+    {
+     "who": "diotima",
+     "text": "也更难替代。"
     }
    ]
   },
@@ -1436,6 +2504,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "板子上有一道旧裂纹，不知道是谁留下的。"
+    },
+    {
+     "who": "diotima",
+     "text": "裂纹那边，原来写过东西。被刮掉了。"
+    },
+    {
+     "who": "player",
+     "text": "刮得很干净。"
+    },
+    {
+     "who": "diotima",
+     "text": "干净不等于没发生过。"
     }
    ]
   },
@@ -1448,6 +2528,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "印泥是干的，说明它很久没被拿起来了。"
+    },
+    {
+     "who": "diotima",
+     "text": "我上一次用它，是十多年前。"
+    },
+    {
+     "who": "player",
+     "text": "然后呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "然后我把它收起来了。今天又拿出来。"
     }
    ]
   },
@@ -1466,6 +2558,18 @@ window.WXL_SCRIPT = {
      "text": "底层的乐箱里，发条绷着，等着下一次报时。"
     },
     {
+     "who": "diotima",
+     "text": "它还在走。系统说它是错的。这两件事可以同时成立。"
+    },
+    {
+     "who": "player",
+     "text": "但只能写一件。"
+    },
+    {
+     "who": "diotima",
+     "text": "所以要看清楚再签。"
+    },
+    {
      "who": "system",
      "text": "R-07 · 错误混入 · 待处置。"
     }
@@ -1480,6 +2584,14 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "屏幕上是一张空网格，九个格子。"
+    },
+    {
+     "who": "diotima",
+     "text": "格子是空的。空的地方，才轮到你。"
+    },
+    {
+     "who": "diotima",
+     "text": "我替你选过一次了。这次你自己放。"
     }
    ]
   },
@@ -1492,6 +2604,18 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "牌子上留着一行空位，等着填来源卡编号。"
+    },
+    {
+     "who": "diotima",
+     "text": "每一块都要写。写不清来源的东西，不该进你的园子。"
+    },
+    {
+     "who": "player",
+     "text": "那你的东西呢？"
+    },
+    {
+     "who": "diotima",
+     "text": "我的也要写。写「卫城」。"
     }
    ]
   },
@@ -1504,6 +2628,66 @@ window.WXL_SCRIPT = {
     {
      "who": "narrator",
      "text": "门框上有一圈很细的光，还没连上。"
+    },
+    {
+     "who": "diotima",
+     "text": "门后面是你的园子。门框上是你写的规矩。"
+    },
+    {
+     "who": "player",
+     "text": "哪一个更要紧？"
+    },
+    {
+     "who": "diotima",
+     "text": "门框。园子可以改，规矩改起来疼。"
+    }
+   ]
+  },
+  {
+   "id": "obj_shenwumen_clue_a",
+   "node": "shenwumen",
+   "name": "檐下的斗拱",
+   "desc": "一组斗拱，标签写着「山花」。标签和构件对不上。",
+   "interact": [
+    {
+     "who": "narrator",
+     "text": "你数了一遍斗拱的层数。三层。山花不该有三层。"
+    },
+    {
+     "who": "diotima",
+     "text": "标签错了，还是构件错了？"
+    },
+    {
+     "who": "player",
+     "text": "构件没错。标签错了。"
+    },
+    {
+     "who": "diotima",
+     "text": "那就别动构件。"
+    }
+   ]
+  },
+  {
+   "id": "obj_shenwumen_clue_b",
+   "node": "shenwumen",
+   "name": "柱廊的第六位少女",
+   "desc": "前五位脚下都有基座。第六位悬着。",
+   "interact": [
+    {
+     "who": "narrator",
+     "text": "她的脚离地两指宽，底下什么都没有。"
+    },
+    {
+     "who": "diotima",
+     "text": "少了一个基座。少的那块，可能还在修复台上。"
+    },
+    {
+     "who": "player",
+     "text": "我去找。"
+    },
+    {
+     "who": "diotima",
+     "text": "不急。先记住她悬着的样子。"
     }
    ]
   }
@@ -1689,10 +2873,27 @@ window.WXL_SCRIPT = {
    "sub": "故宫 × 雅典卫城 · 一次校准"
   },
   "wumen_intro": {
-   "0": "午门。八点三十。今天的宫门比平时多了一层灰绿色的线。",
-   "1": "别急着走进去。先告诉我一件事：这层投影，它是以哪里为原点落下来的？",
-   "2": "……你看地上的线。它们不重合。差得不多，但确实差着。",
-   "3": "（差一点，就会被当成「本来就该这样」。）"
+   "0": "午门。八点三十。今天的宫门底下，多了一层灰绿色的线。",
+   "1": "你来了。先别走——告诉我，这层投影以哪里为原点？",
+   "2": "你看地上。它们不重合。差得不多，可就是差着。",
+   "3": "我调了六个钟头，它还是偏的。（她没看你的眼睛）",
+   "4": "两套东西出现在同一块地上，本身不算错。",
+   "5": "错的是——有人替它们写了不成立的关系。"
+  },
+  "ending": {
+   "r0": "今天你修过三样东西：一处配准，一份说明，一个判断。",
+   "r1": "最后那个最难。它不是你做的，是别人交给你、你替它改的。",
+   "l0": "狄奥提玛走进你的作品。她的轮廓一点点变成像素。",
+   "l1": "在《会饮篇》里，我说爱是对美的欲求。",
+   "l2": "因为人总想占有自己没有的东西。",
+   "l3": "今天你教我一件事。",
+   "l4": "想占有，和想理解，是两回事。",
+   "l5": "还有一件：你们今天珍惜的东西，当年也都被人改过。",
+   "l6": "别把我的话写进导览牌。写你自己核过的那些。",
+   "a0": "神武门的灯一盏一盏亮起来，一直亮到景山。",
+   "a1": "你留下的每一条，旁边都写着它从哪儿来。",
+   "a2": "AI 让创作可以天马行空；对传统的理解与敬畏，让想象有值得延续的根。",
+   "l7": "我进去了。别关灯。"
   }
  },
  "ending": {
@@ -1728,6 +2929,10 @@ window.WXL_SCRIPT = {
    {
     "who": "diotima",
     "text": "写你自己核过的那些。"
+   },
+   {
+    "who": "diotima",
+    "text": "我进去了。别关灯。"
    }
   ],
   "recall": [

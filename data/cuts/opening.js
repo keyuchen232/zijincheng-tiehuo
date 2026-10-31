@@ -1,40 +1,31 @@
 /* ============================================================
-   data/cuts/opening.js —— 开场动画
+   data/cuts/opening.js —— 开场（占位版：可跳过的黑屏倒计时）
    ------------------------------------------------------------
-   什么时候播：G.mod.boot() 发现这段没看过，就在标题页播一次。
-   想重看：清存档，或控制台 G.save.flag('cut.opening', false)。
-   想改节奏：只改 steps 里的 ms 和顺序，不用碰任何渲染代码。
+   正式开场动画由队友制作，这一段**不是**动画，只是一个占位：
+   黑场 + 3…2…1 倒计时 + 一行小字。
+   动画做好以后，只把下面的 steps 换成他的 steps 就行 ——
+   跳过提示与按键（空格 / 回车 / Esc / 点击）由 js/cut.js 统一提供，
+   写在 `.cut-hint` 上，不在这份数据里，所以换动画不用重做跳过。
+
+   跳过规则（js/cut.js）：
+     · 按一次 = 跳过当前这一步（黑屏倒计时只有一段，按一次就收场）
+     · 700ms 内连按两次 = 跳过整段（正式动画步骤很多时用这个）
+   想重看：控制台 G.save.flag('cut.opening', false) 后刷新。
    ============================================================ */
 G.mod.register({
   kind: 'cutscene',
   id: 'opening',
 
   steps: [
-    /* 1. 起：黑场 + 黑边 */
-    { t: 'fade', to: 1, ms: 0, color: '#08070a' },
-    { t: 'bars', on: true, ms: 500 },
-    { t: 'wait', ms: 500 },
+    /* 黑场：整块压黑，先让观众知道"要开始了" */
+    { t: 'fade', to: 1, ms: 0, color: '#000000' },
+    { t: 'bars', on: true, ms: 420 },
 
-    /* 2. 第一口气：把这个世界的一句话讲完 */
-    { t: 'card', key: 'cuts.opening.0', ms: 2400 },
-    { t: 'wait', ms: 200 },
-    { t: 'card', key: 'cuts.opening.1', ms: 2600 },
-    { t: 'wait', ms: 200 },
-    { t: 'card', key: 'cuts.opening.2', ms: 2600 },
+    /* 占位倒计时：ms 总时长，from 起始数字（队员动画约 3 秒就够） */
+    { t: 'countdown', ms: 3000, from: 3, subKey: 'ui.cut.loading' },
 
-    /* 3. 错位的一瞬：震屏 + 白闪 + 一行系统错报 */
-    { t: 'shake', ms: 320, amp: 6 },
-    { t: 'flash', color: '#dfe7ea', ms: 220 },
-    { t: 'card', key: 'cuts.opening.3', subKey: 'cuts.opening.3sub', ms: 2200 },
-
-    /* 4. 收：亮出标题 */
-    { t: 'clear' },
-    { t: 'wait', ms: 260 },
-    { t: 'title', key: 'cuts.opening.title', subKey: 'cuts.opening.sub', ms: 2600 },
-
-    /* 5. 光进来，黑边退场 */
-    { t: 'bars', on: false, ms: 500 },
-    { t: 'fade', to: 0, ms: 700 },
-    { t: 'wait', ms: 200 }
-  ]
+    /* 收场：黑边退、画面亮开，交给 G.mod.boot() 回调整理进午门 */
+    { t: 'bars', on: false, ms: 320 },
+    { t: 'fade', to: 0, ms: 300 },
+  ],
 });

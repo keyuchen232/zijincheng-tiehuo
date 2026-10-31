@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120e0b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23120e0b'/%3E%3Cpath d='M16 4 L28 27 H4 Z' fill='%239b3828'/%3E%3Crect x='13' y='19' width='6' height='8' fill='%23d8b26a'/%3E%3C/svg%3E">
+<title>紫禁城 · 铁火 — 北京中轴线像素之旅</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+  <div id="stage">
+    <canvas id="game" width="1280" height="720" aria-label="游戏画面"></canvas>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <!-- ============ HUD ============ -->
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="hud-place">
+          <span class="place-seal" id="loc-seal">京</span>
+          <div class="place-text">
+            <span id="loc-main">北京</span>
+            <small id="loc-sub">中轴线</small>
+          </div>
+        </div>
+        <div class="hud-objective">
+          <span class="obj-label">当前目标</span>
+          <div class="obj-copy">
+            <span class="obj-diamond">◆</span>
+            <span id="objective">沿着中轴线向北走</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-clock">
+          <span id="clock">08:30</span>
+          <small id="daylabel">10月29日 · 晴</small>
+        </div>
+        <button class="icon-btn home-btn" id="btn-home" title="回家（H）" aria-label="回家">家</button>
+        <button class="icon-btn" id="btn-codex" title="图鉴（J）" aria-label="图鉴">册</button>
+        <button class="icon-btn" id="btn-sound" title="声音" aria-label="声音">♪</button>
+        <button class="icon-btn" id="btn-menu" title="菜单（Esc）" aria-label="菜单">≡</button>
+      </div>
+
+      <div id="prompt" class="hidden">
+        <kbd>E</kbd><span id="prompt-text">互动</span>
+      </div>
+
+      <div id="controls">WASD 移动 · Shift 快走 · E 互动 · H 回家 · M 地图 · J 图鉴</div>
+      <div id="toasts"></div>
+    </div>
+
+    <!-- ============ 对话框 ============ -->
+    <div id="dialog" class="hidden" role="dialog" aria-live="polite">
+      <div class="dlg-name"><span id="dlg-name">旅行手账</span></div>
+      <div class="dlg-body"><p id="dlg-text"></p></div>
+      <div class="dlg-options hidden" id="dlg-options"></div>
+      <div class="dlg-next" id="dlg-next"><kbd>E</kbd> 继续</div>
+    </div>
+
+    <!-- ============ 过场字卡 ============ -->
+      <div id="choice" class="screen overlay hidden" role="dialog" aria-modal="true">
+    <div class="choice-card">
+      <div class="choice-kicker">抉择</div>
+      <h2 id="choice-ask">你要怎么做？</h2>
+      <div class="choice-body" id="choice-body"></div>
+      <div class="choice-hint"><kbd>↑</kbd><kbd>↓</kbd> 选择 &nbsp;·&nbsp; <kbd>E</kbd> / <kbd>空格</kbd> 确定</div>
+    </div>
+  </div>
+  <div id="puzzle" class="screen overlay hidden">
+    <div class="pd-kicker">校 日 · 引 雷</div>
+    <h2 class="pd-ask" id="pd-ask">校日 · 卫城</h2>
+    <div class="pd-hint" id="pd-hint">左 / 右 转表针 · 空格 锁定</div>
+    <div class="pd-msg" id="pd-msg"></div>
+    <div class="pd-score"><span>得分</span><b id="pd-score">0</b></div>
+    <button class="pd-enter" id="pd-enter">等一下再锁定</button>
+  </div>
+
+  <div id="pd-result" class="screen overlay hidden">
+    <div class="result-card">
+      <div class="result-kicker">苏尼翁 · 海灯 / 卫城日晷</div>
+      <h2 id="pd-res-title">日影正中</h2>
+      <div class="result-stars" id="pd-res-stars">★★★</div>
+      <div class="result-score"><span>本场得分</span><b id="pd-res-score">0</b></div>
+      <div class="result-grid">
+        <div><span>完美</span><b id="pd-res-perfect">0</b></div>
+        <div><span>最高连击</span><b id="pd-res-combo">0</b></div>
+        <div><span>历史最佳</span><b id="pd-res-best">0</b></div>
+      </div>
+      <p class="result-line" id="pd-res-line">影子一站稳，整座石台都亮了起来。</p>
+      <div class="result-actions">
+        <button class="btn" id="pd-retry"><span>再校一轮</span></button>
+        <button class="btn btn-primary" id="pd-exit"><span>收好手账</span></button>
+      </div>
+    </div>
+  </div>
+
+<div id="cinema" class="hidden">
+      <div class="cine-rule"></div>
+      <div class="cine-line" id="cine-line"></div>
+      <div class="cine-sub" id="cine-sub"></div>
+      <div class="cine-rule"></div>
+    </div>
+
+    <!-- ============ 触屏控制 ============ -->
+    <div id="touch" class="hidden">
+      <div class="dpad">
+        <button data-key="ArrowUp" class="up">▲</button>
+        <button data-key="ArrowLeft" class="left">◀</button>
+        <button data-key="ArrowDown" class="down">▼</button>
+        <button data-key="ArrowRight" class="right">▶</button>
+      </div>
+      <button class="touch-map" data-key="KeyM">图</button>
+      <button class="touch-e" data-key="KeyE">E</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 标题页 ================= -->
+<div id="title" class="screen">
+  <div class="title-grain"></div>
+  <div class="title-inner">
+    <!-- 标题页文案：静态兜底与 data/script.json 的 ui.title 一致，
+         启动后由 js/mods/title-stage.js 再从文案表同步一次（改字只改 json）。 -->
+    <div class="title-eyebrow"><span></span><em id="title-eyebrow">文化试验场 · 故宫 × 雅典卫城</em><span></span></div>
+    <h1 class="title-logo"><span class="t-main" id="title-main">万象</span><span class="t-fire" id="title-fire">灵境</span></h1>
+    <p class="title-sub" id="title-sub">两套建筑语言，在同一张沙盘上互相校准。</p>
+    <div class="title-actions">
+      <button id="btn-stage" class="btn btn-primary"><span>进入万象灵境</span><small>WANXIANG · 六关</small></button>
+      <button id="btn-legacy" class="btn btn-ghost" aria-expanded="false" aria-controls="legacy-actions"><span>旧线</span><small>LEGACY</small></button>
+    </div>
+    <div class="title-legacy hidden" id="legacy-actions">
+      <button id="btn-start" class="btn"><span>打铁花线</span><small>FORBIDDEN CITY</small></button>
+      <button id="btn-continue" class="btn"><span>继续旅程</span><small>CONTINUE</small></button>
+      <button id="btn-fusion" class="btn btn-nexus"><span>旧版沙盘</span><small>NEXUS ATLAS</small></button>
+      <button id="btn-athens" class="btn btn-nexus"><span>雅典 · 卫城</span><small>ATHENS · ACROPOLIS</small></button>
+    </div>
+    <div class="title-foot">
+      <span id="title-foot">故宫 · 卫城 · 每一条比较都写明出处</span>
+      <span class="title-keys">WASD / 方向键移动 &nbsp;·&nbsp; E 互动 &nbsp;·&nbsp; H 回家 &nbsp;·&nbsp; M 地图</span>
+    </div>
+  </div>
+  <div class="title-seal" aria-hidden="true"><b>境</b><i id="title-seal-name">万象灵境</i></div>
+  <div class="title-corner tl"></div><div class="title-corner tr"></div>
+  <div class="title-corner bl"></div><div class="title-corner br"></div>
+</div>
+
+<!-- ================= 安检入园 ================= -->
+<div id="security" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="sec-shell">
+    <div class="sec-scanline"></div>
+    <div class="sec-head">
+      <span class="sec-badge">午门 · 观众入口</span>
+      <h2>入园安检</h2>
+      <p id="sec-sub">请出示身份证件，配合随身行李安检</p>
+    </div>
+    <div class="sec-rows">
+      <div class="sec-row" data-sec="id"><span class="sec-ico">证</span><div><b>证件核验</b><small id="sec-id-text">—</small></div><em>等待</em></div>
+      <div class="sec-row" data-sec="bag"><span class="sec-ico">检</span><div><b>行李安检</b><small>背包通过 X 光机，请勿携带违禁物品</small></div><em>等待</em></div>
+    </div>
+    <div class="sec-progress"><i id="sec-progress-fill"></i></div>
+    <button class="sec-enter" id="sec-enter" disabled>安检中…</button>
+    <p class="sec-note">故宫博物院 · 午门入口 · 演示流程</p>
+  </div>
+</div>
+
+<!-- ================= 打铁花 HUD ================= -->
+<div id="mg-hud" class="hidden">
+  <div class="mg-top">
+    <div class="mg-score"><span>铁花得分</span><b id="mg-score">0</b></div>
+    <div class="mg-combo hidden" id="mg-combo"><b id="mg-combo-n">0</b> 连击</div>
+    <div class="mg-throws"><span>铁水</span><div class="mg-pips" id="mg-pips"></div></div>
+  </div>
+  <div class="mg-message" id="mg-message"></div>
+  <div class="mg-hint" id="mg-hint">按 <kbd>空格</kbd> 起炉</div>
+  <div class="mg-meter" id="mg-meter">
+    <div class="mg-meter-label" id="mg-meter-label">火力</div>
+    <div class="mg-meter-track">
+      <div class="mg-zone" id="mg-zone"></div>
+      <div class="mg-needle" id="mg-needle"></div>
+    </div>
+  </div>
+</div>
+
+<div id="mg-result" class="screen overlay hidden">
+  <div class="result-card">
+    <div class="result-kicker">神武门 · 打铁花</div>
+    <h2 id="res-title">铁树银花</h2>
+    <div class="result-stars" id="res-stars">★★☆</div>
+    <div class="result-score"><span>本场得分</span><b id="res-score">0</b></div>
+    <div class="result-grid">
+      <div><span>最高连击</span><b id="res-combo">0</b></div>
+      <div><span>完美泼洒</span><b id="res-perfect">0</b></div>
+      <div><span>历史最佳</span><b id="res-best">0</b></div>
+    </div>
+    <p class="result-line" id="res-line">铁水击上万点花棚，夜空被烧成金色。</p>
+    <div class="result-actions">
+      <button class="btn" id="res-retry"><span>再打一场</span></button>
+      <button class="btn btn-primary" id="res-exit"><span>收工，夜游故宫</span></button>
+    </div>
+    <p class="result-tip">打铁花：以熔化的铁水击打柳木勺，铁水飞溅成花，是流传于晋豫等地的传统技艺。</p>
+  </div>
+</div>
+
+<!-- ================= 图鉴 ================= -->
+<div id="codex" class="drawer hidden" role="dialog" aria-modal="true" aria-label="图鉴">
+  <div class="drawer-head">
+    <div><small>TRAVEL NOTES</small><h2>旅行图鉴</h2></div>
+    <button class="bk-close" id="codex-close" aria-label="关闭">×</button>
+  </div>
+  <div class="drawer-tabs"><button class="on" data-tab="palace">故宫知识</button><button data-tab="trip">我的旅程</button></div>
+  <div class="drawer-body" id="codex-body"></div>
+  <div class="drawer-foot">读万卷书，行万里路 · 中轴线</div>
+</div>
+
+<!-- ================= 菜单 ================= -->
+<div id="menu" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="menu-card">
+    <div class="menu-seal">停</div>
+    <h2>暂歇片刻</h2>
+    <p>红墙外风声正紧，铁花还要再等一会儿。</p>
+    <div class="menu-actions">
+      <button class="btn btn-primary" id="menu-resume"><span>继续旅程</span></button>
+      <button class="btn" id="menu-sound"><span>声音：开</span></button>
+      <button class="btn" id="menu-reset"><span>重新开始</span></button>
+    </div>
+    <small>进度会自动保存在本机浏览器</small>
+  </div>
+</div>
+
+<div id="confirm" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="menu-card">
+    <div class="menu-seal">问</div>
+    <h2 id="confirm-title">开始新旅程？</h2>
+    <p id="confirm-text">当前进度会被覆盖，图鉴与最佳成绩会保留。</p>
+    <div class="menu-actions">
+      <button class="btn btn-primary" id="confirm-yes"><span>确定</span></button>
+      <button class="btn" id="confirm-no"><span>取消</span></button>
+    </div>
+  </div>
+</div>
+<!-- ================= 非遗档案小游戏 ================= -->
+<div id="archive-game" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="ag-card">
+    <div class="ag-top">
+      <span class="ag-kicker" id="ag-kicker">非遗 · 档案试炼</span>
+      <span class="ag-progress" id="ag-progress">0 / 3</span>
+    </div>
+    <h2 id="ag-title">榫卯合拢</h2>
+    <p id="ag-sub">等榫头对准卯口，按空格或点击画面。</p>
+    <canvas id="ag-canvas" width="520" height="230"></canvas>
+    <div class="ag-controls hidden" id="ag-controls">
+      <button id="ag-rotate">旋转 ↻</button>
+      <button id="ag-insert">插入榫头</button>
+    </div>
+    <div class="ag-bottom">
+      <span id="ag-hint">空格 / 点击画面</span>
+      <button class="ag-close" id="ag-close">退出</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 难度选择 ================= -->
+<div id="difficulty" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="diff-card">
+    <span class="diff-kicker" id="diff-kicker">非遗档案小游戏</span>
+    <h2 id="diff-title">选择难度</h2>
+    <p class="diff-sub">难度决定回合数、方向数和是否限时。选一个难度开始挑战。</p>
+    <div class="diff-btns" id="diff-btns"></div>
+    <button class="diff-back" id="diff-back">返回</button>
+  </div>
+</div>
+
+<!-- ================= 来源判断 ================= -->
+<div id="source-quiz" class="screen overlay hidden" role="dialog" aria-modal="true">
+  <div class="sq-card">
+    <span class="sq-kicker">来源判断 · SOURCE CARD</span>
+    <h2 id="sq-q">这条标签应该怎么改？</h2>
+    <p id="sq-sub">把“可对照”和“不能编造”分开。</p>
+    <div class="sq-options" id="sq-options"></div>
+    <div class="sq-foot">
+      <span id="sq-feedback"></span>
+      <button class="ag-close" id="sq-close">稍后再看</button>
+    </div>
+  </div>
+</div>
+
+<div id="fade"></div>
+<div id="rotate-hint">横屏体验更佳</div>
+
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script src="js/art-greek.js"></script>
+<script src="js/world.js"></script>
+
+<!-- ═══ 旧线（打铁花 / 雅典，逐步归档）═══ -->
+<script src="js/beijing.js"></script>
+<script src="js/gugong.js"></script>
+<script src="js/entry.js"></script>
+<script src="js/home.js"></script>
+<script src="js/fusion.js"></script>
+<script src="js/archive-game.js"></script>
+<script src="js/difficulty.js"></script>
+<script src="js/source-quiz.js"></script>
+<script src="js/minigame.js"></script>
+<script src="js/minigame-greek.js"></script>
+<script src="js/athens.js"></script>
+<script src="js/acropolis.js"></script>
+<script src="js/puzzle.js"></script>
+<script src="js/main.js"></script>
+
+<!-- ══════════════════════════════════════════════════════════
+     模块化接线区 —— 仓库里唯一需要「手工接线」的地方就是这一段。
+
+     为什么放在文件最末尾：index.html 是与 upstream/main 唯一有
+     交集的入口文件，把新增内容全部压在 </body> 前，合并时冲突
+     面最小（对方新增的脚本也只有末尾一行）。
+
+     · 地基（四个人都不改，只调 API）：js/str.js / js/mod.js /
+       js/stage.js / js/cut.js
+     · A 美术/关卡：js/art/*.js + data/maps/*.js
+     · C 玩法/交互/过场：js/mods/*.js + data/cuts/*.js
+     · 最后一行 js/boot.js 负责启动 G.mod.boot()
+     契约见 docs/模块接口.md
+     ══════════════════════════════════════════════════════════ -->
+<link rel="stylesheet" href="css/cut.css">
+<link rel="stylesheet" href="css/title.css">
+<link rel="stylesheet" href="css/cut-skip.css">
+<!-- 文案包：data/script.js 由 tools/build-data.mjs 从 data/script.json 生成，
+     必须在 js/str.js 之前加载 —— 这样 file:// 双击打开也能读到文案
+     （file:// 下 fetch 不到 json，str.js 会退回读 window.WXL_SCRIPT） -->
+<script src="data/script.js"></script>
+<script src="js/str.js"></script>
+<script src="js/mod.js"></script>
+<script src="js/stage.js"></script>
+<script src="js/cut.js"></script>
+<!-- A · 美术/关卡 -->
+<script src="js/art/wumen.js"></script>
+<script src="js/art/halls.js"></script>
+<script src="js/art/portraits.js"></script>
+<script src="data/maps/wumen.js"></script>
+<script src="data/maps/taihe.js"></script>
+<script src="data/maps/qianqing.js"></script>
+<script src="data/maps/repair_bench.js"></script>
+<script src="data/maps/creator.js"></script>
+<script src="data/maps/shenwumen.js"></script>
+<!-- C · 玩法/交互/过场 -->
+<script src="js/mods/journal.js"></script>
+<script src="js/mods/wumen-registration.js"></script>
+<script src="js/mods/taihe-keep.js"></script>
+<script src="js/mods/taihe-labels.js"></script>
+<script src="js/mods/taihe-layers.js"></script>
+<script src="js/mods/qianqing-loadtest.js"></script>
+<script src="js/mods/bench-evidence.js"></script>
+<script src="js/mods/repair-relic.js"></script>
+<script src="js/mods/creator-review.js"></script>
+<script src="js/mods/shenwumen-verify.js"></script>
+<script src="js/mods/shenwumen-back.js"></script>
+<script src="data/cuts/opening.js"></script>
+<script src="data/cuts/wumen-intro.js"></script>
+<script src="data/cuts/ending.js"></script>
+<!-- 标题页入口：把「进入万象灵境」按钮接到 G.mod.go('wumen') -->
+<script src="js/mods/title-stage.js"></script>
+<!-- 启动：必须排在所有模块脚本之后 -->
+<script src="js/boot.js"></script>
+</body>
+</html>

@@ -70,7 +70,7 @@
       const sub = el('p', 'cut-sub', card);
 
       const hint = el('div', 'cut-hint', root);
-      hint.textContent = '空格 / 点击 继续';
+      hint.textContent = this._hintText();
 
       document.body.appendChild(root);
 
@@ -97,11 +97,13 @@
     async _run(id, spec, cb) {
       if (this.active) { if (cb) cb(); return; }
       this.active = true;
+      this._id = id;
       this._skipMode = 0;
       const ui = this._mount();
       G.overlayDepth = (G.overlayDepth || 0) + 1;
       ui.root.classList.remove('hidden');
       ui.root.setAttribute('aria-hidden', 'false');
+      if (ui.hint) ui.hint.textContent = this._hintText();
       this._bind();
       try {
         this._reset(ui);
@@ -109,6 +111,7 @@
         const steps = spec.steps || [];
         for (let i = 0; i < steps.length; i++) {
           if (this._skipMode >= 2) break;
+          this._it = steps[i];
           await this._step(steps[i], ui);
           if (this._skipMode === 1) this._skipMode = 0;
         }
@@ -266,6 +269,34 @@
           return;
         }
 
+        /* 黑屏倒计时。
+           · 用途一：正式开场动画还没接进来时，用它占位（黑屏 + 3…2…1）
+           · 用途二：正式动画接进来后，它仍然是一个可跳过的等待段
+           按空格 / 点击 → _wait 立刻返回 → 这一步结束；
+           单步过场（只有一段倒计时）就当场收场，直接进游戏。
+           s.ms 总时长 · s.from 起始数字（默认按秒）· s.subKey 副标题 */
+        case 'countdown': {
+          const total = Math.max(1, ms || 3000);
+          const from = Math.max(1, s.from || Math.ceil(total / 1000));
+          ui.card.className = 'cut-card cut-count';
+          ui.card.classList.remove('hidden');
+          ui.who.textContent = '';
+          ui.who.classList.add('hidden');
+          ui.sub.textContent = this._text(s, 'sub');
+          ui.sub.classList.toggle('hidden', !ui.sub.textContent);
+          const t0 = Date.now();
+          const paint = () => {
+            const left = Math.max(0, total - (Date.now() - t0));
+            ui.text.textContent = String(Math.min(from, Math.max(1, Math.ceil(left / 1000))));
+          };
+          ui.text.textContent = String(from);
+          const iv = setInterval(paint, 90);
+          await this._wait(total);
+          clearInterval(iv);
+          ui.card.classList.add('hidden');
+          return;
+        }
+
         default:
           console.warn('[cut] 未知步骤 ' + s.t);
           return;
@@ -307,6 +338,16 @@
       return raw || '';
     },
 
+    /* 跳过提示：文案放 data/script.json 的 ui.cut.skipHint，
+       这里只留一个兜底（文案表没加载时也别让提示空着）。 */
+    _hintText() {
+      if (G.str && G.str.has && G.str.has('ui.cut.skipHint')) {
+        const v = G.str.get('ui.cut.skipHint');
+        if (v && v.indexOf('⟪') !== 0) return v;
+      }
+      return '空格 / 点击 跳过';
+    },
+
     _wait(ms) {
       const self = this;
       return new Promise((resolve) => {
@@ -326,7 +367,15 @@
     /* ---------- 跳过 ---------- */
     skip() {
       const now = Date.now();
-      this._skipMode = (now - this._lastSkip < 700) ? 2 : 1;
+      /* 开场（opening）现在只是占位：黑屏倒计时。这种"进游戏前的过场"
+         按一下就该整段结束 —— 玩家（和演示的人）按一次没反应会以为卡住了。
+         剧情过场（wumen.intro / ending）仍用原来那套：按一次跳这一步，
+         700ms 内连按两次跳整段，避免误触跳掉剧情。 */
+      if (this._id === 'opening' || (this._it && this._it.t === 'countdown')) {
+        this._skipMode = 2;
+      } else {
+        this._skipMode = (now - this._lastSkip < 700) ? 2 : 1;
+      }
       this._lastSkip = now;
       if (this._resolve) this._resolve();
     },
@@ -362,7 +411,9 @@
 
     /* 便利方法：这段过场看过没有 */
     seen(id) {
-      return !!(G.save && G.save.isDone && G.save.isDone('cut.' + id));
+      /* 注意：G.save 没有 isDone()，只有 flag()；这里以前写成 isDone，
+         导致 seen() 永远 false —— 开场每次刷新都重播一遍。 */
+      return !!(G.save && G.save.flag && G.save.flag('cut.' + id));
     }
   };
 

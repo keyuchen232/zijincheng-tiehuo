@@ -124,21 +124,27 @@
 <div id="title" class="screen">
   <div class="title-grain"></div>
   <div class="title-inner">
-    <div class="title-eyebrow"><span></span>北京 · 中轴线 · 一条像素旅行<span></span></div>
-    <h1 class="title-logo"><span class="t-main">紫禁城</span><span class="t-dot">·</span><span class="t-fire">铁火</span></h1>
-    <p class="title-sub">穿过红墙金瓦，去看一场打铁花。</p>
+    <!-- 标题页文案：静态兜底与 data/script.json 的 ui.title 一致，
+         启动后由 js/mods/title-stage.js 再从文案表同步一次（改字只改 json）。 -->
+    <div class="title-eyebrow"><span></span><em id="title-eyebrow">文化试验场 · 故宫 × 雅典卫城</em><span></span></div>
+    <h1 class="title-logo"><span class="t-main" id="title-main">万象</span><span class="t-fire" id="title-fire">灵境</span></h1>
+    <p class="title-sub" id="title-sub">两套建筑语言，在同一张沙盘上互相校准。</p>
     <div class="title-actions">
-      <button id="btn-start" class="btn btn-primary"><span>开始旅程</span><small>NEW JOURNEY</small></button>
+      <button id="btn-stage" class="btn btn-primary"><span>进入万象灵境</span><small>WANXIANG · 六关</small></button>
+      <button id="btn-legacy" class="btn btn-ghost" aria-expanded="false" aria-controls="legacy-actions"><span>旧线</span><small>LEGACY</small></button>
+    </div>
+    <div class="title-legacy hidden" id="legacy-actions">
+      <button id="btn-start" class="btn"><span>打铁花线</span><small>FORBIDDEN CITY</small></button>
       <button id="btn-continue" class="btn"><span>继续旅程</span><small>CONTINUE</small></button>
-      <button id="btn-fusion" class="btn btn-nexus"><span>万象灵境</span><small>NEXUS ATLAS</small></button>
+      <button id="btn-fusion" class="btn btn-nexus"><span>旧版沙盘</span><small>NEXUS ATLAS</small></button>
       <button id="btn-athens" class="btn btn-nexus"><span>雅典 · 卫城</span><small>ATHENS · ACROPOLIS</small></button>
     </div>
     <div class="title-foot">
-      <span>明制衣冠 · 中轴线 · 非遗打铁花</span>
+      <span id="title-foot">故宫 · 卫城 · 每一条比较都写明出处</span>
       <span class="title-keys">WASD / 方向键移动 &nbsp;·&nbsp; E 互动 &nbsp;·&nbsp; H 回家 &nbsp;·&nbsp; M 地图</span>
     </div>
   </div>
-  <div class="title-seal" aria-hidden="true"><b>宫</b><i>紫禁城</i></div>
+  <div class="title-seal" aria-hidden="true"><b>境</b><i id="title-seal-name">万象灵境</i></div>
   <div class="title-corner tl"></div><div class="title-corner tr"></div>
   <div class="title-corner bl"></div><div class="title-corner br"></div>
 </div>
@@ -322,19 +328,43 @@
      契约见 docs/模块接口.md
      ══════════════════════════════════════════════════════════ -->
 <link rel="stylesheet" href="css/cut.css">
+<link rel="stylesheet" href="css/title.css">
+<link rel="stylesheet" href="css/cut-skip.css">
+<!-- 文案包：data/script.js 由 tools/build-data.mjs 从 data/script.json 生成，
+     必须在 js/str.js 之前加载 —— 这样 file:// 双击打开也能读到文案
+     （file:// 下 fetch 不到 json，str.js 会退回读 window.WXL_SCRIPT） -->
+<script src="data/script.js"></script>
 <script src="js/str.js"></script>
 <script src="js/mod.js"></script>
 <script src="js/stage.js"></script>
 <script src="js/cut.js"></script>
 <!-- A · 美术/关卡 -->
 <script src="js/art/wumen.js"></script>
+<script src="js/art/halls.js"></script>
+<script src="js/art/portraits.js"></script>
 <script src="data/maps/wumen.js"></script>
+<script src="data/maps/taihe.js"></script>
+<script src="data/maps/qianqing.js"></script>
+<script src="data/maps/repair_bench.js"></script>
+<script src="data/maps/creator.js"></script>
+<script src="data/maps/shenwumen.js"></script>
 <!-- C · 玩法/交互/过场 -->
+<script src="js/mods/journal.js"></script>
 <script src="js/mods/wumen-registration.js"></script>
 <script src="js/mods/taihe-keep.js"></script>
+<script src="js/mods/taihe-labels.js"></script>
+<script src="js/mods/taihe-layers.js"></script>
+<script src="js/mods/qianqing-loadtest.js"></script>
+<script src="js/mods/bench-evidence.js"></script>
 <script src="js/mods/repair-relic.js"></script>
+<script src="js/mods/creator-review.js"></script>
+<script src="js/mods/shenwumen-verify.js"></script>
+<script src="js/mods/shenwumen-back.js"></script>
 <script src="data/cuts/opening.js"></script>
 <script src="data/cuts/wumen-intro.js"></script>
+<script src="data/cuts/ending.js"></script>
+<!-- 标题页入口：把「进入万象灵境」按钮接到 G.mod.go('wumen') -->
+<script src="js/mods/title-stage.js"></script>
 <!-- 启动：必须排在所有模块脚本之后 -->
 <script src="js/boot.js"></script>
 </body>
