@@ -394,13 +394,35 @@
     }, 430);
   };
 
+  G.enterAthens = function (spawn) {
+    G.titleActive = false;
+    G.hide($('#title'));
+    const hud = $('#hud');
+    if (hud) hud.classList.remove('map-open');
+    G.ui.showHud(true);
+    G.ui.setHomeButton(false);
+    if (!G.athensScene) G.athensScene = new G.AthensScene();
+    G.setScene(G.athensScene, { spawn: spawn || { x: 1100, y: 1240 } });
+  };
+
+  G.enterAcropolis = function (spawn) {
+    G.titleActive = false;
+    G.hide($('#title'));
+    const hud = $('#hud');
+    if (hud) hud.classList.remove('map-open');
+    G.ui.showHud(true);
+    G.ui.setHomeButton(false);
+    if (!G.acropolisScene) G.acropolisScene = new G.AcropolisScene();
+    G.setScene(G.acropolisScene, { spawn: spawn || { x: 750, y: 1300 } });
+  };
+
   /* ============================================================
      home hall
      ============================================================ */
   G.homeReturn = null;
   G.goHome = function () {
     if (!G.scene || G.scene.id === 'home' || G.fade.busy) return;
-    if (G.dialog.active || G.security.active || G.cinema.active || (G.minigame && G.minigame.active) || G.scene.mapOpen) return;
+    if (G.dialog.active || G.security.active || G.cinema.active || (G.minigame && G.minigame.active) || (G.minigameGreek && G.minigameGreek.active) || G.scene.mapOpen) return;
     const sc = G.scene;
     G.homeReturn = { scene: sc, x: sc.player.x, y: sc.player.y, dir: sc.player.dir };
     G.fade.to(() => {
@@ -538,11 +560,26 @@
       if (code === 'Escape' || code === 'KeyJ') codex.close();
       return;
     }
+    if (G.choice && G.choice.active) {
+      if (code === 'Escape') { G.choice.close(); return; }
+      if (code === 'ArrowUp' || code === 'KeyW') { G.choice.move(-1); return; }
+      if (code === 'ArrowDown' || code === 'KeyS') { G.choice.move(1); return; }
+      if (code === 'KeyE' || code === 'Space' || code === 'Enter') { G.choice.pick(); return; }
+      return;
+    }
+    if (G.sundial && G.sundial.active) {
+      G.sundial.key(code);
+      return;
+    }
     if (G.dialog.active) {
       if (code === 'KeyE' || code === 'Space' || code === 'Enter') G.dialog.advance();
       return;
     }
     if (G.cinema.active) return;
+    if (G.minigameGreek && G.minigameGreek.active) {
+      G.minigameGreek.key(code);
+      return;
+    }
     if (G.minigame && G.minigame.active) {
       G.minigame.key(code);
       return;
@@ -576,6 +613,7 @@
     if (G.archiveGame) G.archiveGame.init();
     if (G.difficulty) G.difficulty.init();
     if (G.sourceQuiz) G.sourceQuiz.init();
+    if (G.choice) G.choice.init();
     G.fade.init();
     G.input.init();
     G.initTouch();
@@ -587,6 +625,7 @@
     $('#confirm').addEventListener('click', (e) => { if (e.target.id === 'confirm') G.closeConfirm(false); });
     $('#btn-home').addEventListener('click', () => G.toggleHome());
     $('#btn-fusion').addEventListener('click', () => G.enterFusion());
+    $('#btn-athens').addEventListener('click', () => G.enterAthens());
     // tapping / clicking the map canvas closes the map (touch-friendly)
     $('#game').addEventListener('pointerdown', () => {
       if (G.scene && G.scene.mapOpen) {
@@ -799,6 +838,9 @@
         titleT += dt;
         titleArt.t = titleT;
         titleArt.draw(ctx);
+      } else if (G.minigameGreek && G.minigameGreek.active) {
+        G.minigameGreek.update(dt);
+        G.minigameGreek.draw(ctx);
       } else if (G.minigame && G.minigame.active) {
         G.minigame.update(dt);
         G.minigame.draw(ctx);

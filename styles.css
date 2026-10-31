@@ -515,3 +515,38 @@ input,select{font:inherit}
 @media (orientation:portrait) and (max-width:600px){
   #rotate-hint{display:flex}
 }
+
+/* ================= 抉择 (choice) ================= */
+.choice-card{
+  width:min(460px,92vw);background:linear-gradient(180deg,#241b13,#140f0b);border:1px solid #7b603b;
+  box-shadow:0 30px 90px #000,inset 0 0 70px rgba(216,178,106,.04);padding:2em 1.8em 1.5em;text-align:center;position:relative;
+}
+.choice-kicker{font-family:var(--mono);font-size:.6em;letter-spacing:.3em;color:var(--teal)}
+.choice-card h2{font-family:var(--kai);font-size:1.65em;letter-spacing:.14em;color:#f2dfb8;margin:.4em 0 1em;line-height:1.5}
+.choice-body{display:flex;flex-direction:column;gap:.55em;text-align:left}
+.choice-opt{
+  display:flex;align-items:flex-start;gap:.7em;padding:.85em .9em;border:1px solid #3c3124;background:rgba(255,255,255,.02);
+  color:#d9c6a4;font-size:.82em;letter-spacing:.04em;line-height:1.6;cursor:pointer;transition:.15s;text-align:left;
+}
+.choice-opt span{flex:0 0 auto;width:.6em;height:.6em;border:1px solid #6b5434;margin-top:.34em;border-radius:0}
+.choice-opt.sel{background:rgba(216,178,106,.1);border-color:var(--gold);color:#ffe9c2}
+.choice-opt.sel span{background:var(--gold);box-shadow:0 0 10px rgba(216,178,106,.6)}
+.choice-opt.hover{transform:translateX(2px)}
+.choice-hint{margin-top:1.1em;font-size:.62em;color:#7e6f5b;letter-spacing:.12em}
+.choice-hint kbd{font-family:var(--mono);border:1px solid var(--gold);padding:.1em .45em;color:var(--gold-hi);background:#2b2016;margin:0 .15em}
+
+/* ================= 卫城日晷校日 (puzzle) ================= */
+#puzzle{background:rgba(7,6,5,.28);backdrop-filter:none;pointer-events:none}
+#puzzle>*{pointer-events:auto}
+.pd-kicker{position:absolute;top:1.4em;left:1.7em;font-family:var(--mono);font-size:.6em;letter-spacing:.3em;color:var(--teal);text-shadow:0 2px 6px #000}
+.pd-ask{position:absolute;top:1.1em;left:50%;transform:translateX(-50%);font-family:var(--kai);font-size:1.7em;letter-spacing:.3em;color:#f6dfb0;text-shadow:0 0 26px rgba(255,150,60,.25),0 3px 8px #000}
+.pd-hint{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);background:rgba(16,12,9,.9);border:1px solid #6b5434;padding:.6em 1.1em;font-size:.86em;letter-spacing:.1em;color:#e9d9bc;text-align:center;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+.pd-hint kbd{font-family:var(--mono);border:1px solid var(--gold);padding:.1em .45em;color:var(--gold-hi);margin:0 .2em;background:#2b2016}
+.pd-msg{position:absolute;left:50%;top:22%;transform:translate(-50%,-50%) scale(.85);font-family:var(--kai);font-size:2em;letter-spacing:.22em;color:#ffe3ad;opacity:0;text-shadow:0 0 20px rgba(255,140,50,.5),0 4px 0 #4b1d0b;transition:.16s;white-space:nowrap}
+.pd-msg.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.pd-score{position:absolute;top:1.4em;right:1.7em;text-align:right;background:rgba(16,12,9,.78);border:1px solid rgba(216,178,106,.5);padding:.4em .8em}
+.pd-score span{display:block;font-size:.6em;letter-spacing:.2em;color:#a99473}
+.pd-score b{font-family:var(--mono);font-size:1.4em;color:#ffe2a8}
+.pd-enter{position:absolute;left:50%;bottom:2.6%;transform:translateX(-50%);padding:.7em 1.6em;border:1px solid #6b5434;background:rgba(42,32,24,.9);color:#7f6e57;letter-spacing:.2em;font-size:.78em;cursor:pointer;pointer-events:auto}
+.pd-enter:not([disabled]){background:linear-gradient(180deg,#a9442f,#7c291c);border-color:#d8a25e;color:#fff0d2;box-shadow:0 3px 0 #3c100a}
+.pd-enter:hover{background:linear-gradient(180deg,#bf5138,#8d3021)}

@@ -63,7 +63,43 @@
     </div>
 
     <!-- ============ 过场字卡 ============ -->
-    <div id="cinema" class="hidden">
+      <div id="choice" class="screen overlay hidden" role="dialog" aria-modal="true">
+    <div class="choice-card">
+      <div class="choice-kicker">抉择</div>
+      <h2 id="choice-ask">你要怎么做？</h2>
+      <div class="choice-body" id="choice-body"></div>
+      <div class="choice-hint"><kbd>↑</kbd><kbd>↓</kbd> 选择 &nbsp;·&nbsp; <kbd>E</kbd> / <kbd>空格</kbd> 确定</div>
+    </div>
+  </div>
+  <div id="puzzle" class="screen overlay hidden">
+    <div class="pd-kicker">校 日 · 引 雷</div>
+    <h2 class="pd-ask" id="pd-ask">校日 · 卫城</h2>
+    <div class="pd-hint" id="pd-hint">左 / 右 转表针 · 空格 锁定</div>
+    <div class="pd-msg" id="pd-msg"></div>
+    <div class="pd-score"><span>得分</span><b id="pd-score">0</b></div>
+    <button class="pd-enter" id="pd-enter">等一下再锁定</button>
+  </div>
+
+  <div id="pd-result" class="screen overlay hidden">
+    <div class="result-card">
+      <div class="result-kicker">苏尼翁 · 海灯 / 卫城日晷</div>
+      <h2 id="pd-res-title">日影正中</h2>
+      <div class="result-stars" id="pd-res-stars">★★★</div>
+      <div class="result-score"><span>本场得分</span><b id="pd-res-score">0</b></div>
+      <div class="result-grid">
+        <div><span>完美</span><b id="pd-res-perfect">0</b></div>
+        <div><span>最高连击</span><b id="pd-res-combo">0</b></div>
+        <div><span>历史最佳</span><b id="pd-res-best">0</b></div>
+      </div>
+      <p class="result-line" id="pd-res-line">影子一站稳，整座石台都亮了起来。</p>
+      <div class="result-actions">
+        <button class="btn" id="pd-retry"><span>再校一轮</span></button>
+        <button class="btn btn-primary" id="pd-exit"><span>收好手账</span></button>
+      </div>
+    </div>
+  </div>
+
+<div id="cinema" class="hidden">
       <div class="cine-rule"></div>
       <div class="cine-line" id="cine-line"></div>
       <div class="cine-sub" id="cine-sub"></div>
@@ -95,6 +131,7 @@
       <button id="btn-start" class="btn btn-primary"><span>开始旅程</span><small>NEW JOURNEY</small></button>
       <button id="btn-continue" class="btn"><span>继续旅程</span><small>CONTINUE</small></button>
       <button id="btn-fusion" class="btn btn-nexus"><span>万象灵境</span><small>NEXUS ATLAS</small></button>
+      <button id="btn-athens" class="btn btn-nexus"><span>雅典 · 卫城</span><small>ATHENS · ACROPOLIS</small></button>
     </div>
     <div class="title-foot">
       <span>明制衣冠 · 中轴线 · 非遗打铁花</span>
@@ -251,6 +288,7 @@
 
 <script src="js/core.js"></script>
 <script src="js/art.js"></script>
+<script src="js/art-greek.js"></script>
 <script src="js/world.js"></script>
 <script src="js/beijing.js"></script>
 <script src="js/gugong.js"></script>
@@ -261,6 +299,10 @@
 <script src="js/difficulty.js"></script>
 <script src="js/source-quiz.js"></script>
 <script src="js/minigame.js"></script>
+<script src="js/minigame-greek.js"></script>
+<script src="js/athens.js"></script>
+<script src="js/acropolis.js"></script>
+<script src="js/puzzle.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

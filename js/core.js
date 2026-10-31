@@ -357,6 +357,80 @@
     },
   };
 
+  /* ---------------- dialogue choice ---------------- */
+  G.choice = {
+    active: false,
+    onPick: null,
+    choiceWaiting: false,
+    _hover: -1,
+    el: null,
+    optionEls: [],
+    init() {
+      this.el = G.$('#choice');
+      this.optionEls = G.$$('#choice .choice-opt');
+      this.optionEls.forEach((o) => {
+        o.addEventListener('mouseenter', () => {
+          o.classList.add('hover');
+          this.optionEls.forEach((x) => x.classList.remove('sel'));
+          o.classList.add('sel');
+        });
+        o.addEventListener('click', () => this.pick(parseInt(o.dataset.i, 10)));
+      });
+      G.$('#choice').addEventListener('click', (e) => { if (e.target.id === 'choice') G.audio.sfx('error'); });
+    },
+    show(lines, opts) {
+      lines = lines || [];
+      this.onPick = (opts && opts.onPick) || null;
+      const askEl = G.$('#choice-ask');
+      askEl.innerHTML = (opts && opts.title) || '你偏要向哪个方向走？';
+      G.$('#choice-body').innerHTML = '';
+      const body = G.$('#choice-body');
+      lines.forEach((l, i) => {
+        const el = document.createElement('button');
+        el.className = 'choice-opt' + (i === 0 ? ' sel' : '');
+        el.dataset.i = String(i);
+        el.innerHTML = '<span></span>' + l.text;
+        el.setAttribute('aria-label', l.text);
+        body.appendChild(el);
+      });
+      this.optionEls = G.$$('#choice .choice-opt');
+      this._hover = 0;
+      this.choiceWaiting = true;
+      this.active = true;
+      G.overlayDepth++;
+      G.show(this.el);
+      G.ui.prompt(null);
+      G.audio.sfx('page');
+    },
+    move(d) {
+      if (!this.active) return;
+      const n = this.optionEls.length;
+      if (!n) return;
+      this._hover = (this._hover + d + n) % n;
+      this.optionEls.forEach((o, i) => o.classList.toggle('sel', i === this._hover));
+      G.audio.sfx('blip');
+    },
+    pick(i) {
+      if (!this.active) return;
+      const n = this.optionEls.length;
+      const idx = i == null ? this._hover : i;
+      if (idx < 0 || idx >= n) return;
+      const cb = this.onPick;
+      G.audio.sfx('confirm');
+      this.close();
+      if (cb) setTimeout(() => cb(idx), 30);
+    },
+    close() {
+      if (!this.active) return;
+      this.active = false;
+      this.choiceWaiting = false;
+      this.onPick = null;
+      G.hide(this.el);
+      G.overlayDepth = Math.max(0, G.overlayDepth - 1);
+      G.input.clearPressed();
+    },
+  };
+
   /* ---------------- cinema titles ---------------- */
   G.cinema = {
     active: false,
