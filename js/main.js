@@ -796,11 +796,13 @@
           fetch('/api/status', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s2) {
             const ai = $('#creation-ai');
             if (!ai) return;
-            ai.textContent = (s2 && s2.available) ? 'AI 已连接' : 'AI 未连接 · 本地生成';
-            ai.classList.toggle('on', !!(s2 && s2.available));
+            /* 创造模式页自带浏览器直连 AI：没有本机服务时文字生成依然可用 */
+            const live = !!(s2 && s2.available);
+            ai.textContent = live ? 'AI 已连接（本机服务）' : 'AI 就绪 · 浏览器直连';
+            ai.classList.add('on');
           }).catch(function () {
             const ai = $('#creation-ai');
-            if (ai) ai.textContent = 'AI 未连接 · 本地生成';
+            if (ai) { ai.textContent = 'AI 就绪 · 浏览器直连'; ai.classList.add('on'); }
           });
         } catch (e) { /* 跨域时静默：仍是独立页面 */ }
       };
