@@ -33,9 +33,12 @@
 
       api.dialog('puzzles.' + KEY + '.body', function () {
         api.ask(KEY, function (choice) {
+          api.setVar('keepSteps', choice);
+          repaint();
           api.dialog('puzzles.' + KEY + '.outcome.' + choice, function () {
-            api.setVar('keepSteps', choice);
-            G.save.flag('keep.steps', choice);
+            G.save.flag('keep.steps', choice === 'keep');
+            G.save.flag('keep.steps.note', choice === 'note');
+            G.save.flag('keep.steps.drop', choice === 'drop');
             G.save.persist();
             repaint();
             if (choice === 'keep') api.toast(G.str.get('ui.toast.kept'), 'ok');

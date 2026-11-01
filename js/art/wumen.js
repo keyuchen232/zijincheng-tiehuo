@@ -30,17 +30,18 @@
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = color.indexOf('124,146,158') >= 0 ? 1 : 3;
+    ctx.setLineDash([]);
     ctx.beginPath();
-    for (let x = x0 % cell; x <= w; x += cell) {
-      ctx.moveTo(Math.round(x) + 0.5, y0);
-      ctx.lineTo(Math.round(x) + 0.5, h);
+    /* Three rails and two crossbars: compact registration guides on the court. */
+    for (const offset of [-cell * 2, 0, cell * 2]) {
+      const x = Math.round(x0 + offset) + 0.5;
+      ctx.moveTo(x, 430);ctx.lineTo(x, Math.min(h, 598));
     }
-    /* 横线从 y0 % cell 起：这样必有一条横线过原点 y0，跟竖线过 x0 对称。
-       以前写成 y0 + (y0 % cell)，偏移算了两遍，网格原点与十字对不上。 */
-    for (let y = y0 % cell; y <= h; y += cell) {
-      ctx.moveTo(0, Math.round(y) + 0.5);
-      ctx.lineTo(w, Math.round(y) + 0.5);
+    for (const offset of [0, cell * 2]) {
+      const y = Math.round(y0 + offset) + 0.5;
+      ctx.moveTo(Math.max(0, x0 - cell * 2), y);
+      ctx.lineTo(Math.min(w, x0 + cell * 2), y);
     }
     ctx.stroke();
     ctx.restore();
@@ -116,17 +117,18 @@
   /* 两套坐标系：金色=故宫（不动），青灰=卫城投影（会漂） */
   G.mod.painter('wumen.grid', function (ctx, prop, scene) {
     const v = (scene && scene.vars) || {};
-    const dx = (v.gridDx || 0) + (v.gridBoth || 0);
+    const both = v.gridBoth || 0;
+    const dx = (v.gridDx || 0) + both;
     const cell = 40;
 
     /* 故宫网格：原点固定在午门门洞中心 (320, 470) */
-    gridLines(ctx, 320, 470, prop.w, prop.h, cell, GOLD + '1)', 0.16);
+    gridLines(ctx, 320 + both, 470, prop.w, prop.h, cell, GOLD + '1)', 0.52);
 
     /* 卫城投影网格：整体偏移 dx。对齐后仍在，只是叠住了 */
-    gridLines(ctx, 320 + dx, 470, prop.w, prop.h, cell, CYAN + '1)', 0.20);
+    gridLines(ctx, 320 + dx, 470, prop.w, prop.h, cell, CYAN + '1)', 0.90);
 
     /* 原点标记：一个小小的十字，对齐后变成一个小金点 */
-    const ox = 320, oy = 470;
+    const ox = 320 + both, oy = 470;
     ctx.save();
     ctx.globalAlpha = v.gridDx === 0 ? 0.9 : 0.5;
     ctx.fillStyle = v.gridDx === 0 ? '#ffd479' : '#9fb3bd';
@@ -153,21 +155,20 @@
       ctx.restore();
     }
 
-    /* 门钉：选 C 之后间距被拉开（34 → 40），同一行还错开半颗 ——
-       这是选单里没有说、但画面上看得见的那件事。 */
-    const pitch = v.nailShift ? 40 : 34;
-    const rows = 5, cols = 9;
+    /* Door hardware stays above the threshold, never in the walking court.
+       Wrong origin C still pulls the three engraved bands out of register. */
     ctx.save();
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const px = prop.x - ((cols - 1) / 2) * pitch + c * pitch;
-        const py = prop.baseY - 34 + r * 13 + (v.nailShift && r % 2 ? 3 : 0);
-        ctx.globalAlpha = 0.75;
-        ctx.fillStyle = '#d8b26a';
-        ctx.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 3);
+    ctx.strokeStyle = '#d8b26a';ctx.globalAlpha = 0.75;ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (const side of [-1, 1]) {
+      const cx = prop.x + side * 132;
+      for (let row = 0; row < 3; row++) {
+        const shift = v.nailShift && row % 2 ? 5 : 0;
+        const y = prop.baseY - 34 + row * 8;
+        ctx.moveTo(cx - 7 + shift, y);ctx.lineTo(cx + 7 + shift, y);
       }
     }
-    ctx.restore();
+    ctx.stroke();ctx.restore();
 
     /* 卫城投影：把帕特农山墙的轮廓用青灰描一遍，叠在城门上方。
        这是"投影叠印"，不是替换 —— 城门本身一格没动。 */

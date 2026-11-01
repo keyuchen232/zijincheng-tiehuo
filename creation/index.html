@@ -5077,6 +5077,7 @@ window.WanxiangDistribution=document.documentElement.outerHTML;
   function send(detail){
     var d = detail || {};
     var rec = { worldId: String(d.worldId||''), independent: d.independent===true, at: Date.now() };
+    try { rec.artifact = window.FusionExplore.artifact(); } catch(e){}
     try { localStorage.setItem('wxl.creation.done', JSON.stringify(rec)); } catch(e){}
     try { if (window.opener && !window.opener.closed) window.opener.postMessage({ type:'wanxiang:creation-completed', detail: rec }, '*'); } catch(e){}
   }

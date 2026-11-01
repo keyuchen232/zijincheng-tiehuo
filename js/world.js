@@ -213,6 +213,11 @@
 
     tryMove(nx, ny) {
       const p = this.player;
+      const b = this.bounds;
+      if (b) {
+        nx = G.clamp(nx, b.x + 4, b.x + b.w - 4);
+        ny = G.clamp(ny, b.y + 3, b.y + b.h - 2);
+      }
       if (!this.collides(nx, p.y)) p.x = G.clamp(nx, 6, this.w - 6);
       if (!this.collides(p.x, ny)) p.y = G.clamp(ny, 10, this.h - 4);
       p.x = G.clamp(p.x, 6, this.w - 6);
@@ -266,7 +271,7 @@
       }
       this._nearest = best;
       const text = best ? best.label : '';
-      if (text !== this._promptText) {
+      if (text !== this._promptText || (text && G.ui.promptEl.classList.contains('hidden'))) {
         this._promptText = text;
         G.ui.prompt(text);
       }

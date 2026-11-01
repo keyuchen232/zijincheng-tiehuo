@@ -667,8 +667,7 @@
     if (box) box.addEventListener('click', function (e) { if (e.target.id === 'levels') G.closeLevels(); });
     const menuLevels = $('#menu-levels');
     if (menuLevels) menuLevels.addEventListener('click', function () {
-      const menuEl = $('#menu');
-      if (menuEl) G.hide(menuEl);
+      menu.close();
       G.levelsOpen = true;
       G.renderLevels();
       G.show($('#levels'));
@@ -719,12 +718,16 @@
     d = d || {};
     if (typeof d.worldId !== 'string' || d.independent !== true) return;
     const list = G.creationCreations();
-    if (list.some(function (c) { return c.worldId === d.worldId; })) return;
-    let artifact = null;
+    const existing = list.find(function (c) { return c.worldId === d.worldId; });
+    let artifact = d.artifact || null;
     try {
-      const api = (w || G.creationWindow || {});
-      if (api.FusionExplore && typeof api.FusionExplore.artifact === 'function') artifact = api.FusionExplore.artifact();
+      if (!artifact && w && w.FusionExplore && typeof w.FusionExplore.artifact === 'function') artifact = w.FusionExplore.artifact();
     } catch (e) { /* 拿不到就只存 worldId */ }
+    if (artifact && (!artifact.world || artifact.world.seed !== d.worldId)) artifact = null;
+    if (existing) {
+      if (!existing.artifact && artifact) { existing.artifact = artifact; G.save.persist(); }
+      return;
+    }
     list.push({ worldId: d.worldId, at: Date.now(), artifact: artifact });
     while (list.length > 3) list.shift();
     G.save.persist();
@@ -742,7 +745,7 @@
     window.addEventListener('message', function (ev) {
       if (ev.origin !== location.origin) return;
       const m = ev.data || {};
-      if (m.type === 'wanxiang:creation-completed') G.creationHandleDone(m.detail, null);
+      if (m.type === 'wanxiang:creation-completed') G.creationHandleDone(m.detail, ev.source);
     });
     window.addEventListener('storage', function (ev) {
       if (ev.key !== 'wxl.creation.done' || !ev.newValue) return;
@@ -763,19 +766,7 @@
       G.ui.toast('创造模式已在新标签页打开', 'good', 2200);
       return;
     }
-    /* 回退 1：用 <a target=_blank> 再试一次整窗（通常不会被拦） */
-    try {
-      const a = document.createElement('a');
-      a.href = 'creation/index.html';
-      a.target = '_blank';
-      a.rel = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      G.ui.toast('创造模式已在新标签打开', 'good', 2200);
-      return;
-    } catch (e) { /* ignore */ }
-    /* 回退 2：内嵌 iframe */
+    /* 窗口被拦截时直接使用可确认打开的内嵌层。 */
     G.openCreationInline();
   };
   G.openCreationInline = function () {
@@ -867,12 +858,8 @@
     const f = G.save.data.flags;
     G.fade.to(() => {
       const pos = G.save.data.pos;
-      if (pos && pos.scene === 'create' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'create')) {
-        G.mod.go('create', { spawn: { x: pos.x, y: pos.y } });
-        G.ui.showHud(true);
-      }
-      else if (pos && pos.scene === 'wumen' && G.mod && G.mod.go && G.mod.has && G.mod.has('map', 'wumen')) {
-        G.mod.go('wumen', { spawn: { x: pos.x, y: pos.y } });
+      if (pos && G.mod && G.mod.go && G.mod.has && G.mod.has('map', pos.scene)) {
+        G.mod.go(pos.scene, { spawn: { x: pos.x, y: pos.y } });
         G.ui.showHud(true);
       }
       else if (pos && pos.scene === 'fusion' && G.enterFusion) { G.enterFusion({ skipIntro: true, spawn: { x: pos.x, y: pos.y } }); }
@@ -1080,11 +1067,10 @@
       if (code === 'Escape') G.closeArtDemo();
       return;
     }
-    // title
+    if (G.levelsOpen) return;
+    // Title keyboard uses the same six-level selector as the main button.
     if (G.titleActive) {
-      if (code === 'Enter' || code === 'Space') {
-        if (G.save.exists()) continueGame(); else startNewGame();
-      }
+      if (code === 'Enter' || code === 'Space') G.openLevels();
       return;
     }
     // modal layers
@@ -1141,6 +1127,7 @@
       G.minigame.key(code);
       return;
     }
+    if (code === 'KeyM' && G.scene && G.mod && G.mod.has('map', G.scene.id)) { G.openLevels(); return; }
     if (code === 'KeyH') { G.toggleHome(); return; }
     if (code === 'Escape') { menu.show(); return; }
     if (code === 'KeyJ') { codex.show(); return; }
@@ -1422,7 +1409,7 @@
       if (G.titleActive) {
         titleT += dt;
         titleArt.t = titleT;
-        if (titleBgCtx) titleArt.draw(titleBgCtx);
+        if (titleBgCtx && !document.querySelector('.title-poster-image')?.naturalWidth) titleArt.draw(titleBgCtx);
       } else if (G.minigameGreek && G.minigameGreek.active) {
         G.minigameGreek.update(dt);
         G.minigameGreek.draw(ctx);

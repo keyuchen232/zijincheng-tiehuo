@@ -43,17 +43,24 @@
       const mets = pz.methods || [];
       let i = 0;
       let told = false;
+      let sagRun = 0;
+      function stopSag() { sagRun += 1; api.setVar('sag', 0); api.setVar('dust', 0); }
 
       /* 塌陷：四档下沉 + 起土，1.8 秒后复位，裂纹留在柱身上 */
       function sag(material) {
+        stopSag();
+        const run = sagRun;
         api.setVar('sagSide', material);
+        api.setVar(material === 'wood' ? 'crackWood' : 'crackStone', 1);
         [0.25, 0.5, 0.75, 1].forEach(function (v, k) {
           setTimeout(function () {
+            if (run !== sagRun) return;
             api.setVar('sag', v);
             api.setVar('dust', 1);
           }, k * 150);
         });
         setTimeout(function () {
+          if (run !== sagRun) return;
           api.setVar('sag', 0);
           api.setVar('dust', 0);
           api.setVar('crack', 1);
@@ -89,10 +96,12 @@
           const oc = ((pz.outcome || {})[m.id] || {})[v];
           if (!oc) { round(); return; }
 
+          stopSag();
           api.setVar('sagSide', '');
+          if (!oc.ok) sag(m.id);
+          else api.setVar(m.id === 'wood' ? 'woodMethod' : 'stoneMethod', v);
           G.dialog.show(toLines(oc.lines), function () {
             if (!oc.ok) {
-              sag(m.id);
               api.toast(G.str.get(seg('hint')), 'warn');
               round();                       /* 塌了再来，不 pass */
               return;

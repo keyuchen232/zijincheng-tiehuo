@@ -17,9 +17,15 @@ const TYPES = {
 };
 
 function proxyApi(req, res) {
+  const origin = req.headers.origin;
+  if (origin && origin !== 'http://' + req.headers.host) {
+    res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ error: 'forbidden origin' }));
+    return;
+  }
   const opts = {
     host: '127.0.0.1', port: 8326, path: req.url, method: req.method,
-    headers: Object.assign({}, req.headers, { host: '127.0.0.1:8326' }),
+    headers: Object.assign({}, req.headers, { host: '127.0.0.1:8326', ...(origin ? { origin: 'http://127.0.0.1:8326' } : {}) }),
   };
   const up = http.request(opts, (ur) => {
     res.writeHead(ur.statusCode || 502, ur.headers);

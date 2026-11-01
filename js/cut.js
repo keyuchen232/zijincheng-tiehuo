@@ -185,7 +185,8 @@
           ui.card.className = 'cut-card' + (big ? ' cut-big' : '');
           ui.card.classList.remove('hidden');
           if (s.who) {
-            ui.who.textContent = G.str && G.str.who ? G.str.who(s.who) : s.who;
+            const speaker = G.str && G.str.who ? G.str.who(s.who) : null;
+            ui.who.textContent = speaker && typeof speaker.name === 'string' ? speaker.name : String(s.who);
             const c = (G.str && G.str.raw && G.str.raw().characters) || {};
             const meta = c[s.who];
             ui.who.style.color = (meta && meta.color) || '#cbb283';

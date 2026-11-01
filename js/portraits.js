@@ -1,6 +1,6 @@
 /* ============================================================
    万象灵境 — character portraits (review build)
-   主角「小砚」与导师「见微」的半身立绘 / 标题页小人，全部程序化像素绘制。
+   主角「小砚」与导师「狄奥提玛」的半身立绘 / 标题页小人，全部程序化像素绘制。
    本文件供审核：先不替换游戏内走动小人。
    ============================================================ */
 (function () {
@@ -28,10 +28,10 @@
   };
   const MENTOR = {
     key: 'mentor',
-    name: '见微',
-    en: 'THE MENTOR',
-    role: '导师 · 万象灵境的数据考据员',
-    note: '栗棕色卷发扎成侧马尾，蓝丝带；细金框眼镜、藏青西装外套，胸前别一枚金色的「境」字徽章。',
+    name: '狄奥提玛',
+    en: 'DIOTIMA · ATHENS',
+    role: '导师 · 现代雅典女性博士生导师',
+    note: '成熟的雅典女性学者，栗棕齐肩发间有银丝，细框眼镜；深色西装、浅色衬衫、长裤与平底鞋，手持研究夹。',
     skin: '#f6cfa9', skinHi: '#ffe4c6', skinShade: '#dca87f', skinDeep: '#bd8560',
     hair: '#6f4a34', hairHi: '#9c6d4c', hairDeep: '#4a2f22',
     coat: '#26365c', coatShade: '#1a2742', coatHi: '#3a5282',
@@ -270,217 +270,92 @@
   }
 
   /* ============================================================
-     导师 · 见微 — 半身立绘  (160 × 200 virtual grid)
+     导师 · 狄奥提玛 — 半身立绘  (160 × 200 virtual grid)
      ============================================================ */
   function drawMentor(c, t) {
     const s = MENTOR;
-
-    /* ---- back hair (curly mass) ---- */
-    E(c, 80, 62, 43, 48, s.hairDeep);
-    // side curls
-    const backCurls = [
-      [40, 74, 12], [38, 88, 10], [44, 100, 9], [50, 108, 8],
-      [120, 74, 12], [122, 88, 10], [116, 100, 9], [110, 108, 8],
-      [56, 26, 12], [80, 20, 15], [104, 26, 12],
-      [44, 58, 10], [40, 96, 10], [118, 58, 10], [122, 92, 10],
-      [40, 80, 10], [120, 80, 10], [46, 30, 10], [112, 30, 10],
-    ];
-    for (const [x, y, r] of backCurls) E(c, x, y, r, r, s.hairDeep);
-
-    /* ---- neck ---- */
-    R(c, 70, 98, 20, 22, s.skinShade);
-    R(c, 72, 98, 16, 18, s.skin);
-    R(c, 72, 108, 16, 5, s.skinShade);
-
-    /* ---- face ---- */
-    E(c, 80, 70, 30, 35, s.skin);
-    E(c, 80, 101, 20, 3, s.skinShade, 99, 102);
-    E(c, 80, 92, 25, 10, s.skinHi, 60, 72);
-    R(c, 54, 58, 5, 18, s.skinShade);
-    R(c, 102, 58, 5, 18, s.skinShade);
-    // ears + pearl earrings
-    E(c, 49, 78, 5, 7, s.skin);
-    E(c, 111, 78, 5, 7, s.skin);
-    R(c, 47, 76, 3, 5, s.skinShade);
-    R(c, 110, 76, 3, 5, s.skinShade);
-    R(c, 46, 84, 4, 4, s.goldHi);
-    R(c, 110, 84, 4, 4, s.goldHi);
-
-    /* ---- eyes ---- */
-    E(c, 65, 77, 9, 10, '#fdf7ef');
-    E(c, 95, 77, 9, 10, '#fdf7ef');
-    E(c, 65, 78, 8, 9, s.eye);
-    E(c, 95, 78, 8, 9, s.eye);
-    E(c, 65, 80, 6, 7, s.iris);
-    E(c, 95, 80, 6, 7, s.iris);
-    E(c, 65, 81, 3, 5, s.hairDeep);
-    E(c, 95, 81, 3, 5, s.hairDeep);
-    R(c, 60, 72, 4, 4, '#ffffff');
-    R(c, 90, 72, 4, 4, '#ffffff');
-    R(c, 68, 85, 2, 2, '#e8c49e');
-    R(c, 98, 85, 2, 2, '#e8c49e');
-    Ehalf(c, 65, 72, 10, 8, s.hair, 'top');
-    Ehalf(c, 95, 72, 10, 8, s.hair, 'top');
-    // lashes at the outer corners
-    R(c, 53, 70, 4, 3, s.hair);
-    R(c, 83, 70, 4, 3, s.hair);
-
-    /* ---- brows ---- */
-    R(c, 55, 61, 17, 2, s.hairDeep);
-    R(c, 88, 61, 17, 2, s.hairDeep);
-
-    /* ---- glasses ---- */
-    c.save();
-    const lens = [[52, 69], [82, 69]];
-    for (const [lx, ly] of lens) {
-      R(c, lx + 2, ly, 20, 1, s.frame);
-      R(c, lx + 2, ly + 16, 20, 1, s.frame);
-      R(c, lx, ly + 2, 1, 13, s.frame);
-      R(c, lx + 23, ly + 2, 1, 13, s.frame);
-      R(c, lx + 1, ly + 1, 1, 1, s.frame);
-      R(c, lx + 22, ly + 1, 1, 1, s.frame);
-      R(c, lx + 1, ly + 15, 1, 1, s.frame);
-      R(c, lx + 22, ly + 15, 1, 1, s.frame);
-      c.globalAlpha = 0.5;
-      R(c, lx + 3, ly, 11, 1, '#d8b26a');
-      c.globalAlpha = 1;
+    // Same integer rectangles / scanline ellipses as drawHero.
+    E(c, 80, 62, 32, 43, s.hairDeep);
+    R(c, 48, 58, 14, 51, s.hairDeep);
+    R(c, 98, 58, 14, 51, s.hairDeep);
+    R(c, 51, 69, 6, 36, s.hair);
+    R(c, 104, 66, 5, 39, s.hair);
+    R(c, 72, 94, 16, 23, s.skinShade);
+    R(c, 75, 96, 10, 15, s.skin);
+    E(c, 80, 68, 25, 33, s.skin);
+    E(c, 55, 72, 3, 6, s.skinShade);
+    E(c, 105, 72, 3, 6, s.skinShade);
+    R(c, 58, 62, 3, 17, s.skinShade);
+    R(c, 99, 62, 3, 17, s.skinShade);
+    Ehalf(c, 80, 51, 33, 31, s.hair, 'top');
+    R(c, 49, 43, 9, 19, s.hair);
+    R(c, 55, 39, 17, 12, s.hair);
+    R(c, 67, 35, 14, 10, s.hair);
+    R(c, 81, 36, 13, 9, s.hair);
+    R(c, 93, 42, 10, 12, s.hair);
+    R(c, 102, 49, 9, 18, s.hair);
+    R(c, 57, 32, 13, 3, s.hairHi);
+    R(c, 91, 35, 9, 3, s.hairHi);
+    // Silver at both temples follows a visibly stepped pixel contour.
+    R(c, 58, 39, 2, 10, '#b9b1a8');
+    R(c, 55, 49, 2, 17, '#b9b1a8');
+    R(c, 100, 42, 2, 10, '#b9b1a8');
+    R(c, 104, 52, 2, 19, '#b9b1a8');
+    R(c, 62, 59, 14, 2, s.hairDeep);
+    R(c, 85, 59, 14, 2, s.hairDeep);
+    E(c, 69, 70, 6, 3, s.shirt);
+    E(c, 91, 70, 6, 3, s.shirt);
+    R(c, 68, 68, 3, 4, s.eye);
+    R(c, 90, 68, 3, 4, s.eye);
+    // Frames are four one-pixel bars, never stroked half-pixel edges.
+    for (const gx of [60, 83]) {
+      R(c, gx, 64, 17, 1, s.frame);
+      R(c, gx, 75, 17, 1, s.frame);
+      R(c, gx, 65, 1, 10, s.frame);
+      R(c, gx + 16, 65, 1, 10, s.frame);
     }
-    R(c, 77, 73, 5, 1, s.frame);   // bridge
-    R(c, 108, 73, 8, 1, s.frame);  // temple arm
-    c.globalAlpha = 0.1;
-    R(c, 54, 71, 20, 13, '#bfe4f5');
-    R(c, 84, 71, 20, 13, '#bfe4f5');
-    c.restore();
-    R(c, 54, 71, 3, 2, '#ffffff');
-
-    /* ---- nose / mouth / blush ---- */
-    R(c, 78, 88, 4, 4, s.skinShade);
-    R(c, 79, 91, 2, 2, s.skinDeep);
-    R(c, 72, 96, 14, 2, '#b05a45');
-    R(c, 70, 95, 3, 2, '#b05a45');
-    R(c, 85, 95, 3, 2, '#b05a45');
-    R(c, 74, 98, 4, 1, s.skinShade);
-    R(c, 84, 98, 4, 1, s.skinShade);
-    c.save(); c.globalAlpha = 0.32;
-    R(c, 53, 86, 10, 4, '#ee8f74');
-    R(c, 98, 86, 10, 4, '#ee8f74');
-    c.restore();
-
-    /* ---- curly bangs ---- */
-    const curls = [
-      [48, 40, 13, s.hair], [62, 32, 14, s.hair], [78, 26, 15, s.hair],
-      [95, 30, 14, s.hair], [110, 40, 12, s.hair], [56, 48, 10, s.hair],
-      [72, 46, 11, s.hair], [90, 44, 11, s.hair], [104, 50, 9, s.hair],
-    ];
-    for (const [x, y, r, col] of curls) E(c, x, y, r, r, col);
-    // highlight rings on curls
-    c.save(); c.globalAlpha = 0.55;
-    for (const [x, y, r] of curls) E(c, x - r * 0.3, y - r * 0.35, r * 0.45, r * 0.35, s.hairHi);
-    c.restore();
-    // deeper shadow under the curls
-    c.save(); c.globalAlpha = 0.5;
-    R(c, 48, 56, 16, 4, s.hairDeep);
-    R(c, 82, 54, 16, 4, s.hairDeep);
-    c.restore();
-
-    /* ---- side ponytail + ribbon ---- */
-    R(c, 112, 54, 14, 12, s.hairDeep);
-    E(c, 128, 66, 15, 16, s.hairDeep);
-    E(c, 134, 86, 13, 15, s.hair);
-    E(c, 130, 104, 11, 13, s.hair);
-    E(c, 122, 116, 9, 10, s.hairDeep);
-    E(c, 132, 74, 9, 9, s.hairHi);
-    E(c, 128, 96, 7, 8, s.hairHi);
-    // ribbon bow
-    R(c, 109, 50, 7, 5, s.blueDeep);
-    E(c, 113, 47, 7, 6, s.blue);
-    E(c, 125, 45, 7, 6, s.blue);
-    R(c, 118, 46, 4, 4, s.blueDeep);
-    E(c, 119, 49, 4, 4, s.blueHi);
-    c.save(); c.globalAlpha = 0.5;
-    R(c, 112, 44, 4, 2, '#a8d3f2');
-    R(c, 124, 42, 4, 2, '#a8d3f2');
-    c.restore();
-
-    /* ---- blazer ---- */
-    R(c, 20, 128, 120, 72, s.coat);
-    E(c, 80, 132, 60, 21, s.coat);
-    R(c, 20, 132, 9, 68, s.coatShade);
-    R(c, 131, 132, 9, 68, s.coatShade);
-    R(c, 23, 132, 3, 68, s.coatShade);
-    R(c, 134, 132, 3, 68, s.coatShade);
-    // lapels
-    for (let i = 0; i < 34; i++) {
-      R(c, 56 - i * 0.5, 122 + i, 7, 1, s.coatShade);
-      R(c, 97 + i * 0.5, 122 + i, 7, 1, s.coatShade);
+    R(c, 77, 68, 6, 1, s.frame);
+    R(c, 56, 65, 4, 1, s.frame);
+    R(c, 100, 65, 4, 1, s.frame);
+    R(c, 80, 74, 2, 8, s.skinShade);
+    R(c, 78, 81, 5, 2, s.skinShade);
+    R(c, 70, 90, 5, 1, '#a66d5a');
+    R(c, 75, 91, 10, 1, '#a66d5a');
+    R(c, 85, 90, 5, 1, '#a66d5a');
+    R(c, 61, 80, 5, 1, s.skinShade);
+    R(c, 94, 80, 5, 1, s.skinShade);
+    // Stepped shoulders, navy blazer, open light blouse and lapels.
+    E(c, 80, 147, 57, 34, s.coat);
+    R(c, 23, 147, 114, 53, s.coat);
+    R(c, 23, 148, 8, 52, s.coatShade);
+    R(c, 129, 148, 8, 52, s.coatShade);
+    R(c, 66, 109, 28, 91, s.shirtShade);
+    R(c, 73, 114, 14, 86, s.shirt);
+    for (let i = 0; i < 8; i++) {
+      R(c, 54 + i * 2, 114 + i * 6, 9, 6, s.coatHi);
+      R(c, 97 - i * 2, 114 + i * 6, 9, 6, s.coatHi);
     }
-    R(c, 62, 122, 6, 40, s.coatHi);
-    R(c, 92, 122, 6, 40, s.coatHi);
-    R(c, 64, 122, 4, 6, s.coatShade);
-    R(c, 92, 122, 4, 6, s.coatShade);
-    R(c, 63, 126, 2, 30, s.coatHi);
-    R(c, 95, 126, 2, 30, s.coatHi);
-    // shirt front + open collar
-    R(c, 68, 120, 24, 50, s.shirt);
-    R(c, 68, 120, 24, 2, s.shirtShade);
-    R(c, 68, 120, 2, 50, s.shirtShade);
-    R(c, 90, 120, 2, 50, s.shirtShade);
-    R(c, 66, 119, 5, 7, s.shirt);
-    R(c, 89, 119, 5, 7, s.shirt);
-    R(c, 67, 123, 3, 3, s.shirtShade);
-    R(c, 90, 123, 3, 3, s.shirtShade);
-    // tie
-    R(c, 77, 119, 6, 6, s.blueDeep);
-    R(c, 78, 125, 4, 25, s.blue);
-    R(c, 78, 125, 1, 25, s.blueHi);
-    R(c, 79, 150, 2, 5, s.blueDeep);
-    // gold badge on the left lapel
-    R(c, 96, 134, 10, 12, s.gold);
-    R(c, 97, 135, 8, 10, '#a63d29');
-    R(c, 99, 137, 4, 6, s.goldHi);
-    // pocket
-    R(c, 30, 168, 18, 3, s.coatShade);
-    // hem shadow
-    R(c, 28, 192, 104, 8, s.coatShade);
-
-    /* ---- laptop ---- */
-    c.save();
-    c.globalAlpha = 0.25;
-    R(c, 38, 158, 84, 42, s.screenHi);
-    c.restore();
-    // screen (lid) behind
-    R(c, 44, 152, 72, 30, s.laptopDeep);
-    R(c, 47, 155, 66, 24, s.screen);
-    // parthenon line art on screen
-    R(c, 60, 172, 40, 2, '#8fe6ee');
-    R(c, 64, 170, 32, 2, '#8fe6ee');
-    for (let i = 0; i < 7; i++) R(c, 62 + i * 6, 162, 2, 10, '#8fe6ee');
-    for (let i = 0; i < 6; i++) R(c, 70 + i * 6, 158, 1, 1, '#c9f6fa');
-    R(c, 78, 156, 3, 3, s.goldHi);
-    // hologram flicker
-    if (Math.sin(t * 2.4) > 0.4) {
-      c.save(); c.globalAlpha = 0.35;
-      R(c, 50, 156 + Math.floor((t * 10) % 20), 60, 2, '#c9f6fa');
-      c.restore();
-    }
-    // keyboard base
-    R(c, 34, 182, 92, 12, s.laptop);
-    R(c, 36, 184, 88, 6, s.laptopShade);
-    for (let i = 0; i < 11; i++) R(c, 40 + i * 8, 186, 6, 3, s.laptopDeep);
-    R(c, 46, 192, 68, 3, s.laptop);
-    // hands
-    R(c, 26, 176, 14, 12, s.skin);
-    R(c, 120, 176, 14, 12, s.skin);
-    R(c, 26, 186, 12, 3, s.skinShade);
-    R(c, 122, 186, 12, 3, s.skinShade);
-    R(c, 38, 180, 6, 8, s.skinHi);
-    R(c, 116, 180, 6, 8, s.skinHi);
-
-    /* ---- rim light ---- */
-    c.save();
-    c.globalAlpha = 0.18;
-    R(c, 20, 132, 3, 58, '#fff3d0');
-    c.restore();
+    R(c, 67, 109, 7, 7, s.shirt);
+    R(c, 71, 116, 6, 6, s.shirt);
+    R(c, 86, 109, 7, 7, s.shirt);
+    R(c, 83, 116, 6, 6, s.shirt);
+    R(c, 80, 136, 2, 2, '#a7a6a0');
+    R(c, 80, 149, 2, 2, '#a7a6a0');
+    R(c, 36, 141, 3, 52, s.coatHi);
+    R(c, 121, 141, 3, 52, s.coatShade);
+    // Research folder, paper edge, label and hands.
+    R(c, 51, 158, 58, 42, '#4b646a');
+    R(c, 55, 155, 50, 7, '#d9ded7');
+    R(c, 54, 163, 52, 37, '#667d80');
+    R(c, 58, 166, 2, 34, '#819595');
+    R(c, 65, 172, 30, 2, '#d9ded7');
+    R(c, 65, 179, 24, 2, '#b4c2bf');
+    R(c, 65, 185, 28, 2, '#b4c2bf');
+    E(c, 51, 181, 7, 10, s.skin);
+    E(c, 109, 181, 7, 10, s.skin);
+    R(c, 46, 187, 10, 2, s.skinShade);
+    R(c, 104, 187, 10, 2, s.skinShade);
+    void t;
   }
 
   /* ------------------------------------------------------------
@@ -582,20 +457,21 @@
     c.translate(Math.round(x), Math.round(y));
     c.scale(k, k);
     c.save(); c.globalAlpha = 0.22; R(c, 12, 62, 20, 2, '#2b2418'); c.restore();
-    // legs: skirt + tights
-    R(c, 13, 49, 16, 6, s.coat);
-    R(c, 14, 55, 5, 6, '#2f3540');
-    R(c, 22, 55, 5, 6, '#2f3540');
-    R(c, 13, 59, 7, 3, '#6b4a30');
-    R(c, 21, 59, 7, 3, '#6b4a30');
+    // Separate navy trouser legs and flat shoes.
+    R(c, 14, 48, 5, 12, s.coatShade);
+    R(c, 22, 48, 5, 12, s.coatShade);
+    R(c, 14, 49, 1, 9, s.coatHi);
+    R(c, 22, 49, 1, 9, s.coatHi);
+    R(c, 12, 59, 8, 3, '#171c24');
+    R(c, 21, 59, 8, 3, '#171c24');
     // body
     R(c, 11, 30, 18, 20, s.coat);
     R(c, 12, 31, 2, 18, s.coatHi);
     R(c, 26, 31, 2, 18, s.coatShade);
-    // shirt + tie
+    // Open light blouse.
     R(c, 17, 30, 6, 12, s.shirt);
-    R(c, 19, 31, 2, 10, s.blue);
-    R(c, 18, 30, 4, 3, s.blueDeep);
+    R(c, 19, 30, 2, 3, s.skinShade);
+    R(c, 19, 35, 1, 1, s.shirtShade);
     // lapels
     R(c, 15, 31, 2, 10, s.coatShade);
     R(c, 23, 31, 2, 10, s.coatShade);
@@ -604,31 +480,30 @@
     R(c, 28, 32, 4, 13, s.coat);
     R(c, 8, 43, 4, 6, s.skin);
     R(c, 28, 43, 4, 6, s.skin);
-    // laptop
-    R(c, 12, 39, 16, 9, s.laptopShade);
-    R(c, 13, 40, 14, 7, s.screen);
-    R(c, 15, 43, 10, 1, s.screenHi);
-    R(c, 16, 41, 8, 1, s.screenHi);
-    R(c, 11, 47, 18, 2, s.laptop);
-    R(c, 12, 47, 16, 1, s.laptopShade);
+    // Research folder with a pale paper edge.
+    R(c, 12, 40, 16, 12, '#4b646a');
+    R(c, 13, 39, 14, 2, '#d9ded7');
+    R(c, 14, 42, 12, 9, '#667d80');
+    R(c, 16, 44, 8, 1, '#d9ded7');
+    R(c, 16, 47, 6, 1, '#b4c2bf');
     R(c, 9, 43, 3, 5, s.skin);
     R(c, 28, 43, 3, 5, s.skin);
     // neck + head
     R(c, 18, 27, 4, 3, s.skinShade);
     R(c, 12, 13, 16, 15, s.hairDeep);
     R(c, 13, 14, 14, 13, s.skin);
-    // curly hair
-    R(c, 11, 11, 18, 6, s.hair);
-    E(c, 13, 16, 4, 4, s.hair);
-    E(c, 20, 14, 4, 4, s.hair);
-    E(c, 26, 16, 4, 4, s.hair);
-    E(c, 16, 11, 4, 3, s.hair);
-    E(c, 23, 11, 4, 3, s.hair);
-    R(c, 14, 12, 5, 2, s.hairHi);
-    R(c, 22, 10, 4, 2, s.hairHi);
-    // ponytail
-    E(c, 29, 20, 4, 6, s.hair);
-    R(c, 28, 16, 4, 3, s.blue);
+    // Shoulder-length chestnut hair, stepped fringe and silver temples.
+    R(c, 11, 12, 18, 5, s.hair);
+    R(c, 14, 10, 12, 3, s.hair);
+    R(c, 10, 16, 3, 14, s.hairDeep);
+    R(c, 27, 16, 3, 14, s.hairDeep);
+    R(c, 11, 16, 2, 12, s.hair);
+    R(c, 27, 16, 2, 12, s.hair);
+    R(c, 13, 16, 5, 2, s.hair);
+    R(c, 23, 16, 4, 3, s.hair);
+    R(c, 15, 12, 6, 1, s.hairHi);
+    R(c, 12, 17, 1, 7, '#b9b1a8');
+    R(c, 27, 18, 1, 7, '#b9b1a8');
     // ears
     R(c, 11, 20, 2, 3, s.skin);
     R(c, 27, 20, 2, 3, s.skin);

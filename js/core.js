@@ -271,6 +271,7 @@
       // opts: { name, text, options:[{label, value(chosen)}, ...] }
       this.onPick = cb || null;
       this.show([{
+        who: opts.who,
         name: opts.name,
         text: opts.text,
         _opts: opts.options || [{ label: '是', value: true }, { label: '否', value: false }],
@@ -282,6 +283,25 @@
       if (!line) { this.close(); return; }
       this.el.classList.toggle('narrator', !!line.narrator);
       G.$('#dlg-name').textContent = line.name || (line.narrator ? '手记' : '旅人');
+      let portrait = this.el.querySelector('.dlg-portrait');
+      if (!portrait) {
+        portrait = document.createElement('canvas');
+        portrait.className = 'dlg-portrait';
+        portrait.width = 160; portrait.height = 200;
+        this.el.prepend(portrait);
+      }
+      const mentorName = G.str && G.str.who('diotima').name;
+      const speaker = line.who || (mentorName && line.name === mentorName ? 'diotima' : null);
+      const visible = !line.narrator && (speaker === 'diotima' || speaker === 'player');
+      portrait.classList.toggle('hidden', !visible);
+      this.el.classList.toggle('has-portrait', visible);
+      if (visible && G.portraits) {
+        const pc = portrait.getContext('2d');
+        pc.clearRect(0, 0, 160, 200);
+        G.portraits.draw(pc, speaker === 'diotima' ? 'mentor' : 'hero', 0, 0, 1, 0);
+        portrait.setAttribute('role', 'img');
+        portrait.setAttribute('aria-label', line.name || speaker);
+      }
       const target = line.text || '';
       this.full = target;
       this.shown = 0;
@@ -522,7 +542,7 @@
     G.save.persist();
   };
   G.isWorldPaused = function () {
-    return G.overlayDepth > 0 || G.dialog.active || G.cinema.active || G.fade.busy ||
+    return G.overlayDepth > 0 || G.levelsOpen || G.dialog.active || G.cinema.active || G.fade.busy ||
       (G.minigame && G.minigame.active) || (G.titleActive !== false);
   };
 

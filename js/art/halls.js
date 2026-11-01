@@ -192,6 +192,23 @@
     });
   });
 
+  /* 台面先于殿身绘制；前缘和台阶仍由 hall.terrace 在前景绘制。 */
+  G.mod.painter('hall.terrace.deck', function (ctx, prop) {
+    const o = prop.opt || {};
+    const w = o.w || 560;
+    const top = o.topY == null ? prop.baseY : o.topY;
+    const front = o.frontY == null ? top + 121 : o.frontY;
+    ctx.save();
+    ctx.fillStyle = '#a29889';
+    ctx.fillRect(prop.x - w / 2, top, w, front - top);
+    ctx.fillStyle = '#b7ad9c';
+    ctx.fillRect(prop.x - w / 2, top, w, 2);
+    ctx.fillStyle = '#8a8073';
+    for (let y = top + 18; y < front; y += 18) ctx.fillRect(prop.x - w / 2, y, w, 1);
+    for (let x = prop.x - w / 2 + 40; x < prop.x + w / 2; x += 40) ctx.fillRect(x, top + 2, 1, front - top - 2);
+    ctx.restore();
+  });
+
   /* 月台：台基 + 栏杆 + 三段台阶 + 卫城山墙投影轮廓
      layerStones = 1 → 露出底下故宫自己的石雕，投影同时淡到 0.15
      layerImages = 0 → 投影整层不画
@@ -241,6 +258,21 @@
       ctx.fillRect(x - s[1] / 2, s[0], s[1], 20);
     });
 
+    /* 玩家写入规则后，标记画在台阶表面，避免被不透明台阶盖住。 */
+    if (v.keepSteps) {
+      ctx.save();
+      ctx.strokeStyle = v.keepSteps === 'keep' ? '#8cdbc3' : '#d8b26a';
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.lineWidth = 2;
+      if (v.keepSteps !== 'drop') {
+        ctx.setLineDash(v.keepSteps === 'note' ? [4, 4] : []);
+        ctx.beginPath(); ctx.moveTo(x - 36, y + 7); ctx.lineTo(x + 36, y + 7); ctx.stroke();
+      }
+      ctx.font = '10px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(v.keepSteps === 'keep' ? '已保留 · 走近与抬头' : v.keepSteps === 'note' ? '待核 · 暂未写入规则' : '未采用 · 建筑仍留在原位', x, y + 22);
+      ctx.restore();
+    }
+
     /* 卫城投影：山墙轮廓，半透明青灰，叠在殿身之上（不是替换） */
     if (v.layerImages !== 0) {
       const alpha = v.layerStones === 1 ? 0.15 : 0.26;
@@ -264,7 +296,7 @@
     }
 
     /* 标签层被搞乱：栏杆上三行错位的短横，像没渲染完的字 */
-    if (v.labelGlitch) {
+    if (v.labelGlitch && (v.labelsDone || 0) < 3) {
       ctx.globalAlpha = 0.55;
       ctx.fillStyle = '#b87f6a';
       for (let r = 0; r < 3; r++) {
@@ -288,13 +320,20 @@
     const spots = (prop.opt && prop.opt.at) || [];
     ctx.save();
     plaques.forEach(function (q, i) {
-      const at = spots[i] || { dx: 0, dy: 0 };
+      const done = i < (v.labelsDone || 0);
+      const resolved = (prop.opt && prop.opt.resolved) || spots;
+      const at = (done ? resolved[i] : spots[i]) || { dx: 0, dy: 0 };
+      const glitch = v.labelGlitch && !done;
       const px = prop.x + (at.dx || 0);
       const py = prop.baseY + (at.dy || 0);
+      /* A short physical stem connects each label to its exhibit. */
+      ctx.globalAlpha=.8;ctx.strokeStyle='#81725c';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(px,py+4);ctx.lineTo(px,py+15);ctx.stroke();
+      ctx.fillStyle='#655c50';ctx.fillRect(px-10,py+14,20,3);
       const text = q.text || '';
       if (!text) return;
       const wid = Math.max(52, text.length * 11 + 10);
-      ctx.globalAlpha = v.labelGlitch ? 0.55 : 0.8;
+      ctx.globalAlpha = glitch ? 0.55 : 0.8;
       ctx.fillStyle = 'rgba(24,18,13,.78)';
       ctx.fillRect(px - wid / 2, py - 9, wid, 14);
       ctx.globalAlpha = 0.5;
@@ -302,7 +341,7 @@
       ctx.strokeRect(px - wid / 2, py - 9, wid, 14);
       ctx.globalAlpha = 0.95;
       G.text(ctx, text, px, py - 2, {
-        size: 9, color: v.labelGlitch ? '#c98f77' : '#d8c9a8', align: 'center',
+        size: 9, color: glitch ? '#c98f77' : (done && i < 2 ? '#a7c8d2' : '#d8c9a8'), align: 'center',
         outline: 'rgba(8,6,4,.85)', outlineWidth: 1,
       });
     });
@@ -333,7 +372,13 @@
       ctx.save();
       if (o.style === 'stone') {
         ctx.fillStyle = '#c9c0ad';
-        ctx.fillRect(px - 7 + tilt, y - hh, 14, hh);
+        ctx.beginPath();
+        ctx.moveTo(px - 9 + tilt, y - 6);ctx.lineTo(px - 5 + tilt, y - hh + 28);
+        ctx.lineTo(px + 5 + tilt, y - hh + 28);ctx.lineTo(px + 9 + tilt, y - 6);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.arc(px + tilt, y - hh + 18, 6, 0, Math.PI * 2);ctx.fill();
+        ctx.fillRect(px - 7 + tilt, y - hh + 24, 14, 8);
+        ctx.strokeStyle='#9c9382';ctx.lineWidth=1;
+        for(let fold=-1;fold<=1;fold++){ctx.beginPath();ctx.moveTo(px+fold*3,y-hh+38);ctx.lineTo(px+fold*5,y-10);ctx.stroke();}
         ctx.fillStyle = '#b3a996';
         ctx.fillRect(px - 11 + tilt, y - hh - 10, 22, 10);
         ctx.fillStyle = '#8c8374';
@@ -347,8 +392,16 @@
         ctx.fillRect(px - 10, y - 5, 20, 5);
       }
 
+      /* Joint marks sit below the load beam, which is painted after stone columns. */
+      const method = v[o.style === 'stone' ? 'stoneMethod' : 'woodMethod'];
+      if (method) {
+        ctx.strokeStyle = method === 'dowel' ? '#b9c1bd' : '#d8b26a';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(px-7,y-hh+10);ctx.lineTo(px+7,y-hh+10);ctx.stroke();
+        if(method === 'tenon')ctx.strokeRect(px-3,y-hh+4,6,10);
+        if(method === 'dowel')ctx.fillRect(px-1,y-hh+1,2,14);
+      }
       /* 裂纹：塌过一次就一直留着 */
-      if (v.crack) {
+      if (v[o.style === 'stone' ? 'crackStone' : 'crackWood'] || (mine && v.crack)) {
         ctx.globalAlpha = 0.75;
         ctx.strokeStyle = '#2a221b';
         ctx.lineWidth = 1;
@@ -365,7 +418,7 @@
       }
 
       /* 起灰：低透明度土色颗粒 */
-      if (v.dust) {
+      if (mine && v.dust) {
         ctx.globalAlpha = 0.35;
         ctx.fillStyle = '#8d7a5e';
         for (let d = 0; d < 12; d++) {
@@ -379,6 +432,12 @@
     }
   });
 
+  G.mod.painter('hall.loadbeam', function(ctx,prop,scene){
+    const v=V(scene), y=prop.baseY-102;
+    ctx.save();ctx.fillStyle='#a29886';ctx.fillRect(138,y,328,13);
+    if(v.sag){const left=v.sagSide==='stone'?138:360;ctx.fillStyle='#665c4e';ctx.fillRect(left,y+13,106,v.sag*12);}
+    ctx.strokeStyle='#d4c9b5';ctx.strokeRect(138,y,328,13);ctx.restore();
+  });
   /* 修复台：一张长桌、几片纸、一盏台灯
      crackCount 0..3 → 纸面上多几道折痕
      stampUnfounded = 1 → 右下角压一枚"未成立"的印 */
@@ -451,6 +510,11 @@
     /* 顶钮 */
     ctx.fillStyle = '#a98a56';
     ctx.fillRect(x - 3, y - s * 2 - 6, 6, 6);
+    /* Clock face and native wooden housing remain together after correction. */
+    ctx.fillStyle='#e9dfc6';ctx.beginPath();ctx.arc(x,y-s*1.16,s*.62,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#4a3b26';ctx.lineWidth=1;
+    for(let k=0;k<12;k++){const a=k*Math.PI/6;ctx.beginPath();ctx.moveTo(x+Math.sin(a)*s*.46,y-s*1.16-Math.cos(a)*s*.46);ctx.lineTo(x+Math.sin(a)*s*.55,y-s*1.16-Math.cos(a)*s*.55);ctx.stroke();}
+    ctx.beginPath();ctx.moveTo(x,y-s*1.55);ctx.lineTo(x,y-s*1.16);ctx.lineTo(x+s*.3,y-s*.98);ctx.stroke();
     /* 外来构件：齿轮 + 铅灌铁销 */
     const foreignAlpha = verdict === 'stripped' ? 0.12 : 0.9;
     ctx.globalAlpha = foreignAlpha;
@@ -482,7 +546,11 @@
       ctx.fillRect(x - s, y + 2, s * 2, 9);
       ctx.globalAlpha = 0.6;
       ctx.fillStyle = '#8f7c5e';
-      for (let i = 0; i < 3; i++) ctx.fillRect(x - s + 3 + i * 9, y + 5, 6, 2);
+      if(verdict === 'fusion'){
+        ctx.fillStyle='#9cbec6';ctx.fillRect(x-s+3,y+4,s-5,2);
+        ctx.fillStyle='#8b6738';ctx.fillRect(x+2,y+4,s-5,2);
+        ctx.strokeStyle='#346c53';ctx.beginPath();ctx.moveTo(x+s-8,y+7);ctx.lineTo(x+s-5,y+9);ctx.lineTo(x+s-1,y+3);ctx.stroke();
+      } else for (let i = 0; i < 3; i++) ctx.fillRect(x - s + 3 + i * 9, y + 5, 6, 2);
       ctx.globalAlpha = 1;
     }
     ctx.restore();
@@ -499,38 +567,20 @@
     ctx.save();
     ctx.fillStyle = '#241d18';
     ctx.fillRect(x - 70, y - 104, 140, 104);
-    ctx.fillStyle = signed ? '#16343a' : '#101a1e';
+    ctx.fillStyle = signed ? '#16343a' : '#173039';
     ctx.fillRect(x - 62, y - 96, 124, 78);
 
-    if (signed) {
-      /* 整屏亮：网格 + 两条参考线 */
-      ctx.globalAlpha = 0.55;
-      ctx.strokeStyle = '#7c929e';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 6; i++) {
-        ctx.beginPath();
-        ctx.moveTo(x - 58, y - 88 + i * 12);
-        ctx.lineTo(x + 58, y - 88 + i * 12);
-        ctx.stroke();
+    /* A lit nine-cell sandbox exists before signing. Signing approves sources. */
+    ctx.globalAlpha=.75;ctx.strokeStyle='#7c929e';ctx.lineWidth=1;
+    for(let row=0;row<3;row++)for(let col=0;col<3;col++)ctx.strokeRect(x-57+col*38,y-91+row*23,35,20);
+    if(v.keepWhat){
+      const colors=['#d8b26a','#9cbec6','#c99587'];
+      for(let i=0;i<3;i++){
+        const col=v.keepWhat==='acropolis_axis'?1:i;
+        ctx.fillStyle=colors[i];ctx.fillRect(x-53+col*38,y-86+i*23,24,10);
       }
-      ctx.globalAlpha = 0.9;
-      ctx.strokeStyle = v.keepWhat === 'acropolis_axis' ? '#7c929e' : '#d8b26a';
-      ctx.beginPath();
-      ctx.moveTo(x - 5, y - 88);
-      ctx.lineTo(x - 5, y - 22);
-      ctx.stroke();
-      ctx.strokeStyle = v.keepWhat === 'acropolis_axis' ? '#d8b26a' : '#7c929e';
-      ctx.beginPath();
-      ctx.moveTo(x - 46, y - 30);
-      ctx.lineTo(x + 46, y - 30);
-      ctx.stroke();
-    } else {
-      /* 未签：只有边框亮 */
-      ctx.globalAlpha = 0.5;
-      ctx.strokeStyle = '#7c929e';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x - 62, y - 96, 124, 78);
     }
+    if(signed){ctx.strokeStyle='#ffd479';ctx.beginPath();ctx.moveTo(x+28,y-26);ctx.lineTo(x+36,y-20);ctx.lineTo(x+51,y-35);ctx.stroke();}
     ctx.globalAlpha = 0.85;
     ctx.fillStyle = signed ? '#ffd479' : '#6a5a3c';
     ctx.fillRect(x - 30, y - 10, 60, 6);
@@ -641,6 +691,29 @@
     ctx.restore();
   });
 
+  G.mod.painter('mentor.diotima', function(ctx,prop,scene){
+    ctx.save();ctx.translate(prop.x,prop.baseY==null?prop.y:prop.baseY);ctx.scale(.16,.16);
+    G.mod.paint('portrait.diotima',ctx,{w:240,h:360},scene);ctx.restore();
+  });
+  /* Physical comparison models on the terrace, each resting on a plinth. */
+  G.mod.painter('hall.references',function(ctx,prop,scene){
+    const v=V(scene);if(v.layerImages===0)return;
+    const y=prop.baseY;ctx.save();ctx.globalAlpha=v.layerStones===1?.45:.85;
+    ctx.fillStyle='#7a807b';ctx.fillRect(110,y,140,7);ctx.fillRect(394,y,136,7);
+    ctx.fillStyle='#b2c0bd';ctx.strokeStyle='#718c96';ctx.lineWidth=2;
+    /* East pediment: actual triangular gable and column supports. */
+    ctx.beginPath();ctx.moveTo(114,y-44);ctx.lineTo(180,y-78);ctx.lineTo(246,y-44);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillRect(116,y-44,128,8);
+    for(let i=0;i<6;i++){ctx.fillRect(124+i*21,y-36,7,36);ctx.fillRect(121+i*21,y-39,13,4);}
+    /* Caryatid porch: six human silhouettes support the entablature. */
+    ctx.fillRect(396,y-60,132,9);
+    for(let i=0;i<6;i++){
+      const x=406+i*22;ctx.beginPath();ctx.arc(x,y-43,5,0,Math.PI*2);ctx.fill();
+      ctx.fillRect(x-7,y-53,14,5);ctx.beginPath();ctx.moveTo(x-5,y-37);ctx.lineTo(x+5,y-37);ctx.lineTo(x+8,y);ctx.lineTo(x-8,y);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#788f93';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,y-33);ctx.lineTo(x,y-4);ctx.stroke();
+    }
+    ctx.restore();
+  });
   /* 树丛（御花园，opt: n / size） */
   G.mod.painter('hall.trees', function (ctx, prop) {
     const o = prop.opt || {};

@@ -1,249 +1,129 @@
-/* ============================================================
-   A · 美术  立绘画笔（过场用）
-   ------------------------------------------------------------
-   过场里的 { t:'portrait', who:'diotima' } 会去找 painter 'portrait.<who>'。
-   画布固定 240 × 360，**原点 = 脚底中心**（js/cut.js 的 _paint 会
-   translate 到 (width/2, height-12)），所以往上画就是负 y。
-
-   画法约定和别处一样：纯函数、只画、不读存档、不弹窗、不写文字。
-   立绘是"人"，不是"界面"，所以不画边框、不画名牌。
-   ============================================================ */
+/* Modern Athenian doctoral supervisor. Feet-centered 240 x 360 portrait API. */
 (function () {
   'use strict';
   const G = window.G;
   if (!G || !G.mod) return;
-
-  const INK = '#241d19';
-  const GOLD = '216,178,106';
-
-  function robe(ctx) {
-    /* 希顿长袍：从脚踝到头肩，右深左浅 */
-    ctx.beginPath();
-    ctx.moveTo(-52, -6);
-    ctx.quadraticCurveTo(-58, -96, -40, -168);
-    ctx.quadraticCurveTo(-30, -212, -20, -226);
-    ctx.lineTo(22, -226);
-    ctx.quadraticCurveTo(32, -208, 42, -166);
-    ctx.quadraticCurveTo(56, -92, 50, -6);
-    ctx.quadraticCurveTo(0, 6, -52, -6);
-    ctx.closePath();
-    ctx.fillStyle = '#e9e1d0';
-    ctx.fill();
-
-    /* 右半边的暗部，让袍子有体积 */
-    ctx.save();
-    ctx.clip();
-    ctx.beginPath();
-    ctx.moveTo(14, -232);
-    ctx.quadraticCurveTo(40, -150, 52, -4);
-    ctx.lineTo(64, -4);
-    ctx.lineTo(64, -232);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(176,158,132,0.55)';
-    ctx.fill();
-    /* 布褶 */
-    ctx.strokeStyle = 'rgba(150,132,108,0.5)';
-    ctx.lineWidth = 1.6;
-    for (let i = 0; i < 5; i++) {
-      const x = -34 + i * 17;
-      ctx.beginPath();
-      ctx.moveTo(x, -20);
-      ctx.quadraticCurveTo(x + 3, -110, x - 2, -196);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  function himation(ctx) {
-    /* 希玛纯：深青披巾，从左肩斜到右胯 */
-    ctx.beginPath();
-    ctx.moveTo(-24, -228);
-    ctx.quadraticCurveTo(-48, -198, -46, -150);
-    ctx.quadraticCurveTo(-40, -96, 6, -74);
-    ctx.quadraticCurveTo(34, -66, 52, -74);
-    ctx.quadraticCurveTo(44, -140, 20, -206);
-    ctx.quadraticCurveTo(6, -232, -24, -228);
-    ctx.closePath();
-    ctx.fillStyle = '#31485c';
-    ctx.fill();
-
-    ctx.save();
-    ctx.clip();
-    ctx.strokeStyle = 'rgba(20,34,46,0.7)';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.moveTo(-40 + i * 6, -196);
-      ctx.quadraticCurveTo(-10 + i * 10, -140, 40, -110 + i * 12);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    /* 披巾边缘一道金线 */
-    ctx.beginPath();
-    ctx.moveTo(-24, -228);
-    ctx.quadraticCurveTo(-48, -198, -46, -150);
-    ctx.quadraticCurveTo(-40, -96, 6, -74);
-    ctx.strokeStyle = 'rgba(' + GOLD + ',0.55)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  function head(ctx) {
-    /* 脖子 */
-    ctx.beginPath();
-    ctx.moveTo(-10, -230);
-    ctx.lineTo(10, -230);
-    ctx.lineTo(9, -246);
-    ctx.lineTo(-9, -246);
-    ctx.closePath();
-    ctx.fillStyle = '#c9a37c';
-    ctx.fill();
-
-    /* 后发：盘髻 + 两侧卷发 */
-    ctx.beginPath();
-    ctx.moveTo(-26, -262);
-    ctx.quadraticCurveTo(-30, -296, -6, -302);
-    ctx.quadraticCurveTo(20, -304, 27, -282);
-    ctx.quadraticCurveTo(30, -266, 22, -256);
-    ctx.quadraticCurveTo(14, -276, -4, -278);
-    ctx.quadraticCurveTo(-18, -280, -26, -262);
-    ctx.closePath();
-    ctx.fillStyle = INK;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(-2, -318, 15, 11, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    /* 脸 */
-    ctx.beginPath();
-    ctx.moveTo(-19, -286);
-    ctx.quadraticCurveTo(-21, -258, -8, -246);
-    ctx.quadraticCurveTo(2, -240, 12, -248);
-    ctx.quadraticCurveTo(22, -260, 19, -284);
-    ctx.quadraticCurveTo(6, -296, -19, -286);
-    ctx.closePath();
-    ctx.fillStyle = '#dcbb92';
-    ctx.fill();
-
-    /* 眉、眼、唇：简笔，别画太细（像素风里会糊） */
-    ctx.strokeStyle = INK;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-12, -276);
-    ctx.lineTo(-3, -274);
-    ctx.moveTo(4, -274);
-    ctx.lineTo(13, -276);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.ellipse(-7, -270, 3.4, 2.2, 0, 0, Math.PI * 2);
-    ctx.ellipse(8, -270, 3.4, 2.2, 0, 0, Math.PI * 2);
-    ctx.fillStyle = INK;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-2, -258);
-    ctx.quadraticCurveTo(3, -255, 8, -258);
-    ctx.strokeStyle = '#a9705f';
-    ctx.lineWidth = 2.4;
-    ctx.stroke();
-
-    /* 前额的深色发际 */
-    ctx.beginPath();
-    ctx.moveTo(-19, -286);
-    ctx.quadraticCurveTo(-4, -298, 19, -284);
-    ctx.quadraticCurveTo(6, -292, -8, -290);
-    ctx.closePath();
-    ctx.fillStyle = INK;
-    ctx.fill();
-
-    /* 金发带 */
-    ctx.beginPath();
-    ctx.moveTo(-20, -292);
-    ctx.quadraticCurveTo(0, -303, 21, -289);
-    ctx.strokeStyle = 'rgba(' + GOLD + ',0.95)';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-  }
-
-  function scroll(ctx) {
-    /* 左手握卷轴：几卷纸 + 一道系带 */
-    ctx.save();
-    ctx.translate(-46, -150);
-    ctx.rotate(-0.22);
-    ctx.fillStyle = '#f2e7cf';
-    ctx.fillRect(-6, -34, 13, 68);
-    ctx.fillStyle = '#e0d0ad';
-    ctx.fillRect(-6, -34, 13, 8);
-    ctx.fillRect(-6, 26, 13, 8);
-    ctx.strokeStyle = 'rgba(150,120,80,0.6)';
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.moveTo(-6, -14);
-    ctx.lineTo(7, -14);
-    ctx.stroke();
-    ctx.restore();
-
-    /* 握卷轴的手 */
-    ctx.beginPath();
-    ctx.ellipse(-44, -158, 10, 12, -0.2, 0, Math.PI * 2);
-    ctx.fillStyle = '#d6b189';
-    ctx.fill();
-  }
-
-  function arm(ctx) {
-    /* 右手：从披巾里伸出来，轻轻提着布边 */
-    ctx.beginPath();
-    ctx.moveTo(26, -212);
-    ctx.quadraticCurveTo(46, -178, 40, -142);
-    ctx.quadraticCurveTo(38, -124, 30, -122);
-    ctx.strokeStyle = '#dcbb92';
-    ctx.lineWidth = 13;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.ellipse(29, -118, 9, 11, 0.2, 0, Math.PI * 2);
-    ctx.fillStyle = '#d6b189';
-    ctx.fill();
-  }
-
   G.mod.painter('portrait.diotima', function (ctx, prop) {
-    const w = (prop && prop.w) || 240;
-    const h = (prop && prop.h) || 360;
-
-    /* 地面的一小圈暖光：让人物不像贴在空气里 */
-    const g = ctx.createRadialGradient(0, -20, 6, 0, -20, 120);
-    g.addColorStop(0, 'rgba(' + GOLD + ',0.22)');
-    g.addColorStop(1, 'rgba(' + GOLD + ',0)');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.ellipse(0, -18, 96, 40, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(0, -4, 52, 9, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fill();
-
-    robe(ctx);
-    arm(ctx);
-    himation(ctx);
-    scroll(ctx);
-    head(ctx);
-
-    /* 头顶一点边缘光，和游戏里的金色时刻一致 */
-    ctx.beginPath();
-    ctx.moveTo(-22, -286);
-    ctx.quadraticCurveTo(-4, -306, 20, -286);
-    ctx.strokeStyle = 'rgba(' + GOLD + ',0.35)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    /* 画布比画的实际高度略高，留白由 CSS 的 drop-shadow 收住 */
-    void w; void h;
+    // Local integer primitives also work when the portrait gallery is not loaded.
+    function R(x, y, w, h, color) {
+      if (w <= 0 || h <= 0) return;
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    }
+    function E(cx, cy, rx, ry, color) {
+      for (let y = Math.ceil(cy - ry); y < Math.ceil(cy + ry); y++) {
+        const dy = (y + 0.5 - cy) / ry;
+        if (Math.abs(dy) > 1) continue;
+        const hw = Math.floor(rx * Math.sqrt(Math.max(0, 1 - dy * dy)) + 0.5);
+        if (hw > 0) R(cx - hw, y, hw * 2, 1, color);
+      }
+    }
+    const s = {
+      skin: '#f6cfa9', skinShade: '#dca87f',
+      hair: '#6f4a34', hairHi: '#9c6d4c', hairDeep: '#4a2f22',
+      coat: '#26365c', coatShade: '#1a2742', coatHi: '#3a5282',
+      shirt: '#faf6ec', shirtShade: '#ded7c7', frame: '#4a3320'
+    };
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    E(0, -3, 43, 5, 'rgba(0,0,0,.28)');
+    // Separate long trouser legs, seams, and flat shoes at the feet anchor.
+    R(-31, -145, 28, 129, s.coatShade);
+    R(5, -145, 28, 129, s.coatShade);
+    R(-27, -137, 3, 115, s.coatHi);
+    R(10, -137, 3, 115, s.coatHi);
+    R(-31, -20, 28, 7, s.coat);
+    R(5, -20, 28, 7, s.coat);
+    R(-35, -14, 31, 11, '#171c24');
+    R(-40, -9, 36, 6, '#171c24');
+    R(6, -14, 29, 11, '#171c24');
+    R(6, -9, 37, 6, '#171c24');
+    R(-39, -4, 35, 1, '#414d5c');
+    R(6, -4, 36, 1, '#414d5c');
+    // Light open blouse beneath a navy tailored blazer.
+    R(-10, -245, 20, 23, s.skinShade);
+    R(-6, -242, 12, 17, s.skin);
+    E(0, -211, 47, 22, s.coat);
+    R(-42, -213, 84, 75, s.coat);
+    R(-42, -204, 7, 66, s.coatShade);
+    R(35, -204, 7, 66, s.coatShade);
+    R(-13, -229, 26, 89, s.shirtShade);
+    R(-7, -221, 14, 81, s.shirt);
+    for (let i = 0; i < 9; i++) {
+      R(-26 + i * 2, -228 + i * 6, 8, 6, s.coatHi);
+      R(18 - i * 2, -228 + i * 6, 8, 6, s.coatHi);
+    }
+    R(-12, -230, 7, 7, s.shirt);
+    R(-8, -223, 6, 6, s.shirt);
+    R(5, -230, 7, 7, s.shirt);
+    R(2, -223, 6, 6, s.shirt);
+    R(1, -181, 2, 2, '#a7a6a0');
+    R(1, -168, 2, 2, '#a7a6a0');
+    // Sleeves have explicit stair steps rather than diagonal canvas paths.
+    R(-49, -214, 13, 29, s.coat);
+    R(-53, -185, 14, 30, s.coat);
+    R(-53, -181, 3, 24, s.coatHi);
+    R(36, -214, 12, 29, s.coatShade);
+    R(40, -185, 13, 26, s.coatShade);
+    R(41, -160, 11, 4, s.shirt);
+    E(46, -150, 7, 10, s.skin);
+    R(42, -144, 8, 2, s.skinShade);
+    // Research folder against her left arm; paper and label remain clear small.
+    R(-58, -194, 35, 58, '#4b646a');
+    R(-55, -197, 29, 7, '#d9ded7');
+    R(-54, -187, 28, 48, '#667d80');
+    R(-52, -185, 2, 44, '#819595');
+    R(-47, -179, 17, 2, '#d9ded7');
+    R(-47, -172, 14, 2, '#b4c2bf');
+    R(-47, -165, 17, 2, '#b4c2bf');
+    E(-42, -151, 8, 10, s.skin);
+    R(-48, -145, 12, 2, s.skinShade);
+    // Shoulder-length chestnut hair behind a mature face.
+    E(0, -274, 32, 43, s.hairDeep);
+    R(-32, -277, 14, 43, s.hairDeep);
+    R(18, -277, 14, 43, s.hairDeep);
+    R(-29, -267, 5, 30, s.hair);
+    R(25, -267, 4, 30, s.hair);
+    E(0, -272, 23, 31, s.skin);
+    E(-23, -272, 3, 6, s.skinShade);
+    E(23, -272, 3, 6, s.skinShade);
+    R(-21, -280, 3, 14, s.skinShade);
+    R(18, -280, 3, 14, s.skinShade);
+    // Pixel cap and swept fringe, with silver at both temples.
+    E(0, -296, 27, 17, s.hair);
+    R(-27, -297, 9, 18, s.hair);
+    R(-20, -299, 15, 13, s.hair);
+    R(-7, -302, 17, 11, s.hair);
+    R(9, -298, 13, 13, s.hair);
+    R(21, -290, 9, 17, s.hair);
+    R(-17, -306, 12, 3, s.hairHi);
+    R(11, -303, 8, 3, s.hairHi);
+    R(-22, -294, 2, 10, '#b9b1a8');
+    R(-25, -284, 2, 16, '#b9b1a8');
+    R(21, -291, 2, 10, '#b9b1a8');
+    R(25, -281, 2, 15, '#b9b1a8');
+    R(-17, -284, 12, 2, s.hairDeep);
+    R(5, -284, 12, 2, s.hairDeep);
+    // Rectangular glasses made only of integer bars.
+    for (const gx of [-19, 3]) {
+      R(gx, -280, 16, 1, s.frame);
+      R(gx, -270, 16, 1, s.frame);
+      R(gx, -279, 1, 9, s.frame);
+      R(gx + 15, -279, 1, 9, s.frame);
+    }
+    R(-3, -276, 6, 1, s.frame);
+    R(-23, -279, 4, 1, s.frame);
+    R(19, -279, 4, 1, s.frame);
+    R(-12, -276, 3, 4, '#241713');
+    R(9, -276, 3, 4, '#241713');
+    R(0, -269, 2, 8, s.skinShade);
+    R(-2, -262, 5, 2, s.skinShade);
+    R(-8, -253, 4, 1, '#a66d5a');
+    R(-4, -252, 8, 1, '#a66d5a');
+    R(4, -253, 4, 1, '#a66d5a');
+    R(-17, -265, 4, 1, s.skinShade);
+    R(13, -265, 4, 1, s.skinShade);
+    ctx.restore();
+    void prop;
   });
 })();
